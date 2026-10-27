@@ -69,6 +69,49 @@ jobs:
           include-hidden-files: true
           retention-days: 7
 
+  submission-prepare:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E, F]
+        native_variant: [baseline, lean]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Produce and readmit W256 ELF files without launching them
+        # Submission profiles have no rules/runtime/qualification path here.
+        # Even a within-limit file remains prepared_unqualified.
+        run: |
+          set -o pipefail
+          ELF_SUBMISSION_OUT='${{ runner.temp }}/rove4k-elf-submission-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.run_attempt }}'
+          mkdir "$ELF_SUBMISSION_OUT"
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py produce \
+            --entry '${{ matrix.entry }}' --profile tcec-provisional \
+            --native-variant '${{ matrix.native_variant }}' \
+            --out "$ELF_SUBMISSION_OUT/build" --execute \
+            2>&1 | tee "$ELF_SUBMISSION_OUT/produce.log"
+          python -I -B engines/experiments/tcec-next/elf_profile.py admit --build "$ELF_SUBMISSION_OUT/build"
+      - name: Preserve preparation costs and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-W256-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-elf-submission-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
   full-profiles:
     needs: source-contracts
     runs-on: ubuntu-24.04

@@ -709,15 +709,17 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 692 다섯 CI·engine26/26·975/39 / D4689 비용 보존] --> PREP[공통 준비: source·representation·규칙·소유자]
+  DONE[완료: 7ce 여덟 CI / W256 source-JIT 준비5 / D4689 보존·정지] --> PREP[공통 준비: source·representation·규칙·소유자]
   PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
-  PREP --> MATE[A/B/C/E 공통 mate 정규화 두 형태 / F 이미 적용]
+  PREP --> MATE[완료·미채택: mate8개 비용 손실 / F 이미 적용]
+  PREP --> EP[C/E EP 공유: 실제 P4 -8/-12 B / 6 profile·표적·production 인수]
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
   PREP --> W256[별도 W256 compile/package 준비 / 대형 TT 실행 없음]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
   SIZE -->|초과| DEFER[계열별 deferred_size·재측정 조건 보존]
   SIZE --> ELFR[실제 복원·startup·전체 기능·R·소유권 / 초과는 비점수 관측]
   MATE --> COST[동일 기준 native·whole 반복 비교 / 의미·기능 gate]
+  EP --> COST
   LEAGUEFIX --> CI[실제 caller·순수·source-bound CI]
   COST --> CI
   ELFR --> CI
@@ -804,3 +806,15 @@ W256 준비의15ab682/CI40476243172는 순수 정책 검사와 실제5계열 생
 정책의 P4 비용·기능5개를 구현한다. 앞선 기본 ELF10개와 기존 production 선택을 유지한다.
 Lean은 source-JIT control compiler를 변경하지 않고 파생 ELF의 unwind/build-id·B symbol
 metadata만 줄인다. 실제 크기·full 기능은 후속 CI에서 판정하며 새 개선으로 미리 채택하지 않는다.
+
+7ce153c는8 workflow 모두 통과했다. P4 lean ELF는 A10326/B11265/C10589/E10606/
+F10049 B로906–2511 B 줄고 기능도 통과했으나 모두 deferred_size다. C/E EP는 실제
+whole3907/3870 B(-8/-12)와105/2858 fatal UBSan을 통과해 후속 인수 대상으로 남긴다.
+실제 파일·반복·type/native·16명령/32stdio 핀을 대조했고 native policy는 이 실제 두
+P4 행만 새 이름으로 등록한다. 다른 profile의 기존 control native를 덮어쓰지 않는다.
+EP source stage·R·rules·기존 mechanism/집계·seal·Ubuntu22 opt-in을 구현하고,6 profile
+비용 및 표적192쌍/160trial의 plain/fatal UBSan을 등록한다. 해당 실행 전에는 기존
+production 기본 선택을 유지하며 P28/W256 EP 생산은 미측정 정책으로 명시 거절한다.
+W256 ELF도15문맥/10개 baseline·lean compile/admit 전용으로 확장한다. TEST2문맥만
+실행할 수 있고 W256은 codec/native admission·RAM 조회 전에 실행 소비자에서 거절한다.
+이는192GiB TT 실행이나 ELF 대회 적격성이 아니며 실제 W256 ELF 크기는 다음 CI에서 확인한다.

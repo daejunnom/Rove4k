@@ -49,6 +49,8 @@ SCAN_IMAGES = {
     ("C", "tcec-provisional"): (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807", "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"),
 }
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
+EP = "engines/experiments/tcec-next/profile_ep.py"
+EP_PIN = dict(bytes=7472, sha256="ed21cbb0b894310184048281bf89c3574dca1369c2409d6eec8ee043e25214fb")
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
@@ -194,6 +196,8 @@ def argument_parser():
     parser.add_argument("--source-dependencies", choices=("control", "unused-includes"),
                         default="unused-includes",
                         help="reviewed final include cleanup with expanded-input/native/whole-cost gates")
+    parser.add_argument("--ep-variant", choices=("control", "legal-maker"), default="control",
+                        help="opt-in C/E full EP maker sharing; final include cleanup remains last")
     return parser
 
 
@@ -209,6 +213,16 @@ def main():
                                            args.phase_variant, args.spelling_variant)
         post_scan = scan_selection(args.entry, args.representation, args.phase_variant,
                                    post_spelling, args.source_dependencies, args.scan_variant)
+        post_ep, ep_owner = None, None
+        if args.ep_variant != "control":
+            ep_input = normalized(ROOT / EP)
+            if {"bytes": len(ep_input), "sha256": sha256(ep_input).hexdigest()} != EP_PIN:
+                raise ValueError("reviewed full EP stage differs")
+            ep_owner = load("profile_selected_ep", ROOT / EP)
+            post_ep = ep_owner.selection(args.entry, args.representation, args.phase_variant,
+                post_spelling, post_scan, args.source_dependencies, args.ep_variant)
+            if (args.entry, args.profile) not in ep_owner.IMAGES:
+                raise ValueError("EP profile has no audited literal source/native cost policy yet")
     except ValueError as error:
         parser.error(str(error))
     out = args.out.resolve()
@@ -283,6 +297,8 @@ def main():
                 names.add(COMPOUND)
         if post_scan is not None:
             names.add(SCAN)
+        if post_ep is not None:
+            names.update((EP, *(row["path"] for row in ep_owner.SUPPORT.values())))
         if args.source_dependencies != "control":
             names.add(DEPENDENCIES)
         if args.representation in ("packed-native", "self-contained-elf"):
@@ -337,6 +353,15 @@ def main():
         report["post_spelling"] = post_spelling
         if post_scan is not None:
             report["post_scan"] = post_scan
+        ep_helpers = {}
+        if post_ep is not None:
+            old.require(inputs[EP] == EP_PIN, "reviewed full EP stage differs")
+            ep_owner = load("profile_frozen_ep", own / EP)
+            for name, row in ep_owner.SUPPORT.items():
+                old.require(inputs[row["path"]] == {key: row[key] for key in ("bytes", "sha256")},
+                            "reviewed EP support differs: " + name)
+                ep_helpers[name] = load("profile_frozen_ep_" + name, own / row["path"])
+            report["post_ep"] = post_ep
         if args.entry == "B" and args.spelling_variant == "compound":
             report["spelling_request"] = dict(requested="compound", effective="best",
                 duplicate_best=True, new_candidate_count=0)
@@ -426,6 +451,13 @@ def main():
                 old.require(scan.restore_source(source, scan_proof) == before_scan,
                             "valid-square inverse differs before compound inverse")
                 proofs.append(scan_proof)
+            if post_ep is not None:
+                before_ep = source
+                source, ep_proof = ep_owner.transform_source(source, family=args.entry,
+                    profile_id=profile.id, **ep_helpers)
+                old.require(ep_owner.restore_source(source, ep_proof, **ep_helpers) == before_ep,
+                            "full EP lifted inverse differs before final include cleanup")
+                proofs.append(ep_proof)
             dependency_gate = None
             before_dependencies = source
             if dependencies:
@@ -441,8 +473,10 @@ def main():
             asserted = source + b"\n" + ("\n".join(proof["target_type_assertions"]) + "\n").encode()
             native_policy = compound_native_policy(args.entry, profile.id, post_spelling, source,
                 compiler, compile_executor, report["compile_executor_version"])
-            scan_policy = scan_native_policy(args.entry, profile.id, post_scan, source,
-                compiler, compile_executor, report["compile_executor_version"])
+            scan_policy = (scan_native_policy(args.entry, profile.id, post_scan, source,
+                compiler, compile_executor, report["compile_executor_version"]) if post_ep is None else None)
+            ep_policy = (ep_owner.native_policy(args.entry, profile.id, source, compiler,
+                compile_executor, report["compile_executor_version"]) if post_ep is not None else None)
             if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                 (gate / "asserted.c").write_bytes(asserted)
             host.run(compile_executor, cwd=gate, kind=attempt + "-target-types", data=asserted)
@@ -461,6 +495,11 @@ def main():
                 old.require(report.get("scan_native_policy", scan_policy) == scan_policy,
                             "valid-square native policy changed between attempts")
                 report["scan_native_policy"] = scan_policy
+            if ep_policy is not None:
+                old.require(old.pin(native) == ep_policy["native"], "full EP named native differs")
+                old.require(report.get("ep_native_policy", ep_policy) == ep_policy,
+                            "full EP native policy changed between attempts")
+                report["ep_native_policy"] = ep_policy
             if dependency_gate is not None:
                 old.require(dependency_gate["native"] == old.pin(native) and
                             (directory / "dependency-gate/x").read_bytes() == native,

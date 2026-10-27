@@ -2,8 +2,10 @@
 """Pure ELF producer/reader checks; no factories, C, packing process or TT.
 
 --fixture-root optionally names an already materialized origin directory with
-the ten literal FAMILY/PROFILE/artifact/{main.c,build.json} files. Only those
-named small source DATA files are read. Historical DATA never enters production.
+the ten literal FAMILY/PROFILE/artifact/{main.c,build.json} files.
+--submission-fixture-root separately names the five FAMILY/build source/receipt
+and control-artifact DATA files. They are only hashed/read, never executed or
+used by production. No source factory is invoked by either fixture option.
 """
 import argparse
 from contextlib import redirect_stdout
@@ -21,6 +23,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 FIXTURE_ROOT = None
+SUBMISSION_FIXTURE_ROOT = None
 
 
 def module(name, path):
@@ -72,7 +75,9 @@ def packed():
 
 
 class PolicyTests(unittest.TestCase):
-    def test_all_ten_contexts_are_full_and_finite(self):
+    def test_all_fifteen_contexts_are_full_and_finite(self):
+        self.assertEqual(owner.TEST_PROFILES, ("test-p4", "test-p28"))
+        self.assertEqual(owner.PROFILES, ("test-p4", "test-p28", "tcec-provisional"))
         self.assertEqual(set(owner.CONTROL), set(entry.INPUTS))
         for family in owner.FAMILIES:
             for profile in owner.PROFILES:
@@ -83,6 +88,11 @@ class PolicyTests(unittest.TestCase):
                 self.assertEqual(policy["representation"], "self-contained-elf")
                 self.assertEqual(policy["outer_commands"], 10)
                 self.assertEqual(policy["native_variant"], "baseline")
+                self.assertEqual(policy["execution_policy"], "compile-package-only")
+                self.assertEqual(policy["runtime_profile_supported"], profile in owner.TEST_PROFILES)
+                self.assertEqual(policy["purpose"], "test" if profile in owner.TEST_PROFILES else "submission")
+                self.assertFalse(policy["submission_qualified"])
+                self.assertFalse(policy["event_target_confirmed"])
                 command = owner.factory_argv(family, Path("/external/owned"), profile)
                 self.assertEqual(command[command.index("--representation") + 1], "source-jit")
                 self.assertEqual(command[command.index("--source-dependencies") + 1], "unused-includes")
@@ -91,7 +101,7 @@ class PolicyTests(unittest.TestCase):
                 self.assertEqual("--scan-variant" in command, family in ("A", "C"))
 
     def test_invalid_context_is_rejected_before_execution(self):
-        for family, profile in (("D", "test-p4"), ("F8", "test-p4"), ("A", "tcec-provisional"), (True, "test-p4")):
+        for family, profile in (("D", "test-p4"), ("F8", "test-p4"), ("A", "submission"), (True, "test-p4")):
             with self.assertRaises(ValueError):
                 owner.plan(family, profile)
         with self.assertRaisesRegex(ValueError, "explicit --execute"):
@@ -102,6 +112,21 @@ class PolicyTests(unittest.TestCase):
             owner.runtime(Path("/never-read"), Path("/never-created"))
         with self.assertRaisesRegex(ValueError, "explicit --execute"):
             owner.rules(Path("/never-read"), Path("/never-created"))
+
+    def test_submission_is_preparation_only_and_test_guard_is_finite(self):
+        for profile in owner.TEST_PROFILES:
+            self.assertIsNone(owner.require_test_profile(profile))
+        for profile in ("tcec-provisional", "submission", None, True):
+            with self.assertRaisesRegex(ValueError, "submission profile is compile/package-only"):
+                owner.require_test_profile(profile)
+        for family in owner.FAMILIES:
+            for variant in owner.NATIVE_VARIANTS:
+                policy = owner.plan(family, "tcec-provisional", native_variant=variant)
+                self.assertEqual(policy["purpose"], "submission")
+                self.assertFalse(policy["runtime_profile_supported"])
+                self.assertFalse(policy["runtime_qualified"])
+                self.assertFalse(policy["submission_qualified"])
+                self.assertFalse(policy["event_target_confirmed"])
 
     def test_incomplete_and_legacy_receipts_do_not_reach_filesystem(self):
         for value in ({}, {"format": 1, "class": "rove4k-production-profile-v1", "complete": True},
@@ -254,7 +279,7 @@ class RealSourceTests(unittest.TestCase):
         if FIXTURE_ROOT is None:
             self.skipTest("explicit --fixture-root not supplied; production source factories are never run")
         for family in owner.FAMILIES:
-            for profile in owner.PROFILES:
+            for profile in owner.TEST_PROFILES:
                 with self.subTest(family=family, profile=profile):
                     root = FIXTURE_ROOT / family / profile / "artifact"
                     source = (root / "main.c").read_bytes()
@@ -283,12 +308,61 @@ class RealSourceTests(unittest.TestCase):
                             entry=entry, projection=projection, dependencies=dependencies)
 
 
+class RealSubmissionSourceTests(unittest.TestCase):
+    def test_five_actual_submission_sources_controls_and_complete_inverses(self):
+        if SUBMISSION_FIXTURE_ROOT is None:
+            self.skipTest("explicit --submission-fixture-root not supplied; no W256 factories or engines are run")
+        profile = "tcec-provisional"
+        for family in owner.FAMILIES:
+            with self.subTest(family=family):
+                root = SUBMISSION_FIXTURE_ROOT / family / "build"
+                source = (root / "main.c").read_bytes()
+                self.assertLess(len(source), 16384)
+                raw = (root / "build.json").read_bytes()
+                self.assertLess(len(raw), owner.MAX_FILE)
+                manifest = json.loads(raw)
+                proof_raw = (root / "source-proof.json").read_bytes()
+                self.assertLess(len(proof_raw), owner.MAX_FILE)
+                self.assertEqual(json.loads(proof_raw), manifest["source_proofs"])
+                self.assertEqual(manifest["resources"]["id"], profile)
+                self.assertEqual(manifest["resources"]["purpose"], "submission")
+                self.assertEqual(manifest["resources"]["workers"], 256)
+                self.assertEqual(manifest["resources"]["tt_cap_bytes"], 256 << 30)
+                self.assertEqual(manifest["resources"]["tt_bytes"], 192 << 30)
+                self.assertFalse(manifest["resources"]["event_allocation_confirmed"])
+                native, whole, payload = owner.CONTROL[family, profile]
+                pins = {"source": owner.expected(entry.INPUTS[family, profile]), "native": owner.expected(native),
+                        "whole": owner.expected(whole), "payload": owner.expected(payload), "header": owner.expected(owner.HEADERS[family])}
+                for key, name in (("source", "main.c"), ("native", "native/x"), ("whole", "x"),
+                                  ("header", "header.sh"), ("payload", "payload.lzma")):
+                    data = (root / name).read_bytes()
+                    self.assertLess(len(data), 65536)
+                    self.assertEqual(owner.pin(data), pins[key])
+                    self.assertEqual(pins[key], {field: manifest["expected_contract"][key + "_" + field] for field in ("bytes", "sha256")})
+                self.assertEqual((root / "x").read_bytes(), (root / "header.sh").read_bytes() + (root / "payload.lzma").read_bytes())
+                candidate, before, proof = owner.derive_source(source, manifest["source_proofs"][-1],
+                    family=family, profile_id=profile, entry=entry, projection=projection, dependencies=dependencies)
+                self.assertEqual(owner.pin(candidate), owner.expected(entry.OUTPUTS[family, profile]))
+                self.assertEqual(entry.restore_source(candidate, proof["entry"], projection=projection), source)
+                self.assertEqual(dependencies.restore_source(candidate, proof["dependency"]), before)
+                self.assertEqual(projection._inverse_edits(before, proof["lifted_edits"]),
+                                 dependencies.restore_source(source, manifest["source_proofs"][-1]))
+                self.assertIsNone(owner.validate_target_abi_absence(manifest, family))
+                with self.assertRaisesRegex(ValueError, "submission profile is compile/package-only"):
+                    owner.require_test_profile(profile)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture-root", type=Path)
+    parser.add_argument("--submission-fixture-root", type=Path)
     args, remaining = parser.parse_known_args()
     if args.fixture_root is not None:
         if not args.fixture_root.is_absolute():
             parser.error("--fixture-root must be an explicit absolute origin directory")
         FIXTURE_ROOT = args.fixture_root
+    if args.submission_fixture_root is not None:
+        if not args.submission_fixture_root.is_absolute():
+            parser.error("--submission-fixture-root must be an explicit absolute materialized directory")
+        SUBMISSION_FIXTURE_ROOT = args.submission_fixture_root
     unittest.main(argv=[sys.argv[0], *remaining])

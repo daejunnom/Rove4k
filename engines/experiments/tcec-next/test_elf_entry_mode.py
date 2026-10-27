@@ -1,7 +1,7 @@
 """Pure finite entry-source checks; no factory, compiler, codec or engine run.
 
 Synthetic fixtures exercise only the internal one-span mechanism. They never
-replace the public ten-source admission pins. Actual admitted-source roundtrips
+replace the public fifteen-source admission pins. Actual admitted-source roundtrips
 belong to the consumer's separately authorized exact-input verification.
 """
 import copy
@@ -39,8 +39,10 @@ def fixture(family="A", tail=None):
 
 
 class FiniteElfEntry(unittest.TestCase):
-    def test_exact_ten_profile_domain_and_fixed_helper_identity(self):
-        domain = {(family, profile) for family in "ABCEF" for profile in ("test-p4", "test-p28")}
+    def test_exact_fifteen_profile_domain_and_fixed_helper_identity(self):
+        profiles = ("test-p4", "test-p28", "tcec-provisional")
+        domain = {(family, profile) for family in "ABCEF" for profile in profiles}
+        self.assertEqual(entry.PROFILES, profiles)
         self.assertEqual(set(entry.INPUTS), domain)
         self.assertEqual(set(entry.OUTPUTS), domain)
         self.assertEqual(entry.PROJECTION, dict(path="engines/experiments/tcec-next/spelling_compound.py",
@@ -128,7 +130,7 @@ class FiniteElfEntry(unittest.TestCase):
                            family="A", projection=projection)
 
     def test_public_admission_rejects_unknown_domain_and_synthetic_payloads(self):
-        for family, profile in (("D", "test-p4"), ("F8", "test-p28"), ("A", "tcec-provisional"),
+        for family, profile in (("D", "test-p4"), ("F8", "test-p28"), ("A", "test-w256"),
                                 ("A", "other"), (True, "test-p4"), ([], "test-p4")):
             with self.assertRaises(ValueError):
                 entry.transform_source(b"", family=family, profile_id=profile, projection=projection)

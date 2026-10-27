@@ -114,6 +114,33 @@ Baseline remains the default; five P4 lean cases are added alongside ten baselin
 cases. Both new experiments have independent source review, with no measured
 saving or new production selection before the forthcoming hosted execution.
 
+At7ce153c94ba44bd457764288b6ecfa07be4aab70 all eight workflows pass. The five
+P4 lean ELF files are A10326/B11265/C10589/E10606/F10049 B, down991/2511/1023/
+1023/906 B from their corresponding baseline files. All five actual full rules
+and runtime paths pass, but size and physical-placement qualification remain
+false. The source-JIT mate alternatives remain unselected. The C/E EP first
+costs instead reproduce whole3907/3870 B, down8/12 B, with fatal-UBSan oracle
+coverage. A named-DATA audit checks the physical four attempts, actual type/native
+identity and all16 command/32 stream pins; these are separate from full runtime.
+
+The following opt-in cohort implements the EP production stage, strict R and
+rules inverse, actual existing mechanism/pipeline/export and sealed Ubuntu22
+consumer. Only the two audited P4 source/native rows enter its separate measured
+GCC13 policy; P28/W256 production EP is rejected before output until actual rows
+are available. The cost lane expands to all six C/E profile contexts using one
+shared dependency-edit transport. A targeted actual-function fixture compares
+192 normalizer pairs and160 direct EP trials in plain and fatal-UBSan modes,
+including discovery/file pins, full Board effects and const input. Its source
+and consumers are reviewed; these new executions and production adoption are
+still pending. Existing baseline selection remains unchanged.
+
+W256 ELF preparation now has15 admitted source contexts and ten baseline/lean
+compile-and-readmission jobs. The five new control identities come from the
+actual W256 source-JIT preparation artifacts. Runtime/rules/qualification reject
+submission profiles before codec/native admission or available-RAM checks. Even
+a within-limit W256 file is prepared_unqualified; this endpoint never starts256
+workers or allocates its192GiB logical TT. Actual W256 ELF cost is pending CI.
+
 ### Verified source, CI and offline transport
 
 The retained edb baseline isedb747e8282401ae27537e65cbf21bbfa58b491b.

@@ -41,6 +41,8 @@ jobs:
           set -o pipefail
           python -I -B engines/experiments/tcec-next/test_compact_ep.py \
             2>&1 | tee '${{ runner.temp }}/rove4k-ep-source-contracts-${{ github.run_attempt }}.log'
+          python -I -B engines/experiments/tcec-next/test_check_ep.py \
+            2>&1 | tee '${{ runner.temp }}/rove4k-ep-fixture-contracts-${{ github.run_attempt }}.log'
       - name: Preserve original source-contract results and failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -50,6 +52,7 @@ jobs:
             ${{ runner.temp }}/rove4k-source-cost-contracts-${{ github.run_attempt }}.log
             ${{ runner.temp }}/rove4k-mate-source-contracts-${{ github.run_attempt }}.log
             ${{ runner.temp }}/rove4k-ep-source-contracts-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-ep-fixture-contracts-${{ github.run_attempt }}.log
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7
@@ -63,6 +66,7 @@ jobs:
       max-parallel: 2
       matrix:
         entry: [C, E]
+        profile: [test-p4, test-p28, tcec-provisional]
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -80,17 +84,84 @@ jobs:
           timeout --signal=TERM --kill-after=30s 600s \
             python -I -B engines/experiments/tcec-next/terminal_cost.py \
             --entry '${{ matrix.entry }}' --experiment ep \
-            --out '${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ github.run_attempt }}' \
+            --profile '${{ matrix.profile }}' \
+            --out '${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}' \
             --execute \
-            2>&1 | tee '${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+            2>&1 | tee '${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log'
+      - name: Render the actual original and candidate EP functions for targeted pin cases
+        env:
+          ENTRY: ${{ matrix.entry }}
+          PROFILE: ${{ matrix.profile }}
+          EP_OUT: ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
+        run: |
+          python -I -B - <<'PY'
+          import importlib.util, json, os, sys
+          from pathlib import Path
+          root = Path.cwd()
+          def module(name, path):
+              spec = importlib.util.spec_from_file_location(name, root / path)
+              value = importlib.util.module_from_spec(spec)
+              sys.modules[name] = value
+              spec.loader.exec_module(value)
+              return value
+          prefix = 'engines/experiments/tcec-next/'
+          ep = module('targeted_ep_helper', prefix + 'compact_ep.py')
+          projection = module('targeted_ep_projection', prefix + 'spelling_compound.py')
+          oracle = module('targeted_ep_oracle', 'engines/tests/chess_oracle.py')
+          check = module('targeted_ep_renderer', prefix + 'check_ep.py')
+          out = Path(os.environ['EP_OUT'])
+          source = (out / 'fresh-profile/main.c').read_bytes()
+          fixture, metadata = check.render_fixture(source, family=os.environ['ENTRY'],
+              profile_id=os.environ['PROFILE'], ep=ep, projection=projection, oracle=oracle)
+          (out / 'targeted-ep.c').write_bytes(fixture)
+          (out / 'targeted-ep.json').write_text(json.dumps(metadata, indent=2) + '\n')
+          PY
+      - name: Compare EP legality and full Board preservation in plain and fatal UBSan modes
+        env:
+          ENTRY: ${{ matrix.entry }}
+          EP_OUT: ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
+        run: |
+          set -o pipefail
+          isa=()
+          if [ "$ENTRY" = C ]; then isa=(-mavx2); fi
+          for mode in plain ubsan; do
+            sanitizer=()
+            if [ "$mode" = ubsan ]; then sanitizer=(-fsanitize=undefined -fno-sanitize-recover=undefined); fi
+            timeout --signal=TERM --kill-after=3s 45s \
+              prlimit --as=2147483648 --cpu=40:45 --fsize=8388608 \
+              cc -std=c11 -O1 -pthread -g0 "${isa[@]}" "${sanitizer[@]}" \
+              "$EP_OUT/targeted-ep.c" -o "$EP_OUT/targeted-ep-$mode" \
+              > "$EP_OUT/targeted-$mode-compile.stdout" 2> "$EP_OUT/targeted-$mode-compile.stderr"
+            timeout --signal=TERM --kill-after=3s 45s \
+              prlimit --as=2147483648 --cpu=40:45 --fsize=8388608 \
+              "$EP_OUT/targeted-ep-$mode" \
+              > "$EP_OUT/targeted-$mode.stdout" 2> "$EP_OUT/targeted-$mode.stderr"
+            test ! -s "$EP_OUT/targeted-$mode-compile.stderr"
+            test ! -s "$EP_OUT/targeted-$mode.stderr"
+          done
+          python -I -B - <<'PY'
+          import json, os
+          from pathlib import Path
+          out = Path(os.environ['EP_OUT'])
+          planned = json.loads((out / 'targeted-ep.json').read_bytes())
+          expected = {'cases': len(planned['cases']),
+              'normalizer_pairs': planned['expected_normalizer_pairs'],
+              'direct_trials': planned['expected_direct_trials'],
+              'full_board_equal': True, 'trial_const_input': True}
+          for mode in ('plain', 'ubsan'):
+              observed = json.loads((out / ('targeted-' + mode + '.stdout')).read_bytes())
+              if json.dumps(observed, sort_keys=True) != json.dumps(expected, sort_keys=True):
+                  raise SystemExit('targeted EP observation differs: ' + mode)
+          print(json.dumps(expected, sort_keys=True))
+          PY
       - name: Preserve complete EP costs and original diagnostics
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: source-compaction-ep-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: source-compaction-ep-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
           path: |
-            ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ github.run_attempt }}
-            ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-ep-cost-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7

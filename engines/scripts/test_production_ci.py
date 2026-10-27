@@ -480,7 +480,8 @@ class ProductionCIBoundaries(unittest.TestCase):
                         patch.object(CI, "pipeline_plan", side_effect=PlanReached) as plan:
                     with self.assertRaises(PlanReached):
                         CI.main()
-                    plan.assert_called_once_with("A", root / "out", spelling_variant=expected, scan_variant="control", profile="test-p4")
+                    plan.assert_called_once_with("A", root / "out", spelling_variant=expected,
+                                                 scan_variant="control", ep_variant="control", profile="test-p4")
                 self.assertFalse((root / "out").exists())
 
     def test_d_best_and_explicit_target_policy_fail_before_output_or_context_reads(self):
@@ -1344,6 +1345,90 @@ class SquareScanPlans(unittest.TestCase):
                     with self.assertRaises(ValueError):CI.scan_mechanism_policy(plan,bad,build)
                 build["resources"]["workers"]=4 if workers==28 else 28
                 with self.assertRaises(ValueError):CI.scan_mechanism_policy(plan,report,build)
+
+
+class EPPlans(unittest.TestCase):
+    def test_default_and_existing_positional_plans_keep_EP_control(self):
+        root = Path(tempfile.gettempdir()).resolve() / "ep-plan-default"
+        for family in "ABCDEF":
+            default = CI.pipeline_plan(family, root)
+            explicit = CI.pipeline_plan(family, root, ep_variant="control")
+            self.assertEqual(default, explicit)
+            self.assertEqual(default.ep_variant, "control")
+            self.assertNotIn("--ep-variant", default.stages[0].command)
+        old = CI.pipeline_plan("C", root, spelling_variant="compound", scan_variant="square-successor")
+        positional = CI.Plan("C", old.out, old.stages, "compound", "test-p28", "square-successor")
+        self.assertEqual((positional.spelling_variant, positional.profile, positional.scan_variant,
+                          positional.ep_variant), ("compound", "test-p28", "square-successor", "control"))
+
+    def test_CE_EP_is_explicit_and_only_changes_generation_arguments(self):
+        root = Path(tempfile.gettempdir()).resolve() / "ep-plan-selected"
+        for family, scan in (("C", "square-successor"), ("E", "control")):
+            for profile in ("test-p4", "test-p28"):
+                old = CI.pipeline_plan(family, root, spelling_variant="compound", scan_variant=scan, profile=profile)
+                selected = CI.pipeline_plan(family, root, spelling_variant="compound", scan_variant=scan,
+                                            ep_variant="legal-maker", profile=profile)
+                self.assertEqual(selected.ep_variant, "legal-maker")
+                self.assertEqual(selected.stages[1:], old.stages[1:])
+                command = list(selected.stages[0].command)
+                at = command.index("--ep-variant")
+                self.assertEqual(command[at:at + 2], ["--ep-variant", "legal-maker"])
+                del command[at:at + 2]
+                self.assertEqual(tuple(command), old.stages[0].command)
+                self.assertEqual(selected.workers, 4 if profile == "test-p4" else 28)
+                self.assertNotIn("tcec-provisional", command)
+
+    def test_foreign_or_malformed_EP_selections_are_rejected(self):
+        root = Path(tempfile.gettempdir()).resolve() / "ep-plan-uncreated"
+        cases = (("A", "compound", "square-successor", "legal-maker"),
+                 ("B", "best", "control", "legal-maker"),
+                 ("D", "control", "control", "legal-maker"),
+                 ("F", "compound", "control", "legal-maker"),
+                 ("C", "compound", "control", "legal-maker"),
+                 ("C", "best", "square-successor", "legal-maker"),
+                 ("E", "compound", "square-successor", "legal-maker"),
+                 ("E", "control", "control", "legal-maker"),
+                 *(("C", "compound", "square-successor", selection)
+                   for selection in (None, True, "", "other")))
+        for family, spelling, scan, selection in cases:
+            with self.subTest(family=family, spelling=spelling, scan=scan, selection=selection):
+                with self.assertRaises(ValueError):
+                    CI.producer_ep_variant(family, spelling, scan, selection)
+                with self.assertRaises(ValueError):
+                    CI.pipeline_plan(family, root, spelling_variant=spelling, scan_variant=scan,
+                                     ep_variant=selection)
+
+    def test_CE_EP_CLI_forwards_producer_choice_and_target_cannot_reselect(self):
+        class PlanReached(Exception):
+            pass
+        with tempfile.TemporaryDirectory(prefix="rove-ci-ep-policy-") as temporary:
+            root = Path(temporary).resolve()
+            for family, scan in (("C", "square-successor"), ("E", "control")):
+                options = ["--spelling-variant", "compound", "--ep-variant", "legal-maker"]
+                if scan != "control":
+                    options += ["--scan-variant", scan]
+                argv = ["production_ci.py", "--family", family, "--out", str(root / "out"), *options]
+                with patch.object(sys, "argv", argv), patch.object(CI.sys, "platform", "linux"), \
+                        patch.object(CI.platform, "machine", return_value="x86_64"), \
+                        patch.object(CI.Path, "read_text", return_value='ID=ubuntu\nVERSION_ID="24.04"\n'), \
+                        patch.dict(CI.os.environ, {"RUNNER_TEMP":str(root)}), \
+                        patch.object(CI, "pipeline_plan", side_effect=PlanReached) as plan:
+                    with self.assertRaises(PlanReached):
+                        CI.main()
+                    plan.assert_called_once_with(family, root / "out", spelling_variant="compound",
+                                                 scan_variant=scan, ep_variant="legal-maker", profile="test-p4")
+                self.assertFalse((root / "out").exists())
+            for selection in ("control", "legal-maker"):
+                argv = ["production_ci.py", "--family", "C", "--out", str(root / "out"),
+                        "--ubuntu22-target", "--source-bundle", str(root / "source-bundle.zip"),
+                        "--source-seal", str(root / "source-seal.json"), "--ep-variant", selection]
+                with patch.object(sys, "argv", argv), patch.object(CI, "admit_output") as output, \
+                        patch.object(CI, "load") as load, patch.object(CI.Path, "read_text") as read:
+                    with self.assertRaisesRegex(ValueError, "producer-only"):
+                        CI.main()
+                    output.assert_not_called()
+                    load.assert_not_called()
+                    read.assert_not_called()
 
 
 if __name__ == "__main__":

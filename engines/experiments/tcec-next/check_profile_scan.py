@@ -46,6 +46,8 @@ FIXED_INPUTS = {
 }
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
 SCAN_DECLARATION = dict(path=SCAN, variant="square-successor")
+EP_DECLARATION = dict(path=NEXT + "profile_ep.py", variant="legal-maker")
+EP_SCHEMA = "rove4k.profile-ep-source.v1"
 DEPENDENCIES = dict(path=NEXT + "profile_dependencies.py", variant="unused-includes")
 STAGES = ("rove4k.c-resource-projection.v1", "rove4k.portable-phase-source.v1",
           "rove4k.selected-spelling-compound.v1", "rove4k.selected-square-scan.v1",
@@ -95,15 +97,23 @@ def bound_selection(manifest):
     require(all(type(resources.get(key)) is type(value) and resources[key] == value
                 for key, value in expected.items()), "exact scan mechanism worker/TT resources required")
     proofs = manifest.get("source_proofs")
+    post_ep = manifest.get("post_ep")
+    require(post_ep is None or (family == "C" and post_ep == EP_DECLARATION),
+            "scan EP mechanism requires the exact C legal-maker declaration")
+    expected_stages = STAGES if post_ep is None else (*STAGES[:-1], EP_SCHEMA, STAGES[-1])
     require(type(proofs) is list and all(type(row) is dict for row in proofs)
-        and [row.get("schema") for row in proofs] == list(STAGES),
-        "scan mechanism requires exactly resource/phase/compound/scan/dependencies in order")
+        and [row.get("schema") for row in proofs] == list(expected_stages),
+        "scan mechanism requires exact resource/phase/compound/scan/optional EP/dependencies in order")
     require(proofs[0].get("family") == family
         and all(row.get("family") == family and row.get("profile_id") == profile for row in proofs[1:4])
         and proofs[1].get("variant") == "phase-init"
         and proofs[2].get("variant") == "clock-atomic-launcher"
         and proofs[3].get("variant") == "square-successor",
         "scan mechanism source-proof family/profile/variant differs")
+    if post_ep is not None:
+        require(proofs[4].get("family") == "C" and proofs[4].get("profile_id") == profile
+                and proofs[4].get("variant") == "legal-maker",
+                "scan EP mechanism source-proof family/profile/variant differs")
     helper = manifest.get("inputs", {}).get(SCAN)
     require(type(helper) is dict and type(helper.get("bytes")) is int and helper == FIXED_INPUTS[SCAN],
         "reviewed scan helper production identity differs")
@@ -185,6 +195,8 @@ def run_bound(build, out):
         timing_claimed=False, NUMA_qualified=False, shipping_binary_executed=False, W256_executed=False,
         large_submission_tt_executed=False, derived_other_resource_profiles=False,
         scope="final admitted A/C square-scan source; inherited profile-specific diagnostic and separate alias-free main barrier")
+    if manifest.get("post_ep") is not None:
+        report["selected_post_ep"] = manifest["post_ep"]
     if profile == "test-p4":
         report["diagnostic_alias"] = prepared["alias"]
 

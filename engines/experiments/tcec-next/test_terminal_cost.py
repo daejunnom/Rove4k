@@ -117,6 +117,7 @@ class TerminalCostBoundaries(unittest.TestCase):
                 self.assertFalse(policy["diagnostic_engine"])
                 command = cost.factory_argv(family, Path("/external/new"), experiment="mate", variant=variant)
                 self.assertEqual(command.count("--scan-variant"), int(family in "AC"))
+                self.assertNotIn("--ep-variant", command)
                 self.assertEqual(command[command.index("--b-variant") + 1],
                                  "tcec-final-lf" if family == "B" else "control")
                 self.assertEqual(command[command.index("--phase-variant") + 1],
@@ -138,6 +139,8 @@ class TerminalCostBoundaries(unittest.TestCase):
                                      (HERE / "spelling_compound.py").read_bytes())
         dependencies = cost.load_bytes("cost_pure_lift_dependencies", cost.DEPENDENCIES,
                                        (HERE / "profile_dependencies.py").read_bytes())
+        source_edits = cost.load_bytes("cost_pure_source_edits", cost.SOURCE_EDITS,
+                                       (HERE / "source_edits.py").read_bytes())
         for has_include in (False, True):
             before = b"HEAD" + (dependencies.DIRECTIVE if has_include else b"") + b"TAIL"
             final, old_dependency = dependencies.transform_source(before)
@@ -152,6 +155,8 @@ class TerminalCostBoundaries(unittest.TestCase):
             self.assertTrue(proof["exact_commuting_output"])
             self.assertEqual(cost.lift_source_edits(before, final, candidate, {"edits": rows}, old_dependency,
                 projection=projection, dependencies=dependencies), (lifted, new_dependency, proof))
+            self.assertEqual(source_edits.lift_source_edits(before, final, candidate, {"edits": rows}, old_dependency,
+                projection=projection, dependencies=dependencies), (lifted, new_dependency, proof))
             if has_include:
                 crossing, crossing_rows, _ = projection._splice(final, [dict(input_begin=3, before="DTA", after="DTB",
                     role="deliberate-overlap", component="test")])
@@ -160,18 +165,28 @@ class TerminalCostBoundaries(unittest.TestCase):
                                          projection=projection, dependencies=dependencies)
 
     def test_ep_is_explicit_CE_only_and_reuses_the_actual_five_control_pins(self):
-        for family in ("C", "E"):
-            policy = cost.plan(family, experiment="ep")
+        source_sizes = {("C", "test-p4"): 8199, ("E", "test-p4"): 7815,
+                        ("C", "test-p28"): 8232, ("E", "test-p28"): 7848,
+                        ("C", "tcec-provisional"): 8201, ("E", "tcec-provisional"): 7817}
+        for (family, profile), source_bytes in source_sizes.items():
+            policy = cost.plan(family, experiment="ep", profile=profile)
             mate = cost.plan(family, experiment="mate", variant="folded")
             self.assertEqual(policy["cases"], ["control", "legal-maker"])
             self.assertEqual(policy["outer_commands"], 16)
-            self.assertEqual(policy["control"], mate["control"])
+            self.assertEqual(policy["profile"], profile)
+            self.assertEqual(policy["control"]["source"]["bytes"], source_bytes)
+            self.assertEqual(set(policy["control"]), {"source", "native", "header", "payload", "whole"})
+            if profile == "test-p4":
+                self.assertEqual(policy["control"], mate["control"])
             self.assertEqual(policy["compiler"], mate["compiler"])
             self.assertEqual(policy["compression"], mate["compression"])
             self.assertFalse(policy["diagnostic_engine"])
             self.assertNotIn("variant", policy)
-            self.assertEqual(cost.factory_argv(family, Path("/external/new"), experiment="ep"),
-                cost.factory_argv(family, Path("/external/new"), experiment="mate", variant="folded"))
+            expected_command = cost.factory_argv(family, Path("/external/new"), experiment="mate", variant="folded")
+            expected_command[expected_command.index("--profile") + 1] = profile
+            expected_command[expected_command.index("--out"):expected_command.index("--out")] = ["--ep-variant", "control"]
+            self.assertEqual(cost.factory_argv(family, Path("/external/new"), experiment="ep", profile=profile),
+                             expected_command)
             command = policy["diagnostic_compiler"]
             self.assertIn("-fsanitize=undefined", command)
             self.assertIn("-fno-sanitize-recover=undefined", command)
@@ -182,6 +197,20 @@ class TerminalCostBoundaries(unittest.TestCase):
         for variant in ("folded", "shared", "legal-maker", False):
             with self.assertRaises(ValueError):
                 cost.plan("C", experiment="ep", variant=variant)
+        for profile in ("test-p28", "tcec-provisional", "unknown", True):
+            for kwargs in ({}, dict(experiment="mate", variant="folded")):
+                with self.assertRaises(ValueError):
+                    cost.plan("C" if kwargs else "A", profile=profile, **kwargs)
+        for profile in ("unknown", True):
+            with self.assertRaises(ValueError):
+                cost.plan("C", experiment="ep", profile=profile)
+        self.assertEqual(cost.PROFILE, "test-p4")
+        with patch.object(cost, "measure", return_value=dict(**{"class": cost.EP_CLASS}, complete=False,
+                delta={}, diagnostic_C_executed=False)) as measure, patch("builtins.print"):
+            cost.main(["--entry", "C", "--experiment", "ep", "--profile", "tcec-provisional",
+                       "--out", "/external/new", "--execute"])
+            measure.assert_called_once_with("C", Path("/external/new"), execute=True, experiment="ep",
+                                            variant=None, profile="tcec-provisional")
 
     def test_semantic_receipt_requires_the_actual_exhaustive_domain_and_types(self):
         valid = dict(complete=True, family="C", profile="test-p4", variant="shared", decode_cases=8388608,

@@ -52,7 +52,7 @@ def check_actual_source(source, *, family, profile_id):
                 {key: gap[key] for key in ("bytes", "sha256")},
                 "actual EP complement differs")
     changes = []
-    for key, value in (("family", "A"), ("profile_id", "tcec-provisional"),
+    for key, value in (("family", "A"), ("profile_id", "unknown"),
                        ("full_inverse", 1), ("resources_changed", True),
                        ("models_changed", True), ("move_encoding_changed", True),
                        ("ordering_or_ties_changed", True), ("runtime_qualified", True)):
@@ -94,9 +94,9 @@ def check_actual_source(source, *, family, profile_id):
 class EPBoundaries(unittest.TestCase):
     def test_other_families_and_profiles_are_not_new_candidates(self):
         for family, profile in (("A", "test-p4"), ("B", "test-p4"), ("D", "test-p4"),
-                ("F", "test-p4"), ("F8", "test-p4"), ("C", "tcec-provisional"),
+                ("F", "test-p4"), ("F8", "test-p4"), ("C", "unknown"),
                 (True, "test-p4"), ("E", True)):
-            with self.assertRaisesRegex(ValueError, "finite C/E P4/P28"):
+            with self.assertRaisesRegex(ValueError, "finite C/E P4/P28/provisional"):
                 ep.transform_source(b"unadmitted", family=family,
                     profile_id=profile, projection=projection)
 

@@ -1,4 +1,4 @@
-"""Opt-in C/E EP trial sharing on four exact full source-profile payloads.
+"""Opt-in C/E EP trial sharing on six exact full source-profile payloads.
 
 The private normalizer only needs a nonzero legality result. Its caller supplies
 an initialized admitted Board and either a legal double-push EP target or the
@@ -24,8 +24,10 @@ PROJECTION = {
 INPUTS = {
     ("C", "test-p4"): (8199, "86b7dd0e5f206d10086d098ce82083d4d12910df91a7f1215915727327f1d42a"),
     ("C", "test-p28"): (8232, "b3a968d2287a8418ce32b7b2f9f019c4695b55a32fd4f332eab89e16d012d2d0"),
+    ("C", "tcec-provisional"): (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807"),
     ("E", "test-p4"): (7815, "198bccf29d1441f63e3fd07b5da9ab4164fe3c31393af7ad35ab72d4d3fe08ff"),
     ("E", "test-p28"): (7848, "de83f406f1c7916277f71e75c4b6ac2a5aa77663ab9f7e3ec2af11e8480668b8"),
+    ("E", "tcec-provisional"): (7817, "d3069c36dec5becdca14b69e49016b9a3a6b4c762da91471e7ba8c73debad4f3"),
 }
 CONTEXT = {"C": dict(integer="int", returned="return"),
            "E": dict(integer="L", returned="J")}
@@ -52,7 +54,7 @@ def require(value, message):
 
 def _admit(source, family, profile_id):
     require(type(family) is str and type(profile_id) is str
-            and (family, profile_id) in INPUTS, "finite C/E P4/P28 EP candidate required")
+            and (family, profile_id) in INPUTS, "finite C/E P4/P28/provisional EP candidate required")
     require(type(source) is bytes and (len(source), sha256(source).hexdigest()) == INPUTS[family, profile_id],
             "exact selected full profile EP source required")
 

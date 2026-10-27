@@ -42,6 +42,9 @@ COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compou
 F_COMPOUND_SPELLING = {"path": NEXT + "spelling_compound.py", "selection": "compound-v2",
                        "variant": "clock-atomic-launcher-parentheses"}
 SCAN_DECLARATION = {"path": NEXT + "profile_scan.py", "variant": "square-successor"}
+EP = NEXT + "profile_ep.py"
+EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
+EP_SCHEMA = "rove4k.profile-ep-source.v1"
 P28_LINK_FLAGS = ("-Wl,--wrap=pthread_create", "-Wl,--wrap=pthread_join", "-Wl,--wrap=aligned_alloc")
 PROFILE_WORKERS = {"test-p4": 4, "test-p28": 28}
 TRANSPORT = "engines/scripts/production_source_bundle.py"
@@ -128,6 +131,7 @@ class Plan:
     spelling_variant: str = "control"
     profile: str = "test-p4"
     scan_variant: str = "control"
+    ep_variant: str = "control"
 
     @property
     def effective_spelling_variant(self):
@@ -234,9 +238,18 @@ def producer_scan_variant(family, spelling, selection):
     return selection
 
 
-def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="control", profile="test-p4", python=sys.executable, repo=ROOT):
+def producer_ep_variant(family, spelling, scan, selection):
+    require(type(selection) is str and selection in ("control", "legal-maker"), "finite EP selection required")
+    require(selection == "control" or (family in ("C", "E") and spelling == "compound"
+            and scan == ("square-successor" if family == "C" else "control")),
+            "EP requires selected C/E compound with C square-successor or E control scan")
+    return selection
+
+
+def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="control", ep_variant="control", profile="test-p4", python=sys.executable, repo=ROOT):
     spelling_variant = producer_spelling_variant(family, spelling_variant, profile=profile)
     scan_variant = producer_scan_variant(family, spelling_variant, scan_variant)
+    ep_variant = producer_ep_variant(family, spelling_variant, scan_variant, ep_variant)
     out, repo = Path(out), Path(repo)
     require(out.is_absolute() and repo.is_absolute(), "absolute pipeline roots required")
     artifact = out / "artifact"
@@ -254,6 +267,7 @@ def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="cont
         generation = command(NEXT + "profile_build.py", "--entry", family, "--profile", profile,
                              *variant, "--spelling-variant", spelling_variant,
                              *(("--scan-variant", scan_variant) if scan_variant != "control" else ()),
+                             *(("--ep-variant", ep_variant) if ep_variant != "control" else ()),
                              "--source-dependencies", "unused-includes", "--out", artifact)
         mechanism = (command(NEXT + "check_profile_scan.py", "--build", artifact, "--out", out / "mechanism")
                      if scan_variant != "control" else
@@ -272,7 +286,7 @@ def pipeline_plan(family, out, *, spelling_variant="control", scan_variant="cont
         Stage("generation", generation, "artifact/build.json"),
         Stage("mechanism", mechanism, "mechanism/result.json" if family == "B" and profile == "test-p4" else "mechanism/results.json"),
         Stage("rules", rules, "rules/commands.json"),
-        Stage("runtime", runtime, "runtime/runtime.json")), spelling_variant, profile, scan_variant)
+        Stage("runtime", runtime, "runtime/runtime.json")), spelling_variant, profile, scan_variant, ep_variant)
 
 
 def evidence_bytes(out, relative, *, reader=None):
@@ -333,6 +347,9 @@ def scan_mechanism_policy(plan, report, build, *, reader=None):
             and report.get("class") == "rove4k-bound-scan-mechanism-v1"
             and report.get("selected_post_scan") == build.get("post_scan") == SCAN_DECLARATION,
             "scan mechanism differs from the explicit producer choice")
+    selected_ep = EP_DECLARATION if plan.ep_variant != "control" else None
+    require(report.get("selected_post_ep") == build.get("post_ep") == selected_ep,
+            "scan mechanism EP differs from the explicit producer choice")
     raw, _ = evidence_bytes(plan.out, "artifact/source-proof.json", reader=reader)
     require(same_value(report.get("source_proofs"), pin(raw)) and
             same_value(json.loads(raw), build.get("source_proofs")), "scan mechanism raw proof differs")
@@ -343,6 +360,45 @@ def scan_mechanism_policy(plan, report, build, *, reader=None):
             "scan checker differs from its frozen current CI input")
     checker = load_captured("production_ci_frozen_scan_policy", plan.out / "inputs" / name, captured)
     require(checker.bound_selection(build) == plan.profile, "scan mechanism resource/stage grammar differs")
+
+
+def ep_source_policy(plan, build, *, reader=None):
+    """Bind an explicit EP choice to current/frozen source and its named policy.
+
+    The existing mechanism/runtime consumers retain full strict R authority.
+    """
+    selected = producer_ep_variant(plan.family, plan.spelling_variant, plan.scan_variant, plan.ep_variant)
+    require(build.get("post_ep") == (EP_DECLARATION if selected != "control" else None),
+            "generation EP differs from the requested producer policy")
+    if selected == "control":
+        require("ep_native_policy" not in build, "control generation cannot acquire an EP native policy")
+        return None
+    data, _ = evidence_bytes(plan.out, "inputs/" + EP, reader=reader)
+    require(data == normalized(ROOT / EP, reader=reader), "EP source owner changed after CI capture")
+    owner = load_captured("production_ci_frozen_ep_policy", plan.out / "inputs" / EP, data)
+    require(owner.SCHEMA == EP_SCHEMA and same_value(owner.DECLARATION, EP_DECLARATION),
+            "EP source owner schema/declaration differs")
+    identities = {EP: pin(data), **{row["path"]: {key: row[key] for key in ("bytes", "sha256")}
+                                 for row in owner.SUPPORT.values()}}
+    for name, expected in identities.items():
+        captured, _ = evidence_bytes(plan.out, "inputs/" + name, reader=reader)
+        frozen, _ = evidence_bytes(plan.out, "artifact/inputs/" + name, reader=reader)
+        roles = [row for row in build.get("source_closure", {}).get("inputs", []) if row.get("path") == name]
+        require(same_value(pin(captured), expected) and captured == frozen == normalized(ROOT / name, reader=reader)
+                and same_value(build.get("inputs", {}).get(name), expected)
+                and len(roles) == 1 and roles[0].get("role") == "tool"
+                and same_value({key: roles[0].get(key) for key in expected}, expected),
+                "EP source support/production role differs: " + name)
+    source, _ = evidence_bytes(plan.out, "artifact/main.c", reader=reader)
+    native, _ = evidence_bytes(plan.out, "artifact/native/x", reader=reader)
+    policy = owner.native_policy(plan.family, plan.profile, source, build.get("compiler"),
+        build.get("compile_executor"), build.get("compile_executor_version"))
+    require(same_value(build.get("ep_native_policy"), policy) and same_value(pin(native), policy["native"])
+            and all(same_value({key: build.get("expected_contract", {}).get(role + "_" + key)
+                                for key in ("bytes", "sha256")}, policy[role]) for role in ("source", "native"))
+            and "scan_native_policy" not in build,
+            "EP actual source/native does not match its separate measured policy")
+    return policy
 
 
 def compound_mechanism(plan, report, build, *, reader=None):
@@ -780,6 +836,9 @@ def check_stage(plan, stage, *, reader=None):
             require(report.get("post_scan") == selected_scan and
                     (selected_scan is not None or "scan_native_policy" not in report),
                     "generation scan differs from the requested producer policy")
+            ep_policy = ep_source_policy(plan, report, reader=reader)
+            if ep_policy is not None:
+                result["ep_native_policy"] = ep_policy
             if family == "B" and spelling_variant == "compound":
                 request = report.get("spelling_request")
                 require(type(request) is dict and request == {"requested": "compound", "effective": "best",
@@ -789,12 +848,17 @@ def check_stage(plan, stage, *, reader=None):
             else:
                 require("spelling_request" not in report, "unexpected spelling request normalization metadata")
         result["requested_spelling_variant"] = spelling_variant
+        if plan.ep_variant != "control":
+            result["requested_ep_variant"] = plan.ep_variant
         if spelling_variant in ("compound", "compound-v2"):
             result["effective_spelling_variant"] = plan.effective_spelling_variant
     elif stage.name == "mechanism":
         effective = effective_spelling(family, plan.spelling_variant, profile=plan.profile)
         require(report.get("source_bound") is True, "canonical/control mechanism is not selected-artifact evidence")
         build, build_pin = receipt(plan.out, "artifact/build.json", reader=reader)
+        if plan.ep_variant != "control":
+            require(report.get("source_contract", {}).get("post_ep") == build.get("post_ep") == EP_DECLARATION,
+                    "mechanism is not bound to the selected admitted EP source")
         if plan.scan_variant != "control":
             scan_mechanism_policy(plan, report, build, reader=reader)
         if plan.profile == "test-p28":
@@ -920,6 +984,9 @@ def pipeline_inputs(plan, own, *, verify=None, reader=None, transport=None):
         names.add(D_ROOT + "source.py")
     if isinstance(plan, Plan) and plan.scan_variant != "control":
         names.update((NEXT + "check_profile_compound.py", NEXT + "check_profile_p28.py"))
+    if isinstance(plan, Plan) and plan.ep_variant != "control":
+        names.update((EP, NEXT + "compact_ep.py", NEXT + "source_edits.py",
+                      NEXT + "profile_dependencies.py", NEXT + "spelling_compound.py"))
     if transport is not None:
         names.update((TRANSPORT, NEXT + "target_runtime.py", NEXT + "profile_compiler.py", verify.INPUT_READER))
     inputs = {name: own if name == SELF else normalized(ROOT / name, reader=reader) for name in sorted(names)}
@@ -1020,16 +1087,21 @@ def main():
                         help="producer-only source spelling selection (default: control); target consumes the sealed choice")
     parser.add_argument("--scan-variant", choices=("control", "square-successor"),
                         help="producer-only A/C compound scan selection; target consumes the sealed choice")
+    parser.add_argument("--ep-variant", choices=("control", "legal-maker"),
+                        help="producer-only C/E EP selection (default: control); target consumes the sealed choice")
     args = parser.parse_args()
     profile_workers(args.profile)
     if args.ubuntu22_target:
         require(args.spelling_variant is None, "spelling selection is producer-only; target consumes the sealed choice")
         require(args.scan_variant is None, "scan selection is producer-only; target consumes the sealed choice")
+        require(args.ep_variant is None, "EP selection is producer-only; target consumes the sealed choice")
     else:
         spelling_variant = producer_spelling_variant(args.family,
             "control" if args.spelling_variant is None else args.spelling_variant, profile=args.profile)
         scan_variant = producer_scan_variant(args.family, spelling_variant,
             "control" if args.scan_variant is None else args.scan_variant)
+        ep_variant = producer_ep_variant(args.family, spelling_variant, scan_variant,
+            "control" if args.ep_variant is None else args.ep_variant)
     require((args.source_bundle is not None) == (args.source_seal is not None), "source ZIP and seal must be supplied together")
     require(args.ubuntu22_target == (args.source_bundle is not None)
             and not (args.ubuntu22_target and args.export_source_bundle),
@@ -1068,7 +1140,8 @@ def main():
                 and admitted.representation == "source-jit", "sealed target source is not the requested fixed full TEST C-JIT profile")
         plan = target_plan(args.family, out, build, args.source_bundle, args.source_seal, profile=args.profile)
     else:
-        plan = pipeline_plan(args.family, out, spelling_variant=spelling_variant, scan_variant=scan_variant, profile=args.profile)
+        plan = pipeline_plan(args.family, out, spelling_variant=spelling_variant, scan_variant=scan_variant,
+                             ep_variant=ep_variant, profile=args.profile)
     inputs = pipeline_inputs(plan, own, verify=verify, reader=reader, transport=transport)
     out.mkdir(parents=True)
     for name, data in inputs.items():
@@ -1089,6 +1162,8 @@ def main():
         report["requested_spelling_variant"] = plan.spelling_variant
         if plan.scan_variant != "control":
             report["requested_scan_variant"] = plan.scan_variant
+        if plan.ep_variant != "control":
+            report["requested_ep_variant"] = plan.ep_variant
         if plan.spelling_variant in ("compound", "compound-v2"):
             report["effective_spelling_variant"] = plan.effective_spelling_variant
     def save():

@@ -6,6 +6,8 @@ the reviewed entry cleanup is projected; include cleanup is replayed last and
 checked on actual preprocessed input and native images. Two complete ELF builds
 retain the original native image, interpreter, TLS and libraries. Runtime and
 actual-source rules have separate consumers below. Size alone never qualifies.
+The submission profile is compile/package-only; those consumers accept TEST
+profiles and reject it before native admission, probes or available-RAM checks.
 
 All generated files belong outside Git. Compilation, packing, rules probes and
 engine execution require explicit CLI actions; importing this module does none.
@@ -44,14 +46,15 @@ LOADER = ("engines/scripts/elf-loader/loader.c", "engines/scripts/elf-loader/loa
 SUPPORT = (SELF, ENTRY, PROJECTION, DEPENDENCIES, BUILDER, VERIFIER, RULES,
            OWNER, UTILITY, ELF, ELF_DEPENDENCIES, PRODUCTION, *LOADER)
 FIXED = {
-    ENTRY: (11519, "4ea405140f18ccfd276fc24559a125db528f8efbf53848c8669c488d73d31b74"),
+    ENTRY: (12623, "28eb3f656bb35b4bcbf794bcf131302291ea62fda929b41f528dc97f6255d346"),
     PROJECTION: (9472, "4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"),
     ELF_DEPENDENCIES: (13855, "93e5fe74050ffc60d3bfa06740c5bc96aa0a8f11d70d172d2bf489626d7a6601"),
 }
 CLASS = "rove4k-full-profile-elf-v1"
 RULES_CLASS = "rove4k-full-profile-elf-rules-v1"
 FAMILIES = ("A", "B", "C", "E", "F")
-PROFILES = ("test-p4", "test-p28")
+TEST_PROFILES = ("test-p4", "test-p28")
+PROFILES = (*TEST_PROFILES, "tcec-provisional")
 NATIVE_VARIANTS = ("baseline", "lean")
 LEAN_FLAGS = ("-fno-asynchronous-unwind-tables", "-fno-unwind-tables", "-Wl,--build-id=none")
 BANNER = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
@@ -73,6 +76,11 @@ CONTROL = {
     ("E", "test-p28"): ((18568, "562afe71a92484a8a9ebb472f29cfd3ad7421c4e128f196a888d3c67e1e3b109"), (3894, "796a7d86b783bb69760afb28bcc9c3e8000b50c92e4f714d5461dfe7c0d49baf"), (3800, "14bbdc83024f1036914a4f4fe7c187dad11c6a12f487e76de7958ff52da0bba9")),
     ("F", "test-p4"): ((18568, "5b4e662a29f7a989c8b7a81f8a41e46a96df5c3e805f4b7b29929b6a2725ae50"), (3587, "c4e5be74f6aed58b7407444119e4de834f9ee3e4c9e99998922685a4f80fd343"), (3484, "f31169149c99192d914e906dd13b601975e490528657cbec04371b3a14c34760")),
     ("F", "test-p28"): ((18568, "843bbc1ea78ef68c4cde578df93218f6d36b5f3c48cfa794ba6022b75e949262"), (3602, "7c5b930a2a113a2cc294e97d56457896418f90b3df90eebfccba489b61342baa"), (3499, "81905d60d0ba5f9ed48d307ad3281c503ec2c2099405f0c2c7dc40f9a1ab82ca")),
+    ("A", "tcec-provisional"): ((18568, "e5a644a334125a96e60f495fb24d40b00c8f7cc16a3a3dc7195494fc0a5dd4b7"), (3782, "54924a8ad75e0b5304c38b1dfdca69d9006fe2c23603c0bd1d76eba5fe56a346"), (3688, "a0e71d239bb9ca0bccd5a323cc5368334a673dd691d4dbc4f7f1f74d9553adbc")),
+    ("B", "tcec-provisional"): ((25744, "db780f8318783991535a56e3d26f3d9e18e3a139fdbd9f0ced56784f7f236613"), (4072, "2f1cd9e6559594fa6142188df851c8ff6a8e57edd4de49c14fcdbbb67214f6b6"), (3963, "e680022b57423066591d73d18918b3edb71e9e72669240ca6613ff7b69b9b180")),
+    ("C", "tcec-provisional"): ((18568, "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"), (3915, "1c34d6b25453a61b3daf9f10ff7db3b6d3e8dcd2cf0135eaf0c0e8743f512961"), (3814, "189149a70c6e6cb6c549849b34b0a99eb566ff6aa4065b68a8585abeb8eba8de")),
+    ("E", "tcec-provisional"): ((18568, "cddcae2dcbd2ea4a8e4e6ccffc9da1d507d60b972d41da2c9e692c93fd149b80"), (3883, "1732d897f9953a40db6ed290afe171502cda588205f03be05a2b2f847ecb1029"), (3789, "648c36dec4118f5d81aeb42b5d41f969e0ac4d8ab63984f0c4ea4c6fc53582de")),
+    ("F", "tcec-provisional"): ((18568, "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"), (3589, "28f3f9024443b7dd63955b543ed2e6849905e1d0767a52c1d35ff51017889f30"), (3486, "90405436b74f2dc5e72a45340aff53b22a6c5845d8db40e4b62f890b268575b6")),
 }
 HEADERS = {
     "A": (94, "44b95bde0944d710e4bd20c4ab2a8c3d380c824bfc442f54e69901e6bb32406e"),
@@ -103,7 +111,7 @@ def canonical(value):
 
 def plan(family, profile_id="test-p4", *, native_variant="baseline"):
     require(type(family) is str and family in FAMILIES and type(profile_id) is str
-            and profile_id in PROFILES, "finite full ABCEF P4/P28 profile required")
+            and profile_id in PROFILES, "finite full ABCEF test or tcec-provisional profile required")
     require(type(native_variant) is str and native_variant in NATIVE_VARIANTS,
             "finite baseline/lean native compiler variant required")
     control_compiler = ["cc", *(["-std=c11"] if family == "B" else []), "-Os",
@@ -117,12 +125,21 @@ def plan(family, profile_id="test-p4", *, native_variant="baseline"):
     extra = [*LEAN_FLAGS, *([] if "-s" in control_compiler else ["-s"])] if native_variant == "lean" else []
     compiler = [*control_compiler[:at], *extra, *control_compiler[at:]]
     return dict(family=family, profile=profile_id, full=True, representation="self-contained-elf",
+        purpose="test" if profile_id in TEST_PROFILES else "submission", execution_policy="compile-package-only",
+        runtime_profile_supported=profile_id in TEST_PROFILES,
         entry_cleanup="none", native_variant=native_variant, control_compiler=control_compiler,
         compiler=compiler, compiler_version=BANNER,
         work_seconds=WORK_SECONDS, cleanup_seconds=CLEANUP_SECONDS,
         outer_commands=10,
         size_limit_bytes=4096, packing_filter="auto", loader_timeout_seconds=120,
-        runtime_external_programs=[], runtime_qualified=False, selected=False)
+        runtime_external_programs=[], runtime_qualified=False, submission_qualified=False,
+        event_target_confirmed=False, selected=False)
+
+
+def require_test_profile(profile_id):
+    """Submission profiles are preparation-only; never inspect RAM or run probes."""
+    require(type(profile_id) is str and profile_id in TEST_PROFILES,
+            "runtime, rules and qualification require test-p4/test-p28; submission profile is compile/package-only")
 
 
 def factory_argv(family, output, profile_id="test-p4"):
@@ -411,6 +428,7 @@ def produce(family, out, *, profile_id="test-p4", native_variant="baseline", exe
         artifact_directory=str(out),
         support={name: pin(data) for name, data in files.items()}, outer_command_limit=policy["outer_commands"],
         engine_executed=False, TT_allocated=False, runtime_qualified=False, elf_qualified=False, selected=False,
+        execution_policy="compile-package-only", submission_qualified=False, event_target_confirmed=False,
         host_context=dict(python=sys.version, uname=list(os.uname()), load_page_bytes=os.sysconf("SC_PAGE_SIZE")),
         actual={"source": "main.c", "native": "native/x", "program": "x"})
 
@@ -516,7 +534,8 @@ def produce(family, out, *, profile_id="test-p4", native_variant="baseline", exe
                 runtime_external_tools=[], submitted_file_preserved=True),
             size_decisions=[actual_plan.size_decision(expected_contract["whole_bytes"], division)
                             for division in ("general4k", "elf4k")],
-            status="deferred_size" if expected_contract["whole_bytes"] > 4096 else "pending_runtime",
+            status=("deferred_size" if expected_contract["whole_bytes"] > 4096 else
+                    "pending_runtime" if profile_id in TEST_PROFILES else "prepared_unqualified"),
             component_costs=dict(source_bytes=len(final), native_bytes=expected_contract["native_bytes"],
                 payload_bytes=expected_contract["payload_bytes"], loader_and_headers_bytes=expected_contract["header_bytes"],
                 whole_bytes=expected_contract["whole_bytes"], filter_candidates=first["pack"]["filter_candidates"]),
@@ -721,9 +740,12 @@ def admit_build(manifest, build):
     require(manifest.get("wrapper_contract") == wrapper
             and manifest.get("size_decisions") == [actual_plan.size_decision(expected_contract["whole_bytes"], division)
                 for division in ("general4k", "elf4k")]
-            and manifest.get("status") == ("deferred_size" if expected_contract["whole_bytes"] > 4096 else "pending_runtime")
+            and manifest.get("status") == ("deferred_size" if expected_contract["whole_bytes"] > 4096 else
+                "pending_runtime" if profile_id in TEST_PROFILES else "prepared_unqualified")
             and manifest.get("engine_executed") is False and manifest.get("TT_allocated") is False
-            and manifest.get("elf_qualified") is False and manifest.get("runtime_qualified") is False,
+            and manifest.get("elf_qualified") is False and manifest.get("runtime_qualified") is False
+            and manifest.get("execution_policy") == "compile-package-only"
+            and manifest.get("submission_qualified") is False and manifest.get("event_target_confirmed") is False,
             "ELF ownership, size or observation scope differs")
     require(manifest.get("component_costs") == dict(source_bytes=len(source), native_bytes=expected_contract["native_bytes"],
                 payload_bytes=expected_contract["payload_bytes"], loader_and_headers_bytes=expected_contract["header_bytes"],
@@ -738,11 +760,16 @@ def admit_build(manifest, build):
              dependencies=rows[0]["dependencies"], full_rules_generation="pending-actual-final-ELF-source-fixture"), full=True)
 
 
-def read_build(build):
+def read_build(build, *, test_only=False):
+    require(type(test_only) is bool, "explicit test-only reader mode required")
     files = capture()
     R = load_bytes("elf_profile_read_R", VERIFIER, files[VERIFIER])
     raw = R.input_reader().read_regular(R.artifact_file(Path(build), "build.json"), limit=MAX_FILE)
     manifest = json.loads(raw)
+    if test_only:
+        # Refuse the named submission profile before native/codec admission,
+        # runtime evidence, rule rendering or effective-memory inspection.
+        require_test_profile(manifest.get("profile"))
     admitted = admit_build(manifest, Path(build))
     # The public ownership marker belongs to the exact R instance which made
     # admitted. A second dynamic import would create a different Python type.
@@ -752,7 +779,7 @@ def read_build(build):
 def runtime(build, out, *, execute=False):
     require(execute is True, "explicit --execute required before engine runtime/TT allocation")
     require(sys.platform == "linux" and os.sysconf("SC_PAGE_SIZE") == 4096, "supported Linux 4KiB target required")
-    manifest, admitted, R, files = read_build(build)
+    manifest, admitted, R, files = read_build(build, test_only=True)
     dependency = admitted.source_contract["dependencies"]
     require(dependency["native_policy"]["allowed"] is True and dependency["outer_policy"]["allowed"] is True,
             "actual restored native and outer ELF dependencies must satisfy the reviewed TCEC policy before runtime")
@@ -767,7 +794,7 @@ def rules(build, out, *, execute=False):
     require(execute is True, "explicit --execute required before C rules probes")
     require(sys.platform == "linux" and os.sysconf("SC_PAGE_SIZE") == 4096, "supported Linux 4KiB target required")
     started = time.monotonic()
-    manifest, admitted, R, files = read_build(build)
+    manifest, admitted, R, files = read_build(build, test_only=True)
     utility = load_bytes("elf_profile_rules_output", UTILITY, files[UTILITY])
     helper = load_bytes("elf_profile_rules_renderer", RULES, files[RULES])
     out = utility.new_output(out)
@@ -804,7 +831,7 @@ def rules(build, out, *, execute=False):
                     "actual-source independent oracle coverage differs")
             report["modes"].append(dict(mode=mode, native=pin(R.input_reader().read_regular(executable, limit=MAX_FILE)), **comparison))
             save()
-        read_build(build)
+        read_build(build, test_only=True)
         require(all(read_source(ROOT / name) == data for name, data in files.items()), "rules support changed")
     except BaseException as error:
         body_error = error
@@ -830,7 +857,7 @@ def rules(build, out, *, execute=False):
 
 def rules_receipt(build, rules_path):
     """Read actual final-source fixtures, binaries, owner logs and oracle sets."""
-    manifest, admitted, R, files = read_build(build)
+    manifest, admitted, R, files = read_build(build, test_only=True)
     helper = load_bytes("elf_profile_rules_receipt_renderer", RULES, files[RULES])
     path = Path(rules_path)
     require(path.is_absolute() and path.name == "rules.json", "absolute named ELF rules receipt required")
@@ -879,7 +906,7 @@ def rules_receipt(build, rules_path):
 
 def qualify(build, runtime_path, *, rules_path=None):
     """Bind existing runtime/rules evidence; never execute or waive a gate."""
-    manifest, admitted, R, _ = read_build(build)
+    manifest, admitted, R, _ = read_build(build, test_only=True)
     result = R.qualification_record(admitted, Path(build), Path(runtime_path), rules_path=None)
     generated = rules_receipt(build, rules_path) if rules_path is not None else None
     policy = admitted.source_contract["dependencies"]

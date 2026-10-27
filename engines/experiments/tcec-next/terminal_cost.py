@@ -10,6 +10,7 @@ compile/run, for sixteen commands. The mate diagnostic executes integer fragment
 EP uses the actual source's start/generate/make in the existing rules fixture.
 Neither calls the original entry or allocates a TT. Nested factory commands remain
 separate. CPP identity is case-internal, not control-versus-candidate.
+Only EP permits P28 and provisional W256; terminal/mate retain their P4 domain.
 """
 from __future__ import annotations
 
@@ -39,6 +40,8 @@ EP_TESTS = PREFIX + "test_compact_ep.py"
 RULES = PREFIX + "profile_rules.py"
 ORACLE = "engines/tests/chess_oracle.py"
 PROJECTION = PREFIX + "spelling_compound.py"
+SOURCE_EDITS = PREFIX + "source_edits.py"
+SOURCE_EDITS_PIN = (3197, "11907bbdfc1e4629c61b4475ede0a6230fc3331e5d8fab445a6a5ca541cacf6b")
 BUILDER = PREFIX + "profile_build.py"
 VERIFIER = PREFIX + "profile_verify.py"
 DEPENDENCIES = PREFIX + "profile_dependencies.py"
@@ -49,9 +52,10 @@ UTILITY = "engines/experiments/tiny-d-submission/structural_size.py"
 PACKAGE = "engines/scripts/source_package.py"
 PRODUCTION = "engines/scripts/production.py"
 READERS = ("engines/scripts/production_input.py", "engines/scripts/source_composition.py")
-SUPPORT = (SELF, HELPER, PROJECTION, BUILDER, VERIFIER, DEPENDENCIES, WRAPPER,
+SUPPORT = (SELF, HELPER, PROJECTION, SOURCE_EDITS, BUILDER, VERIFIER, DEPENDENCIES, WRAPPER,
            UNLINK, OWNER, UTILITY, PACKAGE, PRODUCTION, *READERS)
 FIXED = {
+    SOURCE_EDITS: SOURCE_EDITS_PIN,
     HELPER: (6388, "b9a335870e07a7e0244a5554ec99bc7973c7783306112db5b52db560051ddb4d"),
     PROJECTION: (9472, "4e2a1599ab5b6f294b1cb59a10a1ec6667b5a2e0c993c1ce48895cddb7e55fce"),
 }
@@ -87,6 +91,7 @@ MATE_CLASS = "rove4k-ABCE-mate-cost-v1"
 MATE_VARIANTS = ("folded", "shared")
 MATE_OUTER_COMMANDS = 16
 MATE_FIXED = {
+    SOURCE_EDITS: SOURCE_EDITS_PIN,
     PROJECTION: FIXED[PROJECTION],
     MATE_HELPER: (7726, "85ede9040965ac09e23a2366e63d833ca8edb804ea8f0dbda4cab4701db3704a"),
     MATE_SEMANTICS: (11732, "4082051c2d70d6a02d24494f955b17631cea3e8f258163b1b7a2c99d1bf84bd7"),
@@ -118,11 +123,47 @@ MATE_COMPILERS = {
 }
 EP_CLASS = "rove4k-CE-ep-cost-v1"
 EP_CASE = "legal-maker"
+EP_PROFILES = ("test-p4", "test-p28", "tcec-provisional")
+# P28 controls are the named d954 origin artifacts. W256 controls are the fresh
+# 40476243172 C/E builds. All five actual files were checked against each receipt.
+EP_CONTROL = {
+    ("C", "test-p4"): {**MATE_CONTROL["C"], "header": MATE_HEADERS["C"]},
+    ("E", "test-p4"): {**MATE_CONTROL["E"], "header": MATE_HEADERS["E"]},
+    ("C", "test-p28"): {
+        "source": (8232, "b3a968d2287a8418ce32b7b2f9f019c4695b55a32fd4f332eab89e16d012d2d0"),
+        "native": (18568, "798beb0201c23da1de875be256d19626ee8a922c595c98588c5618a11d4a8544"),
+        "whole": (3926, "362c2e81c1b7af8b629355e85e1347add5fc71c0605f517a9d1ca59d76a2192d"),
+        "header": (101, "05292d5798f864fcd3fee2d387e258d7105085d6753a123100dd246796bf4a38"),
+        "payload": (3825, "9a8c3aa148a1ee9cb9fb079cd3a8a180cf5cfdce6795e8a349d68d3abbb8771f"),
+    },
+    ("E", "test-p28"): {
+        "source": (7848, "de83f406f1c7916277f71e75c4b6ac2a5aa77663ab9f7e3ec2af11e8480668b8"),
+        "native": (18568, "562afe71a92484a8a9ebb472f29cfd3ad7421c4e128f196a888d3c67e1e3b109"),
+        "whole": (3894, "796a7d86b783bb69760afb28bcc9c3e8000b50c92e4f714d5461dfe7c0d49baf"),
+        "header": (94, "44b95bde0944d710e4bd20c4ab2a8c3d380c824bfc442f54e69901e6bb32406e"),
+        "payload": (3800, "14bbdc83024f1036914a4f4fe7c187dad11c6a12f487e76de7958ff52da0bba9"),
+    },
+    ("C", "tcec-provisional"): {
+        "source": (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807"),
+        "native": (18568, "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"),
+        "whole": (3915, "1c34d6b25453a61b3daf9f10ff7db3b6d3e8dcd2cf0135eaf0c0e8743f512961"),
+        "header": (101, "05292d5798f864fcd3fee2d387e258d7105085d6753a123100dd246796bf4a38"),
+        "payload": (3814, "189149a70c6e6cb6c549849b34b0a99eb566ff6aa4065b68a8585abeb8eba8de"),
+    },
+    ("E", "tcec-provisional"): {
+        "source": (7817, "d3069c36dec5becdca14b69e49016b9a3a6b4c762da91471e7ba8c73debad4f3"),
+        "native": (18568, "cddcae2dcbd2ea4a8e4e6ccffc9da1d507d60b972d41da2c9e692c93fd149b80"),
+        "whole": (3883, "1732d897f9953a40db6ed290afe171502cda588205f03be05a2b2f847ecb1029"),
+        "header": (94, "44b95bde0944d710e4bd20c4ab2a8c3d380c824bfc442f54e69901e6bb32406e"),
+        "payload": (3789, "648c36dec4118f5d81aeb42b5d41f969e0ac4d8ab63984f0c4ea4c6fc53582de"),
+    },
+}
 EP_FIXED = {
+    SOURCE_EDITS: SOURCE_EDITS_PIN,
     PROJECTION: FIXED[PROJECTION],
-    EP_HELPER: (7042, "c74f494ede124feddccadbfb5ff9f328f459734ba9355dc1052649ca78205c56"),
-    EP_TESTS: (5696, "0806a637a579fa6530cc9ec122349fcc67b817548ec3753d7d185a1224b58559"),
-    RULES: (46921, "0719f373c2180d5fb0a79e5b7ceaaea13d6fe8fc889c7e3bb7a42c1d17f93f93"),
+    EP_HELPER: (7267, "42963c889070f29da4dc05d08d5fc4749afb7aec36b0d00735ccc9d271215c6c"),
+    EP_TESTS: (5690, "5d7992480ef27f8488989df4d8c7e23f1aea0ac4549e18b6087d41b64f6026b6"),
+    RULES: (50230, "dbbbeeb143ee801cb7bc7d325f073c6475a62fd40a8138f6e75ba729b0ae391d"),
     ORACLE: (10730, "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"),
 }
 SEMANTIC_COMPILER = ("cc", "-std=c11", "-O2", "-fsanitize=undefined",
@@ -147,26 +188,30 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def plan(family, *, experiment="terminal", variant=None):
+def plan(family, *, experiment="terminal", variant=None, profile=PROFILE):
     require(type(experiment) is str and experiment in ("terminal", "mate", "ep"), "finite source experiment required")
     terminal = experiment == "terminal"
     mate = experiment == "mate"
     families = CONTROL if terminal else MATE_CONTROL if mate else ("C", "E")
-    require(type(family) is str and family in families, "finite family for the named P4 source experiment required")
+    require(type(family) is str and family in families, "finite family for the named source experiment required")
     require(type(variant) is str and variant in MATE_VARIANTS if mate else variant is None,
             "explicit folded/shared mate variant, or no variant for terminal/EP, required")
+    require(type(profile) is str and (profile in EP_PROFILES if experiment == "ep" else profile == PROFILE),
+            "EP permits the three named profiles; terminal/mate remain P4 only")
     compression = dict(format="lzma-alone", filter="LZMA1", preset=6 if family == "A" else 9,
         extreme=family != "A", lc=2, lp=0, pb=0, check="NONE", mf="BT2" if family == "A" else "BT4",
         dictionary_bytes=65536, nice_len=24 if family == "A" else 64 if family == "C" else 32)
     controls = CONTROL if terminal else MATE_CONTROL
-    result = dict(family=family, profile=PROFILE,
+    control = ({key: expected(value) for key, value in EP_CONTROL[family, profile].items()}
+               if experiment == "ep" else
+               {**{key: expected(value) for key, value in controls[family].items()},
+                "header": expected(HEADER if terminal else MATE_HEADERS[family])})
+    result = dict(family=family, profile=profile,
         cases=list(CASES) if terminal else ["control", variant if mate else EP_CASE],
         outer_commands=OUTER_COMMANDS if terminal else MATE_OUTER_COMMANDS,
         work_seconds=600, cleanup_seconds=30,
         compiler=list(COMPILER if terminal else MATE_COMPILERS[family]), compiler_version=BANNER,
-        compression=compression,
-        control={**{key: expected(value) for key, value in controls[family].items()},
-                 "header": expected(HEADER if terminal else MATE_HEADERS[family])})
+        compression=compression, control=control)
     if terminal:
         result["candidate_source"] = expected(CANDIDATE[family])
     elif mate:
@@ -180,16 +225,18 @@ def plan(family, *, experiment="terminal", variant=None):
     return result
 
 
-def factory_argv(family, output, *, experiment="terminal", variant=None):
-    plan(family, experiment=experiment, variant=variant)
+def factory_argv(family, output, *, experiment="terminal", variant=None, profile=PROFILE):
+    plan(family, experiment=experiment, variant=variant, profile=profile)
     command = [sys.executable, "-I", "-B", str(ROOT / BUILDER), "--entry", family,
-        "--profile", PROFILE, "--representation", "source-jit", "--b-variant",
+        "--profile", profile, "--representation", "source-jit", "--b-variant",
         "tcec-final-lf" if family == "B" else "control",
         "--phase-variant", "control" if family == "B" else "phase-init",
         "--spelling-variant", "best" if family == "B" else "compound",
         "--source-dependencies", "unused-includes"]
     if family in ("A", "C"):
         command += ["--scan-variant", "square-successor"]
+    if experiment == "ep":
+        command += ["--ep-variant", "control"]
     return [*command, "--out", str(output)]
 
 
@@ -271,9 +318,9 @@ def settled(commands):
         and row.get("forced_cleanup") is False for row in commands)
 
 
-def validate_factory_receipts(manifest, control, family, *, experiment="terminal", variant=None):
+def validate_factory_receipts(manifest, control, family, *, experiment="terminal", variant=None, profile=PROFILE):
     """New profile receipts are not legacy Host nested_receipt dictionaries."""
-    plan(family, experiment=experiment, variant=variant)
+    plan(family, experiment=experiment, variant=variant, profile=profile)
     for record, kind in ((manifest, "rove4k-production-profile-v1"), (control, "tcec-full-C-v1")):
         require(type(record) is dict and type(record.get("format")) is int
                 and record["format"] == 1 and record.get("class") == kind
@@ -321,48 +368,12 @@ def restored_payload(whole, header, source):
 
 
 def lift_source_edits(before, final, candidate, proof, old_dependency, *, projection, dependencies):
-    """Commute exact final-source edits through the existing include cleanup.
-
-    The old dependency proof supplies coordinates; no include offset is guessed.
-    All lifted spans and both complete inverses are checked before compilation.
-    """
-    replay, canonical_dependency = dependencies.transform_source(before)
-    require(replay == final and canonical(canonical_dependency) == canonical(old_dependency)
-            and dependencies.restore_source(final, old_dependency) == before,
-            "canonical original dependency relation differs")
-    spans = old_dependency["spans"]
-    require(type(spans) is list and len(spans) <= 1, "finite existing dependency cleanup required")
-    offset = removed = None
-    if spans:
-        span = spans[0]
-        offset, removed = span["offset"], span["before"].encode("ascii")
-        require(type(offset) is int and 0 <= offset <= len(final) and removed == dependencies.DIRECTIVE
-                and span["after"] == "" and before[:offset] == final[:offset]
-                and before[offset:offset + len(removed)] == removed
-                and before[offset + len(removed):] == final[offset:],
-                "one exact unchanged include deletion required")
-    require(projection._inverse_edits(candidate, proof["edits"]) == final,
-            "actual final-source inverse differs before lifting")
-    lifted = []
-    for row in proof["edits"]:
-        at, length = row["input_begin"], len(row["before"].encode("ascii"))
-        require(type(at) is int and length > 0, "typed nonempty source edit required")
-        if spans:
-            require(at >= offset or at + length <= offset, "source edit crosses the removed include")
-            at += len(removed) if at >= offset else 0
-        lifted.append(dict(input_begin=at, before=row["before"], after=row["after"],
-                           role=row["role"], component=row["component"]))
-    pre_candidate, rows, gaps = projection._splice(before, lifted)
-    require(projection._inverse_edits(pre_candidate, rows) == before,
-            "lifted complete pre-cleanup inverse differs")
-    cleaned, dependency_proof = dependencies.transform_source(pre_candidate)
-    require(cleaned == candidate and dependencies.restore_source(cleaned, dependency_proof) == pre_candidate,
-            "source/include projections do not commute")
-    return pre_candidate, dependency_proof, dict(
-        original_before=pin(before), original_final=pin(final), candidate_before=pin(pre_candidate),
-        candidate_final=pin(candidate), original_dependency=old_dependency,
-        lifted_edits=rows, protected_gaps=gaps, lifted_full_inverse=True,
-        canonical_cleanup_last=True, exact_commuting_output=True)
+    """Compatibility delegate; measurements instead use their captured owner."""
+    data = read_source(ROOT / SOURCE_EDITS)
+    require(pin(data) == expected(SOURCE_EDITS_PIN), "frozen source-edit owner differs")
+    source_edits = load_bytes("terminal_cost_source_edits_compat", SOURCE_EDITS, data)
+    return source_edits.lift_source_edits(before, final, candidate, proof, old_dependency,
+                                         projection=projection, dependencies=dependencies)
 
 
 def lift_mate_source(before, final, candidate, proof, old_dependency, *, projection, dependencies):
@@ -384,9 +395,9 @@ def semantic_observation(data, *, family, variant):
     return record
 
 
-def measure(family, out, *, execute=False, experiment="terminal", variant=None):
+def measure(family, out, *, execute=False, experiment="terminal", variant=None, profile=PROFILE):
     require(execute is True, "explicit --execute required before source capture or output creation")
-    policy = plan(family, experiment=experiment, variant=variant)
+    policy = plan(family, experiment=experiment, variant=variant, profile=profile)
     terminal = experiment == "terminal"
     mate = experiment == "mate"
     compiler, cases = policy["compiler"], policy["cases"]
@@ -453,6 +464,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
             actual_parent_AS=resource.getrlimit(resource.RLIMIT_AS),
             actual_FSIZE=resource.getrlimit(resource.RLIMIT_FSIZE))
         R = load_bytes("terminal_cost_strict_R", VERIFIER, files[VERIFIER])
+        source_edits = load_bytes("terminal_cost_source_edits", SOURCE_EDITS, files[SOURCE_EDITS])
         helper_path = HELPER if terminal else MATE_HELPER if mate else EP_HELPER
         helper = load_bytes("terminal_cost_source_hypothesis", helper_path, files[helper_path])
         projection = load_bytes("terminal_cost_projection", PROJECTION, files[PROJECTION])
@@ -474,20 +486,20 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                     "EP rules renderer's independent oracle owner differs")
             oracle = load_bytes("terminal_cost_EP_oracle", ORACLE, files[ORACLE])
         baseline = out / "fresh-profile"
-        run_command(host, owner, factory_argv(family, baseline, experiment=experiment, variant=variant),
+        run_command(host, owner, factory_argv(family, baseline, experiment=experiment, variant=variant, profile=profile),
                     cwd=out, kind="fresh-profile", factory=True)
         raw = R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE)
         manifest = json.loads(raw)
         admitted = R.admit_c_build(manifest, baseline)
         control_raw = R.checked_artifact(baseline, "control/build.json", manifest["control"]["report"])
         control_manifest = json.loads(control_raw)
-        validate_factory_receipts(manifest, control_manifest, family, experiment=experiment, variant=variant)
-        require(admitted.family == family and admitted.profile_id == PROFILE and admitted.full is True
+        validate_factory_receipts(manifest, control_manifest, family, experiment=experiment, variant=variant, profile=profile)
+        require(admitted.family == family and admitted.profile_id == profile and admitted.full is True
                 and admitted.representation == "source-jit" and manifest["plan"]["entry_cleanup"] == "private-path"
                 and canonical(manifest["compiler"]) == canonical(compiler)
                 and manifest["compile_executor"] == compiler and manifest["compile_executor_version"] == BANNER
                 and canonical(manifest["compression"]) == canonical(policy["compression"]),
-                "fresh strict control context differs from the finite P4 context")
+                "fresh strict control context differs from the named finite profile")
         artifacts = {key: R.checked_artifact(baseline, name, policy["control"][key]) for key, name in
             (("source", "main.c"), ("native", "native/x"), ("whole", "x"),
              ("header", "header.sh"), ("payload", "payload.lzma"))}
@@ -536,7 +548,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                 source_proof = None
                 commuting = None
                 if case != "control":
-                    arguments = dict(family=family, profile_id=PROFILE, projection=projection)
+                    arguments = dict(family=family, profile_id=profile, projection=projection)
                     if mate:
                         arguments["variant"] = variant
                     candidate, source_proof = helper.transform_source(source, **arguments)
@@ -547,11 +559,12 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                         require(pin(candidate) == policy["candidate_source"], "finite terminal source differs")
                         before = candidate
                     else:
-                        before, _, commuting = lift_source_edits(before, source, candidate, source_proof, old_dependency,
-                                                                 projection=projection, dependencies=dependencies)
+                        before, _, commuting = source_edits.lift_source_edits(
+                            before, source, candidate, source_proof, old_dependency,
+                            projection=projection, dependencies=dependencies)
                         if mate and "semantics" not in report:
                             fixture, fixture_proof = semantics.semantic_fixture(source, family=family,
-                                profile_id=PROFILE, variant=variant)
+                                profile_id=profile, variant=variant)
                             require(fixture_proof["source"] == pin(source)
                                     and fixture_proof["candidate"] == pin(candidate)
                                     and fixture_proof["fixture"] == pin(fixture)
@@ -597,7 +610,7 @@ def measure(family, out, *, execute=False, experiment="terminal", variant=None):
                                     "actual-source EP rules diagnostic comparison differs")
                             write(diagnostic, "result.stdout", semantic_raw)
                             report.update(diagnostic_C_executed=True, semantics=dict(
-                                mode="ubsan", source=pin(candidate), fixture=pin(fixture), cases=pin(case_bytes),
+                                mode="ubsan", profile=profile, source=pin(candidate), fixture=pin(fixture), cases=pin(case_bytes),
                                 oracle=dict(path=ORACLE, **pin(files[ORACLE])), renderer=dict(path=RULES, **pin(files[RULES])),
                                 coverage=coverage, native=pin(R.input_reader().read_regular(diagnostic / "x", limit=MAX_FILE)),
                                 output=pin(semantic_raw), observation=observation, engine_executed=False,
@@ -707,6 +720,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--entry", choices=("A", "B", "C", "E"), required=True)
     parser.add_argument("--experiment", choices=("terminal", "mate", "ep"), default="terminal")
+    parser.add_argument("--profile", choices=EP_PROFILES, default=PROFILE,
+                        help="EP-only profile choice; terminal/mate require the default test-p4")
     parser.add_argument("--variant", choices=MATE_VARIANTS,
                         help="explicit folded/shared mate hypothesis; invalid for terminal and EP experiments")
     parser.add_argument("--out", type=Path, required=True)
@@ -714,13 +729,16 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if not args.execute:
         parser.error("--execute is required before source capture or output creation")
-    report = measure(args.entry, args.out, execute=True, experiment=args.experiment, variant=args.variant)
+    report = measure(args.entry, args.out, execute=True, experiment=args.experiment, variant=args.variant,
+                     profile=args.profile)
     summary = {"class": report["class"], "complete": report["complete"],
                "family": args.entry, "delta": report["delta"]}
     if args.experiment != "terminal":
         summary.update(experiment=args.experiment, diagnostic_C_executed=report["diagnostic_C_executed"])
         if args.experiment == "mate":
             summary["variant"] = args.variant
+        else:
+            summary["profile"] = args.profile
     print(json.dumps(summary, sort_keys=True))
 
 

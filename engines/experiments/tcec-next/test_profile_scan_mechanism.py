@@ -2,7 +2,9 @@
 import copy
 import importlib.util
 from pathlib import Path
+from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location("scan_mechanism_tests", HERE / "check_profile_scan.py")
@@ -10,7 +12,7 @@ adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
 
 
-def selected(family="A", profile="test-p4"):
+def selected(family="A", profile="test-p4", *, ep=False):
     workers, bits = adapter.PROFILES[profile]
     resources = dict(id=profile, workers=workers, tt_bits=bits, tt_entries=1 << bits,
         tt_bytes=(1 << bits) * 24, tt_entry_bytes=24, tt_mask=(1 << bits) - 1)
@@ -26,12 +28,17 @@ def selected(family="A", profile="test-p4"):
         components=["clock-type", "atomic-assignment", "launcher-short"], input=parent,
         individual=[dict(variant="launcher-short", proof=component)],
         edits=[dict(**row, component="launcher-short") for row in rows])
-    return {"class":"rove4k-production-profile-v1", "family":family, "entry":family,
+    record = {"class":"rove4k-production-profile-v1", "family":family, "entry":family,
         "post_profile":{"path":adapter.PHASE,"variant":"phase-init"},
         "post_spelling":dict(adapter.COMPOUND_DECLARATION), "post_scan":dict(adapter.SCAN_DECLARATION),
         "source_dependencies":dict(adapter.DEPENDENCIES), "resources":resources,
         "source_proofs":proofs, "inputs":{adapter.SCAN:dict(adapter.FIXED_INPUTS[adapter.SCAN])},
         "plan":{"representation":"source-jit","entry_cleanup":"private-path"}}
+    if ep:
+        record["post_ep"] = {"path":"engines/experiments/tcec-next/profile_ep.py", "variant":"legal-maker"}
+        proofs.insert(4, dict(schema="rove4k.profile-ep-source.v1", family=family,
+                              profile_id=profile, variant="legal-maker"))
+    return record
 
 
 class ScanMechanism(unittest.TestCase):
@@ -62,6 +69,63 @@ class ScanMechanism(unittest.TestCase):
         record=copy.deepcopy(good);record["source_proofs"][2:4]=record["source_proofs"][2:4][::-1];cases.append(record)
         for record in cases:
             with self.assertRaisesRegex(ValueError,"in order"):adapter.bound_selection(record)
+
+    def test_C_EP_requires_exact_optional_declaration_and_ordered_proof(self):
+        for profile in adapter.PROFILES:
+            self.assertEqual(adapter.bound_selection(selected("C", profile, ep=True)), profile)
+        mutations = (
+            lambda row: row.update(post_ep=None),
+            lambda row: row["post_ep"].update(path="foreign.py"),
+            lambda row: row["post_ep"].update(variant="control"),
+            lambda row: row["post_ep"].update(extra=True),
+            lambda row: row["source_proofs"].pop(4),
+            lambda row: row["source_proofs"].insert(4, copy.deepcopy(row["source_proofs"][4])),
+            lambda row: row["source_proofs"][4].update(schema="foreign"),
+            lambda row: row["source_proofs"][4].update(family="A"),
+            lambda row: row["source_proofs"][4].update(profile_id="test-p28"),
+            lambda row: row["source_proofs"][4].update(variant="foreign"),
+            lambda row: row["source_proofs"].__setitem__(slice(3, 5), row["source_proofs"][3:5][::-1]),
+            lambda row: row["source_proofs"].__setitem__(slice(4, 6), row["source_proofs"][4:6][::-1]),
+        )
+        for mutate in mutations:
+            record = selected("C", ep=True)
+            mutate(record)
+            with self.subTest(mutation=mutate), self.assertRaises(ValueError):
+                adapter.bound_selection(record)
+        for record in (selected("A", ep=True), selected("E", ep=True)):
+            with self.assertRaises(ValueError):
+                adapter.bound_selection(record)
+        declared_without_proof = selected("C")
+        declared_without_proof["post_ep"] = {"path":"engines/experiments/tcec-next/profile_ep.py", "variant":"legal-maker"}
+        with self.assertRaises(ValueError):
+            adapter.bound_selection(declared_without_proof)
+
+    def test_C_EP_fixture_forwards_supplied_final_source_to_existing_renderers(self):
+        # These mocks test the source/owner join, not C semantics or admission.
+        source = b"supplied-final-EP-source"
+        prefix, alias = b"existing-diagnostic-prefix", {"fixture":"existing-launcher-alias"}
+        context = {"fixture":"C-context"}
+        observation = {"fixture":"existing-observation"}
+        for profile in adapter.PROFILES:
+            record = selected("C", profile, ep=True)
+            lifecycle = SimpleNamespace(diagnostic_alias=Mock(return_value=(prefix, alias)))
+            phase_check = SimpleNamespace(scaled_fixture=Mock(return_value=(b"p4-fixture", observation)))
+            phase = SimpleNamespace(CONTEXT={"C":context})
+            p28 = SimpleNamespace(full_callback_fixture=Mock(
+                return_value=(b"p28-fixture", observation, {"trace":True}, {"geometry":True})))
+            prepared = adapter.prepare_fixture(source, record, lifecycle, phase_check, phase, p28)
+            if profile == "test-p4":
+                lifecycle.diagnostic_alias.assert_called_once_with(source, record["source_proofs"][2])
+                phase_check.scaled_fixture.assert_called_once_with(prefix, record["source_proofs"][0], context)
+                p28.full_callback_fixture.assert_not_called()
+                self.assertEqual((prepared["fixture"], prepared["prefix"], prepared["alias"]),
+                                 (b"p4-fixture", prefix, alias))
+            else:
+                p28.full_callback_fixture.assert_called_once_with(source, "C", record["source_proofs"][0])
+                lifecycle.diagnostic_alias.assert_not_called()
+                phase_check.scaled_fixture.assert_not_called()
+                self.assertEqual(prepared["fixture"], b"p28-fixture")
+            self.assertEqual(prepared["observation"], observation)
 
     def test_wrong_stage_family_profile_or_variant_rejected(self):
         for stage,key,value in ((0,"family","C"),(1,"family","C"),(2,"profile_id","test-p28"),

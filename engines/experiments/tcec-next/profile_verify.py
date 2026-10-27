@@ -66,6 +66,10 @@ SCAN = "engines/experiments/tcec-next/profile_scan.py"
 SCAN_SCHEMA = "rove4k.selected-square-scan.v1"
 SCAN_DECLARATION = {"path": SCAN, "variant": "square-successor"}
 SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}
+EP = "engines/experiments/tcec-next/profile_ep.py"
+EP_SCHEMA = "rove4k.profile-ep-source.v1"
+EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
+EP_PIN = {"bytes": 7472, "sha256": "ed21cbb0b894310184048281bf89c3574dca1369c2409d6eec8ee043e25214fb"}
 SCAN_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 # Independent finite native admission; existing compound/control policies remain unchanged.
 SCAN_IMAGES = {
@@ -401,7 +405,7 @@ def revalidate_target(reference):
             reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, source_dependencies=None,
+def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, source_dependencies=None,
                   representation=None, entry_cleanup=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
@@ -451,6 +455,15 @@ def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, s
                                             "variant": "unused-includes"},
                 "valid-square stage requires A/C phase-init/compound and final dependency cleanup")
         expected.append(SCAN_SCHEMA)
+    if post_ep is not None:
+        require(family in ("C", "E") and post_ep == EP_DECLARATION
+                and kind == "phase" and post_spelling == COMPOUND_DECLARATION
+                and post_scan == (SCAN_DECLARATION if family == "C" else None)
+                and representation == "source-jit" and entry_cleanup == "private-path"
+                and source_dependencies == {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                                            "variant": "unused-includes"},
+                "EP requires selected C/E phase/compound, C square-successor and final dependency cleanup")
+        expected.append(EP_SCHEMA)
     if source_dependencies is not None:
         require(source_dependencies == {
             "path": "engines/experiments/tcec-next/profile_dependencies.py",
@@ -489,7 +502,7 @@ def _reviewed_spelling_module(manifest, build, production_paths, path, identity,
     module = importlib.util.module_from_spec(spec)
     sys.modules[name] = module
     exec(compile(data, str(module_path), "exec", dont_inherit=True), module.__dict__)
-    require(module.SCHEMA == schema, "reviewed spelling schema differs")
+    require(getattr(module, "SCHEMA", None) == schema, "reviewed source helper schema differs")
     return module
 
 
@@ -516,8 +529,23 @@ def scan_module(manifest, build, production_paths):
                                     SCAN_SCHEMA, "profile_runtime_reviewed_scan")
 
 
+def ep_modules(manifest, build, production_paths):
+    owner = _reviewed_spelling_module(manifest, build, production_paths, EP, EP_PIN,
+                                      EP_SCHEMA, "profile_runtime_reviewed_ep")
+    helpers = {}
+    for name, row in owner.SUPPORT.items():
+        helpers[name] = _reviewed_spelling_module(manifest, build, production_paths,
+            row["path"], {key: row[key] for key in ("bytes", "sha256")}, row["schema"],
+            "profile_runtime_reviewed_ep_" + name)
+    return owner, helpers
+
+
 def scan_native_evidence(manifest, build, source, native, profile_id):
     declaration = manifest.get("post_scan")
+    if manifest.get("post_ep") is not None:
+        require(manifest["post_ep"] == EP_DECLARATION and "scan_native_policy" not in manifest,
+                "EP has its own final native policy; original scan controls cannot be relabeled")
+        return None
     if declaration is None:
         require("scan_native_policy" not in manifest, "valid-square native policy is outside its finite route")
         return None
@@ -537,6 +565,23 @@ def scan_native_evidence(manifest, build, source, native, profile_id):
     version, output = _compound_owned_command(manifest, build, "target-compiler-version", ["cc", "--version"], None, ())
     require(output["stdout"].decode().splitlines()[:1] == [SCAN_COMPILER_VERSION],
             "valid-square actual compiler banner differs")
+    return dict(policy=policy, compiler_version_command=version)
+
+
+def ep_native_evidence(manifest, build, source, native, profile_id, owner):
+    if manifest.get("post_ep") is None:
+        require("ep_native_policy" not in manifest, "EP native policy is outside its finite route")
+        return None
+    require(owner is not None and owner.SCHEMA == EP_SCHEMA
+            and manifest["post_ep"] == EP_DECLARATION,
+            "reviewed EP source owner and explicit declaration required")
+    policy = owner.native_policy(manifest["family"], profile_id, source, manifest["compiler"],
+        manifest.get("compile_executor", manifest["compiler"]), manifest.get("compile_executor_version"))
+    require(_json_equal(manifest.get("ep_native_policy"), policy) and pin(native) == policy["native"],
+            "EP source/native/compiler differs from its named measured profile policy")
+    version, output = _compound_owned_command(manifest, build, "target-compiler-version", ["cc", "--version"], None, ())
+    require(output["stdout"].decode().splitlines()[:1] == [owner.COMPILER_VERSION],
+            "EP actual compiler banner differs")
     return dict(policy=policy, compiler_version_command=version)
 
 
@@ -572,11 +617,12 @@ def _compound_owned_command(manifest, build, kind, command, data, suffix):
     return {"row": row, "stdin": stdin, "pipes": pipes}, outputs
 
 
-def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id):
+def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id, ep_owner=None):
     """Bind new compound codegen to actual appended assertions and owned stdin."""
     declaration = manifest.get("post_spelling")
     selected = declaration in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION)
     scan_evidence = scan_native_evidence(manifest, build, source, native, profile_id)
+    ep_evidence = ep_native_evidence(manifest, build, source, native, profile_id, ep_owner)
     if not selected:
         require("native_policy" not in manifest, "named compound native policy is outside its finite route")
         return None
@@ -631,7 +677,8 @@ def compound_native_evidence(manifest, build, source, native, resource_proof, pr
                          "asserted_command": asserted_command, "shipping_command": shipping_command})
     return {"declaration": dict(declaration), "source": pin(source), "native": pin(native),
             "native_policy": policy, "compiler_version_command": version, "attempts": observed,
-            **({"scan_native_evidence": scan_evidence} if scan_evidence is not None else {})}
+            **({"scan_native_evidence": scan_evidence} if scan_evidence is not None else {}),
+            **({"ep_native_evidence": ep_evidence} if ep_evidence is not None else {})}
 
 
 def inverse_source_stages(source, inverses):
@@ -642,13 +689,15 @@ def inverse_source_stages(source, inverses):
         module, proof, parent = stage[:3]
         binding = stage[3] if len(stage) == 4 else {}
         if len(stage) == 4:
-            require(isinstance(binding, dict) and set(binding) == {"spelling"}
+            compound_binding = (isinstance(binding, dict) and set(binding) == {"spelling"}
                     and module is not None and module.SCHEMA == COMPOUND_SCHEMA
                     and (proof.get("schema") == COMPOUND_SCHEMA or
                          proof.get("schema") == F_COMPOUND_SCHEMA and
                          getattr(module, "F_SCHEMA", None) == F_COMPOUND_SCHEMA)
-                    and binding["spelling"].SCHEMA == SPELLING_SCHEMA,
-                    "compound inverse requires its explicit authenticated individual helper")
+                    and binding["spelling"].SCHEMA == SPELLING_SCHEMA)
+            ep_binding = (isinstance(binding, dict) and set(binding) == {"ep", "projection", "dependencies", "edits"}
+                          and module is not None and module.SCHEMA == EP_SCHEMA and proof.get("schema") == EP_SCHEMA)
+            require(compound_binding or ep_binding, "source inverse requires its explicit authenticated helper binding")
         if module is None:
             offset, before, after = proof["table_value_offset"], proof["before"].encode(), proof["after"].encode()
             require(restored[offset:offset + len(after)] == after, "E19 inverse span differs")
@@ -783,9 +832,10 @@ def admit_c_build(manifest, build):
     post = manifest.get("post_profile")
     post_spelling = manifest.get("post_spelling")
     post_scan = manifest.get("post_scan")
+    post_ep = manifest.get("post_ep")
     dependency_declaration = manifest.get("source_dependencies")
     post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
-        post_scan=post_scan, source_dependencies=dependency_declaration,
+        post_scan=post_scan, post_ep=post_ep, source_dependencies=dependency_declaration,
         representation=representation, entry_cleanup=plan["entry_cleanup"])
     next_stage = 1
     if post is not None:
@@ -858,6 +908,18 @@ def admit_c_build(manifest, build):
                 "full valid-square proof/protected gaps or inverse differs")
         inverses.append((helper, scan_proof, before_scan))
         next_stage += 1
+    ep_owner = None
+    if post_ep is not None:
+        ep_owner, ep_helpers = ep_modules(manifest, build, production_paths)
+        before_ep = produced
+        produced, ep_proof = ep_owner.transform_source(produced, family=family,
+            profile_id=profile.id, **ep_helpers)
+        supplied = manifest["source_proofs"][next_stage]
+        require(_json_equal(ep_proof, supplied)
+                and ep_owner.restore_source(produced, supplied, **ep_helpers) == before_ep,
+                "full EP source/protected gaps/cleanup-lift inverse differs")
+        inverses.append((ep_owner, supplied, before_ep, ep_helpers))
+        next_stage += 1
     before_dependencies = produced
     dependencies = None
     if dependency_declaration is not None:
@@ -880,7 +942,7 @@ def admit_c_build(manifest, build):
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     require(inverse_source_stages(source, inverses) == base,
             "complete final consumer inverse differs from its fresh control")
-    compound_evidence = compound_native_evidence(manifest, build, source, native, proof, profile.id)
+    compound_evidence = compound_native_evidence(manifest, build, source, native, proof, profile.id, ep_owner)
     if representation == "source-jit":
         require(restore_payload(payload, len(source)) == source, "source package inverse differs")
         package = load("profile_runtime_package", ROOT / "engines/scripts/source_package.py")
@@ -920,6 +982,7 @@ def admit_c_build(manifest, build):
                          {"kind": "exact-resource-projection", "proof": proof, "post_profile": post,
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
                           **({"post_scan": post_scan} if post_scan is not None else {}),
+                          **({"post_ep": post_ep} if post_ep is not None else {}),
                           **({"spelling_request": manifest["spelling_request"]}
                              if "spelling_request" in manifest else {}),
                           **({"compound_native_evidence": compound_evidence}
