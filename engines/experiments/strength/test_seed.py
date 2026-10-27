@@ -587,6 +587,36 @@ class SeedTests(unittest.TestCase):
             with self.subTest(missing=missing), self.assertRaisesRegex(ValueError, "omitted the host/R production code closure"):
                 seed.checkout_files({**checkout, "paths": prefixes}, origin, league_required=True)
 
+    def test_only_reviewed_declarations_are_exempt_in_legacy_closure(self):
+        owner = seed.LEAGUE_CAMPAIGN_CI
+        metadata = Path(seed.__file__).read_bytes()
+        own = "engines/experiments/strength/seed.py"
+        target = "engines/scripts/league_resource_profiles.py"
+        # The inventory, and the exact lazy declaration for legacy profiles,
+        # are exempt. An executable reference in that same owner is not.
+        self.assertNotIn(owner, seed.named_python_dependencies(metadata, source_name=own))
+        self.assertNotIn(target, seed.named_python_dependencies(metadata, source_name=own, league_required=False))
+        source_with_reference = metadata + ("module_path = " + repr(target) + "\n").encode()
+        self.assertIn(target, seed.named_python_dependencies(source_with_reference, source_name=own, league_required=False))
+        self.assertIn(owner, seed.named_python_dependencies(metadata, source_name="engines/experiments/strength/other.py"))
+        campaign = Path(seed.__file__).with_name("campaign_ci.py").read_bytes()
+        self.assertNotIn(target, seed.named_python_dependencies(campaign, source_name=owner, league_required=False))
+        self.assertIn(target, seed.named_python_dependencies(campaign + ("\nopen(" + repr(target) + ")\n").encode(),
+                                                             source_name=owner, league_required=False))
+
+        source_name = "engines/experiments/strength/cloud_runtime.py"
+        source = self.fixture.repo / source_name
+        declaration = "LEAGUE_HOST_SOURCE_FILES = " + repr(seed.LEAGUE_DEPENDENCY_DECLARATIONS[source_name][1]) + "\n"
+        source.write_text(declaration + "open(" + repr(target) + ")\n", encoding="utf-8")
+        git(self.fixture.repo, "add", "--", source_name)
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "actual named dependency fixture")
+        head = git(self.fixture.repo, "rev-parse", "HEAD").decode().strip()
+        checkout = {**self.fixture.config["checkout"], "commit": head}
+        origin = {**self.fixture.config["source_origin"], "head_sha": head}
+        with self.assertRaisesRegex(ValueError, "named production Python dependency omitted: .*league_resource_profiles.py"):
+            seed.checkout_files(checkout, origin)
+
     def joint_fixture(self):
         """Twelve distinct synthetic sealed rows; never source/runtime admission."""
         fixture = self.fixture

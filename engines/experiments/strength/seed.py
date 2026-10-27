@@ -54,11 +54,78 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
 LEAGUE_HOST_MODULES = ("memory_observation",)
 LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)
 LEAGUE_PROFILES = ("test-p16", "test-p192")
+# Exact declarations whose values are used only by league profile branches.
+# This is scanner metadata, not a blanket exemption for the owning file.
+LEAGUE_DEPENDENCY_DECLARATIONS = {
+    "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py",)),
+    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/scripts/league_resource_profiles.py")),
+    "engines/experiments/tcec-next/profile_verify.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
+    "engines/experiments/tcec-next/profile_rules.py": ("LEAGUE_OWNER", "engines/scripts/league_resource_profiles.py"),
+    "engines/experiments/tcec-next/profile_build.py": ("LEAGUE_PROFILES", "engines/scripts/league_resource_profiles.py"),
+}
+LEAGUE_CAMPAIGN_CI = "engines/experiments/strength/campaign_ci.py"
 
 
 def require(condition, detail):
     if not condition:
         raise ValueError(detail)
+
+
+def named_python_dependencies(raw, *, source_name, league_required=True):
+    """Collect named paths, excluding only structurally identified metadata.
+
+    The legacy exception applies to specific reviewed lazy declarations, not
+    every occurrence of a path in the file that owns such a declaration.
+    """
+    tree = ast.parse(raw)
+    metadata_nodes = set()
+    if source_name == "engines/experiments/strength/seed.py":
+        declarations = [node for node in tree.body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "LEAGUE_DEPENDENCY_DECLARATIONS"]
+        require(len(declarations) == 1
+                and ast.literal_eval(declarations[0].value) == LEAGUE_DEPENDENCY_DECLARATIONS,
+                "seed owner inventory metadata differs")
+        metadata_nodes = {id(node) for node in ast.walk(declarations[0].value)}
+        campaign = [node for node in tree.body if isinstance(node, ast.Assign)
+                    and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == "LEAGUE_CAMPAIGN_CI"]
+        require(len(campaign) == 1 and ast.literal_eval(campaign[0].value) == LEAGUE_CAMPAIGN_CI,
+                "seed campaign metadata differs")
+        metadata_nodes.update(id(node) for node in ast.walk(campaign[0].value))
+    if not league_required and source_name in LEAGUE_DEPENDENCY_DECLARATIONS:
+        symbol, expected = LEAGUE_DEPENDENCY_DECLARATIONS[source_name]
+        declarations = [node for node in tree.body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == symbol]
+        if declarations:
+            require(len(declarations) == 1 and ast.literal_eval(declarations[0].value) == expected,
+                    "league dependency declaration differs")
+            metadata_nodes.update(id(node) for node in ast.walk(declarations[0].value))
+    if not league_required and source_name == LEAGUE_CAMPAIGN_CI:
+        # bind_materializer_source binds league paths only under this exact
+        # feature condition. Match the complete statements, so an additional
+        # use of the same path remains visible to the closure check.
+        test = ast.dump(ast.parse("league <= set(values)", mode="eval").body)
+        templates = (
+            'require(values["LEAGUE_HOST_MODULES"] == ("memory_observation",) and '
+            'values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",), '
+            '"committed league materializer source closure differs")',
+            'names += ("engines/experiments/strength/memory_observation.py", '
+            '"engines/scripts/league_resource_profiles.py")',
+        )
+        expected = {ast.dump(ast.parse(value).body[0]) for value in templates}
+        for function in tree.body:
+            if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef)) and function.name == "bind_materializer_source":
+                for branch in function.body:
+                    if isinstance(branch, ast.If) and ast.dump(branch.test) == test:
+                        for statement in branch.body:
+                            if ast.dump(statement) in expected:
+                                metadata_nodes.update(id(node) for node in ast.walk(statement))
+    return tuple(node.value for node in ast.walk(tree)
+                 if id(node) not in metadata_nodes and isinstance(node, ast.Constant)
+                 and isinstance(node.value, str) and node.value.startswith("engines/")
+                 and node.value.endswith(".py"))
 
 
 def pin(raw):
@@ -237,25 +304,12 @@ def checkout_files(value, origin, *, byte_budget=None, member_budget=None, leagu
     # Require named repository Python dependencies; this is a closure check,
     # not a module import or a scan of unrelated generated trees.
     selected = set(result)
-    league_paths = ({"engines/experiments/strength/" + name + ".py" for name in LEAGUE_HOST_MODULES}
-                    | set(LEAGUE_CORE_R))
-    # These reviewed owners refer to the league dependencies only in their
-    # explicitly selected P16/P192 branches. Legacy source seeds must retain
-    # their old closure rather than pulling in a dormant feature.
-    league_owners = {"engines/experiments/strength/seed.py", "engines/experiments/strength/cloud_runtime.py",
-                     "engines/experiments/strength/campaign_ci.py", "engines/experiments/tcec-next/profile_verify.py",
-                     "engines/experiments/tcec-next/profile_rules.py", "engines/experiments/tcec-next/profile_build.py"}
     for name, (raw, _) in list(result.items()):
         if not name.endswith(".py"):
             continue
-        for node in ast.walk(ast.parse(raw)):
-            if isinstance(node, ast.Constant) and isinstance(node.value, str):
-                target = node.value
-                if target.startswith("engines/") and target.endswith(".py"):
-                    if not league_required and name in league_owners and target in league_paths:
-                        continue
-                    member(target)
-                    require(target in selected, "named production Python dependency omitted: " + target)
+        for target in named_python_dependencies(raw, source_name=name, league_required=league_required):
+            member(target)
+            require(target in selected, "named production Python dependency omitted: " + target)
     require(not git(root, "status", "--porcelain=v1", "--untracked-files=no"), "source checkout changed during collection")
     require(git(root, "rev-parse", "HEAD").decode().strip() == commit, "source commit changed during collection")
     return result
