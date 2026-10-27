@@ -41,6 +41,44 @@ class TopologyTests(unittest.TestCase):
             self.assertEqual(len(second.cpus), 56)
             self.assertTrue(set(first.cpus) <= set(second.cpus))
 
+    def test_eleven_p16_smt_slots_are_disjoint_node_local_and_reserve_cores(self):
+        topology = guest()
+        slots = plan_slots(topology, 8, 16, reserve_physical=8)
+        self.assertEqual(len(slots), 11)
+        by_id = {cpu.id: cpu for cpu in topology.cpus}
+        all_physical = {cpu.physical for cpu in topology.cpus}
+        used_physical, used_logical = set(), set()
+        for slot in slots:
+            self.assertEqual(slot.workers, 16)
+            self.assertTrue(slot.smt)
+            self.assertEqual(len(slot.memory_nodes), 1)
+            self.assertEqual(len(slot.physical_cores), 8)
+            self.assertEqual(len(slot.cpus), 16)
+            self.assertTrue(used_physical.isdisjoint(slot.physical_cores))
+            self.assertTrue(used_logical.isdisjoint(slot.cpus))
+            self.assertEqual({by_id[cpu].node for cpu in slot.cpus}, set(slot.memory_nodes))
+            self.assertEqual({by_id[cpu].physical for cpu in slot.cpus}, set(slot.physical_cores))
+            for cpu in slot.cpus:
+                self.assertEqual(set(by_id[cpu].siblings),
+                                 {other for other in slot.cpus
+                                  if by_id[other].physical == by_id[cpu].physical})
+            used_physical.update(slot.physical_cores)
+            used_logical.update(slot.cpus)
+        # These eight whole cores remain outside every game slot. A separate
+        # runtime must actually place its controller on the reserved CPUs.
+        self.assertEqual(len(all_physical - used_physical), 8)
+        self.assertEqual(len(used_logical), 176)
+
+    def test_p16_skips_a_core_when_only_one_smt_sibling_is_allowed(self):
+        topology = guest()
+        missing = topology.cpus[0].siblings[1]
+        restricted = Topology(topology.cpus, tuple(cpu for cpu in topology.allowed_cpus if cpu != missing),
+                              topology.allowed_nodes, topology.distances, topology.kernel)
+        slots = plan_slots(restricted, 8, 16, reserve_physical=8)
+        self.assertEqual(len(slots), 10)
+        self.assertTrue(all(missing not in slot.cpus for slot in slots))
+        self.assertTrue(all(topology.cpus[0].physical not in slot.physical_cores for slot in slots))
+
     def test_single_node_is_real_single_node_not_fake_numa(self):
         topology = guest(1, 96)
         slots = plan_slots(topology, 28, 28)
