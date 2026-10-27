@@ -138,17 +138,21 @@ def _observation_view(out, row, report, core):
     (directory / "result.json").write_text(json.dumps(view, indent=2) + "\n")
 
 
-def run(out, snapshot, current_root, inputs, requested):
+def run(out, snapshot, current_root, inputs, requested, seed_cases=()):
     owner, core, baseline, modules, control, bss, proof, bss_proof, changes = prepare(snapshot)
     available = options(changes)
     if requested and any(name not in available for name in requested):
         raise ValueError("unknown requested selector")
+    if (len(seed_cases) > 4 or len({frozenset(seed) for seed in seed_cases}) != len(seed_cases)
+            or any(not seed or len(set(seed)) != len(seed)
+                   or any(name not in available for name in seed) for seed in seed_cases)):
+        raise ValueError("at most four explicit known source seeds required")
     selected = tuple(requested or available)
     resource = modules["source"].production().resource_profile(core.PROFILE)
     flags = modules["build"].native_flags(resource, "s")
     report = {"format": "rove4k-D-bss-structural-next-v1", "complete": False,
               "inputs": core.inventory(inputs), "source_proof": proof, "bss_proof": bss_proof,
-              "commands": [], "cases": [], "candidate_failures": [],
+              "commands": [], "cases": [], "candidate_failures": [], "seed_cases": [],
               "resource": resource.to_record(16), "requested": list(selected),
               "scope": "finite size portfolio; no generated engine execution or production selection"}
     save = lambda: _save(out, report)
@@ -212,6 +216,13 @@ def run(out, snapshot, current_root, inputs, requested):
         if ({key: base["generation"]["native_rebuilds"][0][key] for key in ("bytes", "sha256")} != core.expected(BSS_NATIVE)
                 or {key: base["package"][key] for key in ("bytes", "sha256")} != core.expected(BSS_WHOLE)):
             raise ValueError("latest BSS 4689-byte comparison baseline did not reproduce")
+        # Rebuild explicit prior winners before exploring new representations.
+        # A changed singleton/combination policy must not lose a known context.
+        # Seeds are measured normally, never admitted by their name or history.
+        for index, selectors in enumerate(seed_cases):
+            row = measure(f"seed-{index}", selectors)
+            report["seed_cases"].append(row["name"])
+            save()
         winners = []
         for selector in selected:
             name = selector.replace("/", "-")
@@ -267,6 +278,8 @@ def main(argv=None):
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--cases", default="", help="comma-separated selectors; empty uses the finite portfolio")
+    parser.add_argument("--seed-case", action="append", default=[],
+                        help="prior source context as comma-separated selectors; repeat at most four times")
     args = parser.parse_args(argv)
     if not args.execute:
         parser.error("compiler/codec work is inactive without --execute")
@@ -283,7 +296,8 @@ def main(argv=None):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
     frozen = load("D_next_frozen_controller", snapshot / D / "structural_next.py")
-    report = frozen.run(out, snapshot, ROOT, inputs, tuple(filter(None, args.cases.split(","))))
+    report = frozen.run(out, snapshot, ROOT, inputs, tuple(filter(None, args.cases.split(","))),
+                        tuple(tuple(filter(None, seed.split(","))) for seed in args.seed_case))
     print(json.dumps({"complete": report["complete"], "minimum_measured": report["minimum_measured"],
         "cases": [{"name": row["name"], "native": row["generation"]["native_rebuilds"][0]["bytes"],
                    "whole": row["package"]["bytes"]} for row in report["cases"]],

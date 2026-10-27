@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 
 FILES = frozenset(("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld"))
-OPTIONS = ("tt_bytes", "pvs_stages", "repetition_prefix", "board_path", "board_keys", "tt_owner")
+OPTIONS = ("tt_bytes", "pvs_stages", "repetition_prefix", "board_path", "board_keys", "tt_owner", "ranked64")
 
 
 def _once(data: bytes, before: bytes | str, after: bytes | str) -> bytes:
@@ -76,6 +76,44 @@ def apply(files: dict[str, bytes], names: tuple[str, ...]) -> dict[str, bytes]:
             # Function-call/register costs are an explicit performance trade.
             source = _once(source, "static uint64_t probe(",
                            "static __attribute__((noinline,noclone)) uint64_t probe(")
+        elif name == "ranked64":
+            # GCC C11 permits this union-member access with strict aliasing.
+            # gen finishes using the plain member before conversion begins.
+            # At index i, the eight-byte ranked write starts at 8*i, above the
+            # unread plain prefix [0,4*i). Both accesses retain the union type;
+            # no differently typed cast pointer aliases the scratch buffer.
+            # Score construction is pure and completes before child search, so
+            # reversing it cannot observe learner updates from descendants.
+            source = _once(source, "    Move moves[MOVES],bestmove=0;\n",
+                "    union{Move plain[MOVES];uint64_t ranked[MOVES];} order;\n"
+                "    _Static_assert(CHAR_BIT==8&&sizeof(Move)==4&&UINT_MAX==UINT32_MAX&&\n"
+                "                   sizeof(int)==4&&INT_MIN==INT32_MIN&&INT_MAX==INT32_MAX,\"ranked32 fields\");\n"
+                "    Move bestmove=0;\n")
+            source = _once(source, "    int scores[MOVES],count,legal=0,old=alpha,best=-MATE;",
+                           "    int count,legal=0,old=alpha,best=-MATE;")
+            source = _once(source, "count=gen(p,moves);", "count=gen(p,order.plain);")
+            before = b'''    for(int i=0;i<count;i++){
+        Move m=moves[i];int from=FROM(m),to=TO(m),pi=piece_index(p->b[from]);
+        scores[i]=m==tt?1000000:(m&8)?500000+abs(value(p->b[to],to))*16-abs(value(p->b[from],from)):
+            w->history[from][to]+w->continuation[prior][pi]+(int)((m*37u+w->id*19u)%17);
+        if(PROMO(m))scores[i]+=400000+PROMO(m)*1000;
+    }
+'''
+            after = b'''    for(int i=count;i--;){
+        Move m=order.plain[i];int from=FROM(m),to=TO(m),pi=piece_index(p->b[from]);
+        int score=m==tt?1000000:(m&8)?500000+abs(value(p->b[to],to))*16-abs(value(p->b[from],from)):
+            w->history[from][to]+w->continuation[prior][pi]+(int)((m*37u+w->id*19u)%17);
+        if(PROMO(m))score+=400000+PROMO(m)*1000;
+        order.ranked[i]=((uint64_t)(uint32_t)score<<32)|m;
+    }
+'''
+            source = _once(source, before, after)
+            source = _once(source,
+                "        int j=i;for(int k=i+1;k<count;k++)if(scores[k]>scores[j])j=k;\n"
+                "        Move m=moves[j];moves[j]=moves[i];\n"
+                "        scores[j]=scores[i];",
+                "        int j=i;for(int k=i+1;k<count;k++)if((int32_t)(order.ranked[k]>>32)>(int32_t)(order.ranked[j]>>32))j=k;\n"
+                "        Move m=(Move)order.ranked[j];order.ranked[j]=order.ranked[i];")
         elif name == "pvs_stages":
             before = b'''        int narrow=legal>1&&depth>0,reduce=0;
         if(narrow){
@@ -183,6 +221,7 @@ def render_probe(files, source_tool, storage_fixture, probe, *, reference_board,
                   (b"static void prepare_path(Worker *w){" in source) == prefix and
                   (b"w->boards[i-game_length+1].h" in source) == ("board_keys" in names) and
                   (b"static __attribute__((noinline,noclone)) uint64_t probe(" in source) == ("tt_owner" in names) and
+                  (b"union{Move plain[MOVES];uint64_t ranked[MOVES];} order;" in source) == ("ranked64" in names) and
                   (b"bound=data>>56" in source) == ("tt_bytes" in names),
                   "observer selector contract differs from actual source")
     narrow = b"        int stage=legal>1&&depth>0;" if stages else b"        int narrow=legal>1&&depth>0,reduce=0;"

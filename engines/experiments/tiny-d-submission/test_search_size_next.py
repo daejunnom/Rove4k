@@ -7,6 +7,7 @@ import importlib.util
 import itertools
 import lzma
 from pathlib import Path
+import struct
 import subprocess
 import sys
 import unittest
@@ -28,6 +29,72 @@ search = load("search_size_next")
 
 
 class RepresentationProofs(unittest.TestCase):
+    def test_ranked_cells_preserve_unread_moves_in_reverse_expansion(self):
+        # Model actual overlapping bytes, including every admitted list length.
+        # Reverse expansion must retain the complete still-unread plain prefix.
+        # The arithmetic packing itself is independent of object byte order.
+        scores = (-(1 << 31), -1000000, -1, 0, 1, 1405000, (1 << 31) - 1)
+        for count in range(414):
+            moves = [(index * 2654435761 ^ 0xDEADBEEF) & 0xffffffff for index in range(count)]
+            expected = [(move, scores[index % len(scores)]) for index, move in enumerate(moves)]
+            for endian in ("<", ">"):
+                storage = bytearray(8 * count + 16)
+                storage[8 * count:] = b"unchanged-guard!"
+                for index, move in enumerate(moves):
+                    struct.pack_into(endian + "I", storage, 4 * index, move)
+                for index in reversed(range(count)):
+                    move = struct.unpack_from(endian + "I", storage, 4 * index)[0]
+                    self.assertEqual(move, moves[index])
+                    unread = bytes(storage[:4 * index])
+                    cell = ((expected[index][1] & 0xffffffff) << 32) | move
+                    struct.pack_into(endian + "Q", storage, 8 * index, cell)
+                    self.assertEqual(storage[:4 * index], unread)
+                restored = []
+                for index in range(count):
+                    cell = struct.unpack_from(endian + "Q", storage, 8 * index)[0]
+                    score = (cell >> 32) - ((1 << 32) if cell >> 63 else 0)
+                    restored.append((cell & 0xffffffff, score))
+                self.assertEqual(restored, expected)
+                self.assertEqual(storage[8 * count:], b"unchanged-guard!")
+
+    def test_ranked_selection_preserves_signed_scores_and_original_tie_order(self):
+        def original(moves, scores):
+            moves, scores, result = list(moves), list(scores), []
+            for index in range(len(moves)):
+                best = index
+                for other in range(index + 1, len(moves)):
+                    if scores[other] > scores[best]:
+                        best = other
+                result.append((moves[best], scores[best]))
+                moves[best], scores[best] = moves[index], scores[index]
+            return result
+
+        def packed(moves, scores):
+            cells = [((score & 0xffffffff) << 32) | move for move, score in zip(moves, scores)]
+            result = []
+            def signed(cell):
+                value = cell >> 32
+                return value - (1 << 32) if value & (1 << 31) else value
+            for index in range(len(cells)):
+                best = index
+                for other in range(index + 1, len(cells)):
+                    if signed(cells[other]) > signed(cells[best]):
+                        best = other
+                result.append((cells[best] & 0xffffffff, signed(cells[best])))
+                cells[best] = cells[index]
+            return result
+
+        for count in range(6):
+            # Descending move values expose an accidental composite tie-break.
+            moves = [0xffffffff - index * 43 for index in range(count)]
+            for scores in itertools.product((-2, -1, 0, 1, 2), repeat=count):
+                self.assertEqual(packed(moves, scores), original(moves, scores))
+        extremes = (-(1 << 31), (1 << 31) - 1, -1, 0, 1, -1000000, 1405000)
+        for count in (7, 31, 128, 413):
+            moves = [((index * 65537) ^ 0x80000001) & 0xffffffff for index in range(count)]
+            scores = [extremes[(index * 3) % len(extremes)] for index in range(count)]
+            self.assertEqual(packed(moves, scores), original(moves, scores))
+
     def test_ordered_retry_states_preserve_every_window_and_reduction(self):
         # Compare the original two independent flags to the proposed ordered
         # states, including null-window fail-high and cancellation's zero score.

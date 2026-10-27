@@ -43,16 +43,23 @@ def case_name(name):
 
 
 def select_cases(portfolio):
-    """Baseline first; each improved source cohort once, smallest first."""
+    """Baseline and explicit prior contexts, then improved cohorts by size."""
     rows = portfolio.get("cases", [])
     by_name = {case_name(row["name"]): row for row in rows}
     if len(by_name) != len(rows) or "baseline" not in by_name:
         raise ValueError("unique measured baseline/case names required")
     baseline = by_name["baseline"]
     ordered = sorted(rows, key=lambda row: (row["package"]["bytes"], row["name"]))
+    seeds = portfolio.get("seed_cases", [])
+    if len(seeds) > 4 or len(set(seeds)) != len(seeds) or any(name not in by_name for name in seeds):
+        raise ValueError("at most four unique measured prior source contexts required")
     chosen, seen, reused, omitted = [baseline], {json.dumps(baseline["source"], sort_keys=True): "baseline"}, [], []
-    for row in ordered:
-        if row["name"] == "baseline" or row["package"]["bytes"] >= baseline["package"]["bytes"]:
+    visited = {"baseline"}
+    for row in [*(by_name[name] for name in seeds), *ordered]:
+        if row["name"] in visited:
+            continue
+        visited.add(row["name"])
+        if row["name"] not in seeds and row["package"]["bytes"] >= baseline["package"]["bytes"]:
             continue
         identity = json.dumps(row["source"], sort_keys=True)
         if identity in seen:
