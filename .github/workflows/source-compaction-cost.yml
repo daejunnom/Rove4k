@@ -43,6 +43,10 @@ jobs:
             2>&1 | tee '${{ runner.temp }}/rove4k-ep-source-contracts-${{ github.run_attempt }}.log'
           python -I -B engines/experiments/tcec-next/test_check_ep.py \
             2>&1 | tee '${{ runner.temp }}/rove4k-ep-fixture-contracts-${{ github.run_attempt }}.log'
+      - name: Check the finite castle source proof and actual-generator fixture renderer
+        run: |
+          python -I -B engines/experiments/tcec-next/test_compact_castle.py
+          python -I -B engines/experiments/tcec-next/test_check_castle.py
       - name: Preserve original source-contract results and failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -54,6 +58,46 @@ jobs:
             ${{ runner.temp }}/rove4k-ep-source-contracts-${{ github.run_attempt }}.log
             ${{ runner.temp }}/rove4k-ep-fixture-contracts-${{ github.run_attempt }}.log
           if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+  castle-cost:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        entry: [A, C, E]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Compare whole costs and actual ordered castle generation in plain and fatal UBSan modes
+        # W256 remains a source/compile/fragment trial. Original main, workers,
+        # search and the declared large TT are never started.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/terminal_cost.py \
+            --entry '${{ matrix.entry }}' --experiment castle --profile tcec-provisional \
+            --out '${{ runner.temp }}/rove4k-castle-cost-${{ matrix.entry }}-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-castle-cost-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+      - name: Preserve both diagnostics, whole costs and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source-compaction-castle-${{ matrix.entry }}-tcec-provisional-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-castle-cost-${{ matrix.entry }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-castle-cost-${{ matrix.entry }}-${{ github.run_attempt }}.log
+          if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
 

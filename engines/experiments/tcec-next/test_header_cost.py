@@ -32,6 +32,37 @@ SOURCE_PINS = {
     "B": dict(bytes=7934, sha256="09546a75f5e417125ec033994fec52b1e23da4d504e5146a54cead53966136ce"),
     "F": dict(bytes=7030, sha256="0aa062ec8440911d094a1b4eea48eceb96facfaa4ce94d654f46bfa19c83c7f0"),
 }
+PROFILES = ("test-p4", "test-p28", "tcec-provisional")
+EXTENDED_CONTROL_PINS = {
+    ("B", "test-p28"): {
+        "source": (7962, "326e18b0b480a42c16ab0c4ec06ff90770842aec2bd8c9e1ea91f70be9427eb6"),
+        "native": (25744, "755dffaf68cb2eff582260550f6c7a174bb09de9e5bf7a773f311c7c1dce9a24"),
+        "header": (109, "579c456c8ca9af8acde4bc4a41307807bc85d76d11b56ec5fcdcaa7e304ed911"),
+        "payload": (3972, "987817e100c9371abe9bcbbdc7507f507e5ba1259d8a57fe788d470a55599b27"),
+        "whole": (4081, "93634a5bb12dcef46e7e80242982511de3ef62db1e60c70ee082b24186f30123"),
+    },
+    ("F", "test-p28"): {
+        "source": (7063, "5a016f252e8efb4faf356de92397964d19e6c5e95863e063a5179864988dcdc5"),
+        "native": (18568, "843bbc1ea78ef68c4cde578df93218f6d36b5f3c48cfa794ba6022b75e949262"),
+        "header": (103, "de8e199aa72661012417d5a9004e3c4c5079d704d6558286bd282319c078a8a0"),
+        "payload": (3499, "81905d60d0ba5f9ed48d307ad3281c503ec2c2099405f0c2c7dc40f9a1ab82ca"),
+        "whole": (3602, "7c5b930a2a113a2cc294e97d56457896418f90b3df90eebfccba489b61342baa"),
+    },
+    ("B", "tcec-provisional"): {
+        "source": (7936, "5f64922b49923ef9637dc41328761a4c3f4eb0063e39bd9f04c46e3d19c9b62d"),
+        "native": (25744, "db780f8318783991535a56e3d26f3d9e18e3a139fdbd9f0ced56784f7f236613"),
+        "header": (109, "579c456c8ca9af8acde4bc4a41307807bc85d76d11b56ec5fcdcaa7e304ed911"),
+        "payload": (3963, "e680022b57423066591d73d18918b3edb71e9e72669240ca6613ff7b69b9b180"),
+        "whole": (4072, "2f1cd9e6559594fa6142188df851c8ff6a8e57edd4de49c14fcdbbb67214f6b6"),
+    },
+    ("F", "tcec-provisional"): {
+        "source": (7032, "7701b38ad0957066d427bb085575f26b511691a6ea60e67f44835ce9359db9df"),
+        "native": (18568, "e536de10e8792573548864d6267e8ce3cde76102b6134552f9dbca0d2672437b"),
+        "header": (103, "de8e199aa72661012417d5a9004e3c4c5079d704d6558286bd282319c078a8a0"),
+        "payload": (3486, "90405436b74f2dc5e72a45340aff53b22a6c5845d8db40e4b62f890b268575b6"),
+        "whole": (3589, "28f3f9024443b7dd63955b543ed2e6849905e1d0767a52c1d35ff51017889f30"),
+    },
+}
 CONTROL_COMPILERS = {
     "B": ["cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"],
     "F": ["cc", "-Os", "-pthread", "-x", "c", "-", "-o", "x", "-s"],
@@ -96,12 +127,49 @@ class HeaderCost(unittest.TestCase):
                         self.assertGreater(part["bytes"], 0)
                         self.assertRegex(part["sha256"], r"^[0-9a-f]{64}$")
 
+    def test_six_profile_plans_keep_exact_original_parts_and_the_same_finite_schedule(self):
+        self.assertEqual(set(header_cost.PROFILE_CONTROL),
+                         {(family, profile) for family in "BF" for profile in PROFILES})
+        for family in "BF":
+            for mode in ("producer", "replay"):
+                original = header_cost.plan(family, mode)
+                for profile in PROFILES:
+                    with self.subTest(family=family, mode=mode, profile=profile):
+                        expected = dict(original, profile=profile)
+                        if profile != "test-p4":
+                            expected["control"] = {
+                                name: dict(bytes=value[0], sha256=value[1])
+                                for name, value in EXTENDED_CONTROL_PINS[family, profile].items()}
+                        actual = header_cost.plan(family, mode, profile=profile)
+                        self.assertEqual(actual, expected)
+                        self.assertEqual(actual["expected_commands"], 13 if mode == "producer" else 12)
+                        self.assertEqual(actual["control"]["header"], pin(CONTROL_HEADERS[family]))
+                        self.assertFalse(actual["source_changed"])
+                        self.assertFalse(actual["payload_recompressed"])
+
     def test_plan_rejects_other_families_modes_and_profile_like_inputs(self):
         for family, mode in (("A", "producer"), ("D", "producer"), ("F8", "producer"),
                              ("b", "producer"), ("B", "test-p28"), ("F", "tcec-provisional"),
                              ("F", ""), ("B", None)):
             with self.subTest(family=family, mode=mode), self.assertRaises(ValueError):
                 header_cost.plan(family, mode)
+
+    def test_profile_selection_rejects_unknown_values_and_booleans(self):
+        for profile in ("test-p1", "test-p4 ", "TCEC-provisional", "", None, False, True):
+            for family in "BF":
+                for mode in ("producer", "replay"):
+                    with self.subTest(family=family, mode=mode, profile=profile), self.assertRaises(ValueError):
+                        header_cost.plan(family, mode, profile=profile)
+                with self.subTest(family=family, profile=profile), self.assertRaises(ValueError):
+                    header_cost.factory_argv(family, Path("outside-repository"), profile=profile)
+                control = CONTROL_HEADERS[family]
+                minimal = control.replace(b" -std=c11", b"").replace(b" -pthread", b"")
+                with self.assertRaises(ValueError):
+                    header_cost.candidate_header(control, minimal, family=family, profile=profile)
+                with self.assertRaises(ValueError):
+                    header_cost.macro_observation(family, "producer",
+                        macro_fixture(family, "producer"), macro_fixture(family, "producer", minimal=True),
+                        profile=profile)
 
     def test_factory_argv_preserves_reviewed_full_source_projections(self):
         expected_options = {"--entry", "--profile", "--representation", "--out",
@@ -124,19 +192,31 @@ class HeaderCost(unittest.TestCase):
                     self.assertEqual(argv.count(option), 1)
                     self.assertEqual(argv[argv.index(option) + 1], value)
 
+    def test_explicit_profile_changes_only_the_factory_profile_argument(self):
+        for family in "BF":
+            out = Path("outside-repository") / family
+            original = header_cost.factory_argv(family, out)
+            for profile in PROFILES:
+                with self.subTest(family=family, profile=profile):
+                    expected = list(original)
+                    expected[expected.index("--profile") + 1] = profile
+                    self.assertEqual(header_cost.factory_argv(family, out, profile=profile), expected)
+
     def test_header_change_is_exact_literal_removal_with_an_exact_inverse(self):
         for family, control in CONTROL_HEADERS.items():
-            with self.subTest(family=family):
-                minimal = control.replace(b" -std=c11", b"").replace(b" -pthread", b"")
-                actual = header_cost.candidate_header(control, minimal, family=family)
-                self.assertEqual(actual, minimal)
-                self.assertEqual(actual.splitlines()[:3], control.splitlines()[:3])
-                self.assertEqual(actual.splitlines()[-1], b'exec "$f"')
-                self.assertEqual(len(actual.splitlines()), 5)
-                self.assertIn(b'tail -n+6 "$0"|xz -d|', actual)
-                self.assertEqual(len(actual) - len(control), -18 if family == "B" else -9)
-                flags = b"cc -std=c11 -Os -pthread -xc" if family == "B" else b"cc -Os -pthread -xc"
-                self.assertEqual(actual.replace(b"cc -Os -xc", flags, 1), control)
+            minimal = control.replace(b" -std=c11", b"").replace(b" -pthread", b"")
+            self.assertEqual(header_cost.candidate_header(control, minimal, family=family), minimal)
+            for profile in PROFILES:
+                with self.subTest(family=family, profile=profile):
+                    actual = header_cost.candidate_header(control, minimal, family=family, profile=profile)
+                    self.assertEqual(actual, minimal)
+                    self.assertEqual(actual.splitlines()[:3], control.splitlines()[:3])
+                    self.assertEqual(actual.splitlines()[-1], b'exec "$f"')
+                    self.assertEqual(len(actual.splitlines()), 5)
+                    self.assertIn(b'tail -n+6 "$0"|xz -d|', actual)
+                    self.assertEqual(len(actual) - len(control), -18 if family == "B" else -9)
+                    flags = b"cc -std=c11 -Os -pthread -xc" if family == "B" else b"cc -Os -pthread -xc"
+                    self.assertEqual(actual.replace(b"cc -Os -xc", flags, 1), control)
 
     def test_header_guard_rejects_changed_pipeline_boundaries_flags_and_control_pins(self):
         for family, control in CONTROL_HEADERS.items():
@@ -168,23 +248,26 @@ class HeaderCost(unittest.TestCase):
     def test_macro_observation_admits_only_the_expected_dialect_and_reentrant_changes(self):
         for family in "BF":
             for mode in ("producer", "replay"):
-                with self.subTest(family=family, mode=mode):
-                    old = macro_fixture(family, mode)
-                    new = macro_fixture(family, mode, minimal=True)
-                    observed = header_cost.macro_observation(family, mode, old, new)
-                    expected = {"_REENTRANT": {"control": "1", "minimal": None}}
-                    if family == "B":
-                        expected.update({"__STRICT_ANSI__": {"control": "1", "minimal": None},
-                                         "__STDC_VERSION__": {"control": "201112L", "minimal": "201710L"}})
-                    self.assertEqual(observed["differences"], expected)
-                    for case, raw in (("control", old), ("minimal", new)):
-                        selected = observed["selected"][case]
-                        parsed = header_cost.parse_macros(raw)
-                        for name, value in selected.items():
-                            self.assertEqual(value, parsed.get(name))
-                        self.assertEqual(selected["_POSIX_C_SOURCE"], "200809L")
-                        self.assertIsNone(selected["_GNU_SOURCE"])
-                        self.assertIsNone(selected["_DEFAULT_SOURCE"])
+                old = macro_fixture(family, mode)
+                new = macro_fixture(family, mode, minimal=True)
+                original = header_cost.macro_observation(family, mode, old, new)
+                for profile in PROFILES:
+                    with self.subTest(family=family, mode=mode, profile=profile):
+                        observed = header_cost.macro_observation(family, mode, old, new, profile=profile)
+                        self.assertEqual(observed, original)
+                        expected = {"_REENTRANT": {"control": "1", "minimal": None}}
+                        if family == "B":
+                            expected.update({"__STRICT_ANSI__": {"control": "1", "minimal": None},
+                                             "__STDC_VERSION__": {"control": "201112L", "minimal": "201710L"}})
+                        self.assertEqual(observed["differences"], expected)
+                        for case, raw in (("control", old), ("minimal", new)):
+                            selected = observed["selected"][case]
+                            parsed = header_cost.parse_macros(raw)
+                            for name, value in selected.items():
+                                self.assertEqual(value, parsed.get(name))
+                            self.assertEqual(selected["_POSIX_C_SOURCE"], "200809L")
+                            self.assertIsNone(selected["_GNU_SOURCE"])
+                            self.assertIsNone(selected["_DEFAULT_SOURCE"])
 
     def test_extra_macro_differences_are_diagnostic_and_do_not_claim_cpp_equality(self):
         for family in "BF":
@@ -224,6 +307,9 @@ class HeaderCost(unittest.TestCase):
         for family in "BF":
             with self.subTest(family=family), self.assertRaises(ValueError):
                 header_cost.source_context(source, family=family)
+            for profile in PROFILES:
+                with self.subTest(family=family, profile=profile), self.assertRaises(ValueError):
+                    header_cost.source_context(source, family=family, profile=profile)
 
     def test_ci_context_rejects_local_or_changed_repository_and_run_identity(self):
         env = dict(GITHUB_ACTIONS="true", GITHUB_REPOSITORY="daejunnom/Rove4k",
@@ -261,23 +347,57 @@ class HeaderCost(unittest.TestCase):
 
     def test_inactive_measure_refuses_before_source_capture_or_output_creation(self):
         with tempfile.TemporaryDirectory() as temporary:
-            for mode in ("producer", "replay"):
-                out = Path(temporary) / mode / "not-created"
-                with mock.patch.object(header_cost, "capture", side_effect=AssertionError("source capture before opt-in")), \
-                     mock.patch.object(Path, "mkdir", side_effect=AssertionError("output before opt-in")):
+            for family in "BF":
+                for mode in ("producer", "replay"):
+                    for profile in PROFILES:
+                        out = Path(temporary) / family / mode / profile / "not-created"
+                        with mock.patch.object(header_cost, "capture", side_effect=AssertionError("source capture before opt-in")), \
+                             mock.patch.object(Path, "mkdir", side_effect=AssertionError("output before opt-in")):
+                            with self.assertRaises(ValueError):
+                                header_cost.measure(family, out, mode=mode, profile=profile, execute=False)
+                        self.assertFalse(out.exists())
+
+    def test_invalid_profile_never_reaches_source_capture_even_with_execute_opt_in(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            for profile in ("test-p1", None, False, True):
+                out = Path(temporary) / "not-created"
+                with mock.patch.object(header_cost, "capture", side_effect=AssertionError("invalid profile captured source")), \
+                     mock.patch.object(Path, "mkdir", side_effect=AssertionError("invalid profile created output")):
                     with self.assertRaises(ValueError):
-                        header_cost.measure("B", out, mode=mode, execute=False)
+                        header_cost.measure("B", out, mode="producer", profile=profile, execute=True)
                 self.assertFalse(out.exists())
 
     def test_cli_missing_execute_exits_before_measure_and_output(self):
         with tempfile.TemporaryDirectory() as temporary:
-            out = Path(temporary) / "not-created"
-            with mock.patch.object(header_cost, "measure", side_effect=AssertionError("inactive CLI measured")), \
-                 contextlib.redirect_stderr(io.StringIO()):
-                with self.assertRaises(SystemExit) as failure:
-                    header_cost.main(["--entry", "B", "--mode", "producer", "--out", str(out)])
-            self.assertEqual(failure.exception.code, 2)
-            self.assertFalse(out.exists())
+            for profile in (None, *PROFILES):
+                out = Path(temporary) / (profile or "default") / "not-created"
+                argv = ["--entry", "B", "--mode", "producer", "--out", str(out)]
+                if profile is not None:
+                    argv.extend(["--profile", profile])
+                with mock.patch.object(header_cost, "measure", side_effect=AssertionError("inactive CLI measured")), \
+                     contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as failure:
+                        header_cost.main(argv)
+                self.assertEqual(failure.exception.code, 2)
+                self.assertFalse(out.exists())
+
+    def test_cli_explicit_profile_is_forwarded_without_measuring(self):
+        for family in "BF":
+            for mode in ("producer", "replay"):
+                for profile in PROFILES:
+                    with self.subTest(family=family, mode=mode, profile=profile):
+                        out = Path("outside-repository") / family / mode / profile
+                        producer = Path("outside-producer") if mode == "replay" else None
+                        argv = ["--entry", family, "--mode", mode, "--profile", profile,
+                                "--out", str(out), "--execute"]
+                        if producer is not None:
+                            argv.extend(["--producer", str(producer)])
+                        with mock.patch.object(header_cost, "measure", return_value={
+                                "complete": False, "whole_delta": -18 if family == "B" else -9}) as measure, \
+                             contextlib.redirect_stdout(io.StringIO()):
+                            header_cost.main(argv)
+                        measure.assert_called_once_with(family, out, mode=mode, producer=producer,
+                                                        profile=profile, execute=True)
 
 
 if __name__ == "__main__":

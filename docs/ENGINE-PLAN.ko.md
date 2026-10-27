@@ -709,11 +709,12 @@ source·memory admission에서 다시 판단한다. 다른 프로그램·cache·
 
 ~~~mermaid
 flowchart TD
-  DONE[완료: 2d35 아홉 CI / C·E EP full·Ubuntu22·W256 준비 / D 정지] --> PREP[공통 준비: 고정 소스·representation·규칙·소유자]
+  DONE[완료: e186 아홉 CI / C·E EP 유지 선택 / D 정지] --> PREP[공통 준비: 고정 소스·representation·규칙·소유자]
   PREP --> ELF[ELF 생산·의존성·argv0 소유권·소비 경로]
   PREP --> MATE[완료·미채택: mate8개 비용 손실 / F 이미 적용]
   PREP --> EP[C·E EP: 유지 선택 반영 / 새 유지 CI에서 재검증]
-  PREP --> HEADER[B·F: compiler-header 축약 / 실제 GCC13·11 CPP·native·whole 비교]
+  PREP --> HEADER[B·F: P4 header 비용 PASS / P28·W256까지6문맥 실제 비교]
+  PREP --> CASTLE[A·C·E: ordered castle loop / W256 비용·원시 생성 순서·규칙 비교]
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
   PREP --> W256[별도 W256 compile/package 준비 / 대형 TT 실행 없음]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
@@ -724,6 +725,7 @@ flowchart TD
   MATE --> COST[동일 기준 native·whole 반복 비교 / 의미·기능 gate]
   EP --> COST
   HEADER --> COST
+  CASTLE --> COST
   PARSE --> COST
   ELF22 --> CI
   LEAGUEFIX --> CI[실제 caller·순수·source-bound CI]
@@ -859,3 +861,22 @@ CPP·native 동일성을 비교한다. B의 -std=c11/-pthread, F의 -pthread만 
 새 소비자는 같은 workflow의 봉인된 원래 ELF를 받으며 installed loader/DSO·GCC11·
 glibc2.35·native ABI 확인 뒤 기존 rules/runtime을 비점수로 관측한다. 새37개 ELF job과
 header5개 job은 등록·요청·성공을 구분하고 결과 전에는 개선량이나 출품 자격을 주장하지 않는다.
+
+879bfaa의9 workflow는 성공했고 ELF40505808154는4개 B/C/E/F export에서 실패했다.
+생성·기능 검사 뒤 raw transport ZIP을 기존8MiB 도구 파일 제한 안에서 쓴 원인이다.
+A export는 통과했으나 의존 Ubuntu22 matrix는 skip되어 실행 근거가 없다. 원 실패와
+partial ZIP을 보존한다. 공통 transport 준비 단계를 Host 앞에 두어 exporter ZIP과
+consumer member 기록을16MiB member/128MiB archive 및 실제 inherited FSIZE 안에서
+처리하며, 기존 도구8MiB·합산출력16MiB와 실제명령·정리 뒤 seal 발행은 유지한다.
+
+B/F P4 header는 실제GCC13/11 네 경로와 named DATA 감사가 통과했다. B4071→4053 B,
+F3587→3578 B이며 source/payload는 같다. 호스트 내부 CPP/native만 같고 GCC11과13
+서로의 native는 다르다. Replay 비용은 기존GCC13 payload 재사용으로 구분한다.
+생산 compiler 정책은 바꾸지 않고 P28/W256까지6개 producer·6개 replay로 확장 검증한다.
+
+Optimal64의5개 lean P4 실제 full과 DATA 감사도 통과했다. A9763/B10657/C10022/
+E10041/F9533 B로 기존보다563/608/567/565/516 B 작고 source/native는 실제로 같다.
+모두 deferred_size다. 전송 수명 수정 뒤 독립 Ubuntu22는 이 best 측정 ELF5개를 소비하며
+기존 greedy15개·W256 준비10개를 보존한다. A/C/E의 별도 castle18명령 비용3개는
+표준105와 고정30 FEN의 실제 raw g 순서·전체 Board 불변·legal T/v를 plain/fatal UBSan으로
+비교한다. 원시33/31/33 B 감소는 실제 제출 이득이나 채택이 아니다.

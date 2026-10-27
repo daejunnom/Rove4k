@@ -38,15 +38,46 @@ deferred_size and false runtime/event/ELF qualification. The first DATA collecto
 incorrectly assumed twelve B commands; that failed collector report is preserved
 separately from the successful corrected ten-command audit and product results.
 
-The next source cohort adds finite B/F header comparisons on real GCC13/11,
-explicit optimal64-v1 packing with the unchanged decoder, and sealed delivery of
-the original lean P4 ELF to Ubuntu22. The encoder preserves the entire compiler
-image and never changes the dependency or R native contract. Its default stays
-greedy64-v1. Target22 does not regenerate source or compile a replacement engine;
-system GCC11 builds only existing source-bound rules probes. Five optimal lean
-P4 full contexts and five original-ELF Ubuntu22 contexts join the fifteen TEST
-controls and ten W256 prepare-only contexts. These new hosted results remain
-pending; source review, dispatch and successful execution are distinct.
+At879bfaa39a13ced8f16e24bdb77113cb00823aef nine workflows pass, including
+header40505808234 and engine40505808032. ELF40505808154 fails four B/C/E/F
+exports after their functional checks: the raw CI transport ZIP is written under
+the existing8MiB tool RLIMIT_FSIZE. A export succeeds, but the dependent Ubuntu22
+matrix is skipped; no target success is claimed. Original failures and partial
+ZIPs remain preserved. The preparation fix moves bounded transport I/O before
+Host tool limits in both exporter and restorer, never raises inherited limits,
+and still publishes the trusted seal only after actual command settlement.
+
+The four actual header producer/replay paths pass on GCC13/Ubuntu24 and
+GCC11/Ubuntu22. Named DATA confirms B4071→4053 B (-18) and F3587→3578 B (-9),
+with unchanged source and original payload. All four native/CPP cases agree
+within each host; GCC11 and GCC13 native images differ. Replay reuses the
+original GCC13 payload and does not create a new GCC11 payload. P28/W256 remain
+separate unmeasured candidates until the new six-context comparison passes.
+Production compiler policies are unchanged.
+
+All five optimal64 lean P4 producer/rules/runtime paths pass at879. Named DATA
+compares both actual source and native to the earlier greedy artifacts:
+
+| Family | Greedy lean P4 | Optimal lean P4 | Delta |
+|---|---:|---:|---:|
+| A |10326 B|9763 B|-563 B|
+| B |11265 B|10657 B|-608 B|
+| C |10589 B|10022 B|-567 B|
+| E |10606 B|10041 B|-565 B|
+| F |10049 B|9533 B|-516 B|
+
+Each selected loader/header is875 B. Complete compiler images, dependencies,
+codec format and R native identities remain exact; public packing still
+defaults to greedy64-v1. All sizes exceed4096 and remain deferred_size.
+
+The next hosted cohort consumes these five optimal P4 original ELF files on
+Ubuntu22 after the transport lifetime fix. It retains the fifteen TEST greedy
+controls and ten W256 prepare-only paths. Header comparison becomes six
+producer/six replay contexts plus pure tests. Three separate A/C/E W256 castle
+cost paths compare the ordered direction loop with actual raw generator order
+and both plain/fatal-UBSan legal fixtures. Those trials never start original
+main, workers, search or the large TT. Their raw source savings are33/31/33 B;
+actual whole cost and production adoption remain unproven.
 
 The latest user priority pauses new D compression. Preserve4737/4689 and all
 original evidence; the BSS cost job is explicitly suspended, without suspending

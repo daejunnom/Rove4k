@@ -35,6 +35,7 @@ jobs:
       fail-fast: false
       matrix:
         entry: [B, F]
+        profile: [test-p4, test-p28, tcec-provisional]
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -54,14 +55,14 @@ jobs:
           unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
           timeout --signal=TERM --kill-after=30s 600s \
             /usr/bin/python3 -I -B engines/experiments/tcec-next/header_cost.py \
-            --entry '${{ matrix.entry }}' --mode producer \
-            --out '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}' --execute \
-            2>&1 | tee '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+            --entry '${{ matrix.entry }}' --mode producer --profile '${{ matrix.profile }}' \
+            --out '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log'
       - name: Transfer the exact producer data for the independent GCC11 comparison
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: compiler-header-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
+          name: compiler-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
@@ -69,10 +70,10 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: compiler-header-producer-log-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: compiler-header-producer-log-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
           path: |
-            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
-            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 7
@@ -85,6 +86,7 @@ jobs:
       fail-fast: false
       matrix:
         entry: [B, F]
+        profile: [test-p4, test-p28, tcec-provisional]
     env:
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
@@ -93,8 +95,8 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: compiler-header-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}
+          name: compiler-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
       - name: Compare the same frozen source with the actual system GCC11
         # Replay consumes the original GCC13 parent as DATA. It starts no factory
         # or shipping engine and does not infer target payload identity.
@@ -105,18 +107,18 @@ jobs:
           unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
           timeout --signal=TERM --kill-after=30s 600s \
             /usr/bin/python3 -I -B engines/experiments/tcec-next/header_cost.py \
-            --entry '${{ matrix.entry }}' --mode replay \
-            --producer '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ github.run_attempt }}' \
-            --out '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}' --execute \
-            2>&1 | tee '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}.log'
+            --entry '${{ matrix.entry }}' --mode replay --profile '${{ matrix.profile }}' \
+            --producer '${{ runner.temp }}/rove4k-header-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}' \
+            --out '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log'
       - name: Preserve independent compiler evidence and original failures
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: compiler-header22-${{ matrix.entry }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: compiler-header22-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
           path: |
-            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}
-            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-header22-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.run_attempt }}.log
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 7

@@ -170,5 +170,108 @@ class OriginalElfTarget(unittest.TestCase):
             self.assertIs(consume.call_args.kwargs["execute"], False)
 
 
+    @unittest.skipUnless(os.name == "posix", "transport resource query is POSIX-only")
+    def test_transport_artifact_domain_never_raises_inherited_file_limits(self):
+        import resource
+        larger_than_tool_file = (8 << 20) + 1
+        with patch.object(resource, "getrlimit", return_value=(-1, -1)), \
+                patch.object(resource, "setrlimit", side_effect=AssertionError("must not raise transport limits")) as change:
+            raw = target.transport_file_limits((larger_than_tool_file,), maximum=target.MAX_BUNDLE)
+            member = target.transport_file_limits((larger_than_tool_file,), maximum=target.MAX_MEMBER)
+            self.assertEqual(raw["largest_file_bytes"], larger_than_tool_file)
+            self.assertEqual(member["declared_maximum_bytes"], 16 << 20)
+            self.assertIs(raw["inherited_limit_raised"], False)
+            for extent, maximum in (((128 << 20) + 1, target.MAX_BUNDLE),
+                                     ((16 << 20) + 1, target.MAX_MEMBER)):
+                with self.assertRaises(ValueError):
+                    target.transport_file_limits((extent,), maximum=maximum)
+            change.assert_not_called()
+        with patch.object(resource, "getrlimit", return_value=(8 << 20, 8 << 20)), \
+                patch.object(resource, "setrlimit", side_effect=AssertionError("must not raise inherited cap")) as change:
+            with self.assertRaisesRegex(ValueError, "inherited file limit"):
+                target.transport_file_limits((larger_than_tool_file,), maximum=target.MAX_BUNDLE)
+            with self.assertRaisesRegex(ValueError, "inherited file limit"):
+                target.transport_file_limits((larger_than_tool_file,), maximum=target.MAX_MEMBER)
+            change.assert_not_called()
+
+    def test_both_transport_roles_prepare_before_host_tool_caps(self):
+        for role in ("export", "consume"):
+            with self.subTest(role=role), tempfile.TemporaryDirectory() as temporary:
+                out = Path(temporary) / "operation"
+                events = []
+                ci = {"role": role}
+                report = dict(complete=False, commands=[], ci_context=ci)
+                owner = SimpleNamespace(LIMITS={"original": 7})
+                host = SimpleNamespace(out=out)
+
+                def construct(*args):
+                    events.append("host-tool-caps")
+                    self.assertEqual(events, ["artifact-prepare", "host-tool-caps"])
+                    return owner, {"original": 7}, host
+
+                def finish(actual, observed, save, error):
+                    events.append("settlement")
+                    self.assertIs(actual, host)
+                    self.assertIsNone(error)
+                    observed.update(complete=True, host_cleanup={"unsettled_commands": 0, "errors": []})
+                    save()
+
+                def prepare(m, save):
+                    self.assertIs(report["host_constructed"], False)
+                    self.assertEqual(report["operation_stage"], "transport-artifacts-before-tool-limits")
+                    events.append("artifact-prepare")
+
+                E = SimpleNamespace(UTILITY="fixture-utility")
+                with patch.object(target, "modules", return_value={}), \
+                        patch.object(target, "write"), \
+                        patch.object(target, "load", return_value=SimpleNamespace(finish_report=finish)), \
+                        patch.object(target, "host_for", side_effect=construct), \
+                        patch.object(target, "git_binding", side_effect=lambda *args: events.append("checkout")), \
+                        patch.object(target, "recheck"), patch.object(target, "context", return_value=ci), \
+                        patch.object(target.signal, "signal", return_value=None):
+                    result = target._operation(out, E, {E.UTILITY: b""}, report, 0,
+                        lambda *args: events.append("body"), prepare=prepare)
+                self.assertIs(result["complete"], True)
+                self.assertEqual(events, ["artifact-prepare", "host-tool-caps", "checkout", "body", "settlement"])
+
+    def test_transport_preparation_failure_keeps_original_error_before_host(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            out = Path(temporary) / "operation"
+            report = dict(complete=False, commands=[], ci_context={})
+            primary = OSError(27, "original partial raw-archive failure")
+            seen = []
+
+            def prepare(m, save):
+                (out / target.BUNDLE).write_bytes(b"partial archive evidence")
+                raise primary
+
+            def finish(host, observed, save, error):
+                self.assertIsNone(host)
+                self.assertIs(error, primary)
+                seen.append(error)
+                observed["complete"] = False
+                save()
+
+            E = SimpleNamespace(UTILITY="fixture-utility")
+            with patch.object(target, "modules", return_value={}), \
+                    patch.object(target, "write"), \
+                    patch.object(target, "load", return_value=SimpleNamespace(finish_report=finish)), \
+                    patch.object(target, "host_for", side_effect=AssertionError("must not construct Host")) as host, \
+                    patch.object(target, "git_binding", side_effect=AssertionError("must not run git")), \
+                    patch.object(target.signal, "signal", return_value=None), \
+                    self.assertRaises(OSError) as caught:
+                target._operation(out, E, {E.UTILITY: b""}, report, 0,
+                                  lambda *args: self.fail("must not execute body"), prepare=prepare)
+            self.assertIs(caught.exception, primary)
+            host.assert_not_called()
+            self.assertEqual(seen, [primary])
+            self.assertEqual((out / target.BUNDLE).read_bytes(), b"partial archive evidence")
+            self.assertFalse((out / target.SEAL).exists())
+            result = target.json.loads((out / "result.json").read_bytes())
+            self.assertIs(result["complete"], False)
+            self.assertIs(result["host_constructed"], False)
+            self.assertEqual(result["failure"]["type"], "OSError")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -248,6 +248,75 @@ class TerminalCostBoundaries(unittest.TestCase):
         self.assertEqual(cost.merge_source_closure({**parent, cost.PROJECTION: support[cost.PROJECTION]}, support),
                          closure)
 
+    def test_castle_uses_only_three_current_W256_parents_and_explicit_EP_choices(self):
+        for family, source_bytes, whole_bytes in (("A", 7597, 3782), ("C", 8166, 3908), ("E", 7780, 3871)):
+            policy = cost.plan(family, experiment="castle", profile="tcec-provisional")
+            self.assertEqual(policy["outer_commands"], 18)
+            self.assertEqual(policy["cases"], ["control", "ordered-loop"])
+            self.assertEqual(policy["control"]["source"]["bytes"], source_bytes)
+            self.assertEqual(policy["control"]["whole"]["bytes"], whole_bytes)
+            self.assertEqual(set(policy["control"]), {"source", "native", "whole", "header", "payload"})
+            self.assertEqual(policy["compiler"], list(cost.MATE_COMPILERS[family]))
+            self.assertEqual(list(policy["diagnostic_compilers"]), ["plain", "ubsan"])
+            self.assertNotIn("-fsanitize=undefined", policy["diagnostic_compilers"]["plain"])
+            self.assertIn("-fno-sanitize-recover=undefined", policy["diagnostic_compilers"]["ubsan"])
+            command = cost.factory_argv(family, Path("/external/new"), experiment="castle", profile="tcec-provisional")
+            self.assertEqual(command[command.index("--ep-variant")+1], "control" if family == "A" else "legal-maker")
+            self.assertEqual(command[command.index("--profile")+1], "tcec-provisional")
+            self.assertEqual("--scan-variant" in command, family in ("A", "C"))
+        for family in ("B", "D", "F", "F8", True):
+            with self.assertRaises(ValueError):
+                cost.plan(family, experiment="castle", profile="tcec-provisional")
+        for profile in ("test-p4", "test-p28", "unknown", True):
+            with self.assertRaises(ValueError):
+                cost.plan("C", experiment="castle", profile=profile)
+        for variant in ("ordered-loop", "folded", "shared", "", True):
+            with self.assertRaises(ValueError):
+                cost.plan("C", experiment="castle", variant=variant, profile="tcec-provisional")
+
+    def test_castle_gate_precedes_capture_and_CLI_keeps_the_explicit_profile(self):
+        with patch.object(cost, "capture", side_effect=AssertionError("capture forbidden")) as capture:
+            with self.assertRaises(ValueError):
+                cost.measure("C", Path("unused"), experiment="castle", profile="tcec-provisional")
+            capture.assert_not_called()
+        result = dict(**{"class": cost.CASTLE_CLASS}, complete=False, delta={}, diagnostic_C_executed=False)
+        with patch.object(cost, "measure", return_value=result) as measure, patch("builtins.print"):
+            cost.main(["--entry", "C", "--experiment", "castle", "--profile", "tcec-provisional",
+                       "--out", "/external/new", "--execute"])
+            measure.assert_called_once_with("C", Path("/external/new"), execute=True, experiment="castle",
+                                            variant=None, profile="tcec-provisional")
+
+    def test_castle_closure_preserves_EP_parent_tools_and_all_derived_support(self):
+        names = (cost.BUILDER, cost.VERIFIER, cost.OWNER, cost.DEPENDENCIES,
+                 cost.WRAPPER, cost.UNLINK, cost.PACKAGE, cost.PRODUCTION)
+        parent = {name: name.encode() for name in names}
+        parent["engines/experiments/tcec-next/profile_ep.py"] = b"whole admitted EP parent"
+        support = {**{name: parent[name] for name in names}, cost.CASTLE_HELPER:b"frozen castle",
+                   cost.CASTLE_CHECK:b"pure renderer", cost.SOURCE_EDITS:b"shared lift"}
+        closure = cost.merge_source_closure(parent, support, experiment="castle")
+        self.assertEqual(closure, {**parent, **support})
+        changed = dict(support, **{cost.WRAPPER:b"changed"})
+        with self.assertRaisesRegex(ValueError, "factory/captured support differs"):
+            cost.merge_source_closure(parent, changed, experiment="castle")
+
+    def test_eighteen_commands_require_the_explicit_castle_report(self):
+        for experiment in (None, "terminal", "mate", "ep", True):
+            host = SimpleNamespace(report=dict(commands=[], outer_command_limit=18, experiment=experiment))
+            with self.assertRaisesRegex(ValueError, "outer command limit"):
+                cost.run_command(host, SimpleNamespace(LIMITS={}), ["never-executed"], cwd=Path("unused"), kind="unused")
+        owner = SimpleNamespace(LIMITS={"child_AS": 7, "child_CPU": 8})
+        original = dict(owner.LIMITS)
+        class Host:
+            report = dict(commands=[], outer_command_limit=18, experiment="castle")
+            def save(self):
+                pass
+            def run(self, command, **kwargs):
+                self.report["commands"].append(dict(kind=kwargs["kind"],
+                    child_limits=dict(AS=owner.LIMITS["child_AS"], CPU=owner.LIMITS["child_CPU"])))
+                return b"mock only"
+        self.assertEqual(cost.run_command(Host(), owner, ["never-executed"], cwd=Path("unused"), kind="fixture"), b"mock only")
+        self.assertEqual(owner.LIMITS, original)
+
     def test_outer_limit_cannot_be_raised_outside_the_two_finite_experiments(self):
         for limit in (17, 100, True, 16.0):
             host = SimpleNamespace(report=dict(commands=[], outer_command_limit=limit))

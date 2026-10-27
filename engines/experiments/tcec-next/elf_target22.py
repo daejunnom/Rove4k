@@ -231,6 +231,23 @@ def write(path, data, m):
     m["transport"]._write_new(Path(path), data, m["target"])
 
 
+def transport_file_limits(extents, *, maximum):
+    """Transport files precede tool limits; never raise an inherited file cap."""
+    import resource
+    require(type(extents) is tuple and extents and maximum in (MAX_MEMBER, MAX_BUNDLE)
+            and all(type(size) is int and 0 <= size <= maximum for size in extents),
+            "finite owned transport file extents required")
+    inherited = resource.getrlimit(resource.RLIMIT_FSIZE)
+    require(type(inherited) is tuple and len(inherited) == 2
+            and all(type(limit) is int and limit >= -1 for limit in inherited)
+            and (inherited[1] == -1 or 0 <= inherited[0] <= inherited[1]),
+            "valid inherited transport file limits required")
+    require(all(limit == -1 or max(extents) <= limit for limit in inherited),
+            "inherited file limit is insufficient for owned transport artifacts")
+    return dict(inherited_FSIZE=inherited, declared_maximum_bytes=maximum,
+                largest_file_bytes=max(extents), inherited_limit_raised=False)
+
+
 def host_for(E, files, out, report, save, started):
     import resource
     owner = load("elf22_process_owner", E.OWNER, files[E.OWNER])
@@ -272,8 +289,8 @@ def git_binding(E, host, owner, ci):
     require(value.decode("ascii").strip() == ci["GITHUB_SHA"], "actual checkout differs from live workflow SHA")
 
 
-def _operation(out, E, files, report, started, body):
-    """One existing Host and finish_report own all actual child commands."""
+def _operation(out, E, files, report, started, body, *, prepare=None):
+    """Owned artifact I/O precedes tool caps; one Host owns every command."""
     m = modules(files)
     out.mkdir(parents=True)
     for name, data in files.items():
@@ -287,7 +304,14 @@ def _operation(out, E, files, report, started, body):
     prior = signal.signal(signal.SIGCHLD, signal.SIG_DFL)
     utility = load("elf22_finish_owner", E.UTILITY, files[E.UTILITY])
     try:
+        report["host_constructed"] = False
+        if prepare is not None:
+            report["operation_stage"] = "transport-artifacts-before-tool-limits"
+            save()
+            prepare(m, save)
+        report["operation_stage"] = "owned-command-evidence"
         owner, previous, host = host_for(E, files, out, report, save, started)
+        report["host_constructed"] = True
         git_binding(E, host, owner, report["ci_context"])
         body(m, host, owner, save)
         recheck(files)
@@ -298,10 +322,9 @@ def _operation(out, E, files, report, started, body):
         raise
     finally:
         try:
-            if host is not None:
-                utility.finish_report(host, report, save, error)
-            else:
-                save()
+            if host is None:
+                report["host_cleanup"] = {"unsettled_commands": 0, "errors": []}
+            utility.finish_report(host, report, save, error)
         finally:
             if owner is not None and previous is not None:
                 owner.LIMITS.clear()
@@ -332,7 +355,7 @@ def export_bundle(build, out, *, execute=False):
                   ci_context=ci, selection=chosen, engine_executed=False, factory_replayed=False)
     pending = {}
 
-    def body(m, host, owner, save):
+    def prepare(m, save):
         before = snapshot(build, m)
         bundle = m["transport"]._zip_bytes(before[0], before[1])
         require(len(bundle) <= MAX_BUNDLE, "ELF transport exceeds raw ZIP bound")
@@ -343,20 +366,29 @@ def export_bundle(build, out, *, execute=False):
             members=members_record(before[0], before[1]), source_factory_replayed=False,
             producer_runtime_qualification_carried=False, export_closed=True)
         decode_bundle(bundle, seal["members"], m)
+        report["transport_artifact_limits"] = transport_file_limits((len(bundle),), maximum=MAX_BUNDLE)
+        save()
         write(out / BUNDLE, bundle, m)
         require(snapshot(build, m) == before and read(out / BUNDLE, MAX_BUNDLE) == bundle,
                 "original ELF build or transport changed during sealing")
+        pending.update(bundle=bundle, before=before, seal=encoded(seal), modules=m)
+        require(len(pending["seal"]) <= MAX_SEAL, "bounded ELF seal required")
+        report.update(bundle=pin(bundle), seal=pin(pending["seal"]), members=len(before[0]),
+                      transport_prepared_before_tool_limits=True,
+                      generation_only_seal=True, submission_qualified=False, elf_qualified=False)
+        save()
+
+    def body(m, host, owner, save):
+        require(snapshot(build, m) == pending["before"] and read(out / BUNDLE, MAX_BUNDLE) == pending["bundle"],
+                "prepared transport or original build changed before command evidence")
         checked, actual, unused_R, unused_files = E.read_build(build, test_only=True)
         require(checked == manifest and actual.expected == admitted.expected, "strict producer admission changed")
         require([row["kind"] for row in report["commands"]] == ["checkout-head"] and E.settled(report["commands"]),
                 "actual exporter checkout command did not settle cleanly")
-        pending.update(seal=encoded(seal), modules=m)
-        require(len(pending["seal"]) <= MAX_SEAL, "bounded ELF seal required")
-        report.update(bundle=pin(bundle), seal=pin(pending["seal"]), members=len(before[0]),
-                      generation_only_seal=True, submission_qualified=False, elf_qualified=False)
-        save()
+        require(snapshot(build, m) == pending["before"] and read(out / BUNDLE, MAX_BUNDLE) == pending["bundle"],
+                "prepared transport or original build changed after command evidence")
 
-    result = _operation(out, E, files, report, started, body)
+    result = _operation(out, E, files, report, started, body, prepare=prepare)
     try:
         # The seal is a publication marker: do not expose it from an exporter
         # which later fails its existing Host's physical settlement.
@@ -463,9 +495,11 @@ def consume(bundle, seal_path, out, *, execute=False):
         elf_qualified=False, submission_qualified=False, placement_qualified=False,
         event_target_confirmed=False, release_qualified=False, selected=False, scoring=False)
 
-    def body(m, host, owner, save):
-        version = E.run_command(host, owner, ["/usr/bin/cc", "-dumpfullversion"], cwd=out, kind="system-compiler-version")
-        require(version.decode("ascii").strip() == "11.4.0", "actual system GCC11.4 required")
+    prepared = {}
+
+    def prepare(m, save):
+        report["transport_artifact_limits"] = transport_file_limits(tuple(len(value) for value in values.values()), maximum=MAX_MEMBER)
+        save()
         descriptor = m["transport"]._create_root(runner, original_out)
         try:
             m["transport"]._restore_files(descriptor, values, modes)
@@ -474,6 +508,16 @@ def consume(bundle, seal_path, out, *, execute=False):
         restored = snapshot(build, m)
         require(restored[0] == values and members_record(restored[0], restored[1]) == seal["members"],
                 "restored original ELF members or modes differ")
+        prepared["restored"] = restored
+        report["transport_prepared_before_tool_limits"] = True
+        save()
+
+    def body(m, host, owner, save):
+        version = E.run_command(host, owner, ["/usr/bin/cc", "-dumpfullversion"], cwd=out, kind="system-compiler-version")
+        require(version.decode("ascii").strip() == "11.4.0", "actual system GCC11.4 required")
+        restored = prepared["restored"]
+        require(snapshot(build, m) == restored and read(bundle, MAX_BUNDLE) == raw and read(seal_path, MAX_SEAL) == seal_raw,
+                "restored transport changed before strict source admission")
         manifest, admitted, R, unused = E.read_build(build, test_only=True)
         require(selection(manifest) == chosen and manifest["policy"] == seal["policy"]
                 and pin(read(build / "build.json")) == seal["producer_build"]
@@ -534,7 +578,7 @@ def consume(bundle, seal_path, out, *, execute=False):
             scope="same original producer ELF on actual Ubuntu22; GCC11 rules only; no scoring, placement, event or ELF qualification")
         save()
 
-    return _operation(out, E, files, report, started, body)
+    return _operation(out, E, files, report, started, body, prepare=prepare)
 
 
 def main(argv=None):
