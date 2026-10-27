@@ -1,0 +1,140 @@
+"""Bounded pure checks for D search representations, never a native test.
+
+Hosted tests must still execute the generated actual search and compare its
+node/order/TT/learner/cancellation observations in plain and UBSan modes.
+"""
+import importlib.util
+import itertools
+import lzma
+from pathlib import Path
+import subprocess
+import sys
+import unittest
+from unittest import mock
+
+sys.dont_write_bytecode = True
+HERE = Path(__file__).resolve().parent
+
+
+def load(name):
+    spec = importlib.util.spec_from_file_location("D_search_size_test_" + name, HERE / (name + ".py"))
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+search = load("search_size_next")
+
+
+class RepresentationProofs(unittest.TestCase):
+    def test_ordered_retry_states_preserve_every_window_and_reduction(self):
+        # Compare the original two independent flags to the proposed ordered
+        # states, including null-window fail-high and cancellation's zero score.
+        for alpha in (-3, 0, 3):
+            for beta in (alpha + 1, alpha + 4):
+                values = sorted(set((alpha - 1, alpha, beta - 1, beta, beta + 1, 0)))
+                for initial in ((0, 0), (1, 0), (1, 1)):
+                    for results in itertools.product(values, repeat=3):
+                        narrow, reduce = initial
+                        old = []
+                        for score in results:
+                            old.append((reduce, alpha + 1 if narrow else beta))
+                            if not narrow or score <= alpha or (not reduce and score >= beta):
+                                break
+                            if reduce: reduce = 0
+                            else: narrow = 0
+                        stage = initial[0] + initial[1]
+                        new = []
+                        for score in results:
+                            new.append((int(stage == 2), alpha + 1 if stage else beta))
+                            if stage == 0 or score <= alpha or (stage == 1 and score >= beta):
+                                break
+                            stage -= 1
+                        self.assertEqual(new, old)
+
+    def test_prefix_keeps_every_relevant_history_index_and_parity(self):
+        # Distinct integer labels represent distinct history positions, making
+        # any missing/duplicated/out-of-order read visible without a chess model.
+        for root_length in (1, 2, 3, 98, 99, 100, 101, 102, 4095, 4096):
+            prefix = min(100, root_length)
+            removed = root_length - prefix
+            for ply in (0, 1, 2, 3, 63, 126, 127):
+                for half in range(100):
+                    length = root_length + ply
+                    old = list(range(length - 3, max(0, length - 1 - half) - 1, -2))
+                    local = prefix + ply
+                    new = [index + removed for index in
+                           range(local - 3, max(0, local - 1 - half) - 1, -2)]
+                    self.assertEqual(new, old)
+                    self.assertTrue(all(0 <= index - removed < 100 + 128 for index in new))
+
+    def test_byte_aligned_tt_fields_are_bijective_without_hidden_bits(self):
+        # Exercise every encoded signed16 bit pattern and every move bit pattern
+        # independently, plus all depth/bound pairs. Other fields are maximal.
+        def check(move, score_bits, depth, bound):
+            old = move | (score_bits << 17) | (depth << 33) | (bound << 41)
+            new = move | (score_bits << 32) | (depth << 48) | (bound << 56)
+            restored = ((new & 0xffffffff) | (((new >> 32) & 65535) << 17) |
+                        (((new >> 48) & 255) << 33) | ((new >> 56) << 41))
+            self.assertEqual(restored, old)
+            self.assertEqual((new & 0xffffffff) & ~131071, 0)
+        for value in range(65536):
+            check(131071, value, 255, 3)
+        for value in range(131072):
+            check(value, 65535, 255, 3)
+        for depth in range(256):
+            for bound in range(4):
+                check(131071, 65535, depth, bound)
+
+
+class ActualSourceRendering(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.cost = load("structural_bss_cost")
+        inputs = cls.cost.capture_inputs()
+        core = cls.cost._core(cls.cost.ROOT)
+        baseline = cls.cost.validate_inputs(inputs, core)
+        modules = core.load_modules(cls.cost.ROOT, baseline)
+        files, _ = core.prepare_sources(modules, baseline)
+        helper = cls.cost._bss(cls.cost.ROOT, inputs[cls.cost.BSS])
+        cls.files, _ = cls.cost._apply_bss(helper, files, modules["source"], 23)
+        cls.source = modules["source"]
+        cls.storage = load("check_storage")
+        cls.probe = load("probe_search_compact")
+        cls.reference = load("structural_size").load_baseline()["board.c"]
+
+    def test_all_selector_compositions_and_actual_observers_render_purely(self):
+        original = dict(self.files)
+        with mock.patch.object(subprocess, "Popen", side_effect=AssertionError("compiler/process forbidden")), \
+             mock.patch.object(lzma, "compress", side_effect=AssertionError("codec forbidden")), \
+             mock.patch.object(lzma, "decompress", side_effect=AssertionError("codec forbidden")):
+            for length in range(len(search.OPTIONS) + 1):
+                for names in itertools.combinations(search.OPTIONS, length):
+                    for ordered in (names, names[::-1]):
+                        files = search.apply(self.files, ordered)
+                        generated, driver, proof = search.render_probe(
+                            files, self.source, self.storage, self.probe,
+                            reference_board=self.reference, names=ordered)
+                        self.assertEqual(proof["source"], self.probe.inventory(files))
+                        self.assertEqual(proof["output"], self.probe.inventory(generated))
+                        self.assertEqual(proof["driver"], self.probe.pin(driver))
+                        self.assertFalse(proof["actual_runtime"])
+        self.assertEqual(self.files, original)
+
+    def test_selector_and_source_drift_fail_before_partial_application(self):
+        for names in ("tt_bytes", ("unknown",), ("tt_bytes", "tt_bytes")):
+            with self.assertRaises(ValueError):
+                search.apply(self.files, names)
+        for name in search.OPTIONS:
+            changed = search.apply(self.files, (name,))
+            with self.assertRaises(ValueError):
+                search.apply(changed, (name,))
+        files = search.apply(self.files, ("tt_bytes",))
+        with self.assertRaisesRegex(ValueError, "selector contract"):
+            search.render_probe(files, self.source, self.storage, self.probe,
+                                reference_board=self.reference, names=())
+
+
+if __name__ == "__main__":
+    unittest.main()

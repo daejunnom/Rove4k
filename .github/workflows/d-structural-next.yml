@@ -1,0 +1,75 @@
+name: Experimental D structural alternatives
+
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/tiny-d-submission/structural_next*.py'
+      - 'engines/experiments/tiny-d-submission/*_size_next.py'
+      - 'engines/experiments/tiny-d-submission/move_input_size.py'
+      - '.github/workflows/d-structural-next.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: d-structural-next-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check search state and representation equivalence without native execution
+        run: python -I -B engines/experiments/tiny-d-submission/test_search_size_next.py
+      - name: Compare the strict control, BSS baseline and finite source alternatives
+        run: |
+          set -o pipefail
+          timeout --signal=INT --kill-after=30s 600s \
+            python -I -B engines/experiments/tiny-d-submission/structural_next.py \
+            --out '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}.log'
+      - name: Observe actual candidate rules, search and parser behavior
+        run: |
+          set -o pipefail
+          timeout --signal=INT --kill-after=30s 600s \
+            python -I -B engines/experiments/tiny-d-submission/structural_next_checks.py \
+            --portfolio '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' \
+            --out '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}.log'
+      - name: Observe the actual packed P4 baseline and minimum measured candidate
+        run: |
+          set -o pipefail
+          python -I -B - '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' <<'PY'
+          import json, pathlib, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          report = json.loads((root / 'portfolio.json').read_text())
+          if not report['complete']:
+              raise SystemExit('Cost portfolio did not complete')
+          for name in dict.fromkeys(('baseline', report['minimum_measured'])):
+              subprocess.run(['timeout', '--signal=INT', '--kill-after=15s', '130s',
+                  sys.executable, '-I', '-B',
+                  'engines/experiments/tiny-d-submission/structural_runtime_check.py',
+                  '--case', str(root / name), '--out', str(root / (name + '-runtime'))], check=True)
+          PY
+      - name: Preserve successful, failed and unselected candidate evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-D-next-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
