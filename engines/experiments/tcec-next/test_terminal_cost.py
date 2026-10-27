@@ -1,6 +1,7 @@
 """Pure controller boundary regressions; no factory, compiler or codec calls."""
 import copy
 import importlib.util
+import json
 from pathlib import Path
 import sys
 from types import SimpleNamespace
@@ -106,6 +107,73 @@ class TerminalCostBoundaries(unittest.TestCase):
         for cpu, address in (((100, 479), (-1, -1)), ((-1, -1), (2 << 30, 4 << 30))):
             with self.assertRaises(ValueError):
                 cost.limit_plan(cpu, address, (-1, -1))
+
+    def test_mate_is_explicit_and_uses_each_actual_compiler_and_factory_route(self):
+        for family in "ABCE":
+            for variant in ("folded", "shared"):
+                policy = cost.plan(family, experiment="mate", variant=variant)
+                self.assertEqual(policy["outer_commands"], 16)
+                self.assertEqual(policy["cases"], ["control", variant])
+                self.assertFalse(policy["diagnostic_engine"])
+                command = cost.factory_argv(family, Path("/external/new"), experiment="mate", variant=variant)
+                self.assertEqual(command.count("--scan-variant"), int(family in "AC"))
+                self.assertEqual(command[command.index("--b-variant") + 1],
+                                 "tcec-final-lf" if family == "B" else "control")
+                self.assertEqual(command[command.index("--phase-variant") + 1],
+                                 "control" if family == "B" else "phase-init")
+                self.assertEqual(command[command.index("--spelling-variant") + 1],
+                                 "best" if family == "B" else "compound")
+                self.assertEqual("-mavx2" in policy["compiler"], family == "C")
+                self.assertEqual("-pthread" in policy["compiler"], family == "B")
+                self.assertEqual("-s" in policy["compiler"], family != "B")
+                self.assertIn("-fsanitize=undefined", policy["diagnostic_compiler"])
+                self.assertIn("-fno-sanitize-recover=undefined", policy["diagnostic_compiler"])
+        for kwargs in (dict(experiment="mate"), dict(experiment="mate", variant="control"),
+                       dict(experiment="terminal", variant="folded"), dict(experiment=True)):
+            with self.assertRaises(ValueError):
+                cost.plan("A", **kwargs)
+
+    def test_lifted_mate_edit_commutes_with_the_real_dependency_owner(self):
+        projection = cost.load_bytes("cost_pure_lift_projection", cost.PROJECTION,
+                                     (HERE / "spelling_compound.py").read_bytes())
+        dependencies = cost.load_bytes("cost_pure_lift_dependencies", cost.DEPENDENCIES,
+                                       (HERE / "profile_dependencies.py").read_bytes())
+        for has_include in (False, True):
+            before = b"HEAD" + (dependencies.DIRECTIVE if has_include else b"") + b"TAIL"
+            final, old_dependency = dependencies.transform_source(before)
+            candidate, rows, _ = projection._splice(final, [dict(input_begin=4, before="TAIL", after="BODY",
+                role="pure-coordinate-transport", component="test")])
+            lifted, new_dependency, proof = cost.lift_mate_source(before, final, candidate, {"edits": rows},
+                old_dependency, projection=projection, dependencies=dependencies)
+            self.assertEqual(lifted, b"HEAD" + (dependencies.DIRECTIVE if has_include else b"") + b"BODY")
+            self.assertEqual(dependencies.transform_source(lifted)[0], candidate)
+            self.assertEqual(dependencies.restore_source(candidate, new_dependency), lifted)
+            self.assertEqual(projection._inverse_edits(lifted, proof["lifted_edits"]), before)
+            self.assertTrue(proof["exact_commuting_output"])
+            if has_include:
+                crossing, crossing_rows, _ = projection._splice(final, [dict(input_begin=3, before="DTA", after="DTB",
+                    role="deliberate-overlap", component="test")])
+                with self.assertRaisesRegex(ValueError, "crosses the removed include"):
+                    cost.lift_mate_source(before, final, crossing, {"edits": crossing_rows}, old_dependency,
+                                         projection=projection, dependencies=dependencies)
+
+    def test_semantic_receipt_requires_the_actual_exhaustive_domain_and_types(self):
+        valid = dict(complete=True, family="C", profile="test-p4", variant="shared", decode_cases=8388608,
+                     store_cases=8388608, TT_values=65536, plies=128, checksum=0)
+        self.assertEqual(cost.semantic_observation(json.dumps(valid).encode(), family="C", variant="shared"), valid)
+        for key, value in (("complete", 1), ("family", "A"), ("variant", "folded"),
+                           ("decode_cases", 8388607), ("plies", True), ("checksum", -1)):
+            changed = dict(valid)
+            changed[key] = value
+            with self.assertRaises(ValueError):
+                cost.semantic_observation(json.dumps(changed).encode(), family="C", variant="shared")
+
+    def test_outer_limit_cannot_be_raised_outside_the_two_finite_experiments(self):
+        for limit in (17, 100, True, 16.0):
+            host = SimpleNamespace(report=dict(commands=[], outer_command_limit=limit))
+            owner = SimpleNamespace(LIMITS={})
+            with self.assertRaisesRegex(ValueError, "outer command limit"):
+                cost.run_command(host, owner, ["never-executed"], cwd=Path("unused"), kind="unused")
 
 
 if __name__ == "__main__":

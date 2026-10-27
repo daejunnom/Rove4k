@@ -49,6 +49,7 @@ _CLOUD_PROVIDER = None
 INPUT_READER = "engines/scripts/production_input.py"
 CLOUD_PROVIDER = "engines/experiments/strength/cloud_runtime.py"
 RSS_ACCOUNTING = "smaps_rollup"
+ELF_ENTRY_CLEANUP = "anonymous-memfd-v1"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
 SPELLING_SCHEMA = "rove4k.selected-spelling-experiment.v1"
 SPELLING_PIN = {"bytes": 9921, "sha256": "7ec393bc9c805ee8e1e6d715f40cb9883f829e3c6b01e2f71f31701e35136ea8"}
@@ -223,6 +224,15 @@ def restore_payload(payload, maximum):
 
 
 @dataclass(frozen=True)
+class AnonymousMemfdContract:
+    """Producer-owned admission for an outer ELF which survives its memfd exec."""
+
+    def to_record(self):
+        return {"entry_cleanup": "none", "temp_strategy": "anonymous-memfd",
+                "cleanup_seconds": 0, "parent_removed": False}
+
+
+@dataclass(frozen=True)
 class AdmittedBuild:
     family: str
     profile_id: str
@@ -233,7 +243,7 @@ class AdmittedBuild:
     expected: dict
     resources: dict
     runtime_policy: dict
-    wrapper_contract: dict
+    wrapper_contract: dict | AnonymousMemfdContract
     input_pins: dict
     source_contract: dict
     full: bool = True
@@ -1246,7 +1256,141 @@ def startup_residency(row, snapshot, tt_bytes, *, exact_required):
     return resident
 
 
-def _clean_live(scope, owned, snapshot, contract, started):
+def _runtime_wrapper(admitted):
+    contract = admitted.wrapper_contract
+    if type(contract) is AnonymousMemfdContract:
+        require(type(admitted) is AdmittedBuild and admitted.representation == "self-contained-elf",
+                "anonymous memfd cleanup requires a typed self-contained ELF admission")
+        return contract.to_record()
+    require(isinstance(contract, dict) and admitted.representation != "self-contained-elf"
+            and contract.get("entry_cleanup") != "none",
+            "anonymous memfd cleanup requires its producer-owned typed contract")
+    return contract
+
+
+def _stat_record(value):
+    return {"device": value.st_dev, "inode": value.st_ino, "mode": value.st_mode,
+            "links": value.st_nlink, "bytes": value.st_size,
+            "mtime_ns": value.st_mtime_ns, "ctime_ns": value.st_ctime_ns}
+
+
+def _validate_submitted_file(record, admitted, original=None):
+    require(isinstance(record, dict) and set(record) == {"program", "whole", "stat"}
+            and record["program"] == admitted.program
+            and record["whole"] == _field_pin(admitted.expected, "whole"),
+            "submitted ELF whole identity differs")
+    stamp = record["stat"]
+    require(isinstance(stamp, dict) and set(stamp) ==
+            {"device", "inode", "mode", "links", "bytes", "mtime_ns", "ctime_ns"}
+            and all(type(value) is int for value in stamp.values())
+            and stamp["device"] >= 0 and stamp["inode"] > 0
+            and stat.S_ISREG(stamp["mode"]) and stamp["links"] == 1
+            and stamp["bytes"] == record["whole"]["bytes"],
+            "submitted ELF must remain the original regular single-link file")
+    require(original is None or record == original, "submitted ELF was replaced or changed")
+    return record
+
+
+def _submitted_file(admitted, build, original=None):
+    """Read only the admitted program, retaining its namespace and inode identity."""
+    expected = _field_pin(admitted.expected, "whole")
+    require(type(expected["bytes"]) is int and 0 < expected["bytes"] <= 16 << 20,
+            "submitted ELF byte extent is not admitted")
+    path = artifact_file(build, admitted.program)
+    before = _stat_record(path.stat())
+    data = input_reader().read_regular(path, limit=expected["bytes"])
+    require(pin(data) == expected and before == _stat_record(artifact_file(build, admitted.program).stat()),
+            "submitted ELF changed during whole-file observation")
+    return _validate_submitted_file({"program": admitted.program, "whole": pin(data), "stat": before},
+                                    admitted, original)
+
+
+def _anonymous_image(pid, snapshot, expected):
+    """Observe the live original process and its actual anonymous native image."""
+    require(type(expected.get("bytes")) is int and 0 < expected["bytes"] <= 16 << 20,
+            "anonymous native byte extent is not admitted")
+    proc = Path("/proc") / str(pid)
+    before = _process_identity(_proc_bytes(proc / "stat", 16384), pid)
+    executable = proc / "exe"
+    link = str(executable.readlink())
+    descriptor = os.open(executable, os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_CLOEXEC", 0))
+    try:
+        stamp = _stat_record(os.fstat(descriptor))
+        require(stat.S_ISREG(stamp["mode"]) and stamp["links"] == 0
+                and stamp["bytes"] == expected["bytes"], "restored image is not an anonymous regular native")
+        chunks, count = [], 0
+        while count <= expected["bytes"]:
+            value = os.read(descriptor, min(65536, expected["bytes"] + 1 - count))
+            if not value:
+                break
+            chunks.append(value)
+            count += len(value)
+        native = pin(b"".join(chunks))
+        require(native == expected and stamp == _stat_record(os.fstat(descriptor))
+                and stamp == _stat_record(executable.stat()) and str(executable.readlink()) == link,
+                "actual anonymous native image changed or differs")
+    finally:
+        os.close(descriptor)
+    after = _process_identity(_proc_bytes(proc / "stat", 16384), pid)
+    record = {"exe": link, "path": link.removesuffix(" (deleted)"), "stat": stamp,
+              "native": native, "before": before, "after": after}
+    _validate_anonymous_image(record, snapshot, expected, pid)
+    return record
+
+
+def _validate_anonymous_image(record, snapshot, expected, pid):
+    require(isinstance(record, dict) and set(record) == {"exe", "path", "stat", "native", "before", "after"},
+            "anonymous executable observation is incomplete")
+    link, stamp = record["exe"], record["stat"]
+    require(isinstance(link, str) and link.startswith("/memfd:") and link.endswith(" (deleted)")
+            and record["path"] == link.removesuffix(" (deleted)")
+            and snapshot.get("exe") == link and snapshot.get("path") == record["path"]
+            and snapshot.get("path_exists") is False and record["native"] == expected
+            and snapshot.get("native_sha256") == expected["sha256"],
+            "restored executable must be the admitted deleted anonymous memfd")
+    require(isinstance(stamp, dict) and set(stamp) ==
+            {"device", "inode", "mode", "links", "bytes", "mtime_ns", "ctime_ns"}
+            and all(type(value) is int for value in stamp.values())
+            and stamp["device"] >= 0 and stamp["inode"] > 0 and stat.S_ISREG(stamp["mode"])
+            and stamp["links"] == 0 and stamp["bytes"] == expected["bytes"],
+            "restored image is not an anonymous regular native")
+    before, after = record["before"], record["after"]
+    require(all(isinstance(value, dict) and type(value.get("pid")) is int and value["pid"] == pid
+                and type(value.get("start_ticks")) is int and value["start_ticks"] > 0
+                and value.get("state") in ("R", "S", "D", "T", "t", "I", "W", "P")
+                for value in (before, after)) and before["start_ticks"] == after["start_ticks"],
+            "anonymous observation lost the live original process identity")
+
+
+def _validate_anonymous_cleanup(cleanup, snapshot, admitted, original, native, pid):
+    require(type(admitted.wrapper_contract) is AnonymousMemfdContract,
+            "anonymous cleanup requires its typed admission")
+    _runtime_wrapper(admitted)
+    require(isinstance(cleanup, dict) and set(cleanup) ==
+            {"entry_cleanup", "temp_strategy", "observed_while_alive", "wall_from_launch", "executable", "submitted_file"}
+            and cleanup["entry_cleanup"] == "none" and cleanup["temp_strategy"] == "anonymous-memfd"
+            and cleanup["observed_while_alive"] is True
+            and type(cleanup["wall_from_launch"]) in (int, float) and 0 <= cleanup["wall_from_launch"] <= 60,
+            "anonymous cleanup observation cannot claim submitted path removal")
+    _validate_submitted_file(original, admitted)
+    _validate_submitted_file(cleanup["submitted_file"], admitted, original)
+    _validate_anonymous_image(cleanup["executable"], snapshot, native, pid)
+
+
+def _clean_live(scope, owned, snapshot, contract, started, *, admitted=None, build=None,
+                submitted=None, native=None):
+    if type(contract) is AnonymousMemfdContract:
+        require(admitted is not None and contract is admitted.wrapper_contract,
+                "anonymous cleanup lost its admitted contract")
+        _runtime_wrapper(admitted)
+        executable = _anonymous_image(owned.process.pid, snapshot, native)
+        outer = _submitted_file(admitted, build, submitted)
+        require(not owned.exited(), "anonymous cleanup was not observed while engine remained alive")
+        result = {"entry_cleanup": "none", "temp_strategy": "anonymous-memfd",
+                  "observed_while_alive": True, "wall_from_launch": time.monotonic() - started,
+                  "executable": executable, "submitted_file": outer}
+        _validate_anonymous_cleanup(result, snapshot, admitted, submitted, native, owned.process.pid)
+        return result
     if contract.get("entry_cleanup") == "loader-owned-fd":
         executable = Path("/proc") / str(owned.process.pid) / "exe"
         require(executable.stat().st_nlink == 0 and snapshot["exe"].endswith(" (deleted)"),
@@ -1295,6 +1439,9 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
     scope, owner, oracle = support_modules()
     own_path = "engines/experiments/tcec-next/profile_verify.py"
     own_source = executing_source(source_bytes(own_path))
+    wrapper_contract = _runtime_wrapper(admitted)
+    anonymous = type(admitted.wrapper_contract) is AnonymousMemfdContract
+    submitted = _submitted_file(admitted, build) if anonymous else None
     revalidate_target(target_reference)
     image_pin, image = runtime_image(admitted, build, target_reference)
     reference_record = target_reference.to_record() if target_reference is not None else None
@@ -1318,6 +1465,9 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
               "not_proven": ["event-specific compiler/allocation acceptance", "playing strength or scaling",
                              "actual multi-node NUMA behavior", "exact retained learner values from minimum UCI",
                              "exhaustive NBRQ generation from replay alone"]}
+    if anonymous:
+        report["wrapper_contract"] = wrapper_contract
+        report["submitted_file_before_launch"] = submitted
     out.mkdir()
     support_inputs = dict(SUPPORT)
     support_inputs[own_path] = pin(own_source)["sha256"]
@@ -1351,6 +1501,8 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
             started = time.monotonic()
             owned = None
             try:
+                if anonymous:
+                    _submitted_file(admitted, build, submitted)
                 _CONSTRUCTING = True
                 try:
                     owned = owner.Owned(artifact_file(build, admitted.program), directory, owner.Budget(140))
@@ -1380,7 +1532,8 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
                 row["startup_RSS_bytes_not_peak"] = row["startup_resident_accounting"]["Rss_bytes"]
                 startup_residency(row, snapshot, admitted.resources["tt_bytes"], exact_required=True)
                 row["normal_temporary_cleanup"] = _clean_live(scope, owned, snapshot,
-                                                               admitted.wrapper_contract, started)
+                    admitted.wrapper_contract, started, admitted=admitted, build=build,
+                    submitted=submitted, native=image_pin)
                 session = Session(owned, oracle, manifest, row, report)
                 require(not any(line.startswith(b"option name ") for line in owned.stdout.bytes().splitlines()),
                         "fixed submission profile exposed a configurable UCI option")
@@ -1460,6 +1613,8 @@ def run_runtime(admitted, build, out, limits, *, target_reference=None):
         revalidate_target(target_reference)
         if target_reference is not None:
             report["target_context_before_post_unchanged"] = True
+        if anonymous:
+            report["submitted_file_after_groups"] = _submitted_file(admitted, build, submitted)
         report["complete"] = True
     except BaseException as error:
         report["failure"] = {"type": type(error).__name__, "message": str(error)}
@@ -1517,6 +1672,8 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             and _json_equal(observed.get("source_closure"), admitted.input_pins)
             and _json_equal(observed.get("resources"), admitted.resources),
             "runtime does not bind the admitted whole/native/source/resource identity")
+    wrapper_contract = _runtime_wrapper(admitted)
+    anonymous = type(admitted.wrapper_contract) is AnonymousMemfdContract
     revalidate_target(target_reference)
     image_pin, image = runtime_image(admitted, build, target_reference)
     reference_record = target_reference.to_record() if target_reference is not None else None
@@ -1544,6 +1701,14 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
     require((INPUT_READER in support) == runtime_reader_required(frozen_qualifier),
             "runtime input reader support is missing or inconsistent with its frozen qualifier")
     exact_rss = runtime_feature_required(frozen_qualifier, "RSS_ACCOUNTING", RSS_ACCOUNTING)
+    anonymous_supported = runtime_feature_required(frozen_qualifier, "ELF_ENTRY_CLEANUP", ELF_ENTRY_CLEANUP)
+    submitted = None
+    if anonymous:
+        require(anonymous_supported and exact_rss and observed.get("wrapper_contract") == wrapper_contract,
+                "frozen runtime qualifier did not observe the typed anonymous cleanup contract")
+        submitted = _validate_submitted_file(observed.get("submitted_file_before_launch"), admitted)
+        _validate_submitted_file(observed.get("submitted_file_after_groups"), admitted, submitted)
+        _submitted_file(admitted, build, submitted)
     reference_support = observed.get("target_reference_support", {})
     if reference_record is not None:
         expected_support = reference_support_pins(target_reference)
@@ -1588,8 +1753,16 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
         seconds = row["startup_wall_seconds"]
         require(type(seconds) in (int, float) and 0 <= seconds <= 60, "runtime startup exceeds 60 seconds")
         startup.append(seconds * 1000)
-        require(row["normal_temporary_cleanup"].get("path_absent") is True,
-                "live usable startup cleanup is absent")
+        if anonymous:
+            _validate_anonymous_cleanup(row["normal_temporary_cleanup"], snapshot, admitted,
+                                        submitted, image_pin, row["pid"])
+            executable = row["normal_temporary_cleanup"]["executable"]
+            require(executable["before"]["start_ticks"] ==
+                    row["startup_resident_accounting"]["before"]["start_ticks"],
+                    "anonymous image and resident accounting observed different process identities")
+        else:
+            require(row["normal_temporary_cleanup"].get("path_absent") is True,
+                    "live usable startup cleanup is absent")
         active = label.startswith("active-")
         expected_labels = (["active-terminal"] if active else base_labels +
                            (list(promotions) + ["long-repetition-fifty-replay"] if label == "idle-quit" else []))
@@ -1640,6 +1813,8 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             {"GO": requested, "legal_bestmoves": actual_bestmoves}, "runtime observation count differs")
     require(rows[0]["long_position"]["plies"] == 1024 and
             rows[0]["long_position"]["oracle_halfmove"] == 1024, "long replay was not observed")
+    if anonymous:
+        _submitted_file(admitted, build, submitted)
     actual_dependencies = native_dependencies(image)
     dependencies = _json_equal(observed.get("dependencies"), actual_dependencies)
     isa = observed.get("ISA", {})

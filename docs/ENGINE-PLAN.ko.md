@@ -715,7 +715,7 @@ flowchart TD
   PREP --> LEAGUEFIX[완전 동률의 고정 계열 ID 선발·실제 caller 연결]
   ELF --> SIZE{실제 ELF 전체4096B 이하}
   SIZE -->|초과| DEFER[계열별 deferred_size·재측정 조건 보존]
-  SIZE -->|이하| ELFR[실제 복원·startup·전체 기능·R·소유권]
+  SIZE --> ELFR[실제 복원·startup·전체 기능·R·소유권 / 초과는 비점수 관측]
   MATE --> COST[동일 기준 native·whole 반복 비교 / 의미·기능 gate]
   LEAGUEFIX --> CI[실제 caller·순수·source-bound CI]
   COST --> CI
@@ -762,3 +762,13 @@ frontend 경로 조사도 끝났으나 검증된 새 데이터 URL은 없었다.
 데이터 freshness가 아니며 pricing iframe/bundle은403이다. 과거15–20%를 현재 위험도로
 확정하거나 fetch 시각을 freshness로 바꾸지 않는다. 최근7일/<5% gate는 미충족이다.
 같은 응답의 반복 polling·Codex 예약과 승인 없는 SKU/Region/위험 기준 변경은 하지 않는다.
+
+새 우선순위의 d62eba7 체크포인트에서 기존5 workflow와 engine26/26이 통과했다.
+Foundation은982검사/40 suite와 의도한6 fault의 return2·정상 정리를 확인했다.
+후속 소스는 ABCEF P4/P28의 실제 ELF producer/admission/rules/runtime/qualification,
+공통 R의 typed anonymous-memfd 계약, ABCE mate 두 형태의 실제 비용 CI를 연결한다.
+독립 source 검토는 통과했으며 실제 새 ELF·mate 실행 결과는 별도 CI에서 판정한다.
+ELF 전체 크기 초과에도 비점수 기능 관측은 수행할 수 있지만 deferred_size와 physical
+TEST placement 실패를 지우지 않는다. 기존 engine production 선택은 아직 바뀌지 않는다.
+W256은 TEST runtime에 추가하지 않고 별도 compile/package 준비 endpoint로 마무리한다.
+이 endpoint와 ELF Ubuntu22 전달·실행, 실제 cancellation 관측은 후속 잔여다.

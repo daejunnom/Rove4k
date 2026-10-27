@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Opt-in A/E P4 source/native/whole costs; no generated program is executed.
+"""Finite opt-in source costs; generated engines and TT are never executed.
 
 The unchanged selected factory must pass its strict current verifier and all
 five literal control identities before this one source hypothesis is measured.
 Candidate native images are observations in a new COST class, never production
-admissions. Fourteen outer commands per family exclude the factory's separately
-reported nested commands. CPP identity is within each case, not across cases.
+admissions. The default A/E terminal experiment retains fourteen outer commands.
+The explicit A/B/C/E mate experiment adds one fatal-UBSan fragment compile/run,
+for sixteen commands. This diagnostic is not an engine. Nested factory commands
+remain separate. CPP identity is case-internal, not control-versus-candidate.
 """
 from __future__ import annotations
 
@@ -28,6 +30,8 @@ ROOT = HERE.parents[2]
 PREFIX = "engines/experiments/tcec-next/"
 SELF = PREFIX + "terminal_cost.py"
 HELPER = PREFIX + "terminal_queries.py"
+MATE_HELPER = PREFIX + "compact_mate.py"
+MATE_SEMANTICS = PREFIX + "test_compact_mate.py"
 PROJECTION = PREFIX + "spelling_compound.py"
 BUILDER = PREFIX + "profile_build.py"
 VERIFIER = PREFIX + "profile_verify.py"
@@ -73,6 +77,41 @@ CANDIDATE = {
     "A": (7688, "e0c73ac70536ebc41afeac0d39866b38fe66448e439e7b1288200eff459cc8e8"),
     "E": (7909, "8f44f5223d6c05e3797132f7da2994af8a46db879dbfef82644a8ba55a093c4d"),
 }
+MATE_CLASS = "rove4k-ABCE-mate-cost-v1"
+MATE_VARIANTS = ("folded", "shared")
+MATE_OUTER_COMMANDS = 16
+MATE_FIXED = {
+    PROJECTION: FIXED[PROJECTION],
+    MATE_HELPER: (7726, "85ede9040965ac09e23a2366e63d833ca8edb804ea8f0dbda4cab4701db3704a"),
+    MATE_SEMANTICS: (11732, "4082051c2d70d6a02d24494f955b17631cea3e8f258163b1b7a2c99d1bf84bd7"),
+}
+MATE_CONTROL = {
+    **CONTROL,
+    "B": {
+        "source": (7934, "09546a75f5e417125ec033994fec52b1e23da4d504e5146a54cead53966136ce"),
+        "native": (25744, "89b695055e8fbcdfd64f9cfd07e127180eb9827e4245631afd0525d2e0609e29"),
+        "whole": (4071, "c64753dc77b2c287d13612f985ed4c77d53caafc532530169ec328ee577dbeae"),
+        "payload": (3962, "2ff39681818973f97a03591af52d7ac77c6363aedd2e9df879e1e937d08f790e"),
+    },
+    "C": {
+        "source": (8199, "86b7dd0e5f206d10086d098ce82083d4d12910df91a7f1215915727327f1d42a"),
+        "native": (18568, "16031542896ac9d28cf6e7d70f32a8eef041baff2e65bcf030edea7eae689462"),
+        "whole": (3915, "48f201d454749957eb9ada8589de8d75d7e331571f6958e31a15542cf2d00546"),
+        "payload": (3814, "eb3969b146752bb83d39192730346d8987afdd610d5a777a4b839f90421132ef"),
+    },
+}
+MATE_HEADERS = {
+    "A": HEADER, "E": HEADER,
+    "B": (109, "579c456c8ca9af8acde4bc4a41307807bc85d76d11b56ec5fcdcaa7e304ed911"),
+    "C": (101, "05292d5798f864fcd3fee2d387e258d7105085d6753a123100dd246796bf4a38"),
+}
+MATE_COMPILERS = {
+    "A": tuple(COMPILER), "E": tuple(COMPILER),
+    "B": ("cc", "-std=c11", "-Os", "-pthread", "-x", "c", "-", "-o", "x"),
+    "C": ("cc", "-Os", "-mavx2", "-x", "c", "-", "-o", "x", "-s"),
+}
+SEMANTIC_COMPILER = ("cc", "-std=c11", "-O2", "-fsanitize=undefined",
+                     "-fno-sanitize-recover=undefined", "-x", "c", "-", "-o", "x")
 _EXECUTING_CODE = sys._getframe().f_code
 
 
@@ -93,25 +132,41 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
 
-def plan(family):
-    require(type(family) is str and family in CONTROL, "finite A/E P4 family required")
+def plan(family, *, experiment="terminal", variant=None):
+    require(type(experiment) is str and experiment in ("terminal", "mate"), "finite source experiment required")
+    terminal = experiment == "terminal"
+    require(type(family) is str and family in (CONTROL if terminal else MATE_CONTROL),
+            "finite A/E P4 family required" if terminal else "finite A/B/C/E P4 mate family required")
+    require(variant is None if terminal else type(variant) is str and variant in MATE_VARIANTS,
+            "terminal default or explicit folded/shared mate variant required")
     compression = dict(format="lzma-alone", filter="LZMA1", preset=6 if family == "A" else 9,
-        extreme=family == "E", lc=2, lp=0, pb=0, check="NONE", mf="BT2" if family == "A" else "BT4",
-        dictionary_bytes=65536, nice_len=24 if family == "A" else 32)
-    return dict(family=family, profile=PROFILE, cases=list(CASES), outer_commands=OUTER_COMMANDS,
-        work_seconds=600, cleanup_seconds=30, compiler=list(COMPILER), compiler_version=BANNER,
+        extreme=family != "A", lc=2, lp=0, pb=0, check="NONE", mf="BT2" if family == "A" else "BT4",
+        dictionary_bytes=65536, nice_len=24 if family == "A" else 64 if family == "C" else 32)
+    controls = CONTROL if terminal else MATE_CONTROL
+    result = dict(family=family, profile=PROFILE, cases=list(CASES) if terminal else ["control", variant],
+        outer_commands=OUTER_COMMANDS if terminal else MATE_OUTER_COMMANDS,
+        work_seconds=600, cleanup_seconds=30,
+        compiler=list(COMPILER if terminal else MATE_COMPILERS[family]), compiler_version=BANNER,
         compression=compression,
-        control={**{key: expected(value) for key, value in CONTROL[family].items()},
-                 "header": expected(HEADER)}, candidate_source=expected(CANDIDATE[family]))
+        control={**{key: expected(value) for key, value in controls[family].items()},
+                 "header": expected(HEADER if terminal else MATE_HEADERS[family])})
+    if terminal:
+        result["candidate_source"] = expected(CANDIDATE[family])
+    else:
+        result.update(experiment=experiment, variant=variant,
+                      diagnostic_compiler=list(SEMANTIC_COMPILER), diagnostic_engine=False)
+    return result
 
 
-def factory_argv(family, output):
-    plan(family)
+def factory_argv(family, output, *, experiment="terminal", variant=None):
+    plan(family, experiment=experiment, variant=variant)
     command = [sys.executable, "-I", "-B", str(ROOT / BUILDER), "--entry", family,
-        "--profile", PROFILE, "--representation", "source-jit", "--b-variant", "control",
-        "--phase-variant", "phase-init", "--spelling-variant", "compound",
+        "--profile", PROFILE, "--representation", "source-jit", "--b-variant",
+        "tcec-final-lf" if family == "B" else "control",
+        "--phase-variant", "control" if family == "B" else "phase-init",
+        "--spelling-variant", "best" if family == "B" else "compound",
         "--source-dependencies", "unused-includes"]
-    if family == "A":
+    if family in ("A", "C"):
         command += ["--scan-variant", "square-successor"]
     return [*command, "--out", str(output)]
 
@@ -141,11 +196,14 @@ def read_source(path):
     return data
 
 
-def capture():
-    files = {name: read_source(ROOT / name) for name in SUPPORT}
+def capture(*, experiment="terminal"):
+    require(experiment in ("terminal", "mate"), "finite support capture required")
+    names = SUPPORT if experiment == "terminal" else (
+        *[name for name in SUPPORT if name != HELPER], MATE_HELPER, MATE_SEMANTICS)
+    files = {name: read_source(ROOT / name) for name in names}
     require(compile(files[SELF], _EXECUTING_CODE.co_filename, "exec", dont_inherit=True) == _EXECUTING_CODE,
             "executing controller differs from captured source")
-    for name, value in FIXED.items():
+    for name, value in (FIXED if experiment == "terminal" else MATE_FIXED).items():
         require(pin(files[name]) == expected(value), "frozen terminal/projection owner differs: " + name)
     return files
 
@@ -174,9 +232,9 @@ def settled(commands):
         and row.get("forced_cleanup") is False for row in commands)
 
 
-def validate_factory_receipts(manifest, control, family):
+def validate_factory_receipts(manifest, control, family, *, experiment="terminal", variant=None):
     """New profile receipts are not legacy Host nested_receipt dictionaries."""
-    plan(family)
+    plan(family, experiment=experiment, variant=variant)
     for record, kind in ((manifest, "rove4k-production-profile-v1"), (control, "tcec-full-C-v1")):
         require(type(record) is dict and type(record.get("format")) is int
                 and record["format"] == 1 and record.get("class") == kind
@@ -188,7 +246,9 @@ def validate_factory_receipts(manifest, control, family):
 
 def run_command(host, owner, command, *, cwd, kind, data=None, factory=False):
     """Serial per-call child limits, using only the existing process owner."""
-    require(len(host.report["commands"]) < OUTER_COMMANDS, "outer command limit exceeded")
+    command_limit = host.report.get("outer_command_limit", OUTER_COMMANDS)
+    require(type(command_limit) is int and command_limit in (OUTER_COMMANDS, MATE_OUTER_COMMANDS)
+            and len(host.report["commands"]) < command_limit, "outer command limit exceeded")
     previous = dict(owner.LIMITS)
     limits = dict(AS=4 << 30, CPU=480) if factory else dict(AS=2 << 30, CPU=120)
     owner.LIMITS.update(child_AS=limits["AS"], child_CPU=limits["CPU"])
@@ -221,9 +281,69 @@ def restored_payload(whole, header, source):
             and decoder.eof and not decoder.unused_data, "strict whole source inverse differs")
 
 
-def measure(family, out, *, execute=False):
+def lift_mate_source(before, final, candidate, proof, old_dependency, *, projection, dependencies):
+    """Commute exact final-source edits through the existing include cleanup.
+
+    The old dependency proof supplies coordinates; no include offset is guessed.
+    All lifted spans and both complete inverses are checked before compilation.
+    """
+    replay, canonical_dependency = dependencies.transform_source(before)
+    require(replay == final and canonical(canonical_dependency) == canonical(old_dependency)
+            and dependencies.restore_source(final, old_dependency) == before,
+            "canonical original dependency relation differs")
+    spans = old_dependency["spans"]
+    require(type(spans) is list and len(spans) <= 1, "finite existing dependency cleanup required")
+    offset = removed = None
+    if spans:
+        span = spans[0]
+        offset, removed = span["offset"], span["before"].encode("ascii")
+        require(type(offset) is int and 0 <= offset <= len(final) and removed == dependencies.DIRECTIVE
+                and span["after"] == "" and before[:offset] == final[:offset]
+                and before[offset:offset + len(removed)] == removed
+                and before[offset + len(removed):] == final[offset:],
+                "one exact unchanged include deletion required")
+    require(projection._inverse_edits(candidate, proof["edits"]) == final,
+            "actual mate final-source inverse differs before lifting")
+    lifted = []
+    for row in proof["edits"]:
+        at, length = row["input_begin"], len(row["before"].encode("ascii"))
+        require(type(at) is int and length > 0, "typed nonempty mate edit required")
+        if spans:
+            require(at >= offset or at + length <= offset, "mate edit crosses the removed include")
+            at += len(removed) if at >= offset else 0
+        lifted.append(dict(input_begin=at, before=row["before"], after=row["after"],
+                           role=row["role"], component=row["component"]))
+    pre_candidate, rows, gaps = projection._splice(before, lifted)
+    require(projection._inverse_edits(pre_candidate, rows) == before,
+            "lifted complete pre-cleanup inverse differs")
+    cleaned, dependency_proof = dependencies.transform_source(pre_candidate)
+    require(cleaned == candidate and dependencies.restore_source(cleaned, dependency_proof) == pre_candidate,
+            "mate/include projections do not commute")
+    return pre_candidate, dependency_proof, dict(
+        original_before=pin(before), original_final=pin(final), candidate_before=pin(pre_candidate),
+        candidate_final=pin(candidate), original_dependency=old_dependency,
+        lifted_edits=rows, protected_gaps=gaps, lifted_full_inverse=True,
+        canonical_cleanup_last=True, exact_commuting_output=True)
+
+
+def semantic_observation(data, *, family, variant):
+    record = json.loads(data)
+    require(type(record) is dict and record.get("complete") is True
+            and record.get("family") == family and record.get("profile") == PROFILE
+            and record.get("variant") == variant, "actual mate diagnostic identity differs")
+    for name, value in (("decode_cases", 8388608), ("store_cases", 8388608), ("TT_values", 65536), ("plies", 128)):
+        require(type(record.get(name)) is int and record[name] == value,
+                "actual mate exhaustive diagnostic count differs: " + name)
+    require(type(record.get("checksum")) is int and 0 <= record["checksum"] < 1 << 64,
+            "actual mate checksum type/range differs")
+    return record
+
+
+def measure(family, out, *, execute=False, experiment="terminal", variant=None):
     require(execute is True, "explicit --execute required before source capture or output creation")
-    policy = plan(family)
+    policy = plan(family, experiment=experiment, variant=variant)
+    terminal = experiment == "terminal"
+    compiler, cases = policy["compiler"], policy["cases"]
     require(sys.platform == "linux" and platform.machine() == "x86_64", "Linux x86-64 required")
     import resource
     started = time.monotonic()
@@ -231,22 +351,25 @@ def measure(family, out, *, execute=False):
                  "AS": resource.getrlimit(resource.RLIMIT_AS),
                  "FSIZE": resource.getrlimit(resource.RLIMIT_FSIZE)}
     applied = limit_plan(inherited["CPU"], inherited["AS"], inherited["FSIZE"])
-    files = capture()
+    files = capture(experiment=experiment)
     utility = load_bytes("terminal_cost_utility", UTILITY, files[UTILITY])
     out = utility.new_output(out)
     out.mkdir(parents=True)
     for name, data in files.items():
         write(out / "support", name, data)
-    report = dict(format=1, **{"class": CLASS}, complete=False, reproducible=False,
+    report = dict(format=1, **{"class": CLASS if terminal else MATE_CLASS}, complete=False, reproducible=False,
         policy=policy, support={name: pin(data) for name, data in files.items()}, commands=[], attempts=[],
         engine_executed=False, TT_allocated=False, selected=False, runtime_qualified=False,
-        scope="fresh strict control and one source hypothesis; compile/package observations only",
+        scope=("fresh strict control and one source hypothesis; compile/package observations only" if terminal else
+               "fresh strict control, one mate hypothesis and actual-fragment UBSan diagnostic; no engine execution"),
         host_context=dict(python=sys.version, uname=list(os.uname()),
                           cpu_affinity=sorted(os.sched_getaffinity(0))),
         limits={**applied, "work_seconds": 600, "cleanup_budget_seconds": 30,
                 "inherited": inherited,
                 "fresh_profile_TERM_grace_seconds": 15, "other_TERM_grace_seconds": 3,
-                "combined_stdio_bytes": MAX_FILE}, outer_command_limit=OUTER_COMMANDS)
+                "combined_stdio_bytes": MAX_FILE}, outer_command_limit=policy["outer_commands"])
+    if not terminal:
+        report.update(experiment=experiment, variant=variant, diagnostic_C_executed=False)
 
     def save():
         (out / "result.json").write_text(json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n")
@@ -280,20 +403,33 @@ def measure(family, out, *, execute=False):
             actual_parent_AS=resource.getrlimit(resource.RLIMIT_AS),
             actual_FSIZE=resource.getrlimit(resource.RLIMIT_FSIZE))
         R = load_bytes("terminal_cost_strict_R", VERIFIER, files[VERIFIER])
-        helper = load_bytes("terminal_cost_source_hypothesis", HELPER, files[HELPER])
+        helper_path = HELPER if terminal else MATE_HELPER
+        helper = load_bytes("terminal_cost_source_hypothesis", helper_path, files[helper_path])
         projection = load_bytes("terminal_cost_projection", PROJECTION, files[PROJECTION])
+        semantics = None if terminal else load_bytes("terminal_cost_mate_semantics", MATE_SEMANTICS, files[MATE_SEMANTICS])
+        if semantics is not None:
+            require(read_source(Path(semantics.mate.__file__)) == files[MATE_HELPER]
+                    and read_source(Path(semantics.projection.__file__)) == files[PROJECTION]
+                    and all(getattr(semantics.mate, name).__code__ == getattr(helper, name).__code__
+                            for name in ("transform_source", "restore_source", "_edits", "_admit"))
+                    and all(getattr(semantics.projection, name).__code__ == getattr(projection, name).__code__
+                            for name in ("_splice", "_inverse_edits"))
+                    and semantics.mate.INPUTS == helper.INPUTS and semantics.mate.CONTEXT == helper.CONTEXT
+                    and semantics.mate.DOMAIN == helper.DOMAIN,
+                    "diagnostic module's real helper inputs differ from captured support")
         baseline = out / "fresh-profile"
-        run_command(host, owner, factory_argv(family, baseline), cwd=out, kind="fresh-profile", factory=True)
+        run_command(host, owner, factory_argv(family, baseline, experiment=experiment, variant=variant),
+                    cwd=out, kind="fresh-profile", factory=True)
         raw = R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE)
         manifest = json.loads(raw)
         admitted = R.admit_c_build(manifest, baseline)
         control_raw = R.checked_artifact(baseline, "control/build.json", manifest["control"]["report"])
         control_manifest = json.loads(control_raw)
-        validate_factory_receipts(manifest, control_manifest, family)
+        validate_factory_receipts(manifest, control_manifest, family, experiment=experiment, variant=variant)
         require(admitted.family == family and admitted.profile_id == PROFILE and admitted.full is True
                 and admitted.representation == "source-jit" and manifest["plan"]["entry_cleanup"] == "private-path"
-                and canonical(manifest["compiler"]) == canonical(COMPILER)
-                and manifest["compile_executor"] == COMPILER and manifest["compile_executor_version"] == BANNER
+                and canonical(manifest["compiler"]) == canonical(compiler)
+                and manifest["compile_executor"] == compiler and manifest["compile_executor_version"] == BANNER
                 and canonical(manifest["compression"]) == canonical(policy["compression"]),
                 "fresh strict control context differs from the finite P4 context")
         artifacts = {key: R.checked_artifact(baseline, name, policy["control"][key]) for key, name in
@@ -314,8 +450,13 @@ def measure(family, out, *, execute=False):
         require(proofs[-1].get("schema") == dependencies.SCHEMA, "dependency cleanup must be last")
         old_dependency = proofs[-1]
         precleanup = dependencies.restore_source(artifacts["source"], old_dependency)
-        require(precleanup == artifacts["source"] and pin(precleanup) == policy["control"]["source"],
-                "finite A/E dependency no-op bridge differs")
+        if terminal:
+            require(precleanup == artifacts["source"] and pin(precleanup) == policy["control"]["source"],
+                    "finite A/E dependency no-op bridge differs")
+        else:
+            replay, dependency_control = dependencies.transform_source(precleanup)
+            require(replay == artifacts["source"] and canonical(dependency_control) == canonical(old_dependency),
+                    "fresh original dependency source relation differs")
         assertions = proofs[0]["target_type_assertions"]
         require(type(assertions) is list and assertions and all(type(value) is str
                 and value.startswith("_Static_assert(") for value in assertions), "actual resource type assertions required")
@@ -325,44 +466,88 @@ def measure(family, out, *, execute=False):
             compiler=manifest["compiler"], compression=manifest["compression"],
             nested_command_counts={"profile": len(manifest["commands"]), "selected_control": len(control_manifest["commands"]),
                                    "exhaustive_physical_process_count": False})
-        banner = run_command(host, owner, [COMPILER[0], "--version"], cwd=out, kind="compiler-version")
+        banner = run_command(host, owner, [compiler[0], "--version"], cwd=out, kind="compiler-version")
         actual_banner = banner.decode("utf-8", "strict").splitlines()[0]
         require(actual_banner == BANNER, "actual compiler banner differs")
         report["compile_executor_version"] = actual_banner
-        cpp_command = dependencies.preprocess_command(COMPILER)
-        for case in CASES:
+        cpp_command = dependencies.preprocess_command(compiler)
+        for case in cases:
             for attempt in ("first", "repeat"):
                 source = R.checked_artifact(baseline, attempt + "/main.c", policy["control"]["source"])
-                source = dependencies.restore_source(source, old_dependency)
+                before = dependencies.restore_source(source, old_dependency)
                 source_proof = None
-                if case == VARIANT:
-                    source, source_proof = helper.transform_source(source, family=family, profile_id=PROFILE,
-                                                                  projection=projection)
-                    require(pin(source) == policy["candidate_source"] and helper.restore_source(source,
-                        json.loads(json.dumps(source_proof, allow_nan=False)), projection=projection) == precleanup,
-                        "finite terminal source or full typed inverse differs")
-                final, dependency_proof = dependencies.transform_source(source)
-                require(final == source and dependencies.restore_source(final, dependency_proof) == source,
-                        "final dependency cleanup no-op/inverse differs")
+                commuting = None
+                if case != "control":
+                    arguments = dict(family=family, profile_id=PROFILE, projection=projection)
+                    if not terminal:
+                        arguments["variant"] = variant
+                    candidate, source_proof = helper.transform_source(source, **arguments)
+                    require(helper.restore_source(candidate,
+                        json.loads(json.dumps(source_proof, allow_nan=False)), projection=projection) == source,
+                        "finite source hypothesis full typed inverse differs")
+                    if terminal:
+                        require(pin(candidate) == policy["candidate_source"], "finite terminal source differs")
+                        before = candidate
+                    else:
+                        before, _, commuting = lift_mate_source(before, source, candidate, source_proof, old_dependency,
+                                                                projection=projection, dependencies=dependencies)
+                        if "semantics" not in report:
+                            fixture, fixture_proof = semantics.semantic_fixture(source, family=family,
+                                profile_id=PROFILE, variant=variant)
+                            require(fixture_proof["source"] == pin(source)
+                                    and fixture_proof["candidate"] == pin(candidate)
+                                    and fixture_proof["fixture"] == pin(fixture)
+                                    and fixture_proof["actual_source_fragments"] is True,
+                                    "actual diagnostic fixture is not bound to this source candidate")
+                            diagnostic = out / "mate-semantic"
+                            diagnostic.mkdir()
+                            write(diagnostic, "fixture.c", fixture)
+                            run_command(host, owner, list(SEMANTIC_COMPILER), cwd=diagnostic,
+                                        kind="mate-semantic-compile", data=fixture)
+                            semantic_raw = run_command(host, owner, [str(diagnostic / "x")], cwd=diagnostic,
+                                                       kind="mate-semantic-execute")
+                            require(all(row["stderr"]["bytes"] == 0 for row in report["commands"][-2:]),
+                                    "fatal-UBSan mate diagnostic emitted stderr")
+                            observation = semantic_observation(semantic_raw, family=family, variant=variant)
+                            write(diagnostic, "result.stdout", semantic_raw)
+                            report.update(diagnostic_C_executed=True, semantics=dict(
+                                fixture=fixture_proof, native=pin(R.input_reader().read_regular(diagnostic / "x", limit=MAX_FILE)),
+                                output=pin(semantic_raw), observation=observation, engine_executed=False,
+                                TT_allocated=False, compiler=list(SEMANTIC_COMPILER),
+                                scope="actual source fragments, promoted signed16 values and ply0..127; not an engine"))
+                            save()
+                final, dependency_proof = dependencies.transform_source(before)
+                require(dependencies.restore_source(final, dependency_proof) == before,
+                        "final canonical dependency inverse differs")
+                if case == "control":
+                    require(final == source and canonical(dependency_proof) == canonical(old_dependency),
+                            "fresh control final dependency relation differs")
+                else:
+                    require(final == candidate, "final dependency cleanup changed the source hypothesis")
+                if terminal:
+                    require(final == before, "finite terminal dependency no-op differs")
                 target = out / case / attempt
                 native_dir, type_dir = target / "native", target / "types"
                 native_dir.mkdir(parents=True)
                 type_dir.mkdir()
                 write(target, "main.c", final)
-                asserted = final + b"\n" + ("\n".join(assertions) + "\n").encode()
+                asserted = (final if terminal else before) + b"\n" + ("\n".join(assertions) + "\n").encode()
                 write(type_dir, "asserted.c", asserted)
+                if not terminal:
+                    write(target, "pre-dependency.c", before)
                 prefix = case + "-" + attempt
-                run_command(host, owner, COMPILER, cwd=type_dir, kind=prefix + "-types", data=asserted)
-                run_command(host, owner, COMPILER, cwd=native_dir, kind=prefix + "-native", data=final)
+                run_command(host, owner, compiler, cwd=type_dir, kind=prefix + "-types", data=asserted)
+                run_command(host, owner, compiler, cwd=native_dir, kind=prefix + "-native", data=final)
                 native = R.input_reader().read_regular(native_dir / "x", limit=MAX_FILE)
                 require(R.input_reader().read_regular(type_dir / "x", limit=MAX_FILE) == native,
-                        "target type assertions changed native bytes")
-                cpp = run_command(host, owner, cpp_command, cwd=target, kind=prefix + "-CPP", data=final)
+                        "pre-cleanup resource assertions/final native images differ")
+                cpp_source = before if not terminal and attempt == "first" else final
+                cpp = run_command(host, owner, cpp_command, cwd=target, kind=prefix + "-CPP", data=cpp_source)
                 write(target, "expanded.i", cpp)
                 require(all(row["stderr"]["bytes"] == 0 for row in report["commands"][-3:]),
                         "actual type/native/CPP compiler emitted diagnostics")
-                header = wrapper.header(package, unlink, COMPILER)
-                whole = wrapper.package(package, unlink, final, manifest["compression"], COMPILER)
+                header = wrapper.header(package, unlink, compiler)
+                whole = wrapper.package(package, unlink, final, manifest["compression"], compiler)
                 restored_payload(whole, header, final)
                 observed = dict(source=pin(final), native=pin(native), header=pin(header),
                                 payload=pin(whole[len(header):]), whole=pin(whole))
@@ -370,21 +555,36 @@ def measure(family, out, *, execute=False):
                     require(canonical(observed) == canonical(policy["control"]), "independent five-part control differs")
                 for name, data in (("x", whole), ("header.sh", header), ("payload.lzma", whole[len(header):])):
                     write(target, name, data)
-                report["attempts"].append(dict(case=case, attempt=attempt, artifacts=observed, CPP=pin(cpp),
+                row = dict(case=case, attempt=attempt, artifacts=observed, CPP=pin(cpp),
                     source_proof=source_proof, dependency_proof=dependency_proof,
-                    target_type_gate=dict(assertions=assertions, source=pin(asserted), image_identical=True)))
+                    target_type_gate=dict(assertions=assertions, source=pin(asserted), image_identical=True))
+                if not terminal:
+                    row.update(CPP_input=pin(cpp_source), CPP_stage="before-cleanup" if attempt == "first" else "final",
+                        commuting=commuting, pre_dependency=pin(before),
+                        dependency_native_gate="pre-cleanup source plus static resource assertions equals final native")
+                report["attempts"].append(row)
                 save()
             first, repeat = [row for row in report["attempts"] if row["case"] == case]
-            require(canonical({k: v for k, v in first.items() if k != "attempt"}) ==
-                    canonical({k: v for k, v in repeat.items() if k != "attempt"}),
+            noncomparable = {"attempt", "CPP_input", "CPP_stage"}
+            require(canonical({k: v for k, v in first.items() if k not in noncomparable}) ==
+                    canonical({k: v for k, v in repeat.items() if k not in noncomparable}),
                     "case-internal source/type/native/whole/CPP reproduction differs")
+            if not terminal:
+                require(first["CPP_input"] == first["pre_dependency"]
+                        and repeat["CPP_input"] == repeat["artifacts"]["source"]
+                        and first["CPP_stage"] == "before-cleanup" and repeat["CPP_stage"] == "final",
+                        "actual pre/final dependency CPP sequence differs")
             for name in ("main.c", "native/x", "types/x", "types/asserted.c", "x",
                          "header.sh", "payload.lzma", "expanded.i"):
                 require(R.input_reader().read_regular(out / case / "first" / name, limit=MAX_FILE) ==
                         R.input_reader().read_regular(out / case / "repeat" / name, limit=MAX_FILE),
                         "case-internal actual repeated bytes differ: " + name)
-        require(len(report["commands"]) == OUTER_COMMANDS and settled(report["commands"]),
-                "fourteen original outer commands did not settle cleanly")
+            if not terminal:
+                require(R.input_reader().read_regular(out / case / "first/pre-dependency.c", limit=MAX_FILE) ==
+                        R.input_reader().read_regular(out / case / "repeat/pre-dependency.c", limit=MAX_FILE),
+                        "case-internal repeated pre-cleanup source differs")
+        require(len(report["commands"]) == policy["outer_commands"] and settled(report["commands"]),
+                "finite original outer commands did not settle cleanly")
         require(R.input_reader().read_regular(R.artifact_file(baseline, "build.json"), limit=MAX_FILE) == raw,
                 "fresh factory receipt changed")
         R.admit_c_build(manifest, baseline)
@@ -394,9 +594,10 @@ def measure(family, out, *, execute=False):
         require(all(read_source(ROOT / name) == data and read_source(out / "support" / name) == data
                     for name, data in files.items()), "current/captured controller support changed")
         rows = {row["case"]: row["artifacts"] for row in report["attempts"]}
-        report.update(reproducible=True, CPP_identity="two actual expansions within each case only",
+        report.update(reproducible=True, CPP_identity=("two actual expansions within each case only" if terminal else
+            "first pre-cleanup and repeated final expansion agree within each case only"),
             outer_commands=len(report["commands"]), support_rechecked=True,
-            delta={key: rows[VARIANT][key]["bytes"] - rows["control"][key]["bytes"] for key in rows["control"]})
+            delta={key: rows[cases[1]][key]["bytes"] - rows["control"][key]["bytes"] for key in rows["control"]})
     except BaseException as error:
         body_error = error
         report["failure"] = {"type": type(error).__name__, "message": str(error)}
@@ -414,15 +615,22 @@ def measure(family, out, *, execute=False):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--entry", choices=("A", "E"), required=True)
+    parser.add_argument("--entry", choices=("A", "B", "C", "E"), required=True)
+    parser.add_argument("--experiment", choices=("terminal", "mate"), default="terminal")
+    parser.add_argument("--variant", choices=MATE_VARIANTS,
+                        help="explicit folded/shared mate hypothesis; invalid for the default terminal experiment")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--execute", action="store_true", help="explicitly run this bounded compile/package comparison")
     args = parser.parse_args(argv)
     if not args.execute:
         parser.error("--execute is required before source capture or output creation")
-    report = measure(args.entry, args.out, execute=True)
-    print(json.dumps({"class": CLASS, "complete": report["complete"],
-                      "family": args.entry, "delta": report["delta"]}, sort_keys=True))
+    report = measure(args.entry, args.out, execute=True, experiment=args.experiment, variant=args.variant)
+    summary = {"class": report["class"], "complete": report["complete"],
+               "family": args.entry, "delta": report["delta"]}
+    if args.experiment == "mate":
+        summary.update(experiment=args.experiment, variant=args.variant,
+                       diagnostic_C_executed=report["diagnostic_C_executed"])
+    print(json.dumps(summary, sort_keys=True))
 
 
 if __name__ == "__main__":

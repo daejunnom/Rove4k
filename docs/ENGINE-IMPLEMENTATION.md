@@ -11,8 +11,11 @@ The latest user priority pauses new D compression. Preserve4737/4689 and all
 original evidence; the BSS cost job is explicitly suspended, without suspending
 the maintained D regression producer. Work now prioritizes A/B/C/E/full F source
 improvements, completion of ELF producer/consumer paths and other implementation.
-The692 baseline has five successful workflows and26 engine jobs; local upper
-execution remains held without memory polling or automatic restart.
+The newer d62eba743ac08d72fb43c6e70807bcf026780ecb checkpoint passes all five
+existing workflows, including engine40468442638 with26/26 jobs. Foundation
+122069439368 records982 tests in40 suites and six intentional native faults,
+all returning2 with settled ownership. Local upper execution remains held
+without memory polling or automatic restart.
 
 The first new implementation corrects final league ties to fixed family IDs.
 One standings owner preserves points/head-to-head/Sonneborn-Berger precedence;
@@ -23,6 +26,26 @@ the existing F mate normalization with A/B/C/E using folded/shared variants.
 Four pure tests and16 actual-source inverse/tamper checks pass, and16 semantic C
 sources are generated. These are not native, whole-cost or C-execution results.
 Neither candidate changes the selected engine artifacts at this checkpoint.
+
+The next source cohort implements full ABCEF P4/P28 ELF production and consumers.
+A fresh strict source-JIT parent precedes the entry projection; include cleanup
+is reapplied last, with actual pre-cleanup/final CPP and native checks. Two native
+and whole ELF builds use the existing self-restoring loader, retain normal
+interpreter/TLS/pthreads and readmit the actual payload inverse and dependency
+tables. The common runtime receives a public typed anonymous-memfd contract from
+the same verifier module instance. It preserves the outer submission file and
+observes the original live PID/start ticks and actual restored executable bytes.
+Final-source plain/UBSan rules and full runtime receipts have separate consumers.
+Independent source review is clear; production, cost and runtime execution of
+this cohort are pending hosted CI. Oversize remains deferred_size; physical TEST
+placement and event/release acceptance remain distinct from functional execution.
+
+The new ELF workflow exercises ten ABCEF P4/P28 contexts, including unscored
+functional observations for oversize files. The source-compaction workflow
+separately compares eight ABCE folded/shared mate candidates and executes each
+actual-fragment exhaustive fatal-UBSan diagnostic. Existing default selections
+are unchanged. Targeted hosted cancellation diagnostics and a compile/package-only
+W256 submission endpoint are subsequent work, not completed capabilities here.
 
 ### Verified source, CI and offline transport
 

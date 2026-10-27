@@ -1,0 +1,111 @@
+name: Experimental full ELF profiles
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/elf-profiles.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-elf-profiles-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check entry projection, dependency policy and synthetic packing readers
+        # These tests do not compile or launch an engine. The packing reader
+        # uses an inert synthetic ELF to check the real payload inverse.
+        run: |
+          python -I -B engines/experiments/tcec-next/test_elf_entry_mode.py
+          python -I -B engines/scripts/test_elf_dependencies.py
+          python -I -B engines/experiments/tcec-next/test_elf_profile.py
+
+  full-profiles:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E, F]
+        profile: [test-p4, test-p28]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Configure this job's owned output
+        run: printf 'ELF_OUT=%s/rove4k-elf-%s-%s-%s\n' "$RUNNER_TEMP" '${{ matrix.entry }}' '${{ matrix.profile }}' '${{ github.run_attempt }}' >> "$GITHUB_ENV"
+      - name: Produce two full ELF files and independently readmit the actual bytes
+        run: |
+          set -o pipefail
+          mkdir "$ELF_OUT"
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py produce \
+            --entry '${{ matrix.entry }}' --profile '${{ matrix.profile }}' \
+            --out "$ELF_OUT/build" --execute 2>&1 | tee "$ELF_OUT/produce.log"
+          python -I -B engines/experiments/tcec-next/elf_profile.py admit --build "$ELF_OUT/build"
+      - name: Compare actual final ELF-source move generation with the independent oracle
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py rules \
+            --build "$ELF_OUT/build" --out "$ELF_OUT/rules" --execute \
+            2>&1 | tee "$ELF_OUT/rules.log"
+      - name: Observe restored image, fixed resources, minimum UCI and physical shutdown
+        # An oversized ELF still receives unscored functional checks. Its size
+        # decision remains deferred_size and cannot become ELF qualification.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py runtime \
+            --build "$ELF_OUT/build" --out "$ELF_OUT/runtime" --execute \
+            2>&1 | tee "$ELF_OUT/runtime.log"
+      - name: Read the complete source, rules and runtime evidence without a size waiver
+        run: |
+          python -I -B engines/experiments/tcec-next/elf_profile.py qualify \
+            --build "$ELF_OUT/build" --rules "$ELF_OUT/rules/rules.json" \
+            --runtime "$ELF_OUT/runtime/runtime.json" --out "$ELF_OUT/qualification"
+          python -I -B - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ['ELF_OUT']) / 'qualification/qualification.json').read_bytes())
+          # This hosted lane observes functionality. Size and named physical
+          # TEST placement remain truthful qualification failures in the receipt.
+          unexpected = [name for name in result['failures'] if name not in ('size', 'placement')]
+          if not result['functional_runtime_complete'] or unexpected:
+              raise SystemExit('ELF functional evidence failed: ' + repr(unexpected))
+          print(json.dumps({'status': result['status'], 'elf_qualified': result['elf_qualified'],
+                            'whole_bytes': result['artifact']['whole_bytes'],
+                            'qualification_failures': result['failures']}, sort_keys=True))
+          PY
+      - name: Preserve complete observations and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-${{ matrix.entry }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.ELF_OUT }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

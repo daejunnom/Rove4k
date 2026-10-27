@@ -6,6 +6,7 @@ import json
 import lzma
 import os
 from pathlib import Path
+import stat
 import struct
 import subprocess
 import sys
@@ -82,6 +83,152 @@ def compound_gate_fixture(build, family="A", profile="test-p4", *, v2=False):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_anonymous_cleanup_requires_typed_self_contained_elf_contract(self):
+        from dataclasses import replace
+        marker = VERIFY.AnonymousMemfdContract()
+        selected = replace(admitted(), representation="self-contained-elf", wrapper_contract=marker)
+        expected = {"entry_cleanup": "none", "temp_strategy": "anonymous-memfd",
+                    "cleanup_seconds": 0, "parent_removed": False}
+        self.assertEqual(VERIFY._runtime_wrapper(selected), expected)
+        for changed in (replace(selected, wrapper_contract=expected),
+                        replace(selected, representation="source-jit"),
+                        replace(selected, wrapper_contract={**expected, "temp_strategy": "private-path"})):
+            with self.subTest(contract=changed.wrapper_contract), self.assertRaises(ValueError):
+                VERIFY._runtime_wrapper(changed)
+        self.assertTrue(VERIFY.runtime_feature_required(PATH.read_bytes(),
+                        "ELF_ENTRY_CLEANUP", "anonymous-memfd-v1"))
+        self.assertFalse(VERIFY.runtime_feature_required(b'CLASS="historical"\n',
+                         "ELF_ENTRY_CLEANUP", "anonymous-memfd-v1"))
+
+    def test_anonymous_cleanup_validates_native_memfd_and_preserved_outer_meaning(self):
+        from dataclasses import replace
+        whole, native = VERIFY.pin(b"submitted outer ELF"), VERIFY.pin(b"restored native")
+        selected = replace(admitted(), representation="self-contained-elf",
+            wrapper_contract=VERIFY.AnonymousMemfdContract(),
+            expected={"whole_" + key: value for key, value in whole.items()})
+        stamp = {"device": 1, "inode": 27, "mode": stat.S_IFREG | 0o700, "links": 1,
+                 "bytes": whole["bytes"], "mtime_ns": 12, "ctime_ns": 13}
+        outer = {"program": "x", "whole": whole, "stat": stamp}
+        link = "/memfd:rove4k (deleted)"
+        snapshot = {"exe": link, "path": "/memfd:rove4k", "path_exists": False,
+                    "native_sha256": native["sha256"]}
+        identity = {"pid": 77, "start_ticks": 123, "state": "S"}
+        executable = {"exe": link, "path": snapshot["path"], "native": native,
+            "stat": {**stamp, "inode": 28, "links": 0, "bytes": native["bytes"]},
+            "before": identity, "after": dict(identity)}
+        cleanup = {"entry_cleanup": "none", "temp_strategy": "anonymous-memfd",
+                   "observed_while_alive": True, "wall_from_launch": .5,
+                   "executable": executable, "submitted_file": outer}
+        VERIFY._validate_anonymous_cleanup(cleanup, snapshot, selected, outer, native, 77)
+        for defect in ("disk-path", "linked-image", "wrong-native", "different-process",
+                       "outer-replaced", "outer-missing", "path-absent-claim"):
+            altered = json.loads(json.dumps(cleanup))
+            if defect == "disk-path": altered["executable"]["exe"] = "/tmp/x (deleted)"
+            elif defect == "linked-image": altered["executable"]["stat"]["links"] = 1
+            elif defect == "wrong-native": altered["executable"]["native"]["sha256"] = "0" * 64
+            elif defect == "different-process": altered["executable"]["after"]["start_ticks"] += 1
+            elif defect == "outer-replaced": altered["submitted_file"]["stat"]["inode"] += 1
+            elif defect == "outer-missing": altered["submitted_file"]["stat"]["links"] = 0
+            else: altered["path_absent"] = True
+            with self.subTest(defect=defect), self.assertRaises(ValueError):
+                VERIFY._validate_anonymous_cleanup(altered, snapshot, selected, outer, native, 77)
+
+    def test_anonymous_receipt_cannot_inherit_historical_frozen_cleanup_semantics(self):
+        from dataclasses import replace
+        with tempfile.TemporaryDirectory(prefix="rove4k-elf-historical-receipt-") as temporary:
+            root, native = Path(temporary), VERIFY.pin(b"native")
+            selected = replace(admitted(), representation="self-contained-elf",
+                wrapper_contract=VERIFY.AnonymousMemfdContract(),
+                expected={"native_" + key: value for key, value in native.items()})
+            (root / "build.json").write_bytes(b"{}")
+            own = "engines/experiments/tcec-next/profile_verify.py"
+            historical = b'CLASS="historical"\n'
+            frozen = root / "inputs" / own
+            frozen.parent.mkdir(parents=True)
+            frozen.write_bytes(historical)
+            record = {"format": "rove4k-profile-runtime-v1", "complete": True,
+                "owned_remaining": 0, "final_owned_cleanup": [], "family": selected.family,
+                "profile": selected.profile_id, "representation": selected.representation,
+                "build_sha256": VERIFY.pin(b"{}")["sha256"], "expected_contract": selected.expected,
+                "source_closure": selected.input_pins, "resources": selected.resources,
+                "runtime_support": {own: VERIFY.pin(historical)["sha256"]},
+                "wrapper_contract": selected.wrapper_contract.to_record()}
+            receipt = root / "runtime.json"
+            receipt.write_text(json.dumps(record))
+            with (patch.object(VERIFY, "SUPPORT", {}),
+                  patch.object(VERIFY, "runtime_image", return_value=(native, b"native")),
+                  self.assertRaisesRegex(ValueError, "frozen runtime qualifier")):
+                VERIFY.qualification_record(selected, root, receipt)
+
+    def test_submitted_elf_is_bounded_and_cannot_be_deleted_replaced_or_modified(self):
+        from dataclasses import replace
+        with tempfile.TemporaryDirectory(prefix="rove4k-preserved-elf-") as temporary:
+            root, data = Path(temporary), b"original submitted outer ELF"
+            path = root / "x"
+            path.write_bytes(data)
+            selected = replace(admitted(), representation="self-contained-elf",
+                wrapper_contract=VERIFY.AnonymousMemfdContract(),
+                expected={"whole_" + key: value for key, value in VERIFY.pin(data).items()})
+            reads = []
+            def read(path, *, limit):
+                reads.append((path, limit))
+                return path.read_bytes()
+            with patch.object(VERIFY, "input_reader", return_value=types.SimpleNamespace(read_regular=read)):
+                original = VERIFY._submitted_file(selected, root)
+                self.assertEqual(VERIFY._submitted_file(selected, root, original), original)
+                self.assertTrue(all(item == (path, len(data)) for item in reads))
+                replacement = root / "replacement"
+                replacement.write_bytes(data)
+                replacement.replace(path)
+                with self.assertRaisesRegex(ValueError, "replaced or changed"):
+                    VERIFY._submitted_file(selected, root, original)
+                original = VERIFY._submitted_file(selected, root)
+                path.write_bytes(b"wrong same extent contents!!")
+                with self.assertRaisesRegex(ValueError, "whole-file observation"):
+                    VERIFY._submitted_file(selected, root, original)
+                path.unlink()
+                with self.assertRaises((ValueError, FileNotFoundError)):
+                    VERIFY._submitted_file(selected, root, original)
+
+    def test_anonymous_image_reads_actual_bounded_fd_bytes(self):
+        native = b"actual anonymous image bytes"
+        expected, link = VERIFY.pin(native), "/memfd:rove4k (deleted)"
+        snapshot = {"exe": link, "path": "/memfd:rove4k", "path_exists": False,
+                    "native_sha256": expected["sha256"]}
+        stamp = types.SimpleNamespace(st_dev=1, st_ino=28, st_mode=stat.S_IFREG | 0o700,
+            st_nlink=0, st_size=len(native), st_mtime_ns=12, st_ctime_ns=13)
+        identity = {"pid": 77, "start_ticks": 123, "state": "S"}
+        for actual in (native, b"x" * len(native)):
+            with (patch.object(VERIFY, "_proc_bytes", return_value=b"bounded stat"),
+                  patch.object(VERIFY, "_process_identity", return_value=dict(identity)),
+                  patch.object(Path, "readlink", return_value=Path(link)),
+                  patch.object(Path, "stat", return_value=stamp),
+                  patch.object(VERIFY.os, "open", return_value=42) as opened,
+                  patch.object(VERIFY.os, "read", side_effect=[actual, b""]) as read,
+                  patch.object(VERIFY.os, "fstat", return_value=stamp),
+                  patch.object(VERIFY.os, "close") as closed):
+                if actual == native:
+                    observed = VERIFY._anonymous_image(77, snapshot, expected)
+                    self.assertEqual(observed["native"], expected)
+                else:
+                    with self.assertRaisesRegex(ValueError, "actual anonymous native"):
+                        VERIFY._anonymous_image(77, snapshot, expected)
+                self.assertEqual(opened.call_args.args[0], Path("/proc/77/exe"))
+                read.assert_any_call(42, len(native) + 1)
+                closed.assert_called_once_with(42)
+
+    def test_private_path_and_loader_owned_fd_keep_their_cleanup_contracts(self):
+        contract = {"entry_cleanup": "private-path", "temp_strategy": "private-directory"}
+        result = {"path_absent": True}
+        scope = types.SimpleNamespace(normal_cleanup=lambda *arguments: result)
+        owned = types.SimpleNamespace(process=types.SimpleNamespace(pid=77), exited=lambda: False)
+        self.assertIs(VERIFY._clean_live(scope, owned, {}, contract, 0), result)
+        snapshot = {"exe": "/memfd:historical (deleted)", "path": "/memfd:historical"}
+        with patch.object(Path, "stat", return_value=types.SimpleNamespace(st_nlink=0)):
+            old = VERIFY._clean_live(scope, owned, snapshot, {"entry_cleanup": "loader-owned-fd"}, 0)
+        self.assertTrue(old["path_absent"])
+        self.assertEqual(old["entry_cleanup"], "loader-owned-fd")
+
     def test_scan_stage_requires_exact_AC_compound_then_dependency(self):
         resource={"schema":"rove4k.c-resource-projection.v1"}
         phase={"schema":"rove4k.portable-phase-source.v1"}

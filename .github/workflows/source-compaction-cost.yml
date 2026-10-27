@@ -1,0 +1,93 @@
+name: Experimental source compaction cost
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/source-compaction-cost.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-compaction-cost-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check the shared cost controller without native execution
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/test_terminal_cost.py \
+            2>&1 | tee '${{ runner.temp }}/rove4k-source-cost-contracts-${{ github.run_attempt }}.log'
+      - name: Check the finite mate source domain without native execution
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/test_compact_mate.py \
+            2>&1 | tee '${{ runner.temp }}/rove4k-mate-source-contracts-${{ github.run_attempt }}.log'
+      - name: Preserve original source-contract results and failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source-compaction-contracts-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-source-cost-contracts-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-mate-source-contracts-${{ github.run_attempt }}.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+  mate-cost:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E]
+        variant: [folded, shared]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Compare one mate form and its actual-fragment UBSan diagnostic
+        # The controller includes capture in 600 seconds, then allows cleanup.
+        # The diagnostic executes integer fragments, never an engine or TT.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/terminal_cost.py \
+            --entry '${{ matrix.entry }}' \
+            --experiment mate \
+            --variant '${{ matrix.variant }}' \
+            --out '${{ runner.temp }}/rove4k-mate-cost-${{ matrix.entry }}-${{ matrix.variant }}-${{ github.run_attempt }}' \
+            --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-mate-cost-${{ matrix.entry }}-${{ matrix.variant }}-${{ github.run_attempt }}.log'
+      - name: Preserve complete costs, diagnostics and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source-compaction-mate-${{ matrix.entry }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-mate-cost-${{ matrix.entry }}-${{ matrix.variant }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-mate-cost-${{ matrix.entry }}-${{ matrix.variant }}-${{ github.run_attempt }}.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
