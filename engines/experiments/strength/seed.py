@@ -49,6 +49,11 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
           "engines/scripts/source_composition.py", "engines/experiments/tiny-d-submission/source_inputs.py",
           "engines/experiments/tcec-next/profile_dependencies.py", "engines/common/board.c",
           "engines/common/move.c", "engines/common/protocol.c", "engines/common/search.c")
+# These files are needed only by the new league profiles. Keep the legacy
+# P4/P28 source closure unchanged; neither declaration authorizes a league run.
+LEAGUE_HOST_MODULES = ("memory_observation",)
+LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)
+LEAGUE_PROFILES = ("test-p16", "test-p192")
 
 
 def require(condition, detail):
@@ -165,7 +170,8 @@ def exact_names(root, prefixes, tracked):
     require(seen == tracked, "selected committed source namespace is missing a file")
 
 
-def checkout_files(value, origin, *, byte_budget=None, member_budget=None):
+def checkout_files(value, origin, *, byte_budget=None, member_budget=None, league_required=False):
+    require(type(league_required) is bool, "explicit league closure selection required")
     require(isinstance(value, dict) and set(value) == {"path", "commit", "paths"}, "explicit clean checkout/commit/paths required")
     root = Path(value["path"])
     require(root.is_absolute() and root.is_dir() and not root.is_symlink(), "ordinary explicit source checkout required")
@@ -212,6 +218,9 @@ def checkout_files(value, origin, *, byte_budget=None, member_budget=None):
     required = {"engines/experiments/strength/" + name + ".py" for name in HOST_MODULES}
     if origin.get("rove_required", True):
         required.update(CORE_R)
+    if league_required:
+        required.update("engines/experiments/strength/" + name + ".py" for name in LEAGUE_HOST_MODULES)
+        required.update(LEAGUE_CORE_R)
     require(required <= set(result), "source seed omitted the host/R production code closure")
     own = "engines/experiments/strength/seed.py"
     require(result[own][0].replace(b"\r\n", b"\n") == ordinary(Path(__file__).absolute()).replace(b"\r\n", b"\n"),
@@ -228,6 +237,14 @@ def checkout_files(value, origin, *, byte_budget=None, member_budget=None):
     # Require named repository Python dependencies; this is a closure check,
     # not a module import or a scan of unrelated generated trees.
     selected = set(result)
+    league_paths = ({"engines/experiments/strength/" + name + ".py" for name in LEAGUE_HOST_MODULES}
+                    | set(LEAGUE_CORE_R))
+    # These reviewed owners refer to the league dependencies only in their
+    # explicitly selected P16/P192 branches. Legacy source seeds must retain
+    # their old closure rather than pulling in a dormant feature.
+    league_owners = {"engines/experiments/strength/seed.py", "engines/experiments/strength/cloud_runtime.py",
+                     "engines/experiments/strength/campaign_ci.py", "engines/experiments/tcec-next/profile_verify.py",
+                     "engines/experiments/tcec-next/profile_rules.py", "engines/experiments/tcec-next/profile_build.py"}
     for name, (raw, _) in list(result.items()):
         if not name.endswith(".py"):
             continue
@@ -235,6 +252,8 @@ def checkout_files(value, origin, *, byte_budget=None, member_budget=None):
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
                 target = node.value
                 if target.startswith("engines/") and target.endswith(".py"):
+                    if not league_required and name in league_owners and target in league_paths:
+                        continue
                     member(target)
                     require(target in selected, "named production Python dependency omitted: " + target)
     require(not git(root, "status", "--porcelain=v1", "--untracked-files=no"), "source checkout changed during collection")
@@ -511,9 +530,12 @@ def prepare(config, out):
         content[name] = (raw, mode)
         require(sum(len(value[0]) for value in content.values()) <= expanded_limit, "expanded seed exceeds bound")
 
+    league_required = any(row["profile"] in LEAGUE_PROFILES
+                          for kind in ("rove", "peers") for row in config[kind])
     for name, (raw, mode) in checkout_files(config["checkout"], origin,
             byte_budget=expanded_limit - reserved,
-            member_budget=consumer.MAX_SEED_MEMBERS - 1 - len(inputs)).items():
+            member_budget=consumer.MAX_SEED_MEMBERS - 1 - len(inputs),
+            league_required=league_required).items():
         add(source_tree + "/" + name, raw, mode)
     for name, descriptor in sorted(inputs.items()):
         add(name, checked_input(descriptor, limit=MAX_MEMBER))

@@ -18,6 +18,7 @@ import platform
 import shutil
 import signal
 import sys
+from types import ModuleType
 
 sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
@@ -37,6 +38,9 @@ ELF = "engines/scripts/elf_loader.py"
 B_PROFILE = "engines/experiments/tcec-next/profile_b.py"
 PHASE = "engines/experiments/tcec-next/profile_phase.py"
 SPELLING = "engines/experiments/tcec-next/profile_spelling.py"
+B_LEAGUE_SPELLING = "engines/experiments/tcec-next/profile_b_league_spelling.py"
+B_LEAGUE_SPELLING_PIN = dict(bytes=3925, sha256="e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5")
+B_LEAGUE_DECLARATION = dict(path=B_LEAGUE_SPELLING, selection="league-atomic", variant="atomic-assignment")
 COMPOUND = "engines/experiments/tcec-next/spelling_compound.py"
 SCAN = "engines/experiments/tcec-next/profile_scan.py"
 SCAN_DECLARATION = dict(path=SCAN, variant="square-successor")
@@ -87,9 +91,9 @@ F_COMPOUND_V2_IMAGES = {
 }
 
 
-def spelling_selection(family, representation, b_variant, phase_variant, selection):
+def spelling_selection(family, representation, b_variant, phase_variant, selection, *, profile_id=None):
     """Select only the measured final stage; controls acquire no new stage."""
-    if (family not in BEST_SPELLING or selection not in ("control", "best", "compound", "compound-v2")
+    if (family not in BEST_SPELLING or selection not in ("control", "best", "compound", "compound-v2", "league-atomic")
             or selection == "compound-v2" and family != "F"):
         raise ValueError("explicit full C family and finite spelling selection required")
     if selection == "control":
@@ -100,6 +104,10 @@ def spelling_selection(family, representation, b_variant, phase_variant, selecti
                 (family in "ACEF" and b_variant == "control" and phase_variant == "phase-init"))
     if not selected:
         raise ValueError("selected spelling requires phase-init A/C/E/F or tcec-final-lf B")
+    if selection == "league-atomic":
+        if family != "B" or profile_id not in LEAGUE_PROFILE_IDS:
+            raise ValueError("league atomic spelling requires the named B P16/P192 profiles")
+        return dict(B_LEAGUE_DECLARATION)
     if selection == "compound-v2":
         return dict(F_COMPOUND_DECLARATION)
     if selection == "compound" and family != "B":
@@ -167,6 +175,17 @@ def normalized(path):
     return data
 
 
+def load_reviewed_b_league_spelling(helper_bytes, helper_path):
+    """Execute exactly the verified frozen helper bytes, not a later reread."""
+    if (type(helper_bytes) is not bytes or
+            {"bytes": len(helper_bytes), "sha256": sha256(helper_bytes).hexdigest()} != B_LEAGUE_SPELLING_PIN):
+        raise ValueError("frozen B league spelling bytes differ before execution")
+    module = ModuleType("profile_frozen_b_league_spelling")
+    module.__file__ = str(helper_path)
+    exec(compile(helper_bytes, str(helper_path), "exec"), module.__dict__)
+    return module
+
+
 def _tool_path(path, family):
     """The payload producer and its old receipt verifier are separate roles."""
     if path in (VERIFIER, "engines/experiments/tcec-next/profile_rules.py"):
@@ -191,7 +210,7 @@ def argument_parser():
                         help="explicit reviewed B post-profile projection; default preserves the control")
     parser.add_argument("--phase-variant", choices=("control", "phase-init"), default="control",
                         help="explicit measured A/C/E/F lifecycle projection; default preserves the control")
-    parser.add_argument("--spelling-variant", choices=("control", "best", "compound", "compound-v2"), default="control",
+    parser.add_argument("--spelling-variant", choices=("control", "best", "compound", "compound-v2", "league-atomic"), default="control",
                         help="explicit measured final source spelling on selected source-JIT routes only")
     parser.add_argument("--scan-variant", choices=("control", "square-successor"), default="control",
                         help="explicit A/C valid-square projection after compound, before final include cleanup")
@@ -213,8 +232,12 @@ def main():
         # source helper itself admits only each CI-observed resource input.
         # It is not the maintained production selection or runtime admission.
         valid_b = args.b_variant == "control" or (args.entry == "B" and args.b_variant == "tcec-final-lf")
+        valid_spelling = (args.spelling_variant == "control" or
+                          (args.entry == "B" and args.b_variant == "tcec-final-lf" and
+                           args.spelling_variant == "league-atomic" and
+                           args.source_dependencies == "unused-includes"))
         if (not valid_b or args.phase_variant != "control" or
-                args.spelling_variant != "control" or args.scan_variant != "control" or
+                not valid_spelling or args.scan_variant != "control" or
                 args.ep_variant != "control"):
             parser.error("league profile source optimizations require their own audited profile pins")
     if args.b_variant != "control" and args.entry != "B":
@@ -223,7 +246,7 @@ def main():
         parser.error("--phase-variant applies only to A/C/E/F")
     try:
         post_spelling = spelling_selection(args.entry, args.representation, args.b_variant,
-                                           args.phase_variant, args.spelling_variant)
+                                           args.phase_variant, args.spelling_variant, profile_id=args.profile)
         post_scan = scan_selection(args.entry, args.representation, args.phase_variant,
                                    post_spelling, args.source_dependencies, args.scan_variant)
         post_ep, ep_owner = None, None
@@ -313,7 +336,7 @@ def main():
         if args.phase_variant != "control":
             names.add(PHASE)
         if post_spelling is not None:
-            names.add(SPELLING)
+            names.add(B_LEAGUE_SPELLING if post_spelling == B_LEAGUE_DECLARATION else SPELLING)
             if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                 names.add(COMPOUND)
         if post_scan is not None:
@@ -454,16 +477,27 @@ def main():
                     model_parameters_changed=model.coefficients != source_model.coefficients,
                     optimizer_executed_by_builder=False)
             if post_spelling is not None:
-                old.require(inputs[SPELLING] == SPELLING_PIN, "reviewed individual spelling helper differs")
-                spelling = load("profile_frozen_spelling_projection", own / SPELLING)
                 parent_source = source
-                if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
+                if post_spelling == B_LEAGUE_DECLARATION:
+                    old.require(inputs[B_LEAGUE_SPELLING] == B_LEAGUE_SPELLING_PIN,
+                                "reviewed B league spelling helper differs")
+                    helper_path = own / B_LEAGUE_SPELLING
+                    helper_bytes = normalized(helper_path)
+                    league_spelling = load_reviewed_b_league_spelling(helper_bytes, helper_path)
+                    source, spelling_proof = league_spelling.transform_source(source, family=args.entry,
+                        profile_id=profile.id, variant=post_spelling["variant"])
+                    restored_spelling = league_spelling.restore_source(source, spelling_proof)
+                elif post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
+                    old.require(inputs[SPELLING] == SPELLING_PIN, "reviewed individual spelling helper differs")
+                    spelling = load("profile_frozen_spelling_projection", own / SPELLING)
                     old.require(inputs[COMPOUND] == COMPOUND_PIN, "reviewed compound helper differs")
                     compound = load("profile_frozen_compound_projection", own / COMPOUND)
                     source, spelling_proof = compound.transform_source(source, family=args.entry,
                         profile_id=profile.id, spelling=spelling, variant=post_spelling["variant"])
                     restored_spelling = compound.restore_source(source, spelling_proof, spelling=spelling)
                 else:
+                    old.require(inputs[SPELLING] == SPELLING_PIN, "reviewed individual spelling helper differs")
+                    spelling = load("profile_frozen_spelling_projection", own / SPELLING)
                     source, spelling_proof = spelling.transform_source(source, family=args.entry,
                         profile_id=profile.id, variant=post_spelling["variant"])
                     restored_spelling = spelling.restore_source(source, spelling_proof)

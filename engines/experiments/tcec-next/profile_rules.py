@@ -44,6 +44,10 @@ EP_PIN = {"bytes": 8476, "sha256": "d80d1421ff9c921fae899198094488a88dab88bd3500
 LEAGUE_OWNER = "engines/scripts/league_resource_profiles.py"
 LEAGUE_OWNER_PIN = {"bytes": 952, "sha256": "1b6cae7f1829fb8c798d8f394f9d2c533191632444b66f9b572b8c233b30e258"}
 LEAGUE_IDS = ("test-p16", "test-p192")
+B_LEAGUE = "engines/experiments/tcec-next/profile_b_league_spelling.py"
+B_LEAGUE_SCHEMA = "rove4k.league-b-atomic.v1"
+B_LEAGUE_DECLARATION = {"path": B_LEAGUE, "selection": "league-atomic", "variant": "atomic-assignment"}
+B_LEAGUE_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5"}
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 
@@ -231,6 +235,9 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == LEAGUE_OWNER:
             require(expected == LEAGUE_OWNER_PIN and pin(normalized(ROOT / relative)) == LEAGUE_OWNER_PIN,
                     "reviewed league profile owner identity differs")
+        if relative == B_LEAGUE:
+            require(expected == B_LEAGUE_PIN and pin(normalized(ROOT / relative)) == B_LEAGUE_PIN,
+                    "reviewed B league atomic helper identity differs")
     if post_spelling is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
@@ -293,6 +300,19 @@ def scan_module(build):
     return module
 
 
+def b_league_module(build):
+    data = _evidence_bytes(Path(build) / "inputs" / B_LEAGUE, name=Path(B_LEAGUE).name)
+    require(pin(data) == B_LEAGUE_PIN and normalized(ROOT / B_LEAGUE) == data,
+            "reviewed B league atomic consumed bytes differ")
+    spec = importlib.util.spec_from_file_location("production_rules_B_league_atomic", ROOT / B_LEAGUE)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    exec(compile(data, str(ROOT / B_LEAGUE), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == B_LEAGUE_SCHEMA and module.VARIANT == B_LEAGUE_DECLARATION["variant"],
+            "reviewed B league atomic helper schema differs")
+    return module
+
+
 def ep_modules(build):
     def authenticated(relative, expected, schema, name):
         data = _evidence_bytes(Path(build) / "inputs" / relative, name=Path(relative).name)
@@ -346,9 +366,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     scan_stage = suffix[-1] if suffix and suffix[-1].get("schema") == SCAN_SCHEMA else None
     if scan_stage is not None:
         suffix = suffix[:-1]
+    has_b_league = bool(suffix) and suffix[-1].get("schema") == B_LEAGUE_SCHEMA
     has_f_compound = bool(suffix) and suffix[-1].get("schema") == F_COMPOUND_SCHEMA
     has_compound = bool(suffix) and suffix[-1].get("schema") in (COMPOUND_SCHEMA, F_COMPOUND_SCHEMA)
-    has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA, F_COMPOUND_SCHEMA)
+    has_spelling = bool(suffix) and suffix[-1].get("schema") in (SPELLING_SCHEMA, COMPOUND_SCHEMA, F_COMPOUND_SCHEMA, B_LEAGUE_SCHEMA)
     spelling_stage = suffix[-1] if has_spelling else None
     if has_spelling:
         suffix = suffix[:-1]
@@ -380,21 +401,29 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     if model_stage:
         tools.extend(("engines/model/e19.py", "engines/model/e19.json"))
     if has_spelling:
-        if has_compound:
-            require(family in "ACEF", "compound spelling is limited to A/C/E/F; B uses its individual winner")
-        if has_f_compound:
-            require(family == "F" and dependency_stage is not None and scan_stage is None,
-                    "F-only compound v2 requires final dependency cleanup and no scan stage")
-        variant = F_COMPOUND_VARIANT if has_f_compound else COMPOUND_VARIANT if has_compound else BEST_SPELLING[family]
-        require(cleanup == "private-path" and spelling_stage.get("variant") == variant and
-                ((has_b and suffix[0].get("variant") == "tcec-final-lf") or
-                 (family in "ACEF" and has_phase)),
-                "final spelling requires selected phase-init ACEF or tcec-final-lf B and its reviewed winner")
-        post_spelling = {"path": COMPOUND if has_compound else SPELLING,
-                         "selection": "compound-v2" if has_f_compound else "compound" if has_compound else "best", "variant": variant}
-        tools.append(SPELLING)
-        if has_compound:
-            tools.append(COMPOUND)
+        if has_b_league:
+            require(family == "B" and league_profile and has_b and cleanup == "private-path" and
+                    suffix[0].get("variant") == "tcec-final-lf" and dependency_stage is not None and
+                    spelling_stage.get("variant") == B_LEAGUE_DECLARATION["variant"],
+                    "B league atomic stage requires B P16/P192 tcec-final-lf and dependency cleanup")
+            post_spelling = dict(B_LEAGUE_DECLARATION)
+            tools.append(B_LEAGUE)
+        else:
+            if has_compound:
+                require(family in "ACEF", "compound spelling is limited to A/C/E/F; B uses its individual winner")
+            if has_f_compound:
+                require(family == "F" and dependency_stage is not None and scan_stage is None,
+                        "F-only compound v2 requires final dependency cleanup and no scan stage")
+            variant = F_COMPOUND_VARIANT if has_f_compound else COMPOUND_VARIANT if has_compound else BEST_SPELLING[family]
+            require(cleanup == "private-path" and spelling_stage.get("variant") == variant and
+                    ((has_b and suffix[0].get("variant") == "tcec-final-lf") or
+                     (family in "ACEF" and has_phase)),
+                    "final spelling requires selected phase-init ACEF or tcec-final-lf B and its reviewed winner")
+            post_spelling = {"path": COMPOUND if has_compound else SPELLING,
+                             "selection": "compound-v2" if has_f_compound else "compound" if has_compound else "best", "variant": variant}
+            tools.append(SPELLING)
+            if has_compound:
+                tools.append(COMPOUND)
     if scan_stage is not None:
         require(family in ("A", "C") and has_phase and has_compound and cleanup == "private-path"
                 and scan_stage.get("variant") == "square-successor" and dependency_stage is not None,
@@ -467,7 +496,16 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         expected = projected
         replayed.append(proof)
     if has_spelling:
-        if has_compound:
+        if has_b_league:
+            current = b_league_module(build)
+            projected, proof = current.transform_source(expected, family=family,
+                profile_id=profile.id, variant=B_LEAGUE_DECLARATION["variant"])
+            require(json.dumps(spelling_stage, sort_keys=True, allow_nan=False) ==
+                    json.dumps(proof, sort_keys=True, allow_nan=False) and
+                    current.restore_source(projected, spelling_stage) == expected,
+                    "full B league atomic proof/protected gaps/inverse differs")
+            inverses.append(("full B league atomic spelling", current, spelling_stage, expected))
+        elif has_compound:
             individual, current = compound_modules(build)
             keywords = {"spelling": individual}
             if has_f_compound:

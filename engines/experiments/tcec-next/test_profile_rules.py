@@ -38,6 +38,53 @@ class GeneratedRulesBoundaries(unittest.TestCase):
             rows.append(str(index) + (" " + " ".join(moves) if moves else ""))
         return ("\n".join(rows) + "\n").encode("ascii")
 
+    def test_B_league_atomic_proof_chain_is_ordered_and_tamper_checked(self):
+        baseline, projected, b_body, atomic_body, final = b"baseline", b"resource", b"B", b"atomic", b"final"
+        resource = {"schema": "test-resource", "entry_cleanup": "private-path"}
+        b_proof = {"schema": "rove4k.profile-b-source.v1", "variant": "tcec-final-lf"}
+        atomic = {"schema": RULES.B_LEAGUE_SCHEMA, "variant": "atomic-assignment", "full_inverse": True}
+        dependency = {"schema": "rove4k.profile-dependencies.v1"}
+        stages = [resource, b_proof, atomic, dependency]
+        projection = SimpleNamespace(SCHEMA=resource["schema"],
+            transform_source=lambda *a, **kw: (projected, resource),
+            restore_source=lambda *a: baseline)
+        b_module = SimpleNamespace(VARIANTS=("tcec-final-lf",),
+            transform_source=lambda *a, **kw: (b_body, b_proof),
+            restore_source=lambda *a: projected)
+        atomic_module = SimpleNamespace(transform_source=lambda *a, **kw: (atomic_body, atomic),
+            restore_source=lambda *a: b_body)
+        dep_module = SimpleNamespace(transform_source=lambda *a: (final, dependency),
+            validate_receipt=lambda *a, **kw: atomic_body,
+            restore_source=lambda *a: atomic_body)
+        original_load = RULES.load
+        def loaded(name, path):
+            return {"production_rules_projection": projection, "production_rules_B_projection": b_module,
+                    "production_rules_dependencies": dep_module}.get(name) or original_load(name, path)
+        def check(profile_id, family, supplied):
+            record = {"attempts": [{"directory": name, "source_proofs": supplied} for name in ("first", "repeat")]}
+            with patch.object(RULES, "load", side_effect=loaded), \
+                 patch.object(RULES, "b_league_module", return_value=atomic_module), \
+                 patch.object(RULES, "_source_build_record", return_value=record) as source_record:
+                profile = RULES.resolve_resource_profile(PRODUCTION, profile_id)
+                actual = RULES.admit_source(final, baseline, supplied, family, profile, build=Path("/named"))
+                self.assertEqual(source_record.call_args.kwargs["post_spelling"], RULES.B_LEAGUE_DECLARATION)
+                self.assertIn(RULES.B_LEAGUE, source_record.call_args.kwargs["tools"])
+                return actual
+        for profile_id in ("test-p16", "test-p192"):
+            with self.subTest(profile=profile_id):
+                self.assertEqual(check(profile_id, "B", stages), stages)
+                tampered = [resource, b_proof, {**atomic, "full_inverse": 1}, dependency]
+                with self.assertRaisesRegex(ValueError, "B league atomic proof"):
+                    check(profile_id, "B", tampered)
+                with self.assertRaisesRegex(ValueError, "B league atomic stage"):
+                    check(profile_id, "B", stages[:-1])
+        with self.assertRaises(ValueError):
+            check("test-p4", "B", stages)
+        with self.assertRaises(ValueError):
+            check("test-p16", "C", stages)
+        with self.assertRaises(ValueError):
+            check("test-p16", "B", [resource, atomic, b_proof, dependency])
+
     def test_fixture_reaches_both_colours_quiet_and_capture_underpromotions(self):
         for colour in ("white", "black"):
             for kind in ("quiet", "capture"):

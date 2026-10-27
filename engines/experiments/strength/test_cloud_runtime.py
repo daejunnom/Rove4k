@@ -1031,6 +1031,44 @@ class AuthorityTests(unittest.TestCase):
 
 
 class DeploymentBindingTests(unittest.TestCase):
+    def test_new_league_host_source_is_required_and_pinned_only_for_new_profiles(self):
+        manifest, _ = seed_fixture()
+        for name in cloud.HOST_SOURCE_FILES:
+            raw = (cloud.ROOT / name).read_bytes().replace(b"\r\n", b"\n")
+            manifest["members"]["source/" + name] = {**cloud.pin(raw), "mode": 0o600}
+        # Older P4/P28 source manifests do not have to grow new league files.
+        cloud.validate_host_source(manifest)
+        for profile, cohort in ((profile, cohort) for profile in ("test-p16", "test-p192")
+                                for cohort in ("rove", "peers")):
+            with self.subTest(profile=profile, cohort=cohort):
+                candidate = copy.deepcopy(manifest)
+                if cohort == "rove":
+                    candidate["rove"][0]["profile"] = profile
+                else:
+                    candidate["peers"] = [{"family": "ice4", "profile": profile}]
+                with self.assertRaisesRegex(ValueError, "seed omitted host execution source"):
+                    cloud.validate_host_source(candidate)
+                for name in cloud.LEAGUE_HOST_SOURCE_FILES:
+                    raw = (cloud.ROOT / name).read_bytes().replace(b"\r\n", b"\n")
+                    candidate["members"]["source/" + name] = {**cloud.pin(raw), "mode": 0o600}
+                cloud.validate_host_source(candidate)
+                for name in cloud.LEAGUE_HOST_SOURCE_FILES:
+                    missing = copy.deepcopy(candidate)
+                    del missing["members"]["source/" + name]
+                    with self.assertRaisesRegex(ValueError, "seed omitted host execution source"):
+                        cloud.validate_host_source(missing)
+                    changed = copy.deepcopy(candidate)
+                    changed["members"]["source/" + name]["sha256"] = "f" * 64
+                    with self.assertRaisesRegex(ValueError, "differs from reviewed controller"):
+                        cloud.validate_host_source(changed)
+
+    def test_new_league_seed_cohort_stays_rejected_by_current_host_gate(self):
+        for profile in ("test-p16", "test-p192"):
+            manifest, _ = seed_fixture()
+            manifest["rove"][0]["profile"] = profile
+            with self.subTest(profile=profile), self.assertRaisesRegex(ValueError, "named full TEST inputs"):
+                cloud.seed_expansion_limit(manifest)
+
     def fixture(self, advanced=False):
         try:
             from . import aws_infrastructure as infrastructure, campaign

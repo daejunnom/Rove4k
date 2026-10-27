@@ -106,6 +106,11 @@ F_COMPOUND_V2_IDENTITIES = {
 }
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
+B_LEAGUE_SPELLING = "engines/experiments/tcec-next/profile_b_league_spelling.py"
+B_LEAGUE_SPELLING_SCHEMA = "rove4k.league-b-atomic.v1"
+B_LEAGUE_SPELLING_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5"}
+B_LEAGUE_SPELLING_DECLARATION = {"path": B_LEAGUE_SPELLING, "selection": "league-atomic",
+                                 "variant": "atomic-assignment"}
 TARGET_SUPPORT = ("engines/experiments/tcec-next/target_runtime.py",
                   "engines/experiments/tcec-next/profile_compiler.py")
 
@@ -410,7 +415,7 @@ def revalidate_target(reference):
 
 
 def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, source_dependencies=None,
-                  representation=None, entry_cleanup=None):
+                  representation=None, entry_cleanup=None, profile_id=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
             and all(isinstance(p, dict) for p in proofs),
@@ -438,7 +443,9 @@ def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, p
         best = {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING[family]}
         compound = family in "ACEF" and post_spelling == COMPOUND_DECLARATION
         compound_v2 = family == "F" and post_spelling == F_COMPOUND_DECLARATION
-        require(post_spelling == best or compound or compound_v2,
+        league_atomic = family == "B" and profile_id in LEAGUE_PROFILE_IDS and \
+                        post_spelling == B_LEAGUE_SPELLING_DECLARATION
+        require(post_spelling == best or compound or compound_v2 or league_atomic,
                 "final spelling requires its exact reviewed winner and helper")
         require(representation == "source-jit" and entry_cleanup == "private-path",
                 "final spelling requires full source-JIT/private-path")
@@ -450,7 +457,12 @@ def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, p
             require(post_scan is None and source_dependencies == {
                 "path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"},
                 "F compound-v2 requires no scan stage and final dependency cleanup")
-        expected.append(F_COMPOUND_SCHEMA if compound_v2 else COMPOUND_SCHEMA if compound else SPELLING_SCHEMA)
+        if league_atomic:
+            require(post_scan is None and post_ep is None and source_dependencies == {
+                "path": "engines/experiments/tcec-next/profile_dependencies.py", "variant": "unused-includes"},
+                "B league atomic requires final dependency cleanup")
+        expected.append(B_LEAGUE_SPELLING_SCHEMA if league_atomic else F_COMPOUND_SCHEMA if compound_v2
+                        else COMPOUND_SCHEMA if compound else SPELLING_SCHEMA)
     if post_scan is not None:
         require(family in ("A", "C") and post_scan == SCAN_DECLARATION
                 and post_spelling == COMPOUND_DECLARATION and kind == "phase"
@@ -514,6 +526,20 @@ def spelling_module(manifest, build, production_paths):
     """Consume the exact reviewed helper bytes, including its production role."""
     return _reviewed_spelling_module(manifest, build, production_paths, SPELLING, SPELLING_PIN,
                                     SPELLING_SCHEMA, "profile_runtime_reviewed_spelling")
+
+
+def b_league_spelling_module(manifest, build, production_paths):
+    return _reviewed_spelling_module(manifest, build, production_paths, B_LEAGUE_SPELLING,
+                                    B_LEAGUE_SPELLING_PIN, B_LEAGUE_SPELLING_SCHEMA,
+                                    "profile_runtime_reviewed_b_league_spelling")
+
+
+def b_league_spelling_stage(helper, before, supplied, profile_id, variant):
+    """Replay and invert the manifest proof with type-preserving JSON identity."""
+    produced, regenerated = helper.transform_source(before, family="B", profile_id=profile_id, variant=variant)
+    require(_json_equal(regenerated, supplied), "B league atomic spelling proof differs")
+    require(helper.restore_source(produced, supplied) == before, "B league atomic inverse differs")
+    return produced, supplied
 
 
 def compound_module(manifest, build, production_paths):
@@ -869,7 +895,7 @@ def admit_c_build(manifest, build):
     dependency_declaration = manifest.get("source_dependencies")
     post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
         post_scan=post_scan, post_ep=post_ep, source_dependencies=dependency_declaration,
-        representation=representation, entry_cleanup=plan["entry_cleanup"])
+        representation=representation, entry_cleanup=plan["entry_cleanup"], profile_id=profile.id)
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -918,15 +944,22 @@ def admit_c_build(manifest, build):
             spelling_options = {"spelling": individual}
             if post_spelling == F_COMPOUND_DECLARATION:
                 spelling_options["variant"] = F_COMPOUND_VARIANT
+        elif post_spelling == B_LEAGUE_SPELLING_DECLARATION:
+            helper = b_league_spelling_module(manifest, build, production_paths)
+            spelling_options = {"variant": post_spelling["variant"]}
         else:
             helper = spelling_module(manifest, build, production_paths)
             spelling_options = {"variant": post_spelling["variant"]}
         before_spelling = produced
-        produced, spelling_proof = helper.transform_source(produced, family=family,
-            profile_id=profile.id, **spelling_options)
-        require((_json_equal(spelling_proof, manifest["source_proofs"][next_stage])
-                 if post_spelling == F_COMPOUND_DECLARATION else spelling_proof == manifest["source_proofs"][next_stage]),
-                "full final spelling proof/protected gaps differ")
+        if post_spelling == B_LEAGUE_SPELLING_DECLARATION:
+            produced, spelling_proof = b_league_spelling_stage(helper, produced,
+                manifest["source_proofs"][next_stage], profile.id, spelling_options["variant"])
+        else:
+            produced, spelling_proof = helper.transform_source(produced, family=family,
+                profile_id=profile.id, **spelling_options)
+            require((_json_equal(spelling_proof, manifest["source_proofs"][next_stage])
+                     if post_spelling == F_COMPOUND_DECLARATION else spelling_proof == manifest["source_proofs"][next_stage]),
+                    "full final spelling proof/protected gaps differ")
         if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
             inverses.append((helper, spelling_proof, before_spelling, {"spelling": individual}))
         else:

@@ -561,6 +561,32 @@ class SeedTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def test_new_league_closure_is_explicit_while_legacy_source_is_unchanged(self):
+        checkout, origin = self.fixture.config["checkout"], self.fixture.config["source_origin"]
+        # The old source fixture deliberately contains neither league file.
+        legacy = seed.checkout_files(checkout, origin)
+        league_names = ("engines/experiments/strength/memory_observation.py",
+                        "engines/scripts/league_resource_profiles.py")
+        self.assertTrue(all(name not in legacy for name in league_names))
+        with self.assertRaisesRegex(ValueError, "omitted the host/R production code closure"):
+            seed.checkout_files(checkout, origin, league_required=True)
+        for name in league_names:
+            path = self.fixture.repo / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"# synthetic league transport source, never executed\n")
+        git(self.fixture.repo, "add", "--", *league_names)
+        git(self.fixture.repo, "-c", "user.name=Transport Fixture", "-c", "user.email=fixture@example.invalid",
+            "commit", "-qm", "add league closure fixture")
+        head = git(self.fixture.repo, "rev-parse", "HEAD").decode().strip()
+        checkout = {**checkout, "commit": head}
+        origin = {**origin, "head_sha": head}
+        admitted = seed.checkout_files(checkout, origin, league_required=True)
+        self.assertTrue(all(name in admitted for name in league_names))
+        for missing in league_names:
+            prefixes = [name for name in admitted if name != missing]
+            with self.subTest(missing=missing), self.assertRaisesRegex(ValueError, "omitted the host/R production code closure"):
+                seed.checkout_files({**checkout, "paths": prefixes}, origin, league_required=True)
+
     def joint_fixture(self):
         """Twelve distinct synthetic sealed rows; never source/runtime admission."""
         fixture = self.fixture

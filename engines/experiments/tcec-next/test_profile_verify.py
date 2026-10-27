@@ -660,6 +660,35 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             with self.subTest(declaration=declaration, proofs=proofs, final=final, parameters=parameters), self.assertRaises(ValueError):
                 VERIFY.source_stages("E", declaration, proofs, post_spelling=final, **parameters)
 
+    def test_b_league_atomic_stage_is_profile_and_dependency_specific(self):
+        resource = {"schema": "rove4k.c-resource-projection.v1"}
+        b = {"schema": "rove4k.profile-b-source.v1"}
+        atomic = {"schema": VERIFY.B_LEAGUE_SPELLING_SCHEMA}
+        dependencies = {"schema": "rove4k.profile-dependencies.v1"}
+        post = {"path": "engines/experiments/tcec-next/profile_b.py", "variant": "tcec-final-lf"}
+        options = {"post_spelling": dict(VERIFY.B_LEAGUE_SPELLING_DECLARATION),
+                   "source_dependencies": {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                                           "variant": "unused-includes"},
+                   "representation": "source-jit", "entry_cleanup": "private-path"}
+        stages = [resource, b, atomic, dependencies]
+        for profile in ("test-p16", "test-p192"):
+            self.assertEqual(VERIFY.source_stages("B", post, stages, profile_id=profile, **options), "B")
+        for profile in (None, "test-p4", "test-p28", "tcec-provisional", "unknown"):
+            with self.subTest(profile=profile), self.assertRaises(ValueError):
+                VERIFY.source_stages("B", post, stages, profile_id=profile, **options)
+        for family, selected, proofs, changed in (
+            ("A", post, stages, {}),
+            ("B", {**post, "variant": "other"}, stages, {}),
+            ("B", post, [resource, atomic, b, dependencies], {}),
+            ("B", post, stages[:-1], {"source_dependencies": None}),
+            ("B", post, stages, {"representation": "packed-native"}),
+            ("B", post, stages, {"entry_cleanup": "none"}),
+            ("B", post, stages, {"post_spelling": {**VERIFY.B_LEAGUE_SPELLING_DECLARATION,
+                                                    "variant": "other"}}),
+        ):
+            with self.subTest(family=family, changed=changed), self.assertRaises(ValueError):
+                VERIFY.source_stages(family, selected, proofs, profile_id="test-p16", **{**options, **changed})
+
     def test_final_spelling_is_undone_before_model_offsets_and_prior_stages(self):
         calls = []
         def restore(data, proof):
@@ -706,6 +735,71 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             frozen.write_bytes(source + b"\n")
             with self.assertRaises(ValueError):
                 VERIFY.spelling_module(manifest, build, {VERIFY.SPELLING})
+
+    def test_b_league_atomic_helper_requires_exact_pin_and_tool_role(self):
+        from copy import deepcopy
+        path, identity = VERIFY.B_LEAGUE_SPELLING, VERIFY.B_LEAGUE_SPELLING_PIN
+        row = {"path": path, "role": "tool", **identity}
+        manifest = {"inputs": {path: dict(identity)}, "source_closure": {"inputs": [row]}}
+        with tempfile.TemporaryDirectory(prefix="rove4k-b-league-spelling-") as temporary:
+            build = Path(temporary)
+            frozen = build / "inputs" / path
+            frozen.parent.mkdir(parents=True)
+            source = (VERIFY.ROOT / path).read_bytes().replace(b"\r\n", b"\n")
+            self.assertEqual(VERIFY.pin(source), identity)
+            frozen.write_bytes(source)
+            helper = VERIFY.b_league_spelling_module(manifest, build, {path})
+            self.assertEqual(helper.SCHEMA, VERIFY.B_LEAGUE_SPELLING_SCHEMA)
+            for kind in ("role", "pin", "input", "duplicate", "missing"):
+                altered = deepcopy(manifest)
+                if kind == "role":
+                    altered["source_closure"]["inputs"][0]["role"] = "engine"
+                elif kind == "pin":
+                    altered["source_closure"]["inputs"][0]["sha256"] = "0" * 64
+                elif kind == "input":
+                    altered["inputs"][path]["bytes"] += 1
+                elif kind == "duplicate":
+                    altered["source_closure"]["inputs"].append(dict(row))
+                else:
+                    altered["source_closure"]["inputs"] = []
+                with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, "helper production role"):
+                    VERIFY.b_league_spelling_module(altered, build, {path})
+            frozen.write_bytes(source + b"\n")
+            with self.assertRaises(ValueError):
+                VERIFY.b_league_spelling_module(manifest, build, {path})
+        with self.assertRaisesRegex(ValueError, "named compound native policy"):
+            VERIFY.compound_native_evidence({"family": "B", "post_spelling":
+                                            VERIFY.B_LEAGUE_SPELLING_DECLARATION,
+                                            "native_policy": {}}, Path("unread"), b"", b"", {}, "test-p16")
+
+    def test_b_league_stage_uses_the_supplied_typed_proof_for_inverse(self):
+        from copy import deepcopy
+        expected = {"schema": VERIFY.B_LEAGUE_SPELLING_SCHEMA, "full_inverse": True,
+                    "features_removed": False, "edits": [{"input_begin": 1}]}
+        calls = []
+        def transform(before, **options):
+            self.assertEqual((before, options), (b"before", {"family": "B", "profile_id": "test-p16",
+                                                               "variant": "atomic-assignment"}))
+            return b"after", deepcopy(expected)
+        def restore(candidate, supplied):
+            calls.append((candidate, supplied))
+            return b"before"
+        helper = types.SimpleNamespace(transform_source=transform, restore_source=restore)
+        supplied = deepcopy(expected)
+        produced, saved = VERIFY.b_league_spelling_stage(helper, b"before", supplied, "test-p16",
+                                                        "atomic-assignment")
+        self.assertEqual(produced, b"after")
+        self.assertIs(saved, supplied)
+        self.assertIs(calls[0][1], supplied)
+        for mutate in (lambda proof: proof.update(full_inverse=1),
+                       lambda proof: proof.update(features_removed=0),
+                       lambda proof: proof["edits"][0].update(input_begin=True)):
+            forged = deepcopy(expected)
+            mutate(forged)
+            self.assertEqual(forged, expected)  # Python equality conflates bool and int.
+            with self.assertRaisesRegex(ValueError, "atomic spelling proof differs"):
+                VERIFY.b_league_spelling_stage(helper, b"before", forged, "test-p16", "atomic-assignment")
+        self.assertEqual(len(calls), 1)
 
     def test_dependency_stage_is_explicit_and_last(self):
         resource = {"schema": "rove4k.c-resource-projection.v1"}

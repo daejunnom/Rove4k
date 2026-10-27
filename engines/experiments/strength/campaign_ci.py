@@ -330,10 +330,13 @@ def bind_materializer_source(origin, expected_head, *, out=None):
     for node in ast.parse(declaration).body:
         if isinstance(node, ast.Assign):
             for target in node.targets:
-                if isinstance(target, ast.Name) and target.id in ("HOST_MODULES", "CORE_R"):
+                if isinstance(target, ast.Name) and target.id in (
+                        "HOST_MODULES", "CORE_R", "LEAGUE_HOST_MODULES", "LEAGUE_CORE_R"):
                     require(target.id not in values, "duplicate committed materializer source closure")
                     values[target.id] = ast.literal_eval(node.value)
-    require(set(values) == {"HOST_MODULES", "CORE_R"}
+    required = {"HOST_MODULES", "CORE_R"}
+    league = {"LEAGUE_HOST_MODULES", "LEAGUE_CORE_R"}
+    require(set(values) in (required, required | league)
             and all(type(value) is tuple and 0 < len(value) <= 128 for value in values.values()),
             "static committed materializer source closure required")
     modules, core = values["HOST_MODULES"], values["CORE_R"]
@@ -341,7 +344,34 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             and {"cloud_runtime", "aws", "budget", "collect", "ledger", "registry", "run", "topology",
                  "durability", "fastchess", "placement", "seed"} <= set(modules)
             and "engines/scripts/production.py" in core, "committed materializer import closure is incomplete")
+    # The league dependencies are lazy, but they must be bound before source
+    # can be imported if this committed controller/verifier declares them.
+    # Examine committed text only; never execute a checkout module here.
+    run_source = git(origin, "show", expected_head + ":engines/experiments/strength/run.py", limit=32 << 20)
+    verifier_source = git(origin, "show", expected_head + ":engines/experiments/tcec-next/profile_verify.py", limit=32 << 20)
+    has_league_import = any(
+        (isinstance(node, ast.ImportFrom) and node.module is not None
+         and node.module.split(".")[-1] == "memory_observation")
+        or (isinstance(node, (ast.Import, ast.ImportFrom))
+            and any(alias.name.split(".")[-1] == "memory_observation" for alias in node.names))
+        for node in ast.walk(ast.parse(run_source)))
+    has_league_owner = any(
+        isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "LEAGUE_PROFILE_OWNER"
+                                              for target in node.targets)
+        for node in ast.parse(verifier_source).body)
+    require(not (has_league_import or has_league_owner) or league <= set(values),
+            "committed league materializer source closure is incomplete")
     names = tuple("engines/experiments/strength/" + name + ".py" for name in modules) + tuple(logical(name) for name in core)
+    if league <= set(values):
+        # A checkout declaring the new execution paths must bind the exact
+        # source dependencies before even its seed materializer is imported.
+        # Older source revisions without either declaration retain their
+        # original materializer closure and validation behavior.
+        require(values["LEAGUE_HOST_MODULES"] == ("memory_observation",)
+                and values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",),
+                "committed league materializer source closure differs")
+        names += ("engines/experiments/strength/memory_observation.py",
+                  "engines/scripts/league_resource_profiles.py")
     require(len(set(names)) == len(names), "duplicate committed materializer source member")
     records = git(origin, "ls-tree", "-r", "-z", expected_head, "--", *sorted(names)).split(b"\0")
     tracked = {}

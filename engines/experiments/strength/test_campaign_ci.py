@@ -882,7 +882,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
         path.write_bytes(raw)
         return ci.pin(raw)["sha256"]
 
-    def make_materializer_origin(self, root, declaration_edit=None):
+    def make_materializer_origin(self, root, declaration_edit=None, omit=()):
         repository = Path(__file__).resolve().parents[3]
         seed_name = "engines/experiments/strength/seed.py"
         seed = (repository / seed_name).read_bytes().replace(b"\r\n", b"\n")
@@ -890,9 +890,13 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)}
         modules = ast.literal_eval(assignments["HOST_MODULES"])
         core = ast.literal_eval(assignments["CORE_R"])
+        league_modules = ast.literal_eval(assignments["LEAGUE_HOST_MODULES"])
+        league_core = ast.literal_eval(assignments["LEAGUE_CORE_R"])
         self.assertIsInstance(modules, tuple)
         self.assertIsInstance(core, tuple)
-        names = {"engines/experiments/strength/" + name + ".py" for name in modules} | set(core)
+        names = ({"engines/experiments/strength/" + name + ".py" for name in (*modules, *league_modules)}
+                 | set(core) | set(league_core))
+        names.difference_update(omit)
         root.mkdir()
         self.git(root, "init", "--quiet")
         for name in sorted(names):
@@ -931,7 +935,9 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
         self.assertEqual(materializer_calls, [])
 
     def test_hidden_modified_materializer_or_imported_sibling_is_rejected_before_download(self):
-        for relative in ("engines/experiments/strength/cloud_runtime.py", "engines/experiments/strength/aws.py"):
+        for relative in ("engines/experiments/strength/cloud_runtime.py", "engines/experiments/strength/aws.py",
+                         "engines/experiments/strength/memory_observation.py",
+                         "engines/scripts/league_resource_profiles.py"):
             for hidden in ("--assume-unchanged", "--skip-worktree"):
                 with self.subTest(relative=relative, hidden=hidden), tempfile.TemporaryDirectory(prefix="rove-ci-materializer-hidden-") as directory:
                     root = Path(directory)
@@ -953,6 +959,11 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 b'"fastchess", "seed")', b'"fastchess", "seed"))', 1),
             "unsafe": lambda body: body.replace(b'"cloud_runtime", "campaign"', b'"../cloud_runtime", "campaign"', 1),
             "incomplete": lambda body: body.replace(b'"cloud_runtime", "campaign", "aws",', b'"cloud_runtime", "campaign",', 1),
+            "league-one-missing": lambda body: body.replace(b"LEAGUE_HOST_MODULES =", b"OMITTED_LEAGUE_HOST_MODULES =", 1),
+            "league-both-missing": lambda body: body.replace(b"LEAGUE_HOST_MODULES =", b"OMITTED_LEAGUE_HOST_MODULES =", 1).replace(
+                b"LEAGUE_CORE_R =", b"OMITTED_LEAGUE_CORE_R =", 1),
+            "league-mismatched": lambda body: body.replace(b'LEAGUE_HOST_MODULES = ("memory_observation",)',
+                b'LEAGUE_HOST_MODULES = ("wrong_module",)', 1),
         }
         for case, edit in edits.items():
             with self.subTest(case=case), tempfile.TemporaryDirectory(prefix="rove-ci-materializer-metadata-") as directory:
@@ -960,6 +971,53 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 origin = root / "original-git"
                 head = self.make_materializer_origin(origin, declaration_edit=edit)
                 self.rejected_materializer_request(root, origin, head, "malformed node" if case == "dynamic" else "materializer")
+
+    def test_legacy_materializer_without_league_code_keeps_original_closure(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-legacy-materializer-") as directory:
+            root = Path(directory)
+            origin = root / "original-git"
+            self.make_materializer_origin(origin)
+            seed_path = origin / "engines/experiments/strength/seed.py"
+            body = seed_path.read_bytes().replace(b"LEAGUE_HOST_MODULES =", b"OLD_LEAGUE_HOST_MODULES =", 1).replace(
+                b"LEAGUE_CORE_R =", b"OLD_LEAGUE_CORE_R =", 1)
+            seed_path.write_bytes(body)
+            # This isolated Git fixture models the old pre-league revision;
+            # none of these synthetic files is imported or executed.
+            (origin / "engines/experiments/strength/run.py").write_bytes(b"# legacy controller fixture\n")
+            (origin / "engines/experiments/tcec-next/profile_verify.py").write_bytes(b"# legacy verifier fixture\n")
+            self.git(origin, "add", "--", "engines/experiments/strength/seed.py",
+                     "engines/experiments/strength/run.py", "engines/experiments/tcec-next/profile_verify.py")
+            self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "Legacy closure fixture")
+            head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+            result = ci.bind_materializer_source(origin, head)
+            self.assertEqual(result["source_commit"], head)
+
+    def test_missing_league_blob_is_rejected_before_materializer_import(self):
+        for name in ("engines/experiments/strength/memory_observation.py",
+                     "engines/scripts/league_resource_profiles.py"):
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="rove-ci-league-missing-") as directory:
+                root = Path(directory)
+                origin = root / "original-git"
+                head = self.make_materializer_origin(origin, omit=(name,))
+                self.rejected_materializer_request(root, origin, head, "materializer source closure is missing")
+
+    def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):
+        def omit_league(body):
+            return body.replace(b"LEAGUE_HOST_MODULES =", b"OMITTED_LEAGUE_HOST_MODULES =", 1).replace(
+                b"LEAGUE_CORE_R =", b"OMITTED_LEAGUE_CORE_R =", 1)
+        for import_line in (b"from .memory_observation import observe_capacity\n",
+                            b"import rove4k_cloud_strength.memory_observation\n"):
+            with self.subTest(import_line=import_line), tempfile.TemporaryDirectory(prefix="rove-ci-league-import-") as directory:
+                root = Path(directory)
+                origin = root / "original-git"
+                self.make_materializer_origin(origin, declaration_edit=omit_league)
+                (origin / "engines/experiments/strength/run.py").write_bytes(import_line)
+                (origin / "engines/experiments/tcec-next/profile_verify.py").write_bytes(b"# no league marker\n")
+                self.git(origin, "add", "--", "engines/experiments/strength/run.py",
+                         "engines/experiments/tcec-next/profile_verify.py")
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "Alternate import fixture")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                self.rejected_materializer_request(root, origin, head, "league materializer source closure is incomplete")
 
     def test_ignored_package_and_valid_bytecode_shadows_do_not_enter_fresh_materializer(self):
         for shadow in ("package", "bytecode"):

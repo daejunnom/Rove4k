@@ -78,6 +78,11 @@ HOST_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for nam
         "engines/experiments/tcec-next/profile_dependencies.py",
         "engines/experiments/tiny-d-submission/source_inputs.py",
         "engines/common/board.c", "engines/common/move.c", "engines/common/protocol.c", "engines/common/search.c")
+# P16/P192 dependencies are additive. Existing P4/P28 seed manifests do not
+# need to contain modules which their execution path never imports.
+LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py",
+                            "engines/scripts/league_resource_profiles.py")
+LEAGUE_PROFILES = ("test-p16", "test-p192")
 
 
 def require(value, detail):
@@ -756,7 +761,9 @@ def revalidate_seed(manifest, root):
 
 def validate_host_source(manifest, source_root=ROOT):
     """Bind the transported host controller to the reviewed executing checkout."""
-    for name in HOST_SOURCE_FILES:
+    league_required = any(row["profile"] in LEAGUE_PROFILES
+                          for kind in ("rove", "peers") for row in manifest[kind])
+    for name in HOST_SOURCE_FILES + (LEAGUE_HOST_SOURCE_FILES if league_required else ()):
         expected = manifest["members"].get(manifest["source_tree"] + "/" + name)
         require(expected is not None, "seed omitted host execution source: " + name)
         data = ordinary(Path(source_root) / name).replace(b"\r\n", b"\n")
