@@ -66,8 +66,9 @@ class OwnedProbeCohort:
     The manager enables cpuset and memory in the caller-delegated root and
     creates a fresh campaign subtree; enabling those root controllers is not
     reverted by cleanup. This is not proof of exclusive access, available
-    physical-memory reservation, trusted provenance or admission. The
-    supervisor's existing live-capacity guard remains authoritative.
+    physical-memory reservation, trusted provenance or scored admission. The
+    supervisor still checks live capacity before a pre-GO diagnostic starts;
+    the observation cannot establish a future memory bound or grant GO.
     """
     def __init__(self, manager, manifest_path, manifest_sha256, profile, games,
                  controller, artifacts, per_game_headroom_bytes, controller_headroom_bytes):

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from contextlib import nullcontext
 import hashlib
 import json
 import math
@@ -200,7 +201,7 @@ def _terminal_gate_class(observation):
 
 
 def _release_individually(children, snapshot, authorize_go, observe_transport, emit, *, deadline=None,
-                          notify_drain=None, release_fence=None, wire_go=None):
+                          notify_drain=None, release_fence=None, wire_go=None, pre_send=None, release_guard=None):
     """Try budget-owner authorization immediately before each private gate write.
 
     The callbacks must be supplied by a durable, serialized owner. This helper
@@ -322,51 +323,64 @@ def _release_individually(children, snapshot, authorize_go, observe_transport, e
                             begin_drain(child, "invalid_gate_command")
                             cancel(child)
                             continue
-                    # Command construction, including entropy acquisition, may
-                    # itself take time. Recheck immediately before the write.
-                    send_started = time.monotonic()
-                    if deadline is not None and send_started >= deadline:
-                        obs["gate_transport_error"] = "wave deadline expired while preparing GO"
-                        obs["gate_cancelled"] = True
-                        begin_drain(child, "deadline_before_go")
-                        cancel(child)
-                        continue
-                    if fence is not None and not (fence.not_before_monotonic <= send_started < fence.expires_monotonic):
-                        obs["gate_fence_error"] = "fence expired while preparing GO"
-                        obs["gate_cancelled"] = True
-                        begin_drain(child, "release_fence_not_valid")
-                        cancel(child)
-                        continue
-                    if (obs.get("gate_intent_required") is True and
-                            (type(obs.get("gate_receipt_deadline")) not in (int, float)
-                             or send_started >= obs["gate_receipt_deadline"])):
-                        obs["gate_intent_error"] = "receipt window expired immediately before GO"
-                        obs["gate_cancelled"] = True
-                        begin_drain(child, "durable_intent_window_expired")
-                        cancel(child)
-                        continue
-                    obs["gate_transport"] = "uncertain"
-                    obs["gate_send_started_monotonic"] = send_started
+                    failure = None
                     try:
-                        child.control.sendall(command)
-                    except OSError as error:
-                        obs["gate_transport_error"] = repr(error)
-                        begin_drain(child, "go_transport_uncertain")
+                        guard = (release_guard(child.job, snapshot(child), fence)
+                                 if release_guard is not None else nullcontext(True))
+                        with guard as held:
+                            if held is None and release_guard is not None:
+                                failure = "release_guard_busy"
+                            elif held is not True:
+                                obs["gate_pre_send_error"] = "release guard unavailable"
+                                failure = "release_recheck_failed"
+                            elif pre_send is not None and pre_send(child.job, snapshot(child), fence) is not True:
+                                obs["gate_pre_send_error"] = "release recheck denied or indeterminate"
+                                failure = "release_recheck_failed"
+                            else:
+                                send_started = time.monotonic()
+                                if deadline is not None and send_started >= deadline:
+                                    obs["gate_transport_error"] = "wave deadline expired while preparing GO"
+                                    failure = "deadline_before_go"
+                                elif fence is not None and not (fence.not_before_monotonic <= send_started < fence.expires_monotonic):
+                                    obs["gate_fence_error"] = "fence expired while preparing GO"
+                                    failure = "release_fence_not_valid"
+                                elif (obs.get("gate_intent_required") is True and
+                                      (type(obs.get("gate_receipt_deadline")) not in (int, float)
+                                       or send_started >= obs["gate_receipt_deadline"])):
+                                    obs["gate_intent_error"] = "receipt window expired immediately before GO"
+                                    failure = "durable_intent_window_expired"
+                                else:
+                                    obs["gate_transport"] = "uncertain"
+                                    obs["gate_send_started_monotonic"] = send_started
+                                    child.control.sendall(command)
+                                    finished = time.monotonic()
+                                    obs.update(gate_transport="sent", gate_released=True,
+                                               released_monotonic=finished, status="running")
+                                    if fence is not None and (not math.isfinite(finished) or finished < send_started or finished >= fence.expires_monotonic
+                                            or (deadline is not None and finished >= deadline)):
+                                        obs["gate_transport"] = "uncertain"
+                                        obs["gate_fence_send_time_uncertain"] = True
+                                        failure = "release_fence_send_time_uncertain"
+                    except Exception as error:
+                        if obs["gate_transport"] in ("sent", "uncertain"):
+                            obs["gate_transport"] = "uncertain"
+                            obs["gate_transport_error"] = repr(error)
+                            failure = "go_transport_uncertain"
+                        else:
+                            obs["gate_pre_send_error"] = repr(error)
+                            failure = "release_recheck_failed"
+                    if failure is not None:
+                        if failure == "release_guard_busy":
+                            return "guard_busy"
+                        begin_drain(child, failure)
+                        if obs["gate_transport"] == "not_attempted":
+                            obs["gate_cancelled"] = True
+                            cancel(child)
+                            continue
                         try:
                             child.control.shutdown(socket.SHUT_WR)
                         except OSError:
                             pass
-                    else:
-                        finished = time.monotonic()
-                        obs.update(gate_transport="sent", gate_released=True,
-                                   released_monotonic=finished, status="running")
-                        if fence is not None and (not math.isfinite(finished) or finished < send_started or finished >= fence.expires_monotonic
-                                or (deadline is not None and finished >= deadline)):
-                            # Bytes may have been delivered before or after the
-                            # window closed; never promote this to a valid GO.
-                            obs["gate_transport"] = "uncertain"
-                            obs["gate_fence_send_time_uncertain"] = True
-                            begin_drain(child, "release_fence_send_time_uncertain")
                     try:
                         # Only transport state is reported, never actual GO receipt.
                         observe_transport(child.job, snapshot(child))
@@ -487,6 +501,13 @@ class WaveExecutor:
         Supplying it neither seals other hosts' gates nor proves that its
         notification was durably received. Callers remain responsible for
         fencing admission and reconciling the physical owners and instances.
+        Async authorizers must provide a nonblocking, in-memory
+        ``release_guard(job, observation, fence)`` context and a
+        ``can_release(job, observation, fence)`` recheck. The guard must
+        serialize local drain observation and GO send without waiting; it
+        yields None only when temporarily busy, False for denial, and True
+        when held. Only literal True from both permits a GO. Neither establishes
+        a global ownership fence or atomicity across hosts.
         """
         if sys.platform != "linux":
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
@@ -560,6 +581,7 @@ class WaveExecutor:
         async_draining = False
         async_seen_fences = set()
         async_commands = {}
+        async_pending_intents = {}
         boot_id = _boot_id() if asynchronous else None
 
         def snapshot(child):
@@ -726,10 +748,16 @@ class WaveExecutor:
                 matches = [item for item in children if item.job.identity == getattr(decision, "identity", None)]
                 if (type(decision) is not AsyncIntentDecision or len(matches) != 1
                         or not matches[0].observation.get("gate_intent_requested")
-                        or matches[0].observation.get("gate_intent_resolved")):
+                        or matches[0].observation.get("gate_intent_resolved")
+                        or matches[0].job.identity in async_pending_intents):
                     begin_async_drain(children[0], "invalid_or_duplicate_intent")
                     return
                 item = matches[0]
+                async_pending_intents[item.job.identity] = decision
+            for item in children:
+                decision = async_pending_intents.get(item.job.identity)
+                if decision is None:
+                    continue
                 obs = item.observation
                 try:
                     confirmed = (_same_json(decision.intent, obs["gate_intent_payload"])
@@ -750,9 +778,19 @@ class WaveExecutor:
                     obs["gate_intent_error"] = "receipt window expired before GO"
                     begin_async_drain(item, "durable_intent_window_expired")
                     return
+                def recheck(job, current, current_fence):
+                    guard = getattr(async_authorizer, "can_release", None)
+                    return guard(job, current, current_fence) if callable(guard) else False
+                def hold_release(job, current, current_fence):
+                    guard = getattr(async_authorizer, "release_guard", None)
+                    return guard(job, current, current_fence) if callable(guard) else nullcontext(False)
                 drained = _release_individually([item], snapshot, lambda job, obs: True, observe_transport, event,
                     deadline=wall_deadline, notify_drain=notify_drain,
-                    release_fence=lambda job, obs: fence, wire_go=lambda child, current: command)
+                    release_fence=lambda job, obs: fence, wire_go=lambda child, current: command,
+                    pre_send=recheck, release_guard=hold_release)
+                if drained == "guard_busy":
+                    continue
+                del async_pending_intents[item.job.identity]
                 if drained:
                     begin_async_drain(item, item.observation.get("drain_reason", "gate_release_failed"))
                     return

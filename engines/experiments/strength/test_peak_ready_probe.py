@@ -176,6 +176,53 @@ class PeakReadyTests(unittest.TestCase):
             self.assertIs(error.exception.process, process)
             self.assertIs(error.exception.report, report)
 
+    def test_pre_ready_oom_is_recorded_without_losing_child_handle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report_path = Path(tmp) / "failure.json"
+            process = object()
+            evidence = {"format": "rove4k-pre-go-probe-failure-v1", "cause": "pre-READY EOF",
+                        "oom_observed": True, "all_groups_read": True,
+                        "physical_settlement_proven": False, "runtime_admission": False,
+                        "scored_qualification": False,
+                        "groups": [{"group": "slot-000", "observed_events": {"oom_kill": 1}}]}
+            failure = probe.peak_supervisor.SupervisorFailure("pre-READY EOF", process, evidence)
+            recorded = []
+            with patch.object(probe.peak_supervisor, "observe", side_effect=failure):
+                with self.assertRaises(probe.peak_supervisor.SupervisorFailure) as caught:
+                    probe.observe_and_record(observe_args={}, expected_context=lambda: {}, report_path=report_path,
+                        append=lambda kind, data: recorded.append((kind, data)))
+            self.assertIs(caught.exception, failure)
+            self.assertIs(failure.process, process)
+            self.assertEqual(json.loads(report_path.read_text(encoding="ascii")), evidence)
+            self.assertEqual(recorded[0][0], "campaign.memory_peak_diagnostic_failed")
+            self.assertTrue(recorded[0][1]["oom_observed"])
+            self.assertEqual(recorded[0][1]["report_bytes_sha256"], hashlib.sha256(report_path.read_bytes()).hexdigest())
+            self.assertFalse(recorded[0][1]["runtime_admission"])
+
+    def test_failure_report_write_or_journal_error_preserves_original_owner(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            process = object()
+            evidence = {"oom_observed": False, "all_groups_read": False}
+            for fail_at in ("write", "journal"):
+                failure = probe.peak_supervisor.SupervisorFailure("timeout", process, evidence)
+                report_path = Path(tmp) / (fail_at + ".json")
+                def append(*_):
+                    if fail_at == "journal":
+                        raise OSError("journal unavailable")
+                original = probe._persist_report
+                def persist(*args):
+                    if fail_at == "write":
+                        raise OSError("storage unavailable")
+                    return original(*args)
+                with patch.object(probe.peak_supervisor, "observe", side_effect=failure), \
+                     patch.object(probe, "_persist_report", side_effect=persist):
+                    with self.assertRaises(probe.peak_supervisor.SupervisorFailure) as caught:
+                        probe.observe_and_record(observe_args={}, expected_context=lambda: {},
+                                                 report_path=report_path, append=append)
+                self.assertIs(caught.exception, failure)
+                self.assertIs(failure.process, process)
+                self.assertIn("unavailable", failure.evidence_persistence_error)
+
     def test_unknown_go_preserves_owner_observations(self):
         observations = [{"identity": "p192", "gate_transport": "uncertain"}]
         with self.assertRaises(probe.ProbeFailure) as error:

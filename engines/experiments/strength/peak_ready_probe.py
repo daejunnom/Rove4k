@@ -203,6 +203,23 @@ def ready_probe(*, profile, entries, runner, runner_sha256, opening, opening_sha
             "all_tt_resident_verified": False, "observations": observations}
 
 
+def _persist_report(report_path, report):
+    """Persist an external diagnostic report before journalling its digest."""
+    raw = json.dumps(report, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+                     allow_nan=False).encode("ascii")
+    with report_path.open("xb") as output:
+        output.write(raw)
+        output.flush()
+        os.fsync(output.fileno())
+    if os.name == "posix":
+        directory_fd = os.open(report_path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    return hashlib.sha256(raw).hexdigest()
+
+
 def observe_and_record(*, observe_args, expected_context, report_path, append):
     """Persist and journal a supervisor's report as diagnostic evidence only.
 
@@ -217,22 +234,30 @@ def observe_and_record(*, observe_args, expected_context, report_path, append):
         raise ValueError("a new external report path is required")
     if not callable(expected_context):
         raise TypeError("an independent expected-context provider is required")
-    report, process = peak_supervisor.observe(**observe_args)
+    try:
+        report, process = peak_supervisor.observe(**observe_args)
+    except peak_supervisor.SupervisorFailure as failure:
+        # A runner may OOM before it sends READY.  Preserve best-effort
+        # memory.events and process ownership even when no successful peak
+        # receipt exists.  A failed persistence never hides the original
+        # exception or its child handle.
+        if isinstance(failure.evidence, dict):
+            try:
+                evidence_sha = _persist_report(report_path, failure.evidence)
+                failure.evidence_path = str(report_path)
+                failure.evidence_sha256 = evidence_sha
+                append("campaign.memory_peak_diagnostic_failed", {
+                    "report_path": str(report_path), "report_bytes_sha256": evidence_sha,
+                    "oom_observed": failure.evidence.get("oom_observed") is True,
+                    "all_groups_read": failure.evidence.get("all_groups_read") is True,
+                    "runtime_admission": False, "scored_qualification": False})
+            except BaseException as recording_error:
+                failure.evidence_persistence_error = repr(recording_error)
+        raise
     try:
         expected = expected_context()
         peak_receipt.inspect_diagnostic(report, expected=expected)
-        raw = json.dumps(report, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii")
-        with report_path.open("xb") as output:
-            output.write(raw)
-            output.flush()
-            os.fsync(output.fileno())
-        if os.name == "posix":
-            directory_fd = os.open(report_path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-            try:
-                os.fsync(directory_fd)
-            finally:
-                os.close(directory_fd)
-        raw_sha256 = hashlib.sha256(raw).hexdigest()
+        raw_sha256 = _persist_report(report_path, report)
         def append_with_evidence(event, data):
             append(event, {**data, "report_path": str(report_path), "report_bytes_sha256": raw_sha256})
         receipt = peak_receipt.record_diagnostic(append_with_evidence, report, expected=expected)

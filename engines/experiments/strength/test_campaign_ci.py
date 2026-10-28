@@ -937,7 +937,11 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
     def test_hidden_modified_materializer_or_imported_sibling_is_rejected_before_download(self):
         for relative in ("engines/experiments/strength/cloud_runtime.py", "engines/experiments/strength/aws.py",
                          "engines/experiments/strength/memory_observation.py",
-                         "engines/scripts/league_resource_profiles.py"):
+                         "engines/experiments/strength/functional_uci_probe.py",
+                         "engines/experiments/strength/functional_probe_session.py",
+                         "engines/scripts/league_resource_profiles.py",
+                         "engines/experiments/tcec-scope/verify.py",
+                         "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
             for hidden in ("--assume-unchanged", "--skip-worktree"):
                 with self.subTest(relative=relative, hidden=hidden), tempfile.TemporaryDirectory(prefix="rove-ci-materializer-hidden-") as directory:
                     root = Path(directory)
@@ -995,7 +999,10 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
     def test_prior_league_module_declarations_remain_bindable(self):
         old_declarations = (("memory_observation",),
             ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity",
-             "peak_probe_session", "peak_ready_probe", "peak_receipt", "peak_supervisor"))
+             "peak_probe_session", "peak_ready_probe", "peak_receipt", "peak_supervisor"),
+            ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity",
+             "peak_probe_session", "peak_ready_probe", "peak_receipt", "peak_supervisor",
+             "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer"))
         for old_modules in old_declarations:
             with self.subTest(old_modules=old_modules), tempfile.TemporaryDirectory(prefix="rove-ci-prior-league-materializer-") as directory:
                 origin = Path(directory) / "original-git"
@@ -1007,13 +1014,36 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
                 lines = raw.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(old_modules) + "\n"]
+                raw = "".join(lines)
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_CORE_R")
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ['LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)\n']
                 path.write_text("".join(lines), encoding="utf-8")
-                self.git(origin, "add", "--", "engines/experiments/strength/seed.py")
+                # Model the historical cloud declaration too: an actual new
+                # cloud source that declares the functional CLI must not be
+                # bound to an old seed inventory.
+                cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
+                cloud = cloud_path.read_text(encoding="utf-8")
+                cloud_node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
+                                  and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                  and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                old_cloud = tuple("engines/experiments/strength/" + name + ".py" for name in old_modules)
+                old_cloud += ("engines/scripts/league_resource_profiles.py",)
+                cloud_lines = cloud.splitlines(keepends=True)
+                cloud_lines[cloud_node.lineno - 1:cloud_node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(old_cloud) + "\n"]
+                cloud_path.write_text("".join(cloud_lines), encoding="utf-8")
+                self.git(origin, "add", "--", "engines/experiments/strength/seed.py",
+                         "engines/experiments/strength/cloud_runtime.py")
                 self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "prior league closure")
                 head = self.git(origin, "rev-parse", "HEAD").decode().strip()
                 result = ci.bind_materializer_source(origin, head, out=Path(directory) / "materializer")
                 self.assertEqual(result["source_commit"], head)
-                self.assertNotIn("engines/experiments/strength/rove_vma_observer.py", result["members"])
+                self.assertNotIn("engines/experiments/strength/functional_uci_probe.py", result["members"])
+                self.assertNotIn("engines/experiments/strength/functional_probe_session.py", result["members"])
+                self.assertEqual("engines/experiments/strength/rove_vma_observer.py" in result["members"],
+                                 "rove_vma_observer" in old_modules)
 
     def test_missing_league_blob_is_rejected_before_materializer_import(self):
         for name in ("engines/experiments/strength/memory_observation.py",
@@ -1028,12 +1058,72 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/rove_runtime_observation.py",
                      "engines/experiments/strength/rove_worker_observer.py",
                      "engines/experiments/strength/rove_vma_observer.py",
-                     "engines/scripts/league_resource_profiles.py"):
+                     "engines/experiments/strength/functional_uci_probe.py",
+                     "engines/experiments/strength/functional_probe_session.py",
+                     "engines/scripts/league_resource_profiles.py",
+                     "engines/experiments/tcec-scope/verify.py",
+                     "engines/compact/tiny-entry-d/verify.py",
+                     "engines/tests/chess_oracle.py"):
             with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="rove-ci-league-missing-") as directory:
                 root = Path(directory)
                 origin = root / "original-git"
                 head = self.make_materializer_origin(origin, omit=(name,))
                 self.rejected_materializer_request(root, origin, head, "materializer source closure is missing")
+
+    def test_current_functional_cloud_rejects_downgraded_seed_inventory(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-functional-downgrade-") as directory:
+            root = Path(directory)
+            origin = root / "original-git"
+            self.make_materializer_origin(origin)
+            path = origin / "engines/experiments/strength/seed.py"
+            raw = path.read_text(encoding="utf-8")
+            tree = ast.parse(raw)
+            declarations = {node.targets[0].id: node for node in tree.body
+                            if isinstance(node, ast.Assign) and len(node.targets) == 1
+                            and isinstance(node.targets[0], ast.Name)}
+            modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)
+            core = ast.literal_eval(declarations["LEAGUE_CORE_R"].value)
+            self.assertEqual(modules[-2:], ("functional_uci_probe", "functional_probe_session"))
+            self.assertEqual(len(core), 4)
+            lines = raw.splitlines(keepends=True)
+            for name, value in sorted((("LEAGUE_HOST_MODULES", modules[:-2]),
+                                       ("LEAGUE_CORE_R", core[:1])),
+                                      key=lambda item: declarations[item[0]].lineno, reverse=True):
+                node = declarations[name]
+                lines[node.lineno - 1:node.end_lineno] = [name + " = " + repr(value) + "\n"]
+            path.write_text("".join(lines), encoding="utf-8")
+            self.git(origin, "add", "--", "engines/experiments/strength/seed.py")
+            self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "downgraded seed inventory")
+            head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+            with self.assertRaisesRegex(ValueError, "functional diagnostic source closure is incomplete"):
+                ci.bind_materializer_source(origin, head)
+
+    def test_functional_cli_runs_isolated_from_bound_materializer(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-functional-cli-") as directory:
+            root = Path(directory)
+            origin = root / "original-git"
+            head = self.make_materializer_origin(origin)
+            out = root / "materializer"
+            proof = ci.bind_materializer_source(origin, head, out=out)
+            entry = "engines/experiments/strength/functional_uci_probe.py"
+            self.assertIn(entry, proof["members"])
+            for name in ("engines/experiments/tcec-scope/verify.py",
+                         "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
+                self.assertIn(name, proof["members"])
+            result = subprocess.run([sys.executable, "-I", "-B", str(out / entry), "--help"],
+                                    capture_output=True, timeout=30,
+                                    env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            self.assertIn(b"--candidates-sha256", result.stdout)
+            self.assertIn(b"--placement-sha256", result.stdout)
+            session = "engines/experiments/strength/functional_probe_session.py"
+            self.assertIn(session, proof["members"])
+            result = subprocess.run([sys.executable, "-I", "-B", str(out / session), "--help"],
+                                    capture_output=True, timeout=30,
+                                    env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            self.assertIn(b"--candidates-sha256", result.stdout)
+            self.assertIn(b"--root", result.stdout)
 
     def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):
         def omit_league(body):

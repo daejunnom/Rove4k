@@ -33,9 +33,9 @@ class CapacityTests(unittest.TestCase):
                            {"id": "a", "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 100},
                            {"id": "b", "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 100}]}]
         self.groups = {self.slot.id: {"path": self.games[0]["path"], "device": 1, "inode": 10,
-                         "cpus": list(self.slot.cpus), "memory_nodes": [0, 1], "memory_max": 400}}
+                         "cpus": list(self.slot.cpus), "memory_nodes": [0, 1], "memory_max": 220}}
         self.controller = {"path": str(self.root / "controller"), "device": 1, "inode": 11,
-                           "cpus": list(self.slot.cpus), "memory_nodes": [0, 1], "memory_max": 500}
+                           "cpus": list(self.slot.cpus), "memory_nodes": [0, 1], "memory_max": 30}
         self.expected_controller = self.controller["path"]
         self.make_empty_group(Path(self.games[0]["path"]))
         self.make_empty_group(Path(self.controller["path"]))
@@ -86,6 +86,7 @@ class CapacityTests(unittest.TestCase):
             self.assertIn(term, reasons)
         self.assertEqual(result["capacity"]["boot_id"], self.observation["boot_id"])
         self.assertTrue(result["source_sha256"])
+        self.assertIn("reclaimable cache excluded", result["arithmetic"]["node_capacity_basis"])
 
     def test_legacy_and_unknown_profiles_are_rejected(self):
         for profile in ("test-p4", "test-p28", "unknown"):
@@ -102,6 +103,19 @@ class CapacityTests(unittest.TestCase):
         self.groups[self.slot.id]["memory_max"] = 199
         with self.assertRaises(ValueError):
             self.inspect()
+
+    def test_kernel_limits_not_just_declared_extents_bound_cohort(self):
+        # A caller may create leaves larger than the estimates. The kernel
+        # can charge the full limits; admission must cover that upper bound.
+        self.groups[self.slot.id]["memory_max"] = 300
+        self.controller["memory_max"] = 50
+        self.observation["host_memavailable_bytes"] = 349
+        with self.assertRaisesRegex(ValueError, "capacity"):
+            self.inspect()
+        self.observation["host_memavailable_bytes"] = 350
+        result = self.inspect()
+        self.assertEqual(result["arithmetic"]["required_bytes"], 350)
+        self.assertEqual(result["arithmetic"]["games"][0]["memory_max_bytes"], 300)
 
     def test_observer_only_limit_does_not_reduce_target_cohort_capacity(self):
         self.observation["controller_cgroup"][0].update(limit_bytes=10, remaining_bytes=10)
@@ -274,7 +288,7 @@ class CapacityTests(unittest.TestCase):
             self.games.append({"slot": slot.id, "path": path, "cpus": list(cpus), "nodes": [node],
                                "artifacts": [{"tt_bytes": 100}, {"tt_bytes": 100}]})
             self.groups[slot.id] = {"path": path, "device": 1, "inode": index + 20,
-                                    "cpus": list(cpus), "memory_nodes": [node], "memory_max": 400}
+                                    "cpus": list(cpus), "memory_nodes": [node], "memory_max": 220}
         self.controller_cpus = list(range(176, 192))
         self.controller["cpus"] = self.controller_cpus
         self.slot_records = [slot.to_record() for slot in self.slots]

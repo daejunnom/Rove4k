@@ -80,7 +80,9 @@ class Fixture:
             (path / "task" / str(tid)).mkdir()
             self.cpu_masks[tid] = set(cpus)
 
-    def active(self):
+    def active(self, *, engine_threads=None):
+        if engine_threads is None:
+            engine_threads = self.workers
         controller_pid = 42
         control_cpus = tuple(range(176, 192)) if self.workers == 16 else tuple(range(192))
         self.process(controller_pid, CONTROLLER, control_cpus)
@@ -91,8 +93,8 @@ class Fixture:
         for i, game in enumerate(self.games):
             runner, engine1, engine2 = 1000 + i * 10, 1001 + i * 10, 1002 + i * 10
             self.process(runner, RUNNER, game["cpus"])
-            self.process(engine1, ENGINE1, game["cpus"], threads=self.workers)
-            self.process(engine2, ENGINE2, game["cpus"], threads=self.workers)
+            self.process(engine1, ENGINE1, game["cpus"], threads=engine_threads)
+            self.process(engine2, ENGINE2, game["cpus"], threads=engine_threads)
             group = game["path"]
             (group / "cgroup.procs").write_text(f"{runner}\n{engine1}\n{engine2}\n")
             (group / "cgroup.events").write_text("populated 1\nfrozen 0\n")
@@ -178,6 +180,36 @@ class CohortPeakObservationTests(unittest.TestCase):
             self.assertEqual(result["arithmetic"]["all_in_cohort_envelope_bytes"], 1570)
             self.assertFalse(result["physical_topology_verified"])
 
+    def test_ready_records_lazy_workers_without_claiming_search_or_activity(self):
+        for profile, requested_workers in (("test-p16", 16), ("test-p192", 192)):
+            with self.subTest(profile=profile), tempfile.TemporaryDirectory() as tmp:
+                fixture = Fixture(tmp, profile)
+                fixture.observer.begin()
+                sample = fixture.active(engine_threads=1)
+                for game in sample["games"]:
+                    for engine in game["engines"]:
+                        self.assertEqual(engine["observed_thread_count"], 1)
+                        self.assertEqual(engine["requested_worker_count"], requested_workers)
+                        self.assertEqual(engine["thread_ids"], [engine["pid"]])
+                        self.assertEqual(engine["thread_affinities"], [
+                            {"tid": engine["pid"], "cpu_mask": game["cpus"]}])
+                        self.assertFalse(engine["worker_set_complete_verified"])
+                        self.assertFalse(engine["worker_cpu_activity_verified"])
+                fixture.end_games()
+                result = fixture.observer.finish(per_game_headroom_bytes=50, controller_headroom_bytes=20)
+                self.assertFalse(result["worker_completeness_verified"])
+                self.assertFalse(result["worker_cpu_activity_verified"])
+                self.assertFalse(result["representative_search_workload_verified"])
+                self.assertFalse(result["runtime_admission"])
+                self.assertFalse(result["scored_qualification"])
+
+    def test_ready_requires_actual_engine_leader_thread(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = Fixture(tmp, "test-p192")
+            fixture.observer.begin()
+            with self.assertRaisesRegex(ValueError, "leader thread"):
+                fixture.active(engine_threads=0)
+
     def test_reused_group_and_wrong_cohort_geometry_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             fixture = Fixture(tmp)
@@ -225,7 +257,7 @@ class CohortPeakObservationTests(unittest.TestCase):
             fixture.active()
             pid = fixture.members["slot-000"]["engines"][0]
             fixture.cpu_masks[pid * 1000 + 1] = {16}
-            with self.assertRaisesRegex(ValueError, "worker affinity"):
+            with self.assertRaisesRegex(ValueError, "thread affinity"):
                 fixture.observer.sample_active(members=fixture.members, controller_pid=42, controller_sha256=sha(CONTROLLER))
 
     def test_controller_image_identity_and_sample_count_are_bounded(self):

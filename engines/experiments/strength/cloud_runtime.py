@@ -92,7 +92,12 @@ LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py"
                             "engines/experiments/strength/rove_runtime_observation.py",
                             "engines/experiments/strength/rove_worker_observer.py",
                             "engines/experiments/strength/rove_vma_observer.py",
-                            "engines/scripts/league_resource_profiles.py")
+                            "engines/experiments/strength/functional_uci_probe.py",
+                            "engines/experiments/strength/functional_probe_session.py",
+                            "engines/scripts/league_resource_profiles.py",
+                            "engines/experiments/tcec-scope/verify.py",
+                            "engines/compact/tiny-entry-d/verify.py",
+                            "engines/tests/chess_oracle.py")
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 
 

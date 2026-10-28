@@ -367,13 +367,31 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         # source dependencies before even its seed materializer is imported.
         # Older source revisions without either declaration retain their
         # original materializer closure and validation behavior.
-        require(values["LEAGUE_HOST_MODULES"] in (("memory_observation",),
-                ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                 "peak_receipt", "peak_supervisor"),
-                ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                 "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer"))
-                and values["LEAGUE_CORE_R"] == ("engines/scripts/league_resource_profiles.py",),
+        require((values["LEAGUE_HOST_MODULES"], values["LEAGUE_CORE_R"]) in (
+                (("memory_observation",), ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor"), ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer"),
+                 ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
+        cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
+        cloud_declarations = [node for node in ast.parse(cloud_source).body if isinstance(node, ast.Assign)
+                              and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                              and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES"]
+        if cloud_declarations:
+            require(len(cloud_declarations) == 1, "duplicate committed league host source declaration")
+            cloud_names = ast.literal_eval(cloud_declarations[0].value)
+            require(type(cloud_names) is tuple and all(isinstance(name, str) for name in cloud_names),
+                    "static committed league host source declaration required")
+            if any(name.endswith(("/functional_uci_probe.py", "/functional_probe_session.py")) for name in cloud_names):
+                require({"functional_uci_probe", "functional_probe_session"} <= set(values["LEAGUE_HOST_MODULES"])
+                        and len(values["LEAGUE_CORE_R"]) == 4,
+                        "committed functional diagnostic source closure is incomplete")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
         names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")

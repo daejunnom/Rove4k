@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import base64
+from contextlib import nullcontext
 import json
 import os
 from pathlib import Path
@@ -1025,6 +1026,8 @@ time.sleep(.1)
                             "opening_sha256": "c" * 64, "bank_id": "d" * 64}
 
                 class Mailbox:
+                    def can_release(self, job, observation, fence): return True
+                    def release_guard(self, job, observation, fence): return nullcontext(True)
                     def request(self, job, observation):
                         binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
                                              sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
@@ -1192,6 +1195,8 @@ if data.startswith(b'GO2 '): open(sys.argv[1], 'w').write('GO')
             job = wave.WaveJob("launch-1", (sys.executable, str(script), str(marker)), {}, start_job, root / "out")
 
             class Mailbox:
+                def can_release(self, job, observation, fence): return True
+                def release_guard(self, job, observation, fence): return nullcontext(True)
                 def request(self, item, observation):
                     binding = json.dumps({"identity": item.identity, "start_job": item.start_job},
                                          sort_keys=True, allow_nan=False, separators=(",", ":")).encode()

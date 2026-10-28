@@ -177,15 +177,22 @@ def _source_evidence(evidence, artifact, whole, source, native):
     raise ValueError("unknown or mismatched diagnostic source evidence")
 
 
-def read_candidates(path, expected_sha256, profile):
-    """Check candidate bytes and profile, deliberately without score admission."""
+def read_candidates(path, expected_sha256, profile, *, allow_single=False):
+    """Check pinned candidates without granting score or runtime admission.
+
+    Cohort preparation requires at least two candidates by default. A caller
+    running exactly one functional diagnostic may explicitly allow a single
+    candidate; every source, whole, native and profile check remains the same.
+    """
+    if type(allow_single) is not bool:
+        raise ValueError("allow_single must be an explicit boolean")
     if not isinstance(expected_sha256, str) or not run.SHA.fullmatch(expected_sha256):
         raise ValueError("an independently supplied candidate registry digest is required")
     value, digest = run.json_input(_safe_input_path(path), expected_sha256)
     if (type(value) is not dict or set(value) != {"format", "profile", "candidates"} or
             value["format"] != "rove4k-diagnostic-candidate-set-v1" or value["profile"] != profile or
             profile not in ("test-p16", "test-p192") or type(value["candidates"]) is not list or
-            not 2 <= len(value["candidates"]) <= 32):
+            not (1 if allow_single else 2) <= len(value["candidates"]) <= 32):
         raise ValueError("named diagnostic candidate set and TEST profile required")
     candidates, ids = [], set()
     for row in value["candidates"]:

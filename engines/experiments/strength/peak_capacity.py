@@ -141,10 +141,16 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
         if any(value > (192 << 30 if profile == "test-p192" else 16 << 30) for value in extents):
             raise ValueError("engine TT extent differs from the named profile")
         tt = sum(extents)
-        amount = tt + per_game
-        if live["memory_max"] < amount:
+        declared = tt + per_game
+        if live["memory_max"] < declared:
             raise ValueError("game cgroup memory limit is below TT and declared headroom")
-        game_extents.append({"slot": slot.id, "tt_bytes": tt, "declared_required_bytes": amount})
+        # memory.max is the kernel's actual upper bound for the whole leaf.
+        # It may exceed the caller's estimate because of page alignment or a
+        # deliberately larger limit. Capacity must cover that entire bound.
+        amount = live["memory_max"]
+        game_extents.append({"slot": slot.id, "tt_bytes": tt,
+                             "declared_required_bytes": declared,
+                             "memory_max_bytes": amount})
         all_groups.append(live)
         if profile == "test-p16":
             if len(slot.memory_nodes) != 1:
@@ -171,7 +177,7 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
             observation.get("delegated_effective_cpus") != list(current.allowed_cpus) or
             observation.get("delegated_effective_nodes") != list(current.allowed_nodes)):
         raise ValueError("capacity observation is not bound to actual slots or the target cgroup identity")
-    required = sum(row["declared_required_bytes"] for row in game_extents) + reserve
+    required = sum(row["memory_max_bytes"] for row in game_extents) + live_controller["memory_max"]
     host_available = _positive(observation["host_memavailable_bytes"], "host available memory")
     target_bounds = _finite_remaining(observation["delegated_cgroup"])
     observer_bounds = _finite_remaining(observation["controller_cgroup"])
@@ -187,21 +193,21 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
     if any(node not in node_available for node in controller_nodes):
         raise ValueError("controller permitted-node capacity observations are incomplete")
     if sum(node_available[node] for node in controller_nodes) < required:
-        raise ValueError("controller permitted-node aggregate capacity is below the cohort extent")
+        raise ValueError("controller permitted-node MemFree capacity is below the cohort extent; reclaimable cache is excluded")
     node_conservative_controller_fits = {}
     if profile == "test-p16":
         for node, amount in node_games.items():
             if node not in node_available or node_available[node] < amount:
-                raise ValueError("NUMA node capacity is below the node-local games")
+                raise ValueError("NUMA node MemFree capacity is below the node-local games; reclaimable cache is excluded")
             # Charging the entire controller reserve to each node is a
             # useful worst case, not a necessary condition when allocations
             # can be split across nodes. The actual distribution is unknown.
-            node_conservative_controller_fits[node] = node_available[node] >= amount + reserve
+            node_conservative_controller_fits[node] = node_available[node] >= amount + live_controller["memory_max"]
     else:
         nodes = slots[0].memory_nodes
-        game_required = required - reserve
+        game_required = required - live_controller["memory_max"]
         if any(node not in node_available for node in nodes) or sum(node_available[node] for node in nodes) < game_required:
-            raise ValueError("P192 game-node aggregate capacity is below game extent")
+            raise ValueError("P192 game-node MemFree capacity is below game extent; reclaimable cache is excluded")
     return {"format": "rove4k-diagnostic-capacity-assessment-v1", "profile": profile,
             "boot_id": observation["boot_id"], "capacity": observation,
             "target_common_parent": {"path": str(common_parent), "device": parent_stat.st_dev,
@@ -213,11 +219,13 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
                               **{name: _source_sha(Path(__file__).with_name(name + ".py"))
                                  for name in ("peak_supervisor", "peak_probe_session", "peak_ready_probe", "overhead")}},
             "arithmetic": {"games": game_extents, "controller_reserve_bytes": reserve,
+                           "controller_memory_max_bytes": live_controller["memory_max"],
                            "required_bytes": required, "node_game_bytes": node_games,
                            "target_available_bytes": target_available,
                            "observer_visible_remaining_bytes": observer_available,
                            "observer_future_headroom_verified": False,
                            "node_controller_reserve_worst_case_fits": node_conservative_controller_fits,
+                           "node_capacity_basis": "kernel node MemFree; reclaimable cache excluded; no reservation",
                            "controller_node_distribution_verified": False,
                            "controller_node_aggregate_arithmetic_checked": True,
                            "overhead_is_declared_not_verified": True,

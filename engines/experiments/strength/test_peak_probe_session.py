@@ -74,8 +74,8 @@ class ProbeSessionTests(unittest.TestCase):
         self.run_case(tt_mismatch=True)
 
     def test_owned_cohort_creates_two_tt_extents_and_never_cleans_live_child(self):
-        # This is a group-manager fixture; it neither creates kernel cgroups
-        # nor bypasses the production supervisor's CapacityPending guard.
+        # This group-manager fixture does not create real kernel cgroups. An
+        # insufficient live preflight must fail before any controller launch.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
@@ -131,9 +131,9 @@ class ProbeSessionTests(unittest.TestCase):
                 with patch.object(session.placement, "verify_cgroup_live", side_effect=lambda row: row), \
                      patch.object(session.overhead, "_sha_file", return_value="e" * 64), \
                      patch.object(Path, "read_text", return_value="12345678-1234-1234-1234-123456789abc"), \
-                     patch.object(session.peak_capacity, "inspect_capacity", return_value={"runtime_admission": False}), \
+                     patch.object(session.peak_capacity, "inspect_capacity", side_effect=ValueError("insufficient live capacity")), \
                      patch.object(session.peak_supervisor.subprocess, "Popen") as popen:
-                    with self.assertRaises(session.peak_supervisor.CapacityPending):
+                    with self.assertRaisesRegex(ValueError, "insufficient live capacity"):
                         owner.observe(report_path=root / "pending.json", append=lambda *_: None)
                     popen.assert_not_called()
                 live = SimpleNamespace(pid=4321, poll=lambda: None)

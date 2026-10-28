@@ -732,6 +732,106 @@ finally:
             with self.assertRaisesRegex(ValueError, "owned cgroup"):
                 placement.apply_slot({"cpus": [8], "memory_nodes": [0]}, saved_ancestor_cpus=[7, 8])
 
+    @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
+    def test_owned_sibling_nodes_use_explicit_ancestor_envelope_and_live_readback(self):
+        # Ordinary temporary files stand in for cgroupfs. This checks ordering
+        # and refusal behavior, not a real kernel cpuset or memory reservation.
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp).resolve()
+            group = parent / "slot-000"
+            group.mkdir()
+            (parent / "cpuset.mems.effective").write_text("0-1\n")
+            (group / "cpuset.cpus.effective").write_text("2-3\n")
+            (group / "cpuset.mems.effective").write_text("1\n")
+            (group / "memory.max").write_text("4096\n")
+            # The production code writes without O_TRUNC, as required for
+            # cgroupfs. A one-byte sentinel avoids regular-file trailing bytes.
+            (group / "cgroup.procs").write_text("x")
+            st = group.stat()
+            receipt = {"path": str(group), "device": st.st_dev, "inode": st.st_ino,
+                       "cpus": [2, 3], "memory_nodes": [1], "memory_max": 4096}
+            slot = {"cpus": [2, 3], "memory_nodes": [1], "policy": "inherit"}
+            actual_read = Path.read_text
+            actual_stat = os.stat
+
+            def run_case(*, group_receipt=receipt, cpus=[2, 3], nodes=[0, 1],
+                         parent_mems="0-1\n", online_mems="0-1\n", after_nodes={1},
+                         changed_leaf_at_join=False, changed_parent_at_join=False,
+                         expect_error=False, expect_moved=False):
+                (parent / "cpuset.mems.effective").write_text(parent_mems)
+                (group / "cgroup.procs").write_text("x")
+
+                def read(path, *args, **kwargs):
+                    if str(path) == "/sys/devices/system/node/online":
+                        return online_mems
+                    if str(path) == "/sys/devices/system/cpu/online":
+                        return "2-3\n"
+                    return actual_read(path, *args, **kwargs)
+
+                def stat(path, *args, **kwargs):
+                    result = actual_stat(path, *args, **kwargs)
+                    leaf_at = (str(path) == group.name and kwargs.get("dir_fd") is not None)
+                    parent_path = (str(path) == str(parent) and kwargs.get("follow_symlinks", True))
+                    if (changed_leaf_at_join and leaf_at) or (changed_parent_at_join and parent_path):
+                        return SimpleNamespace(st_dev=result.st_dev, st_ino=result.st_ino + 1)
+                    return result
+
+                with patch.object(Path, "read_text", autospec=True, side_effect=read), \
+                     patch.object(placement.os, "stat", side_effect=stat), \
+                     patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+                     patch.object(placement.os, "sched_setaffinity") as affinity, \
+                     patch.object(placement, "allowed_nodes", side_effect=[{0}, after_nodes]), \
+                     patch.object(placement, "memory_policy", return_value={"available": False}):
+                    if expect_error:
+                        with self.assertRaises((ValueError, OSError)):
+                            placement.apply_slot(slot, cgroup=group_receipt,
+                                                 saved_ancestor_cpus=cpus,
+                                                 saved_ancestor_nodes=nodes)
+                    else:
+                        result = placement.apply_slot(slot, cgroup=group_receipt,
+                                                      saved_ancestor_cpus=cpus,
+                                                      saved_ancestor_nodes=nodes)
+                        self.assertEqual(result["original_allowed_nodes"], [0])
+                        self.assertEqual(result["effective_allowed_nodes"], [1])
+                        self.assertEqual(result["cgroup"]["inode"], st.st_ino)
+                        affinity.assert_called_once()
+                expected = str(os.getpid()) if expect_moved else "x"
+                self.assertEqual((group / "cgroup.procs").read_text(), expected)
+
+            # The current sibling is node 0; the real target receipt and its
+            # parent permit node 1. Move first, then require target readback.
+            run_case(expect_moved=True)
+            for label, kwargs in (
+                    ("parent-does-not-allow", {"parent_mems": "0\n"}),
+                    ("node-not-online", {"online_mems": "0\n"}),
+                    ("saved-envelope-too-wide", {"nodes": [0, 1, 2], "parent_mems": "0-1\n", "online_mems": "0-2\n"}),
+                    ("saved-envelope-excludes-target", {"nodes": [0]}),
+                    ("missing-cpu-envelope", {"cpus": None}),
+                    ("missing-node-envelope", {"nodes": None}),
+                    ("empty-node-envelope", {"nodes": []}),
+                    ("node-list-negative", {"nodes": [-1, 1]}),
+                    ("changed-group-inode", {"group_receipt": {**receipt, "inode": st.st_ino + 1}}),
+                    ("changed-group-device", {"group_receipt": {**receipt, "device": st.st_dev + 1}}),
+                    ("replaced-leaf-at-join", {"changed_leaf_at_join": True}),
+                    ("replaced-parent-at-join", {"changed_parent_at_join": True}),
+                    ("node-list-duplicate", {"nodes": [0, 1, 1]}),
+                    ("node-list-boolean", {"nodes": [False, 1]})):
+                with self.subTest(label=label):
+                    run_case(**kwargs, expect_error=True)
+            # A successful write to cgroup.procs is not a successful
+            # placement if the observed nodes after the move still differ.
+            run_case(after_nodes={0}, expect_error=True, expect_moved=True)
+
+    @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
+    def test_ancestor_nodes_cannot_authorize_an_unowned_move(self):
+        with patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+             patch.object(placement, "allowed_nodes", return_value={0}), \
+             patch.object(placement.os, "sched_setaffinity") as affinity:
+            with self.assertRaises(ValueError):
+                placement.apply_slot({"cpus": [2, 3], "memory_nodes": [1]},
+                                     saved_ancestor_cpus=[2, 3], saved_ancestor_nodes=[0, 1])
+            affinity.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

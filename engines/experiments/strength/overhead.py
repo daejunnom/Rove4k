@@ -254,7 +254,7 @@ class CohortPeakObserver:
         return {"boot_id": self.boot_id, "started_ns": self.started_ns,
                 "fresh_empty_groups": len(self.groups), "runtime_admission": False}
 
-    def _process(self, pid, expected_sha, group, *, require_workers=False):
+    def _process(self, pid, expected_sha, group, *, observe_threads=False):
         before = _stat(self.proc_root, pid)
         executable = self.proc_root / str(pid) / "exe"
         file_before = executable.stat()
@@ -268,25 +268,32 @@ class CohortPeakObserver:
                        file_after.st_mtime_ns, file_after.st_ctime_ns)
         if before != after or image_before != image_after or actual != expected_sha or not mask or not mask <= set(group.cpus):
             raise ValueError("live process identity, executable or affinity differs")
-        threads = []
-        if require_workers:
+        threads, thread_affinities = [], []
+        if observe_threads:
             for task in (self.proc_root / str(pid) / "task").iterdir():
                 if not task.name.isdecimal():
                     continue
                 tid = int(task.name)
+                if tid <= 0:
+                    raise ValueError("invalid engine thread identity")
                 affinity = set(self.affinity(tid))
                 if not affinity or not affinity <= set(group.cpus):
-                    raise ValueError("worker affinity escapes game slot")
+                    raise ValueError("thread affinity escapes game slot")
                 threads.append(tid)
-            if len(threads) < self.workers:
-                raise ValueError("actual live engine thread count is below the worker count")
+                thread_affinities.append({"tid": tid, "cpu_mask": sorted(affinity)})
+            if not threads or pid not in threads:
+                raise ValueError("engine leader thread was not observed")
             if _stat(self.proc_root, pid) != before:
-                raise ValueError("engine identity changed during worker observation")
+                raise ValueError("engine identity changed during thread observation")
         return {**before, "native_sha256": actual,
                 "executable_identity": {"device": image_before[0], "inode": image_before[1],
                                         "bytes": image_before[2], "mtime_ns": image_before[3],
                                         "ctime_ns": image_before[4]},
-                "cpu_mask": sorted(mask), "thread_ids": sorted(threads)}
+                "cpu_mask": sorted(mask), "thread_ids": sorted(threads),
+                "thread_affinities": sorted(thread_affinities, key=lambda row: row["tid"]),
+                "observed_thread_count": len(threads) if observe_threads else None,
+                "requested_worker_count": self.workers if observe_threads else None,
+                "worker_set_complete_verified": False, "worker_cpu_activity_verified": False}
 
     def sample_active(self, *, members, controller_pid, controller_sha256):
         """Sample all simultaneous game members and controller while alive.
@@ -324,7 +331,7 @@ class CohortPeakObserver:
                 raise ValueError("a live process cannot belong to multiple game slots")
             all_pids.update(pids)
             runner = self._process(row["runner"], self.runner_sha256, group)
-            engines = [self._process(pid, artifact["native_sha256"], group, require_workers=True)
+            engines = [self._process(pid, artifact["native_sha256"], group, observe_threads=True)
                        for pid, artifact in zip(row["engines"], game["artifacts"])]
             identities[game["slot"]] = [(p["pid"], p["start_ticks"]) for p in [runner, *engines]]
             observed.append({"slot": game["slot"], "cgroup": {"device": group.device, "inode": group.inode},
@@ -454,6 +461,7 @@ class CohortPeakObserver:
                   "game_groups_empty_observed": True, "controller_cleanup_observed": False,
                   "artifact_source_provenance_verified": False, "all_tt_resident_verified": False,
                   "representative_search_workload_verified": False, "future_peak_bound_verified": False,
+                  "worker_completeness_verified": False, "worker_cpu_activity_verified": False,
                   "external_cgroup_writer_excluded": False, "process_charges_complete": False,
                   "executable_continuity_verified": False,
                   "observer_loaded_source_verified": False,

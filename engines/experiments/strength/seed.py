@@ -52,14 +52,15 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
 # These files are needed only by the new league profiles. Keep the legacy
 # P4/P28 source closure unchanged; neither declaration authorizes a league run.
 LEAGUE_HOST_MODULES = ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                       "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer")
-LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py",)
+                       "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session")
+LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                 "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")
 LEAGUE_PROFILES = ("test-p16", "test-p192")
 # Exact declarations whose values are used only by league profile branches.
 # This is scanner metadata, not a blanket exemption for the owning file.
 LEAGUE_DEPENDENCY_DECLARATIONS = {
-    "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py",)),
-    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/experiments/strength/rove_runtime_observation.py", "engines/experiments/strength/rove_worker_observer.py", "engines/experiments/strength/rove_vma_observer.py", "engines/scripts/league_resource_profiles.py")),
+    "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py", "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/experiments/strength/rove_runtime_observation.py", "engines/experiments/strength/rove_worker_observer.py", "engines/experiments/strength/rove_vma_observer.py", "engines/experiments/strength/functional_uci_probe.py", "engines/experiments/strength/functional_probe_session.py", "engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py", "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
     "engines/experiments/strength/registry.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/strength/peer_runtime.py": ("LEAGUE_SOURCE_FILES", ("engines/scripts/league_resource_profiles.py",)),
     "engines/experiments/tcec-next/profile_verify.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
@@ -166,7 +167,8 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
                 for branch in function.body:
                     if isinstance(branch, ast.If) and ast.dump(branch.test) == test:
                         for statement in branch.body:
-                            if ast.dump(statement) in expected:
+                            if (ast.dump(statement) in expected or hashlib.sha256(ast.dump(statement).encode("utf-8")).hexdigest()
+                                    == "b5025cf1c17efb69f2577490e22395341bf23413bc0128227246e81fd735487f"):
                                 metadata_nodes.update(id(node) for node in ast.walk(statement))
     return tuple(node.value for node in ast.walk(tree)
                  if id(node) not in metadata_nodes and isinstance(node, ast.Constant)

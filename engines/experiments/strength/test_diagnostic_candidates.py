@@ -199,6 +199,87 @@ class DiagnosticCandidatesTests(unittest.TestCase):
                     candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
                 path.write_bytes(original)
 
+    def test_one_candidate_is_explicitly_allowed_only_for_single_diagnostics(self):
+        self.rows = self.rows[:1]
+        self.write_candidates()
+        for allow in (None, False):
+            with self.subTest(allow=allow), self.assertRaisesRegex(ValueError, "candidate set"):
+                if allow is None:
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+                else:
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                              allow_single=allow)
+        rows, digest = candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                                 allow_single=True)
+        self.assertEqual(digest, self.candidate_sha)
+        self.assertEqual([row["artifact"].id for row in rows], ["A"])
+        self.assertEqual(rows[0]["whole"], Path(self.rows[0]["artifact"]["path"]))
+        self.assertFalse(rows[0]["evidence"]["source_contract_verified"])
+        self.assertFalse(rows[0]["evidence"]["native_reference_files_replay_verified"])
+        with self.assertRaisesRegex(ValueError, "candidate set"):
+            self.build()
+        self.assertFalse((self.root / "out").exists())
+
+    def test_single_candidate_allow_flag_is_boolean_and_bounds_stay_enforced(self):
+        for flag in (None, 0, 1, "true", [], {}):
+            with self.subTest(flag=flag), self.assertRaisesRegex(ValueError, "explicit boolean"):
+                candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                          allow_single=flag)
+        self.rows = []
+        self.write_candidates()
+        with self.assertRaisesRegex(ValueError, "candidate set"):
+            candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+        row = {"invalid": "length is checked before rows"}
+        self.rows = [row] * 33
+        self.write_candidates()
+        with self.assertRaisesRegex(ValueError, "candidate set"):
+            candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+
+    def test_single_candidate_still_rejects_each_tamper_and_forbidden_engine(self):
+        self.rows = self.rows[:1]
+        self.write_candidates()
+        row = self.rows[0]
+        for kind, filename in (("source", row["source"]["path"]), ("native", row["native"]["path"]),
+                               ("whole", row["artifact"]["path"])):
+            with self.subTest(kind=kind):
+                path = Path(filename)
+                raw = path.read_bytes()
+                path.write_bytes(bytes([raw[0] ^ 1]) + raw[1:])
+                try:
+                    with self.assertRaisesRegex(ValueError, "pinned identity"):
+                        candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                                  allow_single=True)
+                finally:
+                    path.write_bytes(raw)
+        for changes in ({"family": "D"}, {"representation": "self-contained-elf"},
+                        {"full": False}, {"profile": "test-p192"}, {"tt_bytes": 1}):
+            with self.subTest(changes=changes):
+                original = dict(row["artifact"])
+                row["artifact"].update(changes)
+                self.write_candidates()
+                with self.assertRaises(ValueError):
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                              allow_single=True)
+                row["artifact"] = original
+        self.write_candidates()
+        with self.assertRaisesRegex(ValueError, "identity differs"):
+            candidate.read_candidates(self.candidate_path, "0" * 64, self.profile, allow_single=True)
+
+    def test_one_p192_candidate_keeps_profile_specific_resource_checks(self):
+        self.profile = "test-p192"
+        self.rows = self.rows[:1]
+        self.rows[0]["artifact"].update(profile=self.profile, workers=192,
+            tt_bytes=registry.resource_profile(self.profile).layout(24).bytes)
+        self.write_candidates()
+        rows, _ = candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                            allow_single=True)
+        self.assertEqual(rows[0]["artifact"].workers, 192)
+        self.assertEqual(rows[0]["artifact"].tt_bytes, 192 << 30)
+        self.rows[0]["artifact"]["workers"] = 16
+        self.write_candidates()
+        with self.assertRaises(ValueError):
+            candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+
     def test_registry_digest_and_profile_or_resource_mismatch_rejected(self):
         with self.assertRaisesRegex(ValueError, "identity differs"):
             candidate.read_candidates(self.candidate_path, "0" * 64, self.profile)

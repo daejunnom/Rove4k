@@ -577,7 +577,45 @@ def verify_cgroup_live(cgroup):
             "scope": "owned cgroup snapshot; not ancestor capacity, TT placement, reservation or future stability"}
 
 
-def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
+def _join_with_saved_node_envelope(path, observed, nodes, node_envelope):
+    """Join the original leaf only after its parent validates a saved envelope.
+
+    The caller must authenticate the original cgroup receipt and the saved
+    ancestor snapshot. Open directory handles prevent following a replacement
+    symlink while checking and writing; this does not exclude external writers.
+    """
+    if any(parent.is_symlink() for parent in (path, *path.parents)):
+        raise ValueError("owned cgroup path traverses a symlink")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    parent_fd = os.open(path.parent, flags)
+    child_fd = None
+    try:
+        parent_before = os.fstat(parent_fd)
+        child_fd = os.open(path.name, flags, dir_fd=parent_fd)
+        child_before = os.fstat(child_fd)
+        if (child_before.st_dev, child_before.st_ino) != (observed["device"], observed["inode"]):
+            raise ValueError("owned cgroup identity changed before joining")
+        online = parse_list(Path("/sys/devices/system/node/online").read_text())
+        parent_nodes = parse_list(_cgroup_at(parent_fd, "cpuset.mems.effective"))
+        if not nodes <= node_envelope or not node_envelope <= online or not node_envelope <= parent_nodes:
+            raise ValueError("saved node envelope differs from online or parent cgroup nodes")
+        if (parse_list(_cgroup_at(child_fd, "cpuset.cpus.effective")) != set(observed["cpus"]) or
+                parse_list(_cgroup_at(child_fd, "cpuset.mems.effective")) != nodes or
+                _cgroup_at(child_fd, "memory.max").strip() != str(observed["memory_max"])):
+            raise ValueError("owned cgroup limits changed before joining")
+        current_parent = path.parent.stat()
+        current_child = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
+        if ((current_parent.st_dev, current_parent.st_ino) != (parent_before.st_dev, parent_before.st_ino) or
+                (current_child.st_dev, current_child.st_ino) != (child_before.st_dev, child_before.st_ino)):
+            raise ValueError("owned cgroup path changed before joining")
+        _cgroup_at(child_fd, "cgroup.procs", value=str(os.getpid()))
+    finally:
+        if child_fd is not None:
+            os.close(child_fd)
+        os.close(parent_fd)
+
+
+def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None, saved_ancestor_nodes=None):
     if not hasattr(os, "sched_setaffinity"):
         raise RuntimeError("slot execution requires Linux affinity")
     original_cpus = set(os.sched_getaffinity(0))
@@ -593,7 +631,7 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
         online = parse_list(Path("/sys/devices/system/cpu/online").read_text())
         if not envelope <= online:
             raise ValueError("saved ancestor mask is outside current online CPUs")
-    if not cpus or not cpus <= envelope or not nodes or not nodes <= original_nodes:
+    if not cpus or not cpus <= envelope or not nodes:
         raise ValueError("slot would widen inherited CPU or allowed-node masks")
     inherited_policy = memory_policy()
     if cgroup:
@@ -601,7 +639,19 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
         if set(observed_cgroup["cpus"]) != cpus or set(observed_cgroup["memory_nodes"]) != nodes:
             raise ValueError("owned cgroup effective masks changed")
         path = Path(observed_cgroup["path"])
-        (path / "cgroup.procs").write_text(str(os.getpid()))
+        if saved_ancestor_nodes is not None:
+            if (saved_ancestor_cpus is None or not isinstance(saved_ancestor_nodes, (list, tuple)) or
+                    not saved_ancestor_nodes or any(type(node) is not int or node < 0 for node in saved_ancestor_nodes) or
+                    len(set(saved_ancestor_nodes)) != len(saved_ancestor_nodes)):
+                raise ValueError("restoring a saved node mask requires its owned cgroup and CPU envelope")
+            node_envelope = set(saved_ancestor_nodes)
+            _join_with_saved_node_envelope(path, observed_cgroup, nodes, node_envelope)
+        elif not nodes <= original_nodes:
+            raise ValueError("slot would widen inherited CPU or allowed-node masks")
+        else:
+            (path / "cgroup.procs").write_text(str(os.getpid()))
+    elif saved_ancestor_nodes is not None or not nodes <= original_nodes:
+        raise ValueError("slot would widen inherited CPU or allowed-node masks")
     os.sched_setaffinity(0, cpus)
     effective_cpus = set(os.sched_getaffinity(0))
     if effective_cpus != cpus:
@@ -615,7 +665,7 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
     effective_nodes = allowed_nodes()
     if cgroup and effective_nodes != nodes:
         raise ValueError("effective cgroup memory nodes differ after placement")
-    return {"pid": os.getpid(), "time_utc": datetime.now(timezone.utc).isoformat(),
+    receipt = {"pid": os.getpid(), "time_utc": datetime.now(timezone.utc).isoformat(),
             "original_cpus": sorted(original_cpus), "saved_ancestor_cpus": sorted(envelope),
             "original_allowed_nodes": sorted(original_nodes),
             "requested_cpus": sorted(cpus), "effective_cpus": sorted(effective_cpus),
@@ -623,6 +673,9 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None):
             "inherited_policy": inherited_policy, "requested_policy": requested_policy,
             "observed_policy": observed_policy, "fallback": fallback,
             "cgroup": cgroup, "stage": "pre-exec runner; final engine observation is separate"}
+    if saved_ancestor_nodes is not None:
+        receipt["saved_ancestor_nodes"] = sorted(saved_ancestor_nodes)
+    return receipt
 
 
 def _process_identity(pid):
