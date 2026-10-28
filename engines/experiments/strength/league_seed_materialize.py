@@ -105,6 +105,30 @@ def _walk(root_fd, parts, *, create=False):
         raise
 
 
+def _walk_original(root_fd, parts):
+    """Walk an existing original tree from its held root without following links."""
+    current = os.dup(root_fd)
+    try:
+        for part in parts:
+            before = os.stat(part, dir_fd=current, follow_symlinks=False)
+            if not stat.S_ISDIR(before.st_mode):
+                raise ValueError('original source parent is not a directory')
+            child = os.open(part, _DIR_FLAGS, dir_fd=current)
+            try:
+                after = os.stat(part, dir_fd=current, follow_symlinks=False)
+                if _identity(before) != _identity(os.fstat(child)) or _identity(after) != _identity(before):
+                    raise ValueError('original source parent changed during walk')
+            except BaseException as error:
+                _close_all(child, primary=error)
+                raise
+            old, current = current, child
+            _close_all(old)
+        return current
+    except BaseException as error:
+        _close_all(current, primary=error)
+        raise
+
+
 def _file_stat(fd, mode, limit):
     st = os.fstat(fd)
     if (not stat.S_ISREG(st.st_mode) or st.st_uid != os.geteuid() or st.st_nlink != 1
@@ -272,6 +296,61 @@ class MaterializedSeed:
                 'original_plan_sha256': cloud.ledger.digest(plan),
                 'root_count': len(plan),
                 'original_paths_restored': False, 'source_authorized': False,
+                'host_authenticated': False, 'producer_authenticated': False,
+                'runtime_qualified': False, 'score_qualified': False, 'go_authorized': False}
+
+    def compare_original_member(self, spec, logical):
+        """Compare an existing original-path file using target's transport core.
+
+        No destination is created and no OriginalLayout/ValidatedSourceEvidence
+        is minted. This diagnostic proves only one stable local byte comparison;
+        it does not prove the origin or future immutability of either path.
+        """
+        self.verify_for(spec)
+        mapping = self._bind(spec)
+        cloud = layout.cloud
+        seed = mapping.manifest
+        plan = cloud._original_layout_source_plan(
+            seed, lambda name: self._read_bound_member(name, mapping))
+        if type(logical) is not str:
+            raise ValueError('exact declared original member required')
+        candidates = [row for row in plan if logical.startswith(row['seed_prefix'] + '/')
+                      and logical[len(row['seed_prefix']) + 1:] in row['files']]
+        if len(candidates) != 1:
+            raise ValueError('member lacks a unique original-root correspondence')
+        row = candidates[0]
+        original_root = Path(row['original_root'])
+        actual = original_root / logical[len(row['seed_prefix']) + 1:]
+        target = cloud.load_module('rove_alias_target_runtime_diagnostic',
+                                   cloud.ROOT / 'engines/experiments/tcec-next/target_runtime.py')
+        members = {name: {key: item[key] for key in ('bytes', 'sha256')}
+                   for name, item in seed['members'].items()}
+        fd = target.input_reader().open_directory(original_root)
+        with _closing([fd]):
+            target.input_reader().same_directory(original_root, fd)
+            def read_actual(path, *, limit):
+                relative = Path(path).relative_to(original_root)
+                if not relative.parts or '..' in relative.parts:
+                    raise ValueError('original member escaped its held root')
+                parent = _walk_original(fd, relative.parts[:-1])
+                with _closing([parent]):
+                    data = target.input_reader().read_regular_at(parent, relative.name, limit=limit)
+                    check = _walk_original(fd, relative.parts[:-1])
+                    with _closing([check]):
+                        if _identity(os.fstat(check)) != _identity(os.fstat(parent)):
+                            raise ValueError('original source parent changed during read')
+                    return data
+            data = target._transport_member_parts(actual, self.root_path, members, plan,
+                lambda name: self._read_bound_member(name, mapping), actual_reader=read_actual)
+            target.input_reader().same_directory(original_root, fd)
+            self.verify_for(spec)
+            target.input_reader().same_directory(original_root, fd)
+        return {'format': 'rove4k-original-member-comparison-diagnostic-v1',
+                'seed_manifest_sha256': mapping.manifest_sha256,
+                'logical_member': logical, 'member': cloud.pin(data),
+                'original_path_created': False, 'later_file_immutability_proven': False,
+                'same_uid_isolation_proven': False,
+                'source_authorized': False, 'compiler_authorized': False,
                 'host_authenticated': False, 'producer_authenticated': False,
                 'runtime_qualified': False, 'score_qualified': False, 'go_authorized': False}
 

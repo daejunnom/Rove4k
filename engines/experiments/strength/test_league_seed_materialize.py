@@ -533,6 +533,92 @@ class MaterializeTests(unittest.TestCase):
         self.assertTrue(any('injected nested close error ' + str(created['root']) in error for error in errors))
         self.assertTrue(caught.exception.candidate.is_dir())
 
+    def test_target_transport_core_compares_existing_original_with_alias_without_authority(self):
+        from pathlib import PurePosixPath
+        cloud = layout.cloud
+        fixture, _, _ = pinned_fixture()
+        row = fixture.seed['rove'][0]
+        original_base = Path(self.temp.name) / 'original-ci'
+        original_root = original_base / 'sealed-root'
+        original = original_root / 'build' / 'main.c'
+        original.parent.mkdir(parents=True)
+        original.write_bytes(fixture.files['origin/A/build/main.c'])
+        seal = {'format': 'rove4k.source-bundle-seal.v1', 'ci_context': fixture.seed['source_origin'],
+                'producer': {'ID': 'ubuntu', 'VERSION_ID': '24.04'},
+                'bundle': cloud.pin(fixture.files[row['source_bundle']]),
+                'profiles': [{'family': row['family'], 'profile': row['profile'],
+                              'build_root': str(original_root / 'build')}]}
+        fixture.files[row['source_seal']] = cloud.ledger.canonical(seal) + b'\n'
+        fixture.reseal()
+        fixture.seed['original_layout']['roots'] = [{'original_root': str(original_root), 'seed_prefix': 'origin/A',
+            'files': {name[len('origin/A/'):]: cloud.pin(body) for name, body in fixture.files.items()
+                      if name.startswith('origin/A/')}}]
+        raw, sha = archive_bytes(fixture.seed, fixture.files)
+        spec = transfer_spec_for(raw, sha, fixture.seed['source_origin'])
+        snapshot = stage_and_inspect(spec, Client(data=raw), self.stage_root)
+        handle = snapshot.materialize(spec, self.target_root)
+        target = cloud.load_module('rove_alias_target_runtime_diagnostic',
+                                   cloud.ROOT / 'engines/experiments/tcec-next/target_runtime.py')
+        try:
+            with mock.patch.object(cloud, 'ORIGINAL_LAYOUT_BASE', PurePosixPath(original_base)), \
+                 mock.patch.object(target, '_transport_member_parts', wraps=target._transport_member_parts) as core:
+                report = handle.compare_original_member(spec, 'origin/A/build/main.c')
+                self.assertEqual(core.call_count, 1)
+                self.assertEqual(report['member'], cloud.pin(original.read_bytes()))
+                for claim in ('original_path_created', 'later_file_immutability_proven', 'same_uid_isolation_proven', 'source_authorized',
+                              'compiler_authorized', 'host_authenticated', 'producer_authenticated',
+                              'runtime_qualified', 'score_qualified', 'go_authorized'):
+                    self.assertIs(report[claim], False)
+                with self.assertRaises(ValueError):
+                    handle.compare_original_member(spec, 'origin/A/build/unknown')
+                other = replace(spec, request=replace(spec.request, seed_version_id='other-version'))
+                with self.assertRaises(ValueError):
+                    handle.compare_original_member(other, 'origin/A/build/main.c')
+                class Spoof:
+                    def __eq__(self, other):
+                        return True
+                members = {name: {key: item[key] for key in ('bytes', 'sha256')}
+                           for name, item in fixture.seed['members'].items()}
+                roots = cloud.original_layout_plan(fixture.seed)
+                good = original.read_bytes()
+                for bogus in (Spoof(), bytearray(good), b'X' * len(good), good + b'X'):
+                    with self.subTest(reader_type=type(bogus)), self.assertRaisesRegex(
+                            ValueError, 'differs from its seed pin'):
+                        target._transport_member_parts(original, handle.root_path, members, roots,
+                                                       lambda _name: bogus)
+                    with self.subTest(actual_type=type(bogus)), self.assertRaisesRegex(
+                            ValueError, 'differs from its seed pin'):
+                        target._transport_member_parts(original, handle.root_path, members, roots,
+                            lambda _name: good, actual_reader=lambda _path, *, limit: bogus)
+                original.write_bytes(b'X' * original.stat().st_size)
+                with self.assertRaisesRegex(ValueError, 'differs from its seed pin'):
+                    handle.compare_original_member(spec, 'origin/A/build/main.c')
+                # Exchange the entire root only while the transport core runs.
+                # A pathname re-open would read the rogue good bytes and miss
+                # the changed held root; the fd-bound reader must reject them.
+                moved = original_base / 'held-root'
+                actual_core = target._transport_member_parts
+                def exchange(*args, **kwargs):
+                    original_root.rename(moved)
+                    original.parent.mkdir(parents=True)
+                    original.write_bytes(good)
+                    try:
+                        return actual_core(*args, **kwargs)
+                    finally:
+                        original.unlink()
+                        original.parent.rmdir()
+                        original_root.rmdir()
+                        moved.rename(original_root)
+                with mock.patch.object(target, '_transport_member_parts', side_effect=exchange):
+                    with self.assertRaisesRegex(ValueError, 'differs from its seed pin'):
+                        handle.compare_original_member(spec, 'origin/A/build/main.c')
+                original.unlink()
+                with self.assertRaises(FileNotFoundError):
+                    handle.compare_original_member(spec, 'origin/A/build/main.c')
+        finally:
+            handle.close()
+            snapshot.close()
+
 
 if __name__ == '__main__':
     unittest.main()

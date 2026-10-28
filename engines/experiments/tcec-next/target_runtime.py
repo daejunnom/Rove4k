@@ -517,31 +517,47 @@ def _transport_record(seed_root, member_map, restored_layout, source_origin):
             "restored_layout": json.loads(json.dumps(layout))}
 
 
-def _logical_member(path, transport):
+def _logical_member_parts(path, seed_root, member_map, roots):
+    """Find an exact logical name; this does not validate a transport record."""
     path = Path(path)
     require(path.is_absolute() and ".." not in path.parts, "absolute source evidence member required")
-    seed_root = Path(transport["seed_root"])
+    seed_root = Path(seed_root)
     matches = []
     if seed_root in path.parents:
         matches.append(path.relative_to(seed_root).as_posix())
-    for row in transport["restored_layout"]["roots"]:
+    for row in roots:
         root = Path(row["original_root"])
         if root in path.parents:
             relative = path.relative_to(root).as_posix()
             require(relative in row["files"], "path is outside restored source correspondence")
             matches.append(row["seed_prefix"] + "/" + relative)
-    require(len(matches) == 1 and matches[0] in transport["member_map"],
+    require(len(matches) == 1 and matches[0] in member_map,
             "file has no unique declared seed member correspondence")
     return _member(matches[0])
 
 
-def _transport_member(path, transport):
-    name = _logical_member(path, transport)
-    expected = transport["member_map"][name]
-    actual = _regular(path, limit=expected["bytes"])
-    seed = _regular(Path(transport["seed_root"]) / name, limit=expected["bytes"])
-    require(pin(actual) == expected and actual == seed, "actual/restored source member differs from its seed pin")
+def _logical_member(path, transport):
+    return _logical_member_parts(path, transport["seed_root"], transport["member_map"],
+                                 transport["restored_layout"]["roots"])
+
+
+def _transport_member_parts(path, seed_root, member_map, roots, reader, *, actual_reader=None):
+    """Compare actual bytes to a supplied seed reader; no authority is granted."""
+    name = _logical_member_parts(path, seed_root, member_map, roots)
+    expected = member_map[name]
+    actual = (_regular if actual_reader is None else actual_reader)(path, limit=expected["bytes"])
+    seed = reader(name)
+    require(type(actual) is bytes and type(seed) is bytes and pin(actual) == expected
+            and pin(seed) == expected and actual == seed,
+            "actual/restored source member differs from its seed pin")
     return actual
+
+
+def _transport_member(path, transport):
+    members = transport["member_map"]
+    return _transport_member_parts(path, transport["seed_root"], members,
+        transport["restored_layout"]["roots"],
+        lambda name: _regular(Path(transport["seed_root"]) / name, limit=members[name]["bytes"]))
 
 
 @dataclass(frozen=True, init=False)
