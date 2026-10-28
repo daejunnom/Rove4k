@@ -84,6 +84,12 @@ def c4ke_structural_sources():
     return value
 
 
+def c4ke_edit_sources():
+    value = c4ke_structural_sources()
+    value["src/board.cpp"] += exact.peer_c4ke_edit_structural._EDIT_BEFORE
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -151,6 +157,49 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_c4ke_edit_variants_are_single_proof_and_distinct(self):
+        original = c4ke_edit_sources()
+        variants = ("edit-loop-v1", "edit-castle-or-v1")
+        results = {}
+        with pin_synthetic("c4ke", original):
+            for variant in variants:
+                with self.subTest(variant=variant):
+                    self.assertEqual(exact.source_closure("c4ke", variant=variant), set(original))
+                    changed, proof = exact.transform("c4ke", original, variant=variant)
+                    self.assertEqual(exact.restore("c4ke", changed, proof, variant=variant), original)
+                    self.assertEqual(proof["tt_bytes"], 192 << 30)
+                    self.assertIn(b"calloc(3ull << 33, 8)", changed["src/chess.cpp"])
+                    self.assertIn(b"TTABLE[((hash >> 16) * 3) >> 15]", changed["src/board.cpp"])
+                    self.assertEqual(changed["src/search.cpp"].count(
+                        b"TTABLE[((board.hash >> 16) * 3) >> 15]"), 2)
+                    self.assertIn(exact.peer_c4ke_edit_structural._EDIT_AFTER, changed["src/board.cpp"])
+                    board_roles = [row["role"] for row in proof["files"]["src/board.cpp"]["edits"]]
+                    self.assertEqual(set(board_roles), {"prefetch:0", "edit-loop:0"} |
+                                     ({"castle-or:0"} if variant == "edit-castle-or-v1" else set()))
+                    for other in ("baseline", "castle-or-v1", *variants):
+                        if other != variant:
+                            with self.assertRaises(ValueError):
+                                exact.restore("c4ke", changed, proof, variant=other)
+                    with self.assertRaises(ValueError):
+                        exact.source_closure("ice4", variant=variant)
+                    results[variant] = changed
+        alone, combined = (results[variant] for variant in variants)
+        self.assertEqual(combined["src/board.cpp"], alone["src/board.cpp"].replace(
+            exact.peer_c4ke_structural._CASTLE_BEFORE, exact.peer_c4ke_structural._CASTLE_AFTER))
+        for path in set(original) - {"src/board.cpp"}:
+            self.assertEqual(alone[path], combined[path])
+
+    def test_c4ke_edit_variants_reject_collisions_in_full_closure(self):
+        original = c4ke_edit_sources()
+        for variant in ("edit-loop-v1", "edit-castle-or-v1"):
+            for path in original:
+                for identifier in (b"rove_p", b"rove_i"):
+                    altered = dict(original)
+                    altered[path] += identifier
+                    with self.subTest(variant=variant, path=path, identifier=identifier), \
+                            pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                        exact.transform("c4ke", altered, variant=variant)
+
     def test_c4ke_castle_variants_compose_with_exact_tt(self):
         all_sources = c4ke_structural_sources()
         variants = ("castle-or-v1", "ray-castle-or-v1")

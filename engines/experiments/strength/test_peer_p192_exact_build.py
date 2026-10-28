@@ -14,11 +14,13 @@ from unittest.mock import patch
 try:
     from . import peer_p192_exact as exact, peer_p192_exact_build as build
     from . import peer_ice_structural as ice
+    from . import peer_c4ke_edit_structural as edit
     from .test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources
 except ImportError:
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
     import peer_ice_structural as ice
+    import peer_c4ke_edit_structural as edit
     from test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources
 
 
@@ -151,6 +153,35 @@ class ExactProducerTests(unittest.TestCase):
                     self.assertEqual(record["source_variant"], variant)
                     self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
                     self.assertIn("c4ke_structural_transform", record["producer_inputs"])
+                    self.assertFalse(record["qualification"]["runtime_qualified"])
+                    self.assertFalse(record["qualification"]["league_qualified"])
+
+    def test_c4ke_edit_variants_run_through_producer(self):
+        name = "c4ke"
+        structural = c4ke_structural_sources()
+        structural["src/board.cpp"] += edit._EDIT_BEFORE
+        original = {**structural,
+                    "launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
+                    "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"}
+        source = self.root / "c4ke-edit-upstream"
+        source.mkdir()
+        for relative, data in original.items():
+            path = source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}):
+            for variant in ("edit-loop-v1", "edit-castle-or-v1"):
+                with self.subTest(variant=variant):
+                    run, attempts = self.fake_runner(name, original, variant=variant)
+                    record = build.build(name, source, self.root / variant, run=run,
+                                         variant=variant, launcher_variant="gnu-tail-v1")["record"]
+                    self.assertEqual(len(attempts), 2)
+                    self.assertEqual(record["source_variant"], variant)
+                    self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
+                    self.assertIn("c4ke_edit_structural_transform", record["producer_inputs"])
+                    if variant == "edit-castle-or-v1":
+                        self.assertIn("c4ke_structural_transform", record["producer_inputs"])
                     self.assertFalse(record["qualification"]["runtime_qualified"])
                     self.assertFalse(record["qualification"]["league_qualified"])
 
