@@ -43,6 +43,10 @@ ice4·c4ke의 P16/P192 네 조합에서 고정 원본 blob과 같은 runner 내 
 Hash 262144 MiB는 요청 계획만 기록했으며 실제 UCI 설정·TT 할당·ABI·NUMA·
 대국 자격은 검증하지 않았다. c4ke 프로필은 서로 다른 runner에서 `-march=native`로
 빌드돼 native 간 동등성을 주장하지 않는다. CI artifact에는 JSON 영수증만 남긴다.
+[원본 peer UCI smoke CI](https://github.com/daejunnom/Rove4k/actions/runs/40725848944)는
+ice4·c4ke 각각에 Hash 1 MiB·worker 1개를 요청하고 UCI 준비·시작 위치 합법 수·
+정상 quit을 확인했다. 두 엔진 모두 Ponder 옵션은 선언하지 않았다. 이는 소형
+기능 확인이며 P16/P192의 대형 TT·worker 배치·성능·대국 적격성은 미검증이다.
 
 ### 가용 RAM과 협력적 GC (2026-10-29 사용자 결정)
 
