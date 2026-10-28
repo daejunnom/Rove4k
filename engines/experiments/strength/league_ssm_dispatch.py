@@ -5,7 +5,11 @@ controller, owned instance, immutable seed provenance, budget and launch
 policy. No such production adapter is supplied here: a ping, a hash, or a
 serialized flag is not authority. This module never launches or terminates an
 instance or authorizes a scored game. The durable journal fences replay only
-for one journal owner, not for another controller or a different host.
+for one journal owner, not for another controller or a different host. The
+producer, version and boot fields are declarations bound to request bytes;
+their presence is not authentication or proof of a fetched S3 version.
+The current remote snapshot format requires Rove family/profile artifact
+metadata; peer engines need their own producer provenance and are rejected.
 """
 from __future__ import annotations
 
@@ -28,6 +32,8 @@ _GIT = re.compile(r'[0-9a-f]{40}\Z')
 _INSTANCE = re.compile(r'i-[0-9a-f]{17}\Z')
 _ACCOUNT = re.compile(r'[0-9]{12}\Z')
 _REGION = re.compile(r'[a-z]{2}(?:-gov)?-[a-z]+-[0-9]+\Z')
+_DECIMAL = re.compile(r'[1-9][0-9]{0,19}\Z')
+_BOOT = re.compile(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\Z')
 
 
 @dataclass(frozen=True)
@@ -43,6 +49,16 @@ class Request:
     profile: str
     artifact_id: str
     artifact_bucket: str
+    repository: str
+    producer_run_id: str
+    producer_run_attempt: str
+    producer_artifact_id: str
+    seed_bucket: str
+    seed_key: str
+    seed_version_id: str
+    seed_archive_sha256: str
+    seed_archive_bytes: int
+    boot_id: str
     wall_seconds: int = 120
 
     def __post_init__(self):
@@ -56,17 +72,41 @@ class Request:
                 or not isinstance(self.candidates_sha256, str) or not _HEX.fullmatch(self.candidates_sha256)
                 or not isinstance(self.artifact_bucket, str)
                 or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', self.artifact_bucket)
+                or self.repository != 'daejunnom/Rove4k'
+                or any(not isinstance(value, str) or not _DECIMAL.fullmatch(value) for value in
+                       (self.producer_run_id, self.producer_run_attempt, self.producer_artifact_id))
+                or not isinstance(self.seed_bucket, str)
+                or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', self.seed_bucket)
+                or not isinstance(self.seed_key, str) or not self.seed_key.startswith(self.campaign_id + '/seed/')
+                or len(self.seed_key.encode('utf-8', 'surrogatepass')) > 1024
+                or any(part in ('', '.', '..') for part in self.seed_key.split('/'))
+                or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
+                       for char in self.seed_key)
+                or not isinstance(self.seed_version_id, str) or self.seed_version_id in ('', 'null')
+                or len(self.seed_version_id) > 1024
+                or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
+                       for char in self.seed_version_id)
+                or len(self.seed_version_id.encode('utf-8')) > 1024
+                or not isinstance(self.seed_archive_sha256, str) or not _HEX.fullmatch(self.seed_archive_sha256)
+                or type(self.seed_archive_bytes) is not int or not 0 < self.seed_archive_bytes <= 128 << 20
+                or not isinstance(self.boot_id, str) or not _BOOT.fullmatch(self.boot_id)
+                or self.boot_id == '00000000-0000-0000-0000-000000000000'
                 or self.profile not in ('test-p16', 'test-p192')
                 or type(self.wall_seconds) is not int or not 90 <= self.wall_seconds <= 300):
             raise ValueError('exact account, instance, seed, candidate and bounded P16/P192 request required')
 
     def record(self):
-        return {'format': 'rove4k-ssm-functional-request-v1', 'campaign_id': self.campaign_id,
+        return {'format': 'rove4k-ssm-functional-request-v2', 'campaign_id': self.campaign_id,
                 'job_id': self.job_id, 'instance_id': self.instance_id, 'account_id': self.account_id,
                 'region': self.region, 'seed_manifest_sha256': self.seed_manifest_sha256,
                 'source_head': self.source_head, 'candidates_sha256': self.candidates_sha256,
                 'profile': self.profile, 'artifact_id': self.artifact_id,
-                'artifact_bucket': self.artifact_bucket, 'wall_seconds': self.wall_seconds}
+                'artifact_bucket': self.artifact_bucket, 'repository': self.repository,
+                'producer_run_id': self.producer_run_id, 'producer_run_attempt': self.producer_run_attempt,
+                'producer_artifact_id': self.producer_artifact_id, 'seed_bucket': self.seed_bucket,
+                'seed_key': self.seed_key, 'seed_version_id': self.seed_version_id,
+                'seed_archive_sha256': self.seed_archive_sha256, 'seed_archive_bytes': self.seed_archive_bytes,
+                'boot_id': self.boot_id, 'wall_seconds': self.wall_seconds}
 
 
 # The program is fixed; only the encoded canonical request varies. Materialize
@@ -77,6 +117,9 @@ class Request:
 _REMOTE = r'''import hashlib,json,os,pathlib,re,stat,sys,tempfile
 p=json.loads(__import__('base64').b64decode(PAYLOAD)); canonical=lambda v:json.dumps(v,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False).encode()
 request_sha=hashlib.sha256(canonical(p)).hexdigest()
+def check_boot():
+ if pathlib.Path('/proc/sys/kernel/random/boot_id').read_text().strip()!=p['boot_id']: raise ValueError('declared host boot differs')
+check_boot()
 base=pathlib.Path('/var/lib/rove4k/diagnostics')/p['campaign_id']
 def safe_dir(path):
  if not path.is_absolute() or any(q.is_symlink() for q in (path,*path.parents)) or path.resolve(strict=True)!=path or not path.is_dir(): raise ValueError('unsafe pre-existing directory')
@@ -104,7 +147,11 @@ def read_file(path,limit):
 raw=read_file(src/'seed.json',4<<20)
 if hashlib.sha256(raw).hexdigest()!=p['seed_manifest_sha256']: raise ValueError('seed manifest hash differs')
 m=json.loads(raw)
-if raw!=canonical(m)+b'\n' or m.get('format')!='rove4k-cloud-seed-v1' or m.get('source_origin',{}).get('repository')!='daejunnom/Rove4k' or m.get('source_origin',{}).get('head_sha')!=p['source_head']: raise ValueError('seed provenance differs')
+origin=m.get('source_origin',{})
+if raw!=canonical(m)+b'\n' or m.get('format')!='rove4k-cloud-seed-v1' or not isinstance(origin,dict) or set(origin)!={'repository','head_sha','run_id','run_attempt'} or origin['repository']!=p['repository'] or origin['head_sha']!=p['source_head']: raise ValueError('seed provenance differs')
+for key,expected_value in (('run_id',p['producer_run_id']),('run_attempt',p['producer_run_attempt'])):
+ value=origin[key]
+ if type(value) not in (str,int) or not re.fullmatch('[1-9][0-9]{0,19}',str(value)) or str(value)!=expected_value: raise ValueError('seed provenance differs')
 members=m.get('members')
 if not isinstance(members,dict) or not 0<len(members)<20000: raise ValueError('invalid seed members')
 blocked={'.git','.aws','.ssh','node_modules','dist','dist-server','build','coverage','models','checkpoints','.cache','inventory.json','package-lock.json'}
@@ -125,6 +172,24 @@ for name,pin in sorted(members.items()):
  with dest.open('xb') as f: f.write(data)
  dest.chmod(pin['mode'])
 (snapshot/'seed.json').write_bytes(raw)
+candidate_raw=read_file(base/'inputs'/'candidates.json',4<<20)
+if hashlib.sha256(candidate_raw).hexdigest()!=p['candidates_sha256']: raise ValueError('candidate set hash differs')
+candidates=json.loads(candidate_raw); selected=[r for r in candidates.get('candidates',[]) if isinstance(r,dict) and isinstance(r.get('artifact'),dict) and r['artifact'].get('id')==p['artifact_id']]
+if len(selected)!=1 or candidates.get('profile')!=p['profile'] or selected[0]['artifact'].get('profile')!=p['profile']: raise ValueError('candidate identity differs')
+family=selected[0]['artifact'].get('family'); rows=[r for r in m.get('rove',[]) if isinstance(r,dict) and r.get('family')==family and r.get('profile')==p['profile']]
+if family in ('ice4','c4ke'): raise ValueError('peer producer artifact binding not implemented')
+if len(rows)!=1 or rows[0].get('artifact_metadata') not in members: raise ValueError('candidate metadata mapping differs')
+metadata=json.loads(read_file(snapshot/parts(rows[0]['artifact_metadata']),4<<20)); workflow=metadata.get('workflow_run',{})
+if type(metadata.get('id')) is not int or str(metadata['id'])!=p['producer_artifact_id'] or type(workflow) is not dict or str(workflow.get('id'))!=p['producer_run_id']: raise ValueError('producer artifact metadata differs')
+build=parts(rows[0].get('build')); build_name=str(build/'build.json')
+if build_name not in members: raise ValueError('candidate build metadata missing')
+build_record=json.loads(read_file(snapshot/build_name,4<<20)); expected=build_record.get('expected_contract',{}); artifact=selected[0]['artifact']
+for role, candidate in (('whole',{'sha256':artifact.get('sha256'),'bytes':artifact.get('whole_bytes')}),('source',selected[0].get('source')),('native',selected[0].get('native'))):
+ if not isinstance(candidate,dict) or {k:candidate.get(k) for k in ('sha256','bytes')}!={k:expected.get(role+'_'+k) for k in ('sha256','bytes')}: raise ValueError('candidate build pins differ')
+if artifact.get('native_sha256')!=expected.get('native_sha256'): raise ValueError('candidate native pin differs')
+for role, name in (('whole','x'),('source','main.c'),('native','native/x')):
+ pin=members.get(str(build/name))
+ if not isinstance(pin,dict) or {k:pin.get(k) for k in ('sha256','bytes')}!={k:expected.get(role+'_'+k) for k in ('sha256','bytes')}: raise ValueError('seed build member pins differ')
 source=snapshot/parts(m['source_tree']); siblings=source/'engines/experiments/strength'
 if not (siblings/'cloud_runtime.py').is_file() or not (siblings/'league_functional_host.py').is_file(): raise ValueError('missing diagnostic closure')
 sys.path.insert(0,str(siblings)); import cloud_runtime,league_functional_host
@@ -136,7 +201,8 @@ root=pathlib.Path('/sys/fs/cgroup')/str(relative).lstrip('/')
 if str(root)!=EXPECTED_ROOT: raise ValueError('unexpected delegated systemd unit path')
 cloud_runtime.delegate_controller(root)
 result=league_functional_host.run(state_dir=base/'state',root=root,campaign=p['campaign_id'],candidates=base/'inputs'/'candidates.json',candidates_sha256=p['candidates_sha256'],profile=p['profile'],artifact=p['artifact_id'],out=base/'results'/p['job_id'],wall_seconds=p['wall_seconds'])
-print(json.dumps({'format':'rove4k-ssm-functional-v1','request_sha256':request_sha,'result':result},sort_keys=True,separators=(',',':')))
+check_boot()
+print(json.dumps({'format':'rove4k-ssm-functional-v2','request_sha256':request_sha,'observed_boot_id':p['boot_id'],'result':result},sort_keys=True,separators=(',',':')))
 sys.exit(0 if result['status']=='complete' else 1)
 '''
 
@@ -166,7 +232,7 @@ def expected_receipt_inputs(request):
             'campaign': request.campaign_id, 'candidates': str(base / 'inputs' / 'candidates.json'),
             'candidates_sha256': request.candidates_sha256, 'profile': request.profile,
             'artifact': request.artifact_id, 'out': str(base / 'results' / request.job_id),
-            'wall_seconds': request.wall_seconds}
+            'wall_seconds': request.wall_seconds, 'boot_id': request.boot_id}
 
 
 def dispatch(request, *, plan, journal, client):
@@ -200,7 +266,12 @@ def _dispatch_with_verified_authority(request, *, plan, journal, client, authori
     expected = {'campaign_id': request.campaign_id, 'instance_id': request.instance_id,
                 'account_id': request.account_id, 'region': request.region,
                 'seed_manifest_sha256': request.seed_manifest_sha256, 'source_head': request.source_head,
-                'artifact_bucket': request.artifact_bucket, 'request_sha256': digest}
+                'artifact_bucket': request.artifact_bucket, 'repository': request.repository,
+                'producer_run_id': request.producer_run_id, 'producer_run_attempt': request.producer_run_attempt,
+                'producer_artifact_id': request.producer_artifact_id, 'seed_bucket': request.seed_bucket,
+                'seed_key': request.seed_key, 'seed_version_id': request.seed_version_id,
+                'seed_archive_sha256': request.seed_archive_sha256, 'seed_archive_bytes': request.seed_archive_bytes,
+                'boot_id': request.boot_id, 'request_sha256': digest}
     if type(attestation) is not dict or attestation.get('verified') is not True or any(attestation.get(k) != v for k, v in expected.items()):
         raise ValueError('live authority did not verify the exact diagnostic binding')
     ssm = campaign.SSMCommands(client)

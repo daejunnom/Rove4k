@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 import shlex
 import subprocess
@@ -50,14 +51,21 @@ class DispatchTests(unittest.TestCase):
         self.client = FakeClient(self.journal)
         self.plan = SimpleNamespace(campaign_id='campaign-a', region='ap-southeast-2', account_id='123456789012', artifact_bucket='rove-artifacts')
         self.req = dispatch.Request('campaign-a', 'job-1', 'i-' + '1' * 17, '123456789012',
-            'ap-southeast-2', 'a' * 64, 'b' * 40, 'c' * 64, 'test-p16', 'artifact-a', 'rove-artifacts')
+            'ap-southeast-2', 'a' * 64, 'b' * 40, 'c' * 64, 'test-p16', 'artifact-a', 'rove-artifacts',
+            'daejunnom/Rove4k', '12345', '1', '6789', 'rove-seed-bucket', 'campaign-a/seed/object.zip',
+            'seed+version/abc=', 'd' * 64, 10, '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabb')
 
     def authority(self, *, client, request):
         self.assertIs(client, self.client)
         return {'verified': True, 'campaign_id': request['campaign_id'], 'instance_id': request['instance_id'],
             'account_id': request['account_id'], 'region': request['region'],
             'seed_manifest_sha256': request['seed_manifest_sha256'], 'source_head': request['source_head'],
-            'artifact_bucket': request['artifact_bucket'], 'request_sha256': ledger.digest(request)}
+            'artifact_bucket': request['artifact_bucket'], 'repository': request['repository'],
+            'producer_run_id': request['producer_run_id'], 'producer_run_attempt': request['producer_run_attempt'],
+            'producer_artifact_id': request['producer_artifact_id'], 'seed_bucket': request['seed_bucket'],
+            'seed_key': request['seed_key'], 'seed_version_id': request['seed_version_id'],
+            'seed_archive_sha256': request['seed_archive_sha256'], 'seed_archive_bytes': request['seed_archive_bytes'],
+            'boot_id': request['boot_id'], 'request_sha256': ledger.digest(request)}
 
     def send(self, authority=None):
         return dispatch._dispatch_with_verified_authority(self.req, plan=self.plan, journal=self.journal, client=self.client,
@@ -117,9 +125,7 @@ class DispatchTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.send()
         self.assertEqual(sum(op == 'send-command' for _, op, _ in self.client.calls), 1)
-        other = dispatch.Request('campaign-a', 'job-2', self.req.instance_id, self.req.account_id,
-            self.req.region, self.req.seed_manifest_sha256, self.req.source_head,
-            self.req.candidates_sha256, self.req.profile, self.req.artifact_id, self.req.artifact_bucket)
+        other = replace(self.req, job_id='job-2')
         with self.assertRaises(ValueError):
             dispatch._dispatch_with_verified_authority(other, plan=self.plan, journal=self.journal,
                                                         client=self.client, authority=self.authority)
@@ -135,17 +141,56 @@ class DispatchTests(unittest.TestCase):
     def test_disallows_d_or_elf_and_command_injection(self):
         for profile in ('test-p4', 'test-p28', 'ELF', 'test-d'):
             with self.assertRaises(ValueError):
-                dispatch.Request('campaign-a', 'job-1', 'i-' + '1' * 17, '123456789012',
-                    'ap-southeast-2', 'a' * 64, 'b' * 40, 'c' * 64, profile, 'artifact-a', 'rove-artifacts')
+                replace(self.req, profile=profile)
         with self.assertRaises(ValueError):
-            dispatch.Request('campaign-a', 'job-1; touch /tmp/x', 'i-' + '1' * 17, '123456789012',
-                'ap-southeast-2', 'a' * 64, 'b' * 40, 'c' * 64, 'test-p192', 'artifact-a', 'rove-artifacts')
+            replace(self.req, job_id='job-1; touch /tmp/x', profile='test-p192')
+
+    def test_v2_requires_distinct_producer_seed_and_boot_declarations(self):
+        # v1 callers cannot silently acquire invented provenance defaults.
+        with self.assertRaises(TypeError):
+            dispatch.Request('campaign-a', 'job-1', self.req.instance_id, self.req.account_id,
+                self.req.region, self.req.seed_manifest_sha256, self.req.source_head,
+                self.req.candidates_sha256, self.req.profile, self.req.artifact_id, self.req.artifact_bucket)
+        invalid = {'repository': ['attacker/Rove4k', ''], 'producer_run_id': ['0', '01', 1],
+                   'producer_run_attempt': ['', '0'], 'producer_artifact_id': ['0', 1],
+                   'seed_bucket': ['', 'not a bucket'], 'seed_key': ['other/seed/x', 'campaign-a/seed/../x'],
+                   'seed_version_id': ['', 'null', 'bad\nversion', '\ud800'],
+                   'seed_archive_sha256': ['x' * 64], 'seed_archive_bytes': [0, True, (128 << 20) + 1],
+                   'boot_id': ['00000000-0000-0000-0000-000000000000', 'bad', self.req.boot_id.upper()]}
+        for field, values in invalid.items():
+            for value in values:
+                with self.subTest(field=field, value=value), self.assertRaises(ValueError):
+                    replace(self.req, **{field: value})
+        alternatives = {'repository': 'daejunnom/Rove4k', 'producer_run_id': '12346',
+                        'producer_run_attempt': '2', 'producer_artifact_id': '6790',
+                        'seed_bucket': 'another-seed-bucket', 'seed_key': 'campaign-a/seed/another.zip',
+                        'seed_version_id': 'another-version', 'seed_archive_sha256': 'e' * 64,
+                        'seed_archive_bytes': 11, 'boot_id': '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabc'}
+        for field, value in alternatives.items():
+            if value != getattr(self.req, field):
+                other = replace(self.req, **{field: value})
+                self.assertNotEqual(ledger.digest(other.record()), ledger.digest(self.req.record()))
+                self.assertNotEqual(dispatch.command(other), dispatch.command(self.req))
+        self.assertEqual(self.req.record()['format'], 'rove4k-ssm-functional-request-v2')
+
+    def test_each_producer_seed_and_boot_attestation_field_must_match(self):
+        fields = ('repository', 'producer_run_id', 'producer_run_attempt', 'producer_artifact_id',
+                  'seed_bucket', 'seed_key', 'seed_version_id', 'seed_archive_sha256', 'seed_archive_bytes', 'boot_id')
+        for field in fields:
+            def mismatched(*, client, request):
+                result = self.authority(client=client, request=request)
+                result[field] = None
+                return result
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.send(mismatched)
+        self.assertEqual(self.journal.rows, [])
+        self.assertFalse(any(op == 'send-command' for _, op, _ in self.client.calls))
 
     def test_dispatch_derived_inputs_bind_receipt_without_trusting_stdout_paths(self):
         sent = self.send()
         fixed = dispatch.expected_receipt_inputs(self.req)
         attempt = 'e' * 32
-        host_request = {k: v for k, v in fixed.items() if k != 'state_dir'}
+        host_request = {k: v for k, v in fixed.items() if k not in ('state_dir', 'boot_id')}
         host_request.update(format='rove4k-functional-host-request-v1', attempt=attempt,
                             pid=42, scored_game_admitted=False)
         request_bytes = ledger.canonical(host_request) + b'\n'
@@ -158,7 +203,8 @@ class DispatchTests(unittest.TestCase):
             'report': {'path': fixed['out'] + '/functional-runtime.json', 'bytes': len(report_bytes),
                        'sha256': hashlib.sha256(report_bytes).hexdigest()}, 'error': None,
             'cleanup_errors': [], 'scored_game_admitted': False, 'limitations': []}
-        envelope = {'format': 'rove4k-ssm-functional-v1', 'request_sha256': sent['request_sha256'],
+        envelope = {'format': 'rove4k-ssm-functional-v2', 'request_sha256': sent['request_sha256'],
+                    'observed_boot_id': self.req.boot_id,
                     'result': host_result}
         invocation = {'CommandId': sent['command_id'], 'InstanceId': self.req.instance_id,
             'Status': 'Success', 'ResponseCode': 0, 'StandardOutputContent': json.dumps(envelope)}
@@ -182,7 +228,14 @@ class DispatchTests(unittest.TestCase):
                 b'def delegate_controller(root):\n assert str(root).startswith("/sys/fs/cgroup")\n',
             'source/engines/experiments/strength/league_functional_host.py':
                 b'def run(**kwargs):\n return {"status":"complete","profile":kwargs["profile"]}\n',
+            'metadata/artifact.json': b'{"id":6789,"workflow_run":{"id":12345}}',
+            'profiles/A/x': b'whole', 'profiles/A/main.c': b'source', 'profiles/A/native/x': b'native',
         }
+        pins = {kind: {'bytes': len(files['profiles/A/' + name]),
+                       'sha256': hashlib.sha256(files['profiles/A/' + name]).hexdigest()}
+                for kind, name in [('whole', 'x'), ('source', 'main.c'), ('native', 'native/x')]}
+        files['profiles/A/build.json'] = ledger.canonical({'expected_contract': {
+            role + '_' + key: value for role, pin in pins.items() for key, value in pin.items()}})
         members = {}
         for name, data in files.items():
             dest = base / 'seed' / name
@@ -190,11 +243,19 @@ class DispatchTests(unittest.TestCase):
             dest.write_bytes(data)
             members[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'mode': 0o600}
         manifest = {'format': 'rove4k-cloud-seed-v1', 'source_origin': {'repository': 'daejunnom/Rove4k',
-                    'head_sha': 'b' * 40}, 'source_tree': 'source', 'members': members}
+                    'head_sha': 'b' * 40, 'run_id': '12345', 'run_attempt': '1'}, 'source_tree': 'source', 'members': members,
+                    'rove': [{'family': 'A', 'profile': 'test-p16', 'build': 'profiles/A',
+                              'artifact_metadata': 'metadata/artifact.json'}]}
         raw = ledger.canonical(manifest) + b'\n'
         (base / 'seed' / 'seed.json').write_bytes(raw)
-        request = dispatch.Request('campaign-a', 'job-1', 'i-' + '1' * 17, '123456789012',
-            'ap-southeast-2', hashlib.sha256(raw).hexdigest(), 'b' * 40, 'c' * 64, 'test-p16', 'artifact-a', 'rove-artifacts')
+        candidate_bytes = ledger.canonical({'profile': 'test-p16', 'candidates': [{'artifact': {
+            'id': 'artifact-a', 'family': 'A', 'profile': 'test-p16', 'sha256': pins['whole']['sha256'],
+            'whole_bytes': pins['whole']['bytes'], 'native_sha256': pins['native']['sha256']},
+            'source': pins['source'], 'native': pins['native']}]})
+        (base / 'inputs' / 'candidates.json').write_bytes(candidate_bytes)
+        boot = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+        request = replace(self.req, seed_manifest_sha256=hashlib.sha256(raw).hexdigest(),
+                          candidates_sha256=hashlib.sha256(candidate_bytes).hexdigest(), boot_id=boot)
         program = shlex.split(dispatch.command(request))[-1]
         program = program.replace("'/var/lib/rove4k/diagnostics'", repr(str(base.parent)))
         actual_root = '/sys/fs/cgroup/' + Path('/proc/self/cgroup').read_text().strip()[3:].lstrip('/')
@@ -203,9 +264,75 @@ class DispatchTests(unittest.TestCase):
         result = subprocess.run([sys.executable, '-I', '-B', '-c', program], capture_output=True, text=True, timeout=10)
         self.assertEqual(result.returncode, 0, result.stderr)
         envelope = json.loads(result.stdout)
-        self.assertEqual(envelope['format'], 'rove4k-ssm-functional-v1')
+        self.assertEqual(envelope['format'], 'rove4k-ssm-functional-v2')
+        self.assertEqual(envelope['observed_boot_id'], boot)
         self.assertEqual(envelope['request_sha256'], ledger.digest(request.record()))
         self.assertEqual(envelope['result'], {'status': 'complete', 'profile': 'test-p16'})
+        def program_for(candidate_request):
+            source = shlex.split(dispatch.command(candidate_request))[-1]
+            source = source.replace("'/var/lib/rove4k/diagnostics'", repr(str(base.parent)))
+            return source.replace(repr(dispatch.expected_receipt_inputs(candidate_request)['root']), repr(actual_root))
+        # Prior valid seed manifests may encode the same origin numbers as
+        # JSON integers. Booleans and noncanonical numeric strings are not IDs.
+        alternate_manifest = json.loads(raw)
+        alternate_manifest['source_origin'].update(run_id=12345, run_attempt=1)
+        alternate_raw = ledger.canonical(alternate_manifest) + b'\n'
+        (base / 'seed' / 'seed.json').write_bytes(alternate_raw)
+        alternate_request = replace(request, seed_manifest_sha256=hashlib.sha256(alternate_raw).hexdigest())
+        compatible = subprocess.run([sys.executable, '-I', '-B', '-c', program_for(alternate_request)],
+                                    capture_output=True, text=True, timeout=10)
+        self.assertEqual(compatible.returncode, 0, compatible.stderr)
+        for invalid_origin in (True, '012345'):
+            alternate_manifest['source_origin']['run_id'] = invalid_origin
+            invalid_raw = ledger.canonical(alternate_manifest) + b'\n'
+            (base / 'seed' / 'seed.json').write_bytes(invalid_raw)
+            invalid_request = replace(request, seed_manifest_sha256=hashlib.sha256(invalid_raw).hexdigest())
+            failed = subprocess.run([sys.executable, '-I', '-B', '-c', program_for(invalid_request)],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertIn('seed provenance differs', failed.stderr)
+        (base / 'seed' / 'seed.json').write_bytes(raw)
+        for change, expected_error in [({'producer_run_id': '12346'}, 'seed provenance differs'),
+                ({'producer_artifact_id': '6790'}, 'producer artifact metadata differs'),
+                ({'artifact_id': 'another-artifact'}, 'candidate identity differs'),
+                ({'boot_id': '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabc'}, 'declared host boot differs')]:
+            with self.subTest(change=change):
+                failed = subprocess.run([sys.executable, '-I', '-B', '-c', program_for(replace(request, **change))],
+                                        capture_output=True, text=True, timeout=10)
+                self.assertNotEqual(failed.returncode, 0)
+                self.assertIn(expected_error, failed.stderr)
+        altered = json.loads(candidate_bytes)
+        altered['candidates'][0]['source']['sha256'] = '0' * 64
+        altered_bytes = ledger.canonical(altered)
+        (base / 'inputs' / 'candidates.json').write_bytes(altered_bytes)
+        altered_request = replace(request, candidates_sha256=hashlib.sha256(altered_bytes).hexdigest())
+        failed = subprocess.run([sys.executable, '-I', '-B', '-c', program_for(altered_request)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertNotEqual(failed.returncode, 0)
+        self.assertIn('candidate build pins differ', failed.stderr)
+        for peer in ('ice4', 'c4ke'):
+            altered = json.loads(candidate_bytes)
+            altered['candidates'][0]['artifact']['family'] = peer
+            altered_bytes = ledger.canonical(altered)
+            (base / 'inputs' / 'candidates.json').write_bytes(altered_bytes)
+            peer_request = replace(request, candidates_sha256=hashlib.sha256(altered_bytes).hexdigest())
+            failed = subprocess.run([sys.executable, '-I', '-B', '-c', program_for(peer_request)],
+                                    capture_output=True, text=True, timeout=10)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertIn('peer producer artifact binding not implemented', failed.stderr)
+        (base / 'inputs' / 'candidates.json').write_bytes(candidate_bytes)
+        # Simulate a changed boot observation after the diagnostic completed:
+        # the envelope must never report a successful result for that attempt.
+        boot_file = base / 'boot-id'
+        boot_file.write_text(boot)
+        reboot_program = program_for(request).replace("'/proc/sys/kernel/random/boot_id'", repr(str(boot_file)))
+        reboot_program = reboot_program.replace("\ncheck_boot()\nprint(json.dumps(",
+            "\npathlib.Path(" + repr(str(boot_file)) + ").write_text('9c87985b-49cb-4c8e-9de5-3ea3d9c7fabc')\ncheck_boot()\nprint(json.dumps(")
+        failed = subprocess.run([sys.executable, '-I', '-B', '-c', reboot_program],
+                                capture_output=True, text=True, timeout=10)
+        self.assertNotEqual(failed.returncode, 0)
+        self.assertIn('declared host boot differs', failed.stderr)
+        self.assertNotIn('rove4k-ssm-functional-v2', failed.stdout)
         # Mutation after manifest pin fails before any copied source is imported.
         (base / 'seed' / next(iter(files))).write_bytes(b'raise AssertionError("unsafe")\n')
         result = subprocess.run([sys.executable, '-I', '-B', '-c', program], capture_output=True, text=True, timeout=10)

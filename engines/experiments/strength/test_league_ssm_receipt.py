@@ -16,6 +16,7 @@ COMMAND = '3f040442-01e3-444b-9812-ea2e4515ec50'
 INSTANCE = 'i-1234567890abcdef0'
 ATTEMPT = 'e' * 32
 DISPATCH = 'f' * 64
+BOOT = '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabb'
 
 
 def raw(value):
@@ -39,8 +40,8 @@ class ReceiptTests(unittest.TestCase):
         self.expected = {'state_dir': '/srv/rove/state', 'root': '/sys/fs/cgroup/rove.service',
                          'campaign': 'league1', 'candidates': '/srv/rove/candidates.json',
                          'candidates_sha256': 'a' * 64, 'profile': 'test-p16', 'artifact': 'engine-a',
-                         'out': '/srv/rove/output', 'wall_seconds': 120}
-        self.request = {k: v for k, v in self.expected.items() if k != 'state_dir'}
+                         'out': '/srv/rove/output', 'wall_seconds': 120, 'boot_id': BOOT}
+        self.request = {k: v for k, v in self.expected.items() if k not in ('state_dir', 'boot_id')}
         self.request.update(format='rove4k-functional-host-request-v1', attempt=ATTEMPT,
                             pid=742, scored_game_admitted=False)
         self.body = {'format': 'rove4k-functional-candidate-v1', 'profile': 'test-p16',
@@ -69,7 +70,7 @@ class ReceiptTests(unittest.TestCase):
                            expected=self.expected, read_file=self.read)
 
     def stdout(self):
-        return json.dumps({'format': 'rove4k-ssm-functional-v1', 'request_sha256': DISPATCH,
+        return json.dumps({'format': 'rove4k-ssm-functional-v2', 'request_sha256': DISPATCH, 'observed_boot_id': BOOT,
                            'result': self.receipt})
 
     def test_exact_bound_receipt_and_bytes(self):
@@ -116,7 +117,7 @@ class ReceiptTests(unittest.TestCase):
 
     def test_wrong_dispatch_hash_and_missing_result_fields_rejected(self):
         self.invocation['StandardOutputContent'] = json.dumps({
-            'format': 'rove4k-ssm-functional-v1', 'request_sha256': '0' * 64, 'result': self.receipt})
+            'format': 'rove4k-ssm-functional-v2', 'request_sha256': '0' * 64, 'observed_boot_id': BOOT, 'result': self.receipt})
         self.assertEqual(self.observe()['reason'], 'dispatch_identity_mismatch')
         del self.receipt['error']
         self.invocation['StandardOutputContent'] = self.stdout()
@@ -165,6 +166,23 @@ class ReceiptTests(unittest.TestCase):
             self.observe()
         self.assertFalse(self.client.calls)
 
+    def test_boot_mismatch_and_legacy_envelope_are_rejected(self):
+        envelope = json.loads(self.stdout())
+        envelope['observed_boot_id'] = '9c87985b-49cb-4c8e-9de5-3ea3d9c7fab0'
+        self.invocation['StandardOutputContent'] = json.dumps(envelope)
+        self.assertEqual(self.observe()['reason'], 'dispatch_identity_mismatch')
+        self.assertFalse(self.reads)
+        del envelope['observed_boot_id']
+        envelope['format'] = 'rove4k-ssm-functional-v1'
+        self.invocation['StandardOutputContent'] = json.dumps(envelope)
+        self.assertEqual(self.observe()['reason'], 'dispatch_identity_mismatch')
+
+    def test_invalid_boot_uuid_rejected_before_aws_read(self):
+        self.expected['boot_id'] = BOOT.upper()
+        with self.assertRaises(ValueError):
+            self.observe()
+        self.assertFalse(self.client.calls)
+
     def test_attempt_and_report_boundaries(self):
         for attempt in ('../other', 'E' * 32, 'e' * 31):
             self.receipt['attempt'] = attempt
@@ -190,8 +208,10 @@ class ReceiptTests(unittest.TestCase):
                         'candidates_sha256': 'a' * 64, 'profile': 'test-p16',
                         'artifact': 'engine-a', 'out': str(base / 'output'), 'wall_seconds': 120}
             result = host.run(**expected, _probe_factory=lambda **kw: FakeProbe(kw))
+            expected['boot_id'] = BOOT
             invocation = dict(self.invocation, StandardOutputContent=json.dumps({
-                'format': 'rove4k-ssm-functional-v1', 'request_sha256': DISPATCH, 'result': result}))
+                'format': 'rove4k-ssm-functional-v2', 'request_sha256': DISPATCH,
+                'observed_boot_id': BOOT, 'result': result}))
             def read_local(path, limit):
                 data = Path(path).read_bytes()
                 self.assertLessEqual(len(data), limit)
