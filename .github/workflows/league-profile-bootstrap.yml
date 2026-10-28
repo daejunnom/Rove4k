@@ -359,6 +359,15 @@ jobs:
                     'playing_strength_qualified': False}
           (root / 'admission.json').write_text(json.dumps(result, indent=2) + '\n')
           print(json.dumps(result, sort_keys=True))
+          if os.environ['FAMILY'] == 'B' and os.environ['VARIANT'] == 'league-atomic':
+              sys.path.insert(0, str(Path('engines/experiments/strength').resolve()))
+              import rove_b_static_tt
+              static = rove_b_static_tt.inspect(
+                  admitted, json.loads((build / 'build.json').read_text()), build,
+                  (root / 'compiler-sha256.txt').read_text().strip(),
+                  (root / 'linker-sha256.txt').read_text().strip())
+              (root / 'b-static-tt.json').write_text(json.dumps(static, indent=2) + '\n')
+              print(json.dumps(static, sort_keys=True))
           PY
       - name: Seal the admitted source for P16 and P192 seed transport
         run: |
