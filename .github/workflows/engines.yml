@@ -249,6 +249,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_a_shortnames.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_w256_names.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_b_semantic_diagnostic.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_c_macro_compact.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_final_compact.py
           python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules_compact.py
