@@ -1389,14 +1389,14 @@ time.sleep(.2)
         with tempfile.TemporaryDirectory(prefix="rove-legacy-protocol-") as folder:
             root = Path(folder)
             script = root / "toy.py"
-            script.write_text(TOY.replace("note('spawn')", "print(os.environ.get('ROVE_START_PROTOCOL','unset'),flush=True); note('spawn')"))
+            script.write_text(TOY.replace("note('spawn')", "print(os.environ.get('ROVE_START_PROTOCOL','unset'),os.environ.get('ROVE_OPENING_FD','unset'),os.environ.get('ROVE_TEST_OTHER','unset'),flush=True); note('spawn')"))
             out = root / "out"
             job = wave.WaveJob("game", (sys.executable, str(script), "brief", str(out / "events.jsonl")),
-                               {"ROVE_START_PROTOCOL": "2"}, {"attempt_id": "legacy"}, out)
-            with patch.dict(os.environ, {"ROVE_START_PROTOCOL": "2"}):
+                               {"ROVE_START_PROTOCOL": "2", "ROVE_OPENING_FD": "999"}, {"attempt_id": "legacy"}, out)
+            with patch.dict(os.environ, {"ROVE_START_PROTOCOL": "2", "ROVE_OPENING_FD": "998", "ROVE_TEST_OTHER": "kept"}):
                 result = wave.WaveExecutor().run_wave([job], 5)[0]
             self.assertEqual(result["returncode"], 0)
-            self.assertEqual((out / "runner.stdout.log").read_text().splitlines()[0], "unset")
+            self.assertEqual((out / "runner.stdout.log").read_text().splitlines()[0], "unset unset kept")
 
     @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
     def test_delayed_authorization_keeps_observing_completed_sibling(self):

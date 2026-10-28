@@ -159,7 +159,14 @@ try:
     inherited = stat.S_ISSOCK(os.fstat(fd).st_mode)
 except OSError:
     inherited = False
-note(event='spawn', pid=os.getpid(), control_socket_inherited=inherited)
+opening_inherited = False
+for entry in os.listdir('/proc/self/fd'):
+    try:
+        opening_inherited |= 'memfd:rove4k-opening' in os.readlink('/proc/self/fd/' + entry)
+    except OSError:
+        pass
+note(event='spawn', pid=os.getpid(), control_socket_inherited=inherited,
+     opening_fd_inherited=opening_inherited, opening_env_inherited='ROVE_OPENING_FD' in os.environ)
 moves = []
 sequence = ['f2f3', 'e7e5', 'g2g4', 'd8h4']
 for raw in sys.stdin:
@@ -261,7 +268,22 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
     def save():
         (out / "runtime.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     save()
+    # Runner must reject an inherited but unsealed opening before parsing args
+    # or launching any engine. This is separate from a valid helper invocation.
+    unsealed = os.memfd_create("rove4k-test-unsealed", os.MFD_ALLOW_SEALING)
+    try:
+        probe_env = dict(os.environ, ROVE_OPENING_FD=str(unsealed))
+        for key in ("ROVE_START_FD", "ROVE_START_JOB", "ROVE_START_PROTOCOL"):
+            probe_env.pop(key, None)
+        probe = subprocess.run([str(binary), "--help"], env=probe_env, pass_fds=(unsealed,),
+                               capture_output=True, timeout=15)
+        if probe.returncode == 0 or b"cannot protect sealed opening FD" not in probe.stderr:
+            raise AssertionError("unsealed inherited opening was not rejected at startup")
+        report["unsealed_opening_rejected"] = True
+    finally:
+        os.close(unsealed)
     for case, response in (("normal", b"GO\n"), ("reverse", b"GO\n"),
+                           ("sealed-opening", b"GO\n"),
                            ("peer-resources-p16", b"GO\n"), ("peer-resources-p192", b"GO\n"),
                            ("abort", b"ABORT\n"), ("disconnect", None), ("noise", b"GO\n"),
                            ("go2", b""), ("go2-wrong-attempt", b""), ("go2-bad-digest", b""),
@@ -280,6 +302,11 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         white, black = (b, a) if case == "reverse" else (a, b)
         argv = fastchess.single_game_argv(binary, white, black, opening_pgn=book,
                                          opening_start=1, out=directory)
+        if case == "sealed-opening":
+            argv[argv.index("file=" + str(book))] = "file=/__rove4k_sealed_opening_snapshot_v1__"
+            argv = [sys.executable, "-I", str(HERE / "sealed_opening_exec.py"),
+                    "--source", str(book), "--sha256", fastchess.sha(book.read_bytes()),
+                    "--bytes", str(book.stat().st_size), "--", *argv]
         if case == "noise":
             argv[argv.index("-startup-ms") + 1] = "100"
         parent, child = socket.socketpair()
@@ -294,6 +321,7 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             response = f"GO2 {attempt} fence-1 {digest} {'b' * 64}\n".encode("ascii")
         environment = dict(os.environ, ROVE_START_FD=str(child.fileno()),
                            ROVE_START_JOB=json.dumps(metadata, separators=(",", ":")))
+        environment.pop("ROVE_OPENING_FD", None)
         if case.startswith("go2"):
             environment["ROVE_START_PROTOCOL"] = "2"
         else:
@@ -335,10 +363,12 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             rows = _rows(ta) + _rows(tb)
             if any(row.get("control_socket_inherited") for row in rows):
                 raise AssertionError("engine inherited runner control socket")
+            if case == "sealed-opening" and any(row.get("opening_fd_inherited") or row.get("opening_env_inherited") for row in rows):
+                raise AssertionError("engine inherited the sealed opening descriptor or environment")
             pg = directory / "game.pgn"
             pgn = pg.read_text(encoding="utf-8") if pg.exists() else ""
             stdout = command_log.read_text(encoding="utf-8")
-            if case in ("normal", "reverse", "peer-resources-p16", "peer-resources-p192", "go2", "go2-long-attempt"):
+            if case in ("normal", "reverse", "sealed-opening", "peer-resources-p16", "peer-resources-p192", "go2", "go2-long-attempt"):
                 if code or f'[White "{white.identity}"]' not in pgn or f'[Black "{black.identity}"]' not in pgn:
                     raise AssertionError("normal/reversed game or player colour failed: " + stdout[-2500:])
                 if '[Result "0-1"]' not in pgn:

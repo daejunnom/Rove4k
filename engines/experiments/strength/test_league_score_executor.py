@@ -78,6 +78,12 @@ class DraftWaveTests(unittest.TestCase):
                     self.assertEqual(list(segments)[leg == 0], ice)
                     self.assertIn("tc=30:00+3", cmd)
                     self.assertIn("option.Ponder=false", cmd)
+                    self.assertIn("-I", cmd)
+                    self.assertIn("file=/__rove4k_sealed_opening_snapshot_v1__", cmd)
+                    self.assertIn(draft["content"]["opening_pgn"]["sha256"], cmd)
+                    pin = specs[job.identity]["identity"]["opening_pgn_snapshot"]
+                    self.assertEqual(pin["sha256"], draft["content"]["opening_pgn"]["sha256"])
+                    self.assertEqual(pin["binding"], "runtime revalidation then sealed memfd")
                     self.assertEqual(specs[job.identity]["slot"], slots[0].to_record())
                     group_record = json.loads((out / f"placement-{slots[0].id}.json").read_text())
                     self.assertEqual(group_record["cgroup"], groups[slots[0].id])

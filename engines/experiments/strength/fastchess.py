@@ -71,6 +71,29 @@ inline bool prepare() {
     const char* raw = std::getenv("ROVE_START_FD");
     const char* metadata = std::getenv("ROVE_START_JOB");
     const char* protocol = std::getenv("ROVE_START_PROTOCOL");
+    const char* opening_raw = std::getenv("ROVE_OPENING_FD");
+#ifndef _WIN64
+    int opening_fd = -1;
+#endif
+#ifdef __linux__
+    if (opening_raw) {
+        char* end = nullptr;
+        errno = 0;
+        const long fd = std::strtol(opening_raw, &end, 10);
+        if (errno || !end || *end || end == opening_raw || fd < 3 || fd > std::numeric_limits<int>::max())
+            return fail("invalid opening FD");
+        opening_fd = static_cast<int>(fd);
+        const int flags = fcntl(opening_fd, F_GETFD);
+        const int seals = fcntl(opening_fd, F_GET_SEALS);
+        const int required = F_SEAL_SEAL | F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE;
+        if (flags < 0 || seals < 0 || (seals & required) != required ||
+            fcntl(opening_fd, F_SETFD, flags | FD_CLOEXEC) < 0)
+            return fail("cannot protect sealed opening FD");
+        if (unsetenv("ROVE_OPENING_FD") != 0) return fail("cannot clear opening FD environment");
+    }
+#else
+    if (opening_raw) return fail("sealed opening FD requires Linux");
+#endif
     if (!raw) return (metadata || protocol) ? fail("job or protocol without control FD") : true;
 #ifdef _WIN64
     return fail("the league start gate requires POSIX");
@@ -81,6 +104,7 @@ inline bool prepare() {
     if (errno || !end || *end || end == raw || fd < 3 || fd > std::numeric_limits<int>::max())
         return fail("invalid control FD");
     control_fd = static_cast<int>(fd);
+    if (control_fd == opening_fd) return fail("opening and control FDs must differ");
     if (protocol) {
         if (std::string(protocol) != "2") return fail("unknown start protocol");
         go2_required = true;

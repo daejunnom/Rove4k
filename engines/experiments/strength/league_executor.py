@@ -15,7 +15,7 @@ import sys
 from types import SimpleNamespace
 
 try:
-    from . import diagnostic_candidates, fastchess, league_score_plan, ledger, placement, run, topology, wave
+    from . import diagnostic_candidates, fastchess, league_score_plan, ledger, placement, run, sealed_opening_exec, topology, wave
 except ImportError:
     import diagnostic_candidates
     import fastchess
@@ -23,6 +23,7 @@ except ImportError:
     import ledger
     import placement
     import run
+    import sealed_opening_exec
     import topology
     import wave
 
@@ -158,7 +159,13 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
             return fastchess.EngineCommand(name, (str(players[name].path),), **options)
         runner_argv = fastchess.single_game_argv(
             runner, command(white), command(black),
-            opening_pgn=openings, opening_start=pair['opening_index'], out=job_out)
+            opening_pgn=Path(sealed_opening_exec.PLACEHOLDER) if draft else openings,
+            opening_start=pair['opening_index'], out=job_out)
+        if draft:
+            pin = body['opening_pgn']
+            runner_argv = [sys.executable, '-I', str(run.HERE / 'sealed_opening_exec.py'),
+                           '--source', str(openings), '--sha256', pin['sha256'],
+                           '--bytes', str(pin['bytes']), '--', *runner_argv]
         argv = (sys.executable, str(run.HERE / 'placement.py'), '--slot', str(slot_file),
                 '--record', str(record), '--', *runner_argv)
         identity = {'leg': leg, 'white': white, 'black': black, 'opening_id': pair['opening']['id'],
@@ -168,6 +175,9 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
                     'runner_sha256': body['runner']['sha256'], 'slot': slot_id}
         if draft:
             identity['uci'] = {name: players[name].uci for name in (white, black)}
+            identity['opening_pgn_snapshot'] = {'sha256': body['opening_pgn']['sha256'],
+                                                'bytes': body['opening_pgn']['bytes'],
+                                                'binding': 'runtime revalidation then sealed memfd'}
         start_job = {'campaign': body['campaign'], 'pair': pair['id'], 'game': game,
                      'attempt': attempt, 'slot': slot_id, 'artifacts': [white, black],
                      'opening': pair['opening']['id'], 'launch_id': launch_id,
@@ -184,7 +194,8 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
                          'out': str(job.out), 'spec': specs[job.identity]} for job in jobs],
                'scope': 'prepared jobs only; no process, authority or memory reservation',
                **({'draft_only': True, 'score_authorized': False, 'go_authorized': False,
-                   'live_topology_snapshot_not_attestation': True} if draft else {})})
+                   'live_topology_snapshot_not_attestation': True,
+                   'opening_binding_scope': 'runtime sealed memfd; launcher and runner authentication unverified'} if draft else {})})
     return jobs, specs
 
 

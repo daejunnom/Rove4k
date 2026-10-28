@@ -1162,6 +1162,9 @@ class WaveExecutor:
                 # The executor owns the protocol selection. A parent shell or
                 # caller environment must never silently change legacy GO.
                 environment.pop("ROVE_START_PROTOCOL", None)
+                # Only the post-placement sealed-opening launcher may set this
+                # private FD; neither a parent shell nor a job may supply it.
+                environment.pop("ROVE_OPENING_FD", None)
                 environment.update(ROVE_START_FD=str(passed.fileno()),
                     ROVE_START_JOB=json.dumps(child.expected, allow_nan=False, separators=(",", ":")))
                 if asynchronous:
