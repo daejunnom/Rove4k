@@ -82,8 +82,11 @@ jobs:
           - {peer: c4ke, variant: edit-castle-emission-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-phalanx-attack-pawns-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-phalanx-attack-pawns-v1, launcher: gnu-tail-v1, codec: extended}
           - {peer: c4ke, variant: edit-castle-phalanx-ep-hash-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-phalanx-ep-hash-v1, launcher: gnu-tail-v1, codec: extended}
           - {peer: c4ke, variant: edit-castle-phalanx-pop-lsb-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-phalanx-pop-lsb-v1, launcher: gnu-tail-v1, codec: extended}
           - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: extended}
           - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: literal-v1}
     env:
