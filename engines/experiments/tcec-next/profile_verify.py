@@ -71,10 +71,32 @@ SCAN = "engines/experiments/tcec-next/profile_scan.py"
 SCAN_SCHEMA = "rove4k.selected-square-scan.v1"
 SCAN_DECLARATION = {"path": SCAN, "variant": "square-successor"}
 SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de2604ac3fc715de8c58b879f"}
+FINAL_COMPACT = {
+    "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
+          "variant": "shortnames-v1", "schema": "rove4k.a-shortnames.v1",
+          "pin": {"bytes": 5250, "sha256": "03ab70a6900eba651fc2ee3663d7ddfd91bdea10ca04b2401d93148a396128e5"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
+          "variant": "b-search-names", "schema": "rove4k.profile-b-short-names.v1",
+          "pin": {"bytes": 8395, "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
+          "variant": "unused-macro-names", "schema": "rove4k.c-macro-compact-experiment.v1",
+          "pin": {"bytes": 6253, "sha256": "a7582b648230a519250d52920ba62a0371a3e3fedc3a19214d84df0feb71497c"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
+          "variant": "e-fixed-coeff-macros", "schema": "rove4k.e-fixed-coeff-macros.v1",
+          "pin": {"bytes": 7015, "sha256": "7bfab248c5cbefb5eade5fd7c8872a0954fd4173b866cf19845aac1e51e9e6db"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
+          "variant": "names-null", "schema": "rove4k-f-final-spelling-v1",
+          "pin": {"bytes": 4762, "sha256": "b8b8b9a29350cc02501931b009823efdac6695ab589460715372a571cdf96187"},
+          "profiles": ("test-p4", "test-p28", "tcec-provisional")},
+}
 EP = "engines/experiments/tcec-next/profile_ep.py"
 EP_SCHEMA = "rove4k.profile-ep-source.v1"
 EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
-EP_PIN = {"bytes": 8476, "sha256": "d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a"}
+EP_PIN = {"bytes": 8477, "sha256": "9e089d39ded6da656a94b96a35c6b45c7a3839d6fc42672df8ff46d5f8220a34"}
 SCAN_COMPILER_VERSION = "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 # Independent finite native admission; existing compound/control policies remain unchanged.
 SCAN_IMAGES = {
@@ -447,7 +469,7 @@ def revalidate_target(reference):
             reference.revalidate(verify=sys.modules[__name__], expected_ci=helper.CIContext.from_environment())
 
 
-def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, post_league=None, source_dependencies=None,
+def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, post_ep=None, post_league=None, source_dependencies=None, post_compact=None,
                   representation=None, entry_cleanup=None, profile_id=None):
     """Declare the complete finite stage grammar before loading a helper."""
     require(family in ("A", "B", "C", "E", "F") and isinstance(proofs, list)
@@ -531,6 +553,32 @@ def source_stages(family, post, proofs, *, post_spelling=None, post_scan=None, p
             "path": "engines/experiments/tcec-next/profile_dependencies.py",
             "variant": "unused-includes"}, "unrecognized dependency source stage")
         expected.append("rove4k.profile-dependencies.v1")
+    if post_compact is not None:
+        owner = FINAL_COMPACT.get(family)
+        require(owner is not None and post_compact == {"path": owner["path"], "variant": owner["variant"]}
+                and profile_id in owner["profiles"] and representation == "source-jit"
+                and entry_cleanup == "private-path" and post_league is None
+                and source_dependencies == {"path": "engines/experiments/tcec-next/profile_dependencies.py",
+                                            "variant": "unused-includes"},
+                "final compact stage requires its named full profile and dependency cleanup")
+        if family == "A":
+            require(post_scan == SCAN_DECLARATION and post_ep is None,
+                    "A final compact requires the reviewed valid-square stage")
+        if family == "B":
+            require(post_spelling == {"path": SPELLING, "selection": "best", "variant": BEST_SPELLING["B"]}
+                    and post_scan is None and post_ep is None,
+                    "B final compact requires the reviewed B spelling stage")
+        if family == "F":
+            require(post_spelling == F_COMPOUND_DECLARATION and post_scan is None and post_ep is None,
+                    "F final compact requires the reviewed compound-v2 stage")
+        if family == "E":
+            require(post_spelling == COMPOUND_DECLARATION and post_scan is None and post_ep == EP_DECLARATION,
+                    "E final compact requires the reviewed legal-maker stage")
+        if family == "C":
+            require(post_spelling == COMPOUND_DECLARATION and post_scan == SCAN_DECLARATION
+                    and post_ep == EP_DECLARATION,
+                    "C final compact requires the reviewed scan and legal-maker stages")
+        expected.append(owner["schema"])
     require([p.get("schema", p.get("stage")) for p in proofs] == expected,
             "source proof stages are missing, extra, or out of order")
     return kind
@@ -663,6 +711,20 @@ def scan_module(manifest, build, production_paths):
                                     SCAN_SCHEMA, "profile_runtime_reviewed_scan")
 
 
+def final_compact_module(manifest, build, production_paths):
+    """Load only the family-selected reviewed final source helper."""
+    owner = FINAL_COMPACT.get(manifest.get("family"))
+    require(owner is not None and manifest.get("post_compact") == {
+        "path": owner["path"], "variant": owner["variant"]},
+        "unrecognized final compact helper")
+    helper = _reviewed_spelling_module(manifest, build, production_paths, owner["path"],
+                                       owner["pin"], owner["schema"],
+                                       "profile_runtime_reviewed_final_compact")
+    require(getattr(helper, "DECLARATION", None) == manifest["post_compact"],
+            "final compact helper declaration differs")
+    return helper
+
+
 def ep_modules(manifest, build, production_paths):
     owner = _reviewed_spelling_module(manifest, build, production_paths, EP, EP_PIN,
                                       EP_SCHEMA, "profile_runtime_reviewed_ep")
@@ -751,12 +813,42 @@ def _compound_owned_command(manifest, build, kind, command, data, suffix):
     return {"row": row, "stdin": stdin, "pipes": pipes}, outputs
 
 
-def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id, ep_owner=None):
+def final_compact_evidence(manifest, build, before, final, native):
+    """Bind both original-source compiler gates to the actual final image."""
+    compiler = manifest.get("compile_executor", manifest["compiler"])
+    require(type(before) is bytes and type(final) is bytes and type(native) is bytes and type(compiler) is list,
+            "actual pre-compact source, final source, native bytes and compiler required")
+    observed = []
+    for attempt in manifest["attempts"]:
+        directory = attempt["directory"]
+        gate = {"directory": "final-compact-control", "source": pin(before),
+                "native": pin(native), "image_identical": True}
+        require(_json_equal(attempt.get("final_compact_gate"), gate),
+                "final compact control gate differs")
+        require(checked_artifact(build, directory + "/final-compact-control/x", pin(native)) == native,
+                "final compact control native differs from the final image")
+        command, _ = _compound_owned_command(manifest, build, directory + "-final-compact-control",
+            list(compiler), before, (directory, "final-compact-control"))
+        require(checked_artifact(build, directory + "/native/x", pin(native)) == native,
+                "final compact shipping native differs")
+        shipping, _ = _compound_owned_command(manifest, build, directory + "-compile",
+            list(compiler), final, (directory, "native"))
+        observed.append({"directory": directory, "gate": gate, "command": command,
+                         "shipping_command": shipping})
+    require([row["directory"] for row in observed] == ["first", "repeat"],
+            "two final compact control attempts required")
+    return {"scope": "owned pre-compact compiler inputs and final native byte equality",
+            "attempts": observed}
+
+
+def compound_native_evidence(manifest, build, source, native, resource_proof, profile_id, ep_owner=None,
+                             *, policy_source=None):
     """Bind new compound codegen to actual appended assertions and owned stdin."""
     declaration = manifest.get("post_spelling")
     selected = declaration in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION)
-    scan_evidence = scan_native_evidence(manifest, build, source, native, profile_id)
-    ep_evidence = ep_native_evidence(manifest, build, source, native, profile_id, ep_owner)
+    reviewed_source = source if policy_source is None else policy_source
+    scan_evidence = scan_native_evidence(manifest, build, reviewed_source, native, profile_id)
+    ep_evidence = ep_native_evidence(manifest, build, reviewed_source, native, profile_id, ep_owner)
     if not selected:
         require("native_policy" not in manifest, "named compound native policy is outside its finite route")
         return None
@@ -775,7 +867,7 @@ def compound_native_evidence(manifest, build, source, native, resource_proof, pr
                   "compiler_version": F_COMPOUND_COMPILER_VERSION, **identities}
         require(_json_equal(manifest.get("native_policy"), policy) and manifest["compiler"] == compiler == F_COMPOUND_COMPILER
                 and manifest.get("compile_executor_version") == F_COMPOUND_COMPILER_VERSION
-                and pin(source) == identities["source"] and pin(native) == identities["native"],
+                and pin(reviewed_source) == identities["source"] and pin(native) == identities["native"],
                 "F compound requires its named GCC13 source/native policy without compiler substitution")
         version, output = _compound_owned_command(manifest, build, "target-compiler-version", ["cc", "--version"], None, ())
         require(output["stdout"].decode().splitlines()[:1] == [F_COMPOUND_COMPILER_VERSION],
@@ -854,7 +946,7 @@ def inverse_source_stages(source, inverses):
     return restored
 
 
-def dependency_evidence(manifest, build, declaration, proof, before, after):
+def dependency_evidence(manifest, build, declaration, proof, before, after, *, shipping_source=None):
     """Expose the already verified final-stage native and stdin evidence."""
     attempts, commands = [], []
     selected = set()
@@ -871,7 +963,8 @@ def dependency_evidence(manifest, build, declaration, proof, before, after):
         if row["kind"].endswith("-compile"):
             require(row["command"] == manifest.get("compile_executor", manifest["compiler"]),
                     "shipping dependency compiler argv differs")
-        data = after if row["kind"].endswith(("-after", "-compile")) else before
+        data = ((after if shipping_source is None else shipping_source) if row["kind"].endswith("-compile")
+                else after if row["kind"].endswith("-after") else before)
         name = Path(row["stdout"]["path"]).with_suffix(".stdin").name
         checked_artifact(build, name, pin(data))
         commands.append({**row, "stdin": {"name": name, **pin(data)}})
@@ -1055,10 +1148,12 @@ def admit_c_build(manifest, build):
     post_scan = manifest.get("post_scan")
     post_ep = manifest.get("post_ep")
     post_league = manifest.get("post_league")
+    post_compact = manifest.get("post_compact")
     dependency_declaration = manifest.get("source_dependencies")
     post_kind = source_stages(family, post, manifest["source_proofs"], post_spelling=post_spelling,
         post_scan=post_scan, post_ep=post_ep, post_league=post_league, source_dependencies=dependency_declaration,
-        representation=representation, entry_cleanup=plan["entry_cleanup"], profile_id=profile.id)
+        post_compact=post_compact, representation=representation,
+        entry_cleanup=plan["entry_cleanup"], profile_id=profile.id)
     next_stage = 1
     if post is not None:
         path = post["path"]
@@ -1175,17 +1270,33 @@ def admit_c_build(manifest, build):
         require(dependency_proof == manifest["source_proofs"][next_stage],
                 "final dependency projection differs")
         require(helper.validate_receipt(build, manifest, dependency_proof, produced,
-                                        checked=checked_artifact) == before_dependencies,
+                                        checked=checked_artifact,
+                                        **({"final_compact": True} if post_compact is not None else {})) == before_dependencies,
                 "dependency compiler receipt does not bind its original source")
         inverses.append((helper, dependency_proof, before_dependencies))
         dependencies = dependency_evidence(manifest, build, dependency_declaration, dependency_proof,
-                                           before_dependencies, produced)
+                                           before_dependencies, produced,
+                                           shipping_source=source if post_compact is not None else None)
+        next_stage += 1
+    after_dependencies = produced
+    compact_evidence = None
+    if post_compact is not None:
+        helper = final_compact_module(manifest, build, production_paths)
+        before_compact = produced
+        produced, compact_proof = helper.transform_source(produced, family=family, profile_id=profile.id)
+        supplied = manifest["source_proofs"][next_stage]
+        require(_json_equal(compact_proof, supplied)
+                and helper.restore_source(produced, supplied) == before_compact,
+                "final compact source proof or complete inverse differs")
+        inverses.append((helper, supplied, before_compact))
+        compact_evidence = final_compact_evidence(manifest, build, before_compact, produced, native)
         next_stage += 1
     require(next_stage == len(manifest["source_proofs"]), "an admitted source stage was not consumed")
     require(produced == source, "full source projection chain does not reproduce the actual consumer")
     require(inverse_source_stages(source, inverses) == base,
             "complete final consumer inverse differs from its fresh control")
-    compound_evidence = compound_native_evidence(manifest, build, source, native, proof, profile.id, ep_owner)
+    compound_evidence = compound_native_evidence(manifest, build, source, native, proof, profile.id, ep_owner,
+        policy_source=after_dependencies if post_compact is not None else None)
     if representation == "source-jit":
         require(restore_payload(payload, len(source)) == source, "source package inverse differs")
         package = load("profile_runtime_package", ROOT / "engines/scripts/source_package.py")
@@ -1195,15 +1306,29 @@ def admit_c_build(manifest, build):
                 "source-JIT command/dependency boundary differs")
         require(wrapper.contract(package, unlink, manifest["compiler"]) == manifest["wrapper_contract"],
                 "source-JIT file ownership contract differs")
-        if before_dependencies != source:
+        if before_dependencies != after_dependencies:
             before_whole = wrapper.package(package, unlink, before_dependencies,
                                            manifest["compression"], manifest["compiler"])
-            require(wrapper.package(package, unlink, source, manifest["compression"], manifest["compiler"])
-                    == whole and len(whole) <= len(before_whole),
+            dependency_whole = wrapper.package(package, unlink, after_dependencies,
+                                               manifest["compression"], manifest["compiler"])
+            require(len(dependency_whole) <= len(before_whole),
                     "dependency cleanup did not preserve or reduce the actual complete artifact")
+            if post_compact is None:
+                require(dependency_whole == whole,
+                        "dependency output did not reproduce the complete artifact")
             require(all(row["dependency_gate"]["whole_cost"] ==
-                        {"before": len(before_whole), "after": len(whole)} for row in attempts),
+                        {"before": len(before_whole), "after": len(dependency_whole)} for row in attempts),
                     "dependency whole cost receipt differs from regenerated packaging")
+        if post_compact is not None:
+            pre_compact_whole = wrapper.package(package, unlink, after_dependencies,
+                                                manifest["compression"], manifest["compiler"])
+            require(wrapper.package(package, unlink, source, manifest["compression"], manifest["compiler"])
+                    == whole and len(whole) < len(pre_compact_whole),
+                    "final compact did not reproduce and reduce the complete artifact")
+            cost = {"before": len(pre_compact_whole), "after": len(whole)}
+            require(all(_json_equal(row.get("final_compact_cost"), cost) for row in attempts),
+                    "final compact complete artifact cost differs between attempts")
+            compact_evidence["whole_cost"] = cost
     elif representation == "packed-native":
         require(restore_payload(payload, len(native)) == native, "native package inverse differs")
     else:
@@ -1226,6 +1351,8 @@ def admit_c_build(manifest, build):
                           **({"post_spelling": post_spelling} if post_spelling is not None else {}),
                           **({"post_scan": post_scan} if post_scan is not None else {}),
                           **({"post_ep": post_ep} if post_ep is not None else {}),
+                          **({"post_compact": post_compact, "final_compact_evidence": compact_evidence}
+                             if post_compact is not None else {}),
                           **({"post_league": post_league} if post_league is not None else {}),
                           **({"spelling_request": manifest["spelling_request"]}
                              if "spelling_request" in manifest else {}),

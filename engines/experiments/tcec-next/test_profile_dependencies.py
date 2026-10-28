@@ -100,6 +100,54 @@ class DependencyProjectionTests(unittest.TestCase):
             return data
         self.assertEqual(DEPENDENCIES.validate_receipt(Path("unused"), receipt, proof, after,
                                                       checked=checked), before)
+        # The same owned native evidence must also bind the pre-compaction
+        # compile when the later stage is explicitly selected. It is not
+        # acceptable to silently fall back to the final shipping command.
+        compact = copy.deepcopy(receipt)
+        compact["post_compact"] = {"path": "reviewed-helper.py", "variant": "named"}
+        compact["commands"][-1]["kind"] = "first-final-compact-control"
+        compact["attempts"][0]["final_compact_gate"] = {
+            "directory": "final-compact-control", "source": DEPENDENCIES.pin(after),
+            "native": DEPENDENCIES.pin(native), "image_identical": True}
+        # The dependency reduction ends at 40 bytes; the later compact stage
+        # then independently reduces the shipping artifact from 40 to 39.
+        compact["attempts"][0]["final_compact_cost"] = {"before": 40, "after": 39}
+        compact["attempts"][0]["whole_bytes"] = 39
+        files["first/final-compact-control/x"] = native
+        self.assertEqual(DEPENDENCIES.validate_receipt(Path("unused"), compact, proof, after,
+                                                      checked=checked, final_compact=True), before)
+        with self.assertRaisesRegex(ValueError, "explicit control compile"):
+            DEPENDENCIES.validate_receipt(Path("unused"), compact, proof, after, checked=checked)
+        with self.assertRaisesRegex(ValueError, "explicit final compaction mode"):
+            DEPENDENCIES.validate_receipt(Path("unused"), compact, proof, after,
+                                          checked=checked, final_compact=1)
+        for field, bad, message in (("image_identical", 1, "control gate"),
+                                    ("source", DEPENDENCIES.pin(before), "control gate")):
+            changed = copy.deepcopy(compact)
+            changed["attempts"][0]["final_compact_gate"][field] = bad
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, message):
+                DEPENDENCIES.validate_receipt(Path("unused"), changed, proof, after,
+                                              checked=checked, final_compact=True)
+        changed = copy.deepcopy(compact)
+        changed["commands"][-1]["kind"] = "first-compile"
+        with self.assertRaisesRegex(ValueError, "control compiler command"):
+            DEPENDENCIES.validate_receipt(Path("unused"), changed, proof, after,
+                                          checked=checked, final_compact=True)
+        for cost, error in (({"before": 39, "after": 39}, "dependency whole cost"),
+                            ({"before": 40, "after": 38}, "final compaction whole cost"),
+                            ({"before": 40, "after": True}, "final compaction whole cost"),
+                            ({"before": 38, "after": 39}, "final compaction whole cost"),
+                            (None, "final compaction whole cost")):
+            changed = copy.deepcopy(compact)
+            changed["attempts"][0]["final_compact_cost"] = cost
+            with self.subTest(cost=cost), self.assertRaisesRegex(ValueError, error):
+                DEPENDENCIES.validate_receipt(Path("unused"), changed, proof, after,
+                                              checked=checked, final_compact=True)
+        files["first/final-compact-control/x"] = b"different native"
+        with self.assertRaisesRegex(ValueError, "evidence pin differs"):
+            DEPENDENCIES.validate_receipt(Path("unused"), compact, proof, after,
+                                          checked=checked, final_compact=True)
+        files["first/final-compact-control/x"] = native
         changed = copy.deepcopy(receipt)
         changed["commands"][-1]["command"].append("-DOTHER_CONTEXT=1")
         with self.assertRaisesRegex(ValueError, "shipping dependency compiler command differs"):
@@ -107,6 +155,39 @@ class DependencyProjectionTests(unittest.TestCase):
         files["tool-3.stdin"] = before
         with self.assertRaisesRegex(ValueError, "evidence pin differs"):
             DEPENDENCIES.validate_receipt(Path("unused"), receipt, proof, after, checked=checked)
+
+    def test_identity_cleanup_still_requires_compaction_control(self):
+        source = b"int main(void){return 0;}\n"
+        unchanged, proof = DEPENDENCIES.transform_source(source)
+        self.assertEqual(unchanged, source)
+        native = b"native"
+        receipt = {"compiler": ["cc"], "source_dependencies": DEPENDENCIES.DECLARATION,
+                   "post_compact": {"path": "reviewed-helper.py", "variant": "named"},
+                   "commands": [], "attempts": [{"directory": "first", "dependency_gate": None,
+                   "native_bytes": len(native), "native_sha256": DEPENDENCIES.pin(native)["sha256"]}]}
+        with self.assertRaisesRegex(ValueError, "control gate"):
+            DEPENDENCIES.validate_receipt(Path("unused"), receipt, proof, source,
+                                          checked=lambda *args: b"", final_compact=True)
+        receipt["attempts"][0].update(whole_bytes=39, final_compact_gate={
+            "directory": "final-compact-control", "source": DEPENDENCIES.pin(source),
+            "native": DEPENDENCIES.pin(native), "image_identical": True})
+        receipt["commands"] = [{"kind": "first-final-compact-control", "command": ["cc"],
+            "returncode": 0, "terminal": True, "reaped": True, "owned_group_absent": True,
+            "forced_cleanup": False, "stdout": {"path": "tool-1.stdout"},
+            "stderr": {"path": "tool-1.stderr", **DEPENDENCIES.pin(b"")}}]
+        files = {"tool-1.stdin": source, "tool-1.stderr": b"",
+                 "first/final-compact-control/x": native, "first/native/x": native}
+        def checked(root, name, expected):
+            data = files[name]
+            if DEPENDENCIES.pin(data) != expected:
+                raise ValueError("evidence pin differs")
+            return data
+        with self.assertRaisesRegex(ValueError, "final compaction whole cost"):
+            DEPENDENCIES.validate_receipt(Path("unused"), receipt, proof, source,
+                                          checked=checked, final_compact=True)
+        receipt["attempts"][0]["final_compact_cost"] = {"before": 40, "after": 39}
+        self.assertEqual(DEPENDENCIES.validate_receipt(Path("unused"), receipt, proof, source,
+                                                      checked=checked, final_compact=True), source)
 
 
 if __name__ == "__main__":

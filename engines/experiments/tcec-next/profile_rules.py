@@ -40,7 +40,7 @@ SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de
 EP = "engines/experiments/tcec-next/profile_ep.py"
 EP_SCHEMA = "rove4k.profile-ep-source.v1"
 EP_DECLARATION = {"path": EP, "variant": "legal-maker"}
-EP_PIN = {"bytes": 8476, "sha256": "d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a"}
+EP_PIN = {"bytes": 8477, "sha256": "9e089d39ded6da656a94b96a35c6b45c7a3839d6fc42672df8ff46d5f8220a34"}
 LEAGUE_OWNER = "engines/scripts/league_resource_profiles.py"
 LEAGUE_OWNER_PIN = {"bytes": 952, "sha256": "1b6cae7f1829fb8c798d8f394f9d2c533191632444b66f9b572b8c233b30e258"}
 LEAGUE_IDS = ("test-p16", "test-p192")
@@ -48,6 +48,28 @@ B_LEAGUE = "engines/experiments/tcec-next/profile_b_league_spelling.py"
 B_LEAGUE_SCHEMA = "rove4k.league-b-atomic.v1"
 B_LEAGUE_DECLARATION = {"path": B_LEAGUE, "selection": "league-atomic", "variant": "atomic-assignment"}
 B_LEAGUE_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fcb86728949bca0e6e2140bff1e5"}
+FINAL_COMPACT = {
+    "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
+          "variant": "shortnames-v1", "schema": "rove4k.a-shortnames.v1",
+          "pin": {"bytes": 5250, "sha256": "03ab70a6900eba651fc2ee3663d7ddfd91bdea10ca04b2401d93148a396128e5"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
+          "variant": "b-search-names", "schema": "rove4k.profile-b-short-names.v1",
+          "pin": {"bytes": 8395, "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
+          "variant": "unused-macro-names", "schema": "rove4k.c-macro-compact-experiment.v1",
+          "pin": {"bytes": 6253, "sha256": "a7582b648230a519250d52920ba62a0371a3e3fedc3a19214d84df0feb71497c"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
+          "variant": "e-fixed-coeff-macros", "schema": "rove4k.e-fixed-coeff-macros.v1",
+          "pin": {"bytes": 7015, "sha256": "7bfab248c5cbefb5eade5fd7c8872a0954fd4173b866cf19845aac1e51e9e6db"},
+          "profiles": ("test-p4", "tcec-provisional")},
+    "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
+          "variant": "names-null", "schema": "rove4k-f-final-spelling-v1",
+          "pin": {"bytes": 4762, "sha256": "b8b8b9a29350cc02501931b009823efdac6695ab589460715372a571cdf96187"},
+          "profiles": ("test-p4", "test-p28", "tcec-provisional")},
+}
 LEAGUE_CANDIDATES = {
     "atomic-assignment": {
         "path": "engines/experiments/tcec-next/profile_acef_league_atomic.py",
@@ -242,7 +264,7 @@ def fixture_cases(oracle=None) -> tuple[list[dict], dict]:
 
 def _source_build_record(build, *, family, stages, post_profile, main_source,
                          baseline_source, tools=(), post_spelling=None, post_scan=None, post_ep=None,
-                         post_league=None, source_dependencies=None):
+                         post_league=None, source_dependencies=None, post_compact=None):
     require(build is not None, "named post-profile/model source build root required")
     build = Path(build)
     record = json.loads(_evidence_bytes(build / "build.json", name="build.json"))
@@ -254,7 +276,7 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
             record.get("post_scan") == post_scan and record.get("post_ep") == post_ep and
             record.get("post_league") == post_league and
             record.get("source_proofs") == stages and
-            record.get("source_dependencies") == source_dependencies and
+            record.get("source_dependencies") == source_dependencies and record.get("post_compact") == post_compact and
             _evidence_bytes(build / "main.c", name="main.c") == main_source and
             _evidence_bytes(build / "control/main.c", name="main.c") == baseline_source,
             family + " named frozen producer source/stages/post-profile identity differs")
@@ -289,13 +311,17 @@ def _source_build_record(build, *, family, stages, post_profile, main_source,
         if relative == B_LEAGUE:
             require(expected == B_LEAGUE_PIN and pin(normalized(ROOT / relative)) == B_LEAGUE_PIN,
                     "reviewed B league atomic helper identity differs")
+        for compact in FINAL_COMPACT.values():
+            if relative == compact["path"]:
+                require(expected == compact["pin"] and pin(normalized(ROOT / relative)) == compact["pin"],
+                        "reviewed final compact helper identity differs")
         for candidate in LEAGUE_CANDIDATES.values():
             expected_pins = {candidate["path"]: candidate["pin"]}
             expected_pins.update({path: identity for path, identity in candidate["supports"].values()})
             if relative in expected_pins:
                 require(expected == expected_pins[relative] and pin(normalized(ROOT / relative)) == expected,
                         "reviewed league candidate helper identity differs: " + relative)
-    if post_spelling is not None or post_league is not None:
+    if post_spelling is not None or post_league is not None or post_compact is not None:
         plan = record.get("plan", {})
         require(plan.get("family") == family and plan.get("full") is True and
                 plan.get("representation") == "source-jit" and
@@ -354,6 +380,21 @@ def scan_module(build):
     sys.modules[spec.name] = module
     exec(compile(data, str(ROOT / SCAN), "exec", dont_inherit=True), module.__dict__)
     require(module.SCHEMA == SCAN_SCHEMA, "reviewed valid-square helper schema differs")
+    return module
+
+
+def compact_module(build, compact):
+    """Execute only the exact frozen, current reviewed compact helper bytes."""
+    relative, expected = compact["path"], compact["pin"]
+    data = _evidence_bytes(Path(build) / "inputs" / relative, name=Path(relative).name)
+    require(pin(data) == expected and normalized(ROOT / relative) == data,
+            "reviewed final compact helper consumed bytes differ")
+    spec = importlib.util.spec_from_file_location("production_rules_final_compact", ROOT / relative)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    exec(compile(data, str(ROOT / relative), "exec", dont_inherit=True), module.__dict__)
+    require(module.SCHEMA == compact["schema"] and module.DECLARATION == {
+        "path": relative, "variant": compact["variant"]}, "reviewed final compact helper declaration differs")
     return module
 
 
@@ -441,6 +482,10 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     suffix = stages[1:] if stages and stages[0] == resource else None
     require(suffix is not None and all(isinstance(stage, dict) for stage in suffix),
             "ordered resource-first proof chain required")
+    compact_stage = (suffix[-1] if suffix and suffix[-1].get("schema") in
+                     {row["schema"] for row in FINAL_COMPACT.values()} else None)
+    if compact_stage is not None:
+        suffix = suffix[:-1]
     dependency_stage = (suffix[-1] if suffix and
                         suffix[-1].get("schema") == "rove4k.profile-dependencies.v1" else None)
     if dependency_stage is not None:
@@ -474,7 +519,7 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
     else:
         require(not suffix or (len(suffix) == 1 and has_phase),
                 "explicit A/C/F proof chain must be resource-only or ordered resource/phase")
-    post_profile, post_spelling, post_scan, post_ep, post_league, source_dependencies, tools = None, None, None, None, None, None, []
+    post_profile, post_spelling, post_scan, post_ep, post_league, source_dependencies, post_compact, tools = None, None, None, None, None, None, None, []
     if league_profile:
         tools.append(LEAGUE_OWNER)
     if has_b:
@@ -545,6 +590,20 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
         relative = "engines/experiments/tcec-next/profile_dependencies.py"
         source_dependencies = {"path": relative, "variant": "unused-includes"}
         tools.append(relative)
+    if compact_stage is not None:
+        compact = FINAL_COMPACT.get(family)
+        require(compact is not None and compact_stage.get("schema") == compact["schema"]
+                and compact_stage.get("family") == family and compact_stage.get("profile_id") == profile.id
+                and compact_stage.get("variant") == compact["variant"] and profile.id in compact["profiles"]
+                and dependency_stage is not None and post_league is None and cleanup == "private-path"
+                and ((family == "A" and has_phase and has_compound and scan_stage is not None and ep_stage is None)
+                     or (family == "B" and has_b and has_spelling and not has_compound and scan_stage is None and ep_stage is None)
+                     or (family == "C" and has_phase and has_compound and not has_f_compound and scan_stage is not None and ep_stage is not None)
+                     or (family == "E" and has_phase and has_compound and not has_f_compound and scan_stage is None and ep_stage is not None)
+                     or (family == "F" and has_phase and has_f_compound and scan_stage is None and ep_stage is None)),
+                "final compact requires its exact full source-JIT family, profile and earlier stages")
+        post_compact = {"path": compact["path"], "variant": compact["variant"]}
+        tools.append(compact["path"])
     if not suffix and not has_spelling and league_stage is None and dependency_stage is None and build is not None:
         control = json.loads(_evidence_bytes(Path(build) / "build.json", name="build.json"))
         validate_spelling_request(control)
@@ -552,13 +611,14 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
                 control.get("post_scan") is None and
                 control.get("post_ep") is None and
                 control.get("post_league") is None and
+                control.get("post_compact") is None and
                 control.get("source_dependencies") is None and control.get("source_proofs") == stages,
                 family + " control build declares an unconsumed post-profile stage")
     if suffix or has_spelling or dependency_stage is not None or league_profile:
         source_record = _source_build_record(build, family=family, stages=stages, post_profile=post_profile,
             main_source=main_source, baseline_source=baseline_source, tools=tools,
             post_spelling=post_spelling, post_scan=post_scan, post_ep=post_ep, post_league=post_league,
-            source_dependencies=source_dependencies)
+            source_dependencies=source_dependencies, post_compact=post_compact)
     replayed = [resource]
     inverses = [("resource", projection, resource, baseline_source)]
     if has_b:
@@ -692,9 +752,21 @@ def admit_source(main_source: bytes, baseline_source: bytes, baseline_proof: dic
             data = _evidence_bytes(root / relative, name=relative.name)
             require(pin(data) == value, "dependency rules evidence identity differs: " + name)
             return data
-        require(current.validate_receipt(Path(build), source_record, proof, projected, checked=checked) == expected,
+        compact_options = {"final_compact": True} if compact_stage is not None else {}
+        require(current.validate_receipt(Path(build), source_record, proof, projected, checked=checked,
+                                         **compact_options) == expected,
                 "dependency rules compiler gate differs")
         inverses.append(("final dependency", current, proof, expected))
+        expected = projected
+        replayed.append(proof)
+    if compact_stage is not None:
+        current = compact_module(build, FINAL_COMPACT[family])
+        projected, proof = current.transform_source(expected, family=family, profile_id=profile.id)
+        require(json.dumps(compact_stage, sort_keys=True, allow_nan=False) ==
+                json.dumps(proof, sort_keys=True, allow_nan=False) and
+                current.restore_source(projected, compact_stage) == expected,
+                "final compact projection, canonical proof or inverse differs")
+        inverses.append(("final compact", current, compact_stage, expected))
         expected = projected
         replayed.append(proof)
     require(main_source == expected,

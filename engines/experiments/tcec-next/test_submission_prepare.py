@@ -41,6 +41,9 @@ def fixture(family, *, ep_variant="control"):
                 compiler=["cc", "-Os"], compile_executor=["cc", "-Os"])
     if ep_variant == "legal-maker":
         record["post_ep"] = dict(path=builder.EP, variant="legal-maker")
+    if chosen.get("final_compact") == "selected":
+        compact = builder.FINAL_COMPACTS[family]
+        record["post_compact"] = {"path": compact["path"], "variant": compact["variant"]}
     return record
 
 
@@ -73,15 +76,33 @@ class SubmissionPreparation(unittest.TestCase):
             with self.assertRaises(ValueError):
                 prepare.selected_arguments(family)
 
+    def test_selected_full_entries_require_the_reviewed_final_compact_stage(self):
+        for family in "ABCEF":
+            ep = "legal-maker" if family in "CE" else "control"
+            chosen = prepare.selected_arguments(family, ep_variant=ep)
+            at = chosen.index("--final-compact")
+            self.assertEqual(chosen[at:at + 2], ["--final-compact", "selected"])
+            record = fixture(family, ep_variant=ep)
+            prepare.validate_selection(record, family, builder, ep_variant=ep)
+            for changed in (None, {"path": "foreign.py", "variant": "selected"},
+                            {"path": builder.FINAL_COMPACTS[family]["path"], "variant": "control"}):
+                bad = copy.deepcopy(record)
+                bad["post_compact"] = changed
+                with self.subTest(family=family, changed=changed), self.assertRaises(ValueError):
+                    prepare.validate_selection(bad, family, builder, ep_variant=ep)
+
     def test_CE_EP_selection_is_explicit_and_preserves_the_maintained_pipeline(self):
         for family in "CE":
             control = prepare.selection(family)
             selected = prepare.selection(family, ep_variant="legal-maker")
             self.assertNotIn("ep_variant", control)
-            self.assertEqual(selected, {**control, "ep_variant":"legal-maker"})
+            self.assertEqual(selected, {**control, "ep_variant":"legal-maker", "final_compact":"selected"})
             arguments = prepare.selected_arguments(family, ep_variant="legal-maker")
             at = arguments.index("--ep-variant")
             self.assertEqual(arguments[at:at + 2], ["--ep-variant", "legal-maker"])
+            del arguments[at:at + 2]
+            at = arguments.index("--final-compact")
+            self.assertEqual(arguments[at:at + 2], ["--final-compact", "selected"])
             del arguments[at:at + 2]
             self.assertEqual(arguments, prepare.selected_arguments(family))
         for family in "ABF":

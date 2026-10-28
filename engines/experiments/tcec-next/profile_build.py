@@ -77,8 +77,25 @@ SCAN_IMAGES = {
     ("C", "tcec-provisional"): (8201, "ae131e49609b34eefaa54499f79f2aa738d103cbc800c1d7a70cde359106b807", "3850273327e027346316df07b94c88f7e6b7df44da8dbbffbae69d777ed7c459"),
 }
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
+FINAL_COMPACTS = {
+    "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
+          "variant": "shortnames-v1", "bytes": 5250,
+          "sha256": "03ab70a6900eba651fc2ee3663d7ddfd91bdea10ca04b2401d93148a396128e5"},
+    "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
+          "variant": "b-search-names", "bytes": 8395,
+          "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
+    "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
+          "variant": "unused-macro-names", "bytes": 6253,
+          "sha256": "a7582b648230a519250d52920ba62a0371a3e3fedc3a19214d84df0feb71497c"},
+    "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
+          "variant": "e-fixed-coeff-macros", "bytes": 7015,
+          "sha256": "7bfab248c5cbefb5eade5fd7c8872a0954fd4173b866cf19845aac1e51e9e6db"},
+    "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
+          "variant": "names-null", "bytes": 4762,
+          "sha256": "b8b8b9a29350cc02501931b009823efdac6695ab589460715372a571cdf96187"},
+}
 EP = "engines/experiments/tcec-next/profile_ep.py"
-EP_PIN = dict(bytes=8476, sha256="d80d1421ff9c921fae899198094488a88dab88bd35009f4f36a44ca77588c44a")
+EP_PIN = dict(bytes=8477, sha256="9e089d39ded6da656a94b96a35c6b45c7a3839d6fc42672df8ff46d5f8220a34")
 BEST_SPELLING = {"A": "clock-type", "B": "atomic-assignment", "C": "clock-type",
                  "E": "clock-type", "F": "atomic-assignment"}
 COMPOUND_DECLARATION = dict(path=COMPOUND, selection="compound", variant="clock-atomic-launcher")
@@ -243,6 +260,8 @@ def argument_parser():
                         help="reviewed final include cleanup with expanded-input/native/whole-cost gates")
     parser.add_argument("--ep-variant", choices=("control", "legal-maker"), default="control",
                         help="opt-in C/E full EP maker sharing; final include cleanup remains last")
+    parser.add_argument("--final-compact", choices=("control", "selected"), default="control",
+                        help="opt-in exact final source compaction with native identity gate")
     return parser
 
 
@@ -300,6 +319,19 @@ def main():
                 post_spelling, post_scan, args.source_dependencies, args.ep_variant)
             if (args.entry, args.profile) not in ep_owner.IMAGES:
                 raise ValueError("EP profile has no audited literal source/native cost policy yet")
+        post_compact = None
+        if args.final_compact == "selected":
+            row = FINAL_COMPACTS.get(args.entry)
+            allowed_profiles = ("test-p4", "test-p28", "tcec-provisional") if args.entry == "F" else ("test-p4", "tcec-provisional")
+            if (row is None or args.profile not in allowed_profiles or args.representation != "source-jit" or
+                    args.source_dependencies != "unused-includes" or post_league is not None or
+                    (args.entry == "A" and post_scan != SCAN_DECLARATION) or
+                    (args.entry == "B" and (args.b_variant != "tcec-final-lf" or args.spelling_variant != "best")) or
+                    (args.entry == "C" and (args.ep_variant != "legal-maker" or post_ep is None or post_scan != SCAN_DECLARATION)) or
+                    (args.entry == "E" and (args.ep_variant != "legal-maker" or post_ep is None)) or
+                    (args.entry == "F" and post_spelling != F_COMPOUND_DECLARATION)):
+                raise ValueError("final compaction requires its exact reviewed family/profile source route")
+            post_compact = {"path": row["path"], "variant": row["variant"]}
     except ValueError as error:
         parser.error(str(error))
     out = args.out.resolve()
@@ -392,6 +424,8 @@ def main():
             names.update((EP, *(row["path"] for row in ep_owner.SUPPORT.values())))
         if args.source_dependencies != "control":
             names.add(DEPENDENCIES)
+        if post_compact is not None:
+            names.add(post_compact["path"])
         if args.representation in ("packed-native", "self-contained-elf"):
             names.add(ELF)
         if args.representation == "self-contained-elf":
@@ -492,6 +526,14 @@ def main():
         dependencies = (load("profile_frozen_dependencies", own / DEPENDENCIES)
                         if args.source_dependencies != "control" else None)
         report["source_dependencies"] = dict(dependencies.DECLARATION) if dependencies else None
+        compact = None
+        if post_compact is not None:
+            row = FINAL_COMPACTS[args.entry]
+            old.require(inputs[row["path"]] == {key: row[key] for key in ("bytes", "sha256")},
+                        "reviewed final compaction helper differs")
+            compact = load("profile_frozen_final_compact", own / row["path"])
+            old.require(compact.DECLARATION == post_compact, "final compact declaration differs")
+            report["post_compact"] = post_compact
         if args.representation == "source-jit":
             report["wrapper_contract"] = wrapper.contract(packaging, unlink, compiler)
         elif args.representation == "packed-native":
@@ -618,15 +660,28 @@ def main():
                     dependency_gate = dependencies.compile_gate(before_dependencies, source,
                         compiler=compile_executor, directory=directory / "dependency-gate",
                         run=host.run, prefix=attempt)
+            before_compact = source
+            compact_gate = None
+            if compact is not None:
+                source, compact_proof = compact.transform_source(source, family=args.entry, profile_id=profile.id)
+                old.require(compact.restore_source(source, compact_proof) == before_compact,
+                            "final compaction full inverse differs")
+                proofs.append(compact_proof)
+                compact_directory = directory / "final-compact-control"
+                compact_directory.mkdir()
+                host.run(compile_executor, cwd=compact_directory, kind=attempt + "-final-compact-control",
+                         data=before_compact)
+                compact_gate = {"directory": "final-compact-control", "source": old.pin(before_compact),
+                                "native": old.pin((compact_directory / "x").read_bytes()), "image_identical": True}
             (directory / "main.c").write_bytes(source)
             gate = directory / "target-type-gate"
             gate.mkdir()
             asserted = source + b"\n" + ("\n".join(proof["target_type_assertions"]) + "\n").encode()
-            native_policy = compound_native_policy(args.entry, profile.id, post_spelling, source,
+            native_policy = compound_native_policy(args.entry, profile.id, post_spelling, before_compact,
                 compiler, compile_executor, report["compile_executor_version"])
-            scan_policy = (scan_native_policy(args.entry, profile.id, post_scan, source,
+            scan_policy = (scan_native_policy(args.entry, profile.id, post_scan, before_compact,
                 compiler, compile_executor, report["compile_executor_version"]) if post_ep is None else None)
-            ep_policy = (ep_owner.native_policy(args.entry, profile.id, source, compiler,
+            ep_policy = (ep_owner.native_policy(args.entry, profile.id, before_compact, compiler,
                 compile_executor, report["compile_executor_version"]) if post_ep is not None else None)
             if post_spelling in (COMPOUND_DECLARATION, F_COMPOUND_DECLARATION):
                 (gate / "asserted.c").write_bytes(asserted)
@@ -635,6 +690,10 @@ def main():
             native = (native_dir / "x").read_bytes()
             old.require((gate / "x").read_bytes() == native,
                         "target type assertions changed the shipping native image")
+            if compact_gate is not None:
+                old.require(compact_gate["native"] == old.pin(native) and
+                            (directory / "final-compact-control/x").read_bytes() == native,
+                            "final compaction changed the actual compiler native image")
             if native_policy is not None:
                 old.require(old.pin(native) == native_policy["native"],
                             "F compound native differs from its named three-profile policy")
@@ -704,8 +763,15 @@ def main():
             if dependency_gate is not None:
                 before_whole = (wrapper.package(packaging, unlink, before_dependencies, compression, compiler)
                                 if args.representation == "source-jit" else whole)
-                old.require(len(whole) <= len(before_whole), "include removal grew the complete artifact")
-                dependency_gate["whole_cost"] = dict(before=len(before_whole), after=len(whole))
+                dependency_whole = (wrapper.package(packaging, unlink, before_compact, compression, compiler)
+                                    if args.representation == "source-jit" else whole)
+                old.require(len(dependency_whole) <= len(before_whole), "include removal grew the complete artifact")
+                dependency_gate["whole_cost"] = dict(before=len(before_whole), after=len(dependency_whole))
+            compact_cost = None
+            if compact_gate is not None:
+                baseline_whole = wrapper.package(packaging, unlink, before_compact, compression, compiler)
+                old.require(len(whole) < len(baseline_whole), "final compaction did not reduce the complete artifact")
+                compact_cost = dict(before=len(baseline_whole), after=len(whole))
             for name, data in (("main.c", source), ("x", whole), (header_name, header),
                                (payload_name, payload)):
                 (directory / name).write_bytes(data)
@@ -718,6 +784,9 @@ def main():
                 target_type_gate=dict(assertions=proof["target_type_assertions"],
                     source=old.pin(asserted), native=old.pin(native), image_identical=True), loader=loader,
                 dependency_gate=dependency_gate))
+            if compact_gate is not None:
+                report["attempts"][-1]["final_compact_gate"] = compact_gate
+                report["attempts"][-1]["final_compact_cost"] = compact_cost
             if native_policy is not None:
                 report["attempts"][-1]["target_type_gate"].update(directory="target-type-gate",
                     source_file="asserted.c", policy=native_policy["kind"])
@@ -728,7 +797,8 @@ def main():
                     data = (root / name).read_bytes()
                     old.require(old.pin(data) == expected, "dependency evidence identity differs: " + name)
                     return data
-                dependencies.validate_receipt(out, report, dependency_proof, source, checked=checked)
+                dependencies.validate_receipt(out, report, dependency_proof, before_compact, checked=checked,
+                                              final_compact=compact_gate is not None)
             save()
         a, b = report["attempts"]
         # Loader command metadata contains its own output path; byte identity,
@@ -736,7 +806,7 @@ def main():
         same = lambda row: {k: v for k, v in row.items() if k not in ("directory", "loader")}
         old.require(same(a) == same(b), "independent profile reproduction differs")
         report["expected_contract"] = {key: value for key, value in a.items()
-            if key not in ("directory", "source_proofs", "target_type_gate", "target_abi_gate", "loader", "dependency_gate")}
+            if key not in ("directory", "source_proofs", "target_type_gate", "target_abi_gate", "loader", "dependency_gate", "final_compact_gate", "final_compact_cost")}
         report["source_proofs"] = a["source_proofs"]
         report["actual"] = dict(source="main.c", native="native/x", program="x")
         for name in ("main.c", "native/x", "x", header_name, payload_name, "source-proof.json"):

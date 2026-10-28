@@ -57,6 +57,8 @@ def selection(family, *, ep_variant="control"):
                 source_dependencies="unused-includes")
     if ep_variant != "control":
         result["ep_variant"] = ep_variant
+    if family in "ABF" or (family in "CE" and ep_variant == "legal-maker"):
+        result["final_compact"] = "selected"
     return result
 
 
@@ -94,6 +96,10 @@ def validate_selection(record, family, builder, *, ep_variant="control"):
     require(equal(record.get("post_ep"), post_ep)
             and (ep_variant != "control" or "ep_native_policy" not in record),
             "submission EP differs from the explicit selected recipe")
+    compact = builder.FINAL_COMPACTS.get(family) if chosen.get("final_compact") == "selected" else None
+    compact_declaration = ({"path": compact["path"], "variant": compact["variant"]} if compact else None)
+    require(equal(record.get("post_compact"), compact_declaration),
+            "submission final compaction differs from the explicit selected recipe")
     require(equal(record.get("compiler"), record.get("compile_executor")),
             "submission preparation uses its original producer compiler")
 
