@@ -196,7 +196,7 @@ class DispatchTests(unittest.TestCase):
         request_bytes = ledger.canonical(host_request) + b'\n'
         report_body = {'format': 'rove4k-functional-candidate-v1', 'profile': self.req.profile,
             'artifact_id': self.req.artifact_id, 'candidate_set_sha256': self.req.candidates_sha256,
-            'complete': True, 'scored_game_admitted': False}
+            'boot_id': self.req.boot_id, 'complete': True, 'scored_game_admitted': False}
         report_bytes = ledger.canonical(report_body) + b'\n'
         host_result = {'format': 'rove4k-functional-host-result-v1', 'attempt': attempt,
             'request_sha256': hashlib.sha256(request_bytes).hexdigest(), 'status': 'complete',

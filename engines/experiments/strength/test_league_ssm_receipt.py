@@ -46,7 +46,7 @@ class ReceiptTests(unittest.TestCase):
                             pid=742, scored_game_admitted=False)
         self.body = {'format': 'rove4k-functional-candidate-v1', 'profile': 'test-p16',
                      'artifact_id': 'engine-a', 'candidate_set_sha256': 'a' * 64,
-                     'complete': True, 'scored_game_admitted': False}
+                     'boot_id': BOOT, 'complete': True, 'scored_game_admitted': False}
         self.request_path = '/srv/rove/state/' + ATTEMPT + '/request.json'
         self.report_path = '/srv/rove/output/functional-runtime.json'
         self.files = {self.request_path: raw(self.request), self.report_path: raw(self.body)}
@@ -178,10 +178,12 @@ class ReceiptTests(unittest.TestCase):
         self.assertEqual(self.observe()['reason'], 'dispatch_identity_mismatch')
 
     def test_invalid_boot_uuid_rejected_before_aws_read(self):
-        self.expected['boot_id'] = BOOT.upper()
-        with self.assertRaises(ValueError):
-            self.observe()
-        self.assertFalse(self.client.calls)
+        for value in (BOOT.upper(), '00000000-0000-0000-0000-000000000000'):
+            with self.subTest(value=value):
+                self.expected['boot_id'] = value
+                with self.assertRaises(ValueError):
+                    self.observe()
+                self.assertFalse(self.client.calls)
 
     def test_attempt_and_report_boundaries(self):
         for attempt in ('../other', 'E' * 32, 'e' * 31):
@@ -207,7 +209,13 @@ class ReceiptTests(unittest.TestCase):
                         'campaign': 'league1', 'candidates': str(base / 'candidates.json'),
                         'candidates_sha256': 'a' * 64, 'profile': 'test-p16',
                         'artifact': 'engine-a', 'out': str(base / 'output'), 'wall_seconds': 120}
-            result = host.run(**expected, _probe_factory=lambda **kw: FakeProbe(kw))
+            class BootProbe(FakeProbe):
+                def run(self):
+                    report = super().run()
+                    report['boot_id'] = BOOT
+                    (Path(self.arguments['out']) / 'functional-runtime.json').write_text(json.dumps(report))
+                    return report
+            result = host.run(**expected, _probe_factory=lambda **kw: BootProbe(kw))
             expected['boot_id'] = BOOT
             invocation = dict(self.invocation, StandardOutputContent=json.dumps({
                 'format': 'rove4k-ssm-functional-v2', 'request_sha256': DISPATCH,

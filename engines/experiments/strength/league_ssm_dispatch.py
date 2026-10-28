@@ -8,8 +8,8 @@ instance or authorizes a scored game. The durable journal fences replay only
 for one journal owner, not for another controller or a different host. The
 producer, version and boot fields are declarations bound to request bytes;
 their presence is not authentication or proof of a fetched S3 version.
-The current remote snapshot format requires Rove family/profile artifact
-metadata; peer engines need their own producer provenance and are rejected.
+Rove artifact metadata and upstream peer source/build provenance use distinct
+request and receipt formats. Neither format grants live authority.
 """
 from __future__ import annotations
 
@@ -34,6 +34,40 @@ _ACCOUNT = re.compile(r'[0-9]{12}\Z')
 _REGION = re.compile(r'[a-z]{2}(?:-gov)?-[a-z]+-[0-9]+\Z')
 _DECIMAL = re.compile(r'[1-9][0-9]{0,19}\Z')
 _BOOT = re.compile(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\Z')
+
+
+def _validate_common(request):
+    for item in (request.campaign_id, request.job_id):
+        ledger.valid_id(item)
+    if (len(request.job_id) > 93 or not isinstance(request.instance_id, str) or not _INSTANCE.fullmatch(request.instance_id)
+            or not isinstance(request.account_id, str) or not _ACCOUNT.fullmatch(request.account_id)
+            or not isinstance(request.region, str) or not _REGION.fullmatch(request.region)
+            or not isinstance(request.source_head, str) or not _GIT.fullmatch(request.source_head)
+            or not isinstance(request.seed_manifest_sha256, str) or not _HEX.fullmatch(request.seed_manifest_sha256)
+            or not isinstance(request.artifact_bucket, str)
+            or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', request.artifact_bucket)
+            or request.repository != 'daejunnom/Rove4k'
+            or any(not isinstance(value, str) or not _DECIMAL.fullmatch(value) for value in
+                   (request.producer_run_id, request.producer_run_attempt))
+            or not isinstance(request.seed_bucket, str)
+            or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', request.seed_bucket)
+            or not isinstance(request.seed_key, str) or not request.seed_key.startswith(request.campaign_id + '/seed/')
+            or len(request.seed_key.encode('utf-8', 'surrogatepass')) > 1024
+            or any(part in ('', '.', '..') for part in request.seed_key.split('/'))
+            or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
+                   for char in request.seed_key)
+            or not isinstance(request.seed_version_id, str) or request.seed_version_id in ('', 'null')
+            or len(request.seed_version_id) > 1024
+            or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
+                   for char in request.seed_version_id)
+            or len(request.seed_version_id.encode('utf-8')) > 1024
+            or not isinstance(request.seed_archive_sha256, str) or not _HEX.fullmatch(request.seed_archive_sha256)
+            or type(request.seed_archive_bytes) is not int or not 0 < request.seed_archive_bytes <= 128 << 20
+            or not isinstance(request.boot_id, str) or not _BOOT.fullmatch(request.boot_id)
+            or request.boot_id == '00000000-0000-0000-0000-000000000000'
+            or request.profile not in ('test-p16', 'test-p192')
+            or type(request.wall_seconds) is not int or not 90 <= request.wall_seconds <= 300):
+        raise ValueError('exact account, instance, seed and bounded P16/P192 request required')
 
 
 @dataclass(frozen=True)
@@ -62,38 +96,11 @@ class Request:
     wall_seconds: int = 120
 
     def __post_init__(self):
-        for item in (self.campaign_id, self.job_id, self.artifact_id):
-            ledger.valid_id(item)
-        if (len(self.job_id) > 93 or not isinstance(self.instance_id, str) or not _INSTANCE.fullmatch(self.instance_id)
-                or not isinstance(self.account_id, str) or not _ACCOUNT.fullmatch(self.account_id)
-                or not isinstance(self.region, str) or not _REGION.fullmatch(self.region)
-                or not isinstance(self.source_head, str) or not _GIT.fullmatch(self.source_head)
-                or not isinstance(self.seed_manifest_sha256, str) or not _HEX.fullmatch(self.seed_manifest_sha256)
-                or not isinstance(self.candidates_sha256, str) or not _HEX.fullmatch(self.candidates_sha256)
-                or not isinstance(self.artifact_bucket, str)
-                or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', self.artifact_bucket)
-                or self.repository != 'daejunnom/Rove4k'
-                or any(not isinstance(value, str) or not _DECIMAL.fullmatch(value) for value in
-                       (self.producer_run_id, self.producer_run_attempt, self.producer_artifact_id))
-                or not isinstance(self.seed_bucket, str)
-                or not re.fullmatch(r'[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]', self.seed_bucket)
-                or not isinstance(self.seed_key, str) or not self.seed_key.startswith(self.campaign_id + '/seed/')
-                or len(self.seed_key.encode('utf-8', 'surrogatepass')) > 1024
-                or any(part in ('', '.', '..') for part in self.seed_key.split('/'))
-                or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
-                       for char in self.seed_key)
-                or not isinstance(self.seed_version_id, str) or self.seed_version_id in ('', 'null')
-                or len(self.seed_version_id) > 1024
-                or any(ord(char) < 32 or 127 <= ord(char) < 160 or 0xd800 <= ord(char) <= 0xdfff
-                       for char in self.seed_version_id)
-                or len(self.seed_version_id.encode('utf-8')) > 1024
-                or not isinstance(self.seed_archive_sha256, str) or not _HEX.fullmatch(self.seed_archive_sha256)
-                or type(self.seed_archive_bytes) is not int or not 0 < self.seed_archive_bytes <= 128 << 20
-                or not isinstance(self.boot_id, str) or not _BOOT.fullmatch(self.boot_id)
-                or self.boot_id == '00000000-0000-0000-0000-000000000000'
-                or self.profile not in ('test-p16', 'test-p192')
-                or type(self.wall_seconds) is not int or not 90 <= self.wall_seconds <= 300):
-            raise ValueError('exact account, instance, seed, candidate and bounded P16/P192 request required')
+        _validate_common(self)
+        ledger.valid_id(self.artifact_id)
+        if (not isinstance(self.candidates_sha256, str) or not _HEX.fullmatch(self.candidates_sha256)
+                or not isinstance(self.producer_artifact_id, str) or not _DECIMAL.fullmatch(self.producer_artifact_id)):
+            raise ValueError('exact Rove candidate and artifact identity required')
 
     def record(self):
         return {'format': 'rove4k-ssm-functional-request-v2', 'campaign_id': self.campaign_id,
@@ -107,6 +114,48 @@ class Request:
                 'seed_key': self.seed_key, 'seed_version_id': self.seed_version_id,
                 'seed_archive_sha256': self.seed_archive_sha256, 'seed_archive_bytes': self.seed_archive_bytes,
                 'boot_id': self.boot_id, 'wall_seconds': self.wall_seconds}
+
+
+@dataclass(frozen=True)
+class PeerRequest:
+    """Pinned peer upstream identity; candidate is generated on the host."""
+    campaign_id: str
+    job_id: str
+    instance_id: str
+    account_id: str
+    region: str
+    seed_manifest_sha256: str
+    source_head: str
+    profile: str
+    artifact_bucket: str
+    repository: str
+    producer_run_id: str
+    producer_run_attempt: str
+    seed_bucket: str
+    seed_key: str
+    seed_version_id: str
+    seed_archive_sha256: str
+    seed_archive_bytes: int
+    boot_id: str
+    family: str
+    upstream_repository: str
+    upstream_revision: str
+    wall_seconds: int = 120
+    preparation_seconds: int = 3600
+
+    def __post_init__(self):
+        _validate_common(self)
+        try:
+            from . import peers
+        except ImportError:
+            import peers
+        spec = peers.peer_spec(self.family)
+        if (self.upstream_repository != spec.repository or self.upstream_revision != spec.revision
+                or type(self.preparation_seconds) is not int or not 600 <= self.preparation_seconds <= 7200):
+            raise ValueError('exact pinned upstream peer and bounded preparation time required')
+
+    def record(self):
+        return {'format': 'rove4k-ssm-peer-request-v1', **self.__dict__}
 
 
 # The program is fixed; only the encoded canonical request varies. Materialize
@@ -154,11 +203,11 @@ for key,expected_value in (('run_id',p['producer_run_id']),('run_attempt',p['pro
  if type(value) not in (str,int) or not re.fullmatch('[1-9][0-9]{0,19}',str(value)) or str(value)!=expected_value: raise ValueError('seed provenance differs')
 members=m.get('members')
 if not isinstance(members,dict) or not 0<len(members)<20000: raise ValueError('invalid seed members')
-blocked={'.git','.aws','.ssh','node_modules','dist','dist-server','build','coverage','models','checkpoints','.cache','inventory.json','package-lock.json'}
+blocked={'.git','.aws','.ssh','.npmrc','node_modules','dist','dist-server','build','coverage','models','checkpoints','.cache','inventory.json','package-lock.json'}
 def parts(name):
  if not isinstance(name,str) or not name or '\\' in name or ':' in name or '\0' in name: raise ValueError('unsafe member name')
  q=pathlib.PurePosixPath(name)
- if q.is_absolute() or any(x in ('','.','..') or x.lower() in blocked or x.lower().startswith('.env') or re.search(r'credential|service[-_ ]?account|api[-_ ]?key|ssh[-_ ]?key|^id_(rsa|ed25519)$',x,re.I) for x in name.split('/')): raise ValueError('protected seed member')
+ if q.is_absolute() or any(x in ('','.','..') or x.lower() in blocked or x.lower().startswith('.env') or x.lower().endswith(('.pem','.key','.p12','.pfx')) or re.search(r'credential|service[-_ ]?account|api[-_ ]?key|access[-_ ]?key|ssh[-_ ]?key|secret|password|^token(?:\.|$)|[_-]token$|^id_(?:rsa|dsa|ecdsa|ed25519)(?:[.-].*)?$|^ssh_host_.*_key(?:\.pub)?$',x,re.I) for x in name.split('/')): raise ValueError('protected seed member')
  return q
 snapshot=pathlib.Path(tempfile.mkdtemp(prefix='rove-seed-',dir=base/'snapshots')); total=0
 for name,pin in sorted(members.items()):
@@ -207,15 +256,43 @@ sys.exit(0 if result['status']=='complete' else 1)
 '''
 
 
+# The common prefix checks boot, the declared seed origin, every seed member
+# and its pinned snapshot. The peer tail never interprets a GitHub artifact
+# as the output of an upstream engine built on this host.
+_PEER_REMOTE = _REMOTE.split("candidate_raw=", 1)[0] + r'''rows=[r for r in m.get('peers',[]) if isinstance(r,dict) and r.get('family')==p['family'] and r.get('profile')==p['profile']]
+if len(rows)!=1 or rows[0].get('repository')!=p['upstream_repository'] or rows[0].get('revision')!=p['upstream_revision']: raise ValueError('peer source identity differs')
+source=snapshot/parts(m['source_tree']); siblings=source/'engines/experiments/strength'
+if not all((siblings/name).is_file() for name in ('cloud_runtime.py','league_functional_host.py','peer_diagnostic_prepare.py')): raise ValueError('missing peer diagnostic closure')
+sys.path.insert(0,str(siblings)); import cloud_runtime,league_functional_host,peer_diagnostic_prepare
+rows=pathlib.Path('/proc/self/cgroup').read_text().splitlines()
+if len(rows)!=1 or not rows[0].startswith('0::/'): raise ValueError('missing unified cgroup')
+relative=pathlib.PurePosixPath(rows[0][3:]);
+if '..' in relative.parts: raise ValueError('invalid delegated cgroup')
+root=pathlib.Path('/sys/fs/cgroup')/str(relative).lstrip('/')
+if str(root)!=EXPECTED_ROOT: raise ValueError('unexpected delegated systemd unit path')
+preparation_dir=base/'inputs'/('peer-'+p['job_id'])
+prepared=peer_diagnostic_prepare.prepare(seed_root=snapshot,seed_sha256=p['seed_manifest_sha256'],family=p['family'],profile=p['profile'],cpu=min(os.sched_getaffinity(0)),out=preparation_dir)
+if prepared.get('family')!=p['family'] or prepared.get('profile')!=p['profile'] or prepared.get('seed_sha256')!=p['seed_manifest_sha256'] or prepared.get('candidate',{}).get('path')!=str(preparation_dir/'candidate.json'): raise ValueError('prepared peer identity differs')
+check_boot()
+cloud_runtime.delegate_controller(root)
+result=league_functional_host.run(state_dir=base/'state',root=root,campaign=p['campaign_id'],candidates=preparation_dir/'candidate.json',candidates_sha256=prepared['candidate']['sha256'],profile=p['profile'],artifact=prepared['artifact_id'],out=base/'results'/p['job_id'],wall_seconds=p['wall_seconds'])
+check_boot()
+print(json.dumps({'format':'rove4k-ssm-peer-functional-v1','request_sha256':request_sha,'observed_boot_id':p['boot_id'],'preparation':prepared,'result':result},sort_keys=True,separators=(',',':')))
+sys.exit(0 if result['status']=='complete' else 1)
+'''
+
+
 def command(request):
     """Produce the fixed systemd delegated command; never contact AWS."""
-    if type(request) is not Request:
+    if type(request) not in (Request, PeerRequest):
         raise ValueError('validated immutable Request required')
     payload = base64.b64encode(ledger.canonical(request.record())).decode('ascii')
     unit = _unit(request)
-    script = _REMOTE.replace('PAYLOAD', repr(payload)).replace('EXPECTED_ROOT', repr('/sys/fs/cgroup/system.slice/' + unit))
-    argv = ['/usr/bin/systemd-run', '--unit=' + unit, '--slice=system.slice', '--property=Delegate=yes', '--property=Type=exec',
-            '--wait', '--pipe', '--collect', '/usr/bin/python3', '-I', '-B', '-c', script]
+    script = (_PEER_REMOTE if type(request) is PeerRequest else _REMOTE).replace('PAYLOAD', repr(payload)).replace('EXPECTED_ROOT', repr('/sys/fs/cgroup/system.slice/' + unit))
+    argv = ['/usr/bin/systemd-run', '--unit=' + unit, '--slice=system.slice', '--property=Delegate=yes', '--property=Type=exec']
+    if type(request) is PeerRequest:
+        argv.append('--property=RuntimeMaxSec=' + str(request.preparation_seconds + request.wall_seconds + 60))
+    argv += ['--wait', '--pipe', '--collect', '/usr/bin/python3', '-I', '-B', '-c', script]
     return 'exec ' + ' '.join(shlex.quote(arg) for arg in argv)
 
 
@@ -225,9 +302,16 @@ def _unit(request):
 
 def expected_receipt_inputs(request):
     """Derive collector pins from the same immutable dispatch request."""
-    if type(request) is not Request:
+    if type(request) not in (Request, PeerRequest):
         raise ValueError('validated immutable Request required')
     base = PurePosixPath('/var/lib/rove4k/diagnostics') / request.campaign_id
+    if type(request) is PeerRequest:
+        return {'state_dir': str(base / 'state'), 'root': '/sys/fs/cgroup/system.slice/' + _unit(request),
+                'campaign': request.campaign_id, 'preparation_dir': str(base / 'inputs' / ('peer-' + request.job_id)),
+                'profile': request.profile, 'family': request.family, 'out': str(base / 'results' / request.job_id),
+                'wall_seconds': request.wall_seconds, 'boot_id': request.boot_id,
+                'seed_manifest_sha256': request.seed_manifest_sha256,
+                'upstream_repository': request.upstream_repository, 'upstream_revision': request.upstream_revision}
     return {'state_dir': str(base / 'state'), 'root': '/sys/fs/cgroup/system.slice/' + _unit(request),
             'campaign': request.campaign_id, 'candidates': str(base / 'inputs' / 'candidates.json'),
             'candidates_sha256': request.candidates_sha256, 'profile': request.profile,
@@ -250,7 +334,7 @@ def _dispatch_with_verified_authority(request, *, plan, journal, client, authori
     This private function must not be wired as public dispatch until authority
     is implemented independently. The journal fences only its own local owner.
     """
-    if type(request) is not Request or not callable(authority):
+    if type(request) not in (Request, PeerRequest) or not callable(authority):
         raise ValueError('validated request and live authority adapter required')
     if (getattr(plan, 'campaign_id', None) != request.campaign_id or
             getattr(plan, 'region', None) != request.region or getattr(plan, 'account_id', None) != request.account_id or
@@ -268,18 +352,24 @@ def _dispatch_with_verified_authority(request, *, plan, journal, client, authori
                 'seed_manifest_sha256': request.seed_manifest_sha256, 'source_head': request.source_head,
                 'artifact_bucket': request.artifact_bucket, 'repository': request.repository,
                 'producer_run_id': request.producer_run_id, 'producer_run_attempt': request.producer_run_attempt,
-                'producer_artifact_id': request.producer_artifact_id, 'seed_bucket': request.seed_bucket,
+                'seed_bucket': request.seed_bucket,
                 'seed_key': request.seed_key, 'seed_version_id': request.seed_version_id,
                 'seed_archive_sha256': request.seed_archive_sha256, 'seed_archive_bytes': request.seed_archive_bytes,
                 'boot_id': request.boot_id, 'request_sha256': digest}
+    if type(request) is Request:
+        expected['producer_artifact_id'] = request.producer_artifact_id
+    else:
+        expected.update(family=request.family, upstream_repository=request.upstream_repository,
+                        upstream_revision=request.upstream_revision, preparation_seconds=request.preparation_seconds)
     if type(attestation) is not dict or attestation.get('verified') is not True or any(attestation.get(k) != v for k, v in expected.items()):
         raise ValueError('live authority did not verify the exact diagnostic binding')
     ssm = campaign.SSMCommands(client)
     if not ssm.ready(request.instance_id)['ready']:
         raise ValueError('bound Linux SSM agent is not online')
     cmd = command(request)
+    execution_seconds = request.wall_seconds + 180 + (request.preparation_seconds if type(request) is PeerRequest else 0)
     wire = {'InstanceIds': [request.instance_id], 'DocumentName': 'AWS-RunShellScript',
-            'Parameters': {'commands': [cmd], 'executionTimeout': [str(request.wall_seconds + 180)]},
+            'Parameters': {'commands': [cmd], 'executionTimeout': [str(execution_seconds)]},
             'TimeoutSeconds': 60, 'MaxConcurrency': '1', 'MaxErrors': '0',
             'Comment': 'rove4k:' + request.job_id, 'OutputS3BucketName': request.artifact_bucket,
             'OutputS3KeyPrefix': request.campaign_id + '/ssm/' + request.job_id}
@@ -287,7 +377,7 @@ def _dispatch_with_verified_authority(request, *, plan, journal, client, authori
         'request_sha256': digest, 'command_sha256': hashlib.sha256(cmd.encode()).hexdigest(),
         'ssm_request_sha256': ledger.digest(wire)})
     try:
-        command_id = ssm.send(plan, request.instance_id, cmd, request.job_id, request.wall_seconds + 180)
+        command_id = ssm.send(plan, request.instance_id, cmd, request.job_id, execution_seconds)
     except Exception:
         journal.append('league.functional_ssm_uncertain', {'job_id': request.job_id, 'request_sha256': digest})
         raise

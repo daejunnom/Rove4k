@@ -135,7 +135,8 @@ class PeerPreparationTests(unittest.TestCase):
                                     profile="test-p16", cpu=self.cpu, out=self.root / "unused")
 
     def test_protected_members_are_refused_before_seed_member_reads(self):
-        for forbidden in ("x/.env", "x/build/payload", "x/service-account.json", "x/token.json", "x/a.pem"):
+        for forbidden in ("x/.env", "x/build/payload", "x/service-account.json", "x/token.json", "x/a.pem",
+                          "x/id_ecdsa", "x/id_dsa", "x/id_ed25519.pub", "x/ssh_host_ed25519_key"):
             with self.subTest(member=forbidden):
                 seed = {**self.seed, "members": {**self.seed["members"], forbidden: {}}}
                 with patch.object(prepare.cloud_runtime, "load_seed_manifest", return_value=seed), \

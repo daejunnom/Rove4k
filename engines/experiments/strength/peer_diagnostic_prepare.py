@@ -13,6 +13,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import sys
 
 sys.dont_write_bytecode = True
@@ -54,6 +55,9 @@ def prepare(*, seed_root, seed_sha256, family, profile, cpu, out):
     # explicit protected/generated-input policy.
     for name in seed["members"]:
         diagnostic_candidates._check_path_components(root / cloud_runtime.member(name))
+        if any(re.fullmatch(r"(?:id_(?:rsa|dsa|ecdsa|ed25519)(?:[.-].*)?|ssh_host_.*_key(?:\.pub)?)",
+                            part, re.IGNORECASE) for part in Path(name).parts):
+            raise ValueError("SSH key is not an admissible seed member")
     cloud_runtime.revalidate_seed(seed, root)
     cloud_runtime.validate_host_source(seed)
     rows = [row for row in seed["peers"] if row.get("family") == family and row.get("profile") == profile]
