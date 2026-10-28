@@ -72,7 +72,7 @@ def _launcher(path, *, whole, whole_sha256, slot, cgroup, saved_cpus, saved_node
     # The script receives only values that the parent has just validated. It
     # waits until the original process-group owner has been durably recorded.
     code = "#!/usr/bin/python3 -I\n" + "\n".join((
-        "import hashlib,json,os,stat,sys,time,types", "from pathlib import Path", "sys.dont_write_bytecode=True",
+        "import fcntl,hashlib,json,os,stat,sys,time,types", "from pathlib import Path", "sys.dont_write_bytecode=True",
         "def read_safe(path,limit):",
         " p=Path(path)",
         " if not p.is_absolute() or '..' in p.parts: raise RuntimeError('unsafe input path')",
@@ -108,14 +108,29 @@ def _launcher(path, *, whole, whole_sha256, slot, cgroup, saved_cpus, saved_node
         "fields=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()",
         "if [owner['pgid'],owner['session'],owner['start_ticks']]!=[int(fields[2]),int(fields[3]),int(fields[19])]: raise RuntimeError('original process identity changed')",
         "target=Path(" + repr(str(whole)) + ")",
-        "if hashlib.sha256(read_safe(target,256<<20)).hexdigest()!=" + repr(whole_sha256) + ": raise RuntimeError('whole candidate changed')",
+        "whole=read_safe(target,256<<20)",
+        "if hashlib.sha256(whole).hexdigest()!=" + repr(whole_sha256) + ": raise RuntimeError('whole candidate changed')",
+        # Seal the verified bytes before placement so a later pathname swap or
+        # in-place write cannot change the script that the kernel interprets.
+        # The inheritable fd is essential: submitted shell wrappers reopen $0.
+        "image=os.memfd_create('rove4k-functional-whole',os.MFD_ALLOW_SEALING)",
+        "os.fchmod(image,0o700)",
+        "view=memoryview(whole)",
+        "while view:",
+        " written=os.write(image,view)",
+        " if written<=0: raise RuntimeError('short candidate snapshot write')",
+        " view=view[written:]",
+        "seals=fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL",
+        "fcntl.fcntl(image,fcntl.F_ADD_SEALS,seals)",
+        "if fcntl.fcntl(image,fcntl.F_GET_SEALS)&seals!=seals: raise RuntimeError('candidate snapshot not sealed')",
+        "os.set_inheritable(image,True)",
         "record=placement.apply_slot(" + repr(slot) + ",cgroup=" + repr(cgroup) + ",saved_ancestor_cpus=" + repr(saved_cpus) + ",saved_ancestor_nodes=" + repr(saved_nodes) + ")",
         "policy=record.get('observed_policy')",
         "if record['fallback'] is not None or not isinstance(policy,dict) or policy.get('available') is not True or policy.get('request_applied') is not True or policy.get('mode')!=0: raise RuntimeError('requested NUMA policy not observed')",
         "with Path(" + repr(str(record)) + ").open('x',encoding='utf-8') as stream:",
         " stream.write(json.dumps(record,sort_keys=True)+'\\n');stream.flush();os.fsync(stream.fileno())",
         "os.environ['TMPDIR']=" + repr(str(temporary)),
-        "os.execv(str(target),[str(target)])", "",
+        "os.execve(image,[str(target)],os.environ)", "",
     ))
     _write_exclusive(path, code.encode("utf-8"))
     path.chmod(0o700)
@@ -227,6 +242,7 @@ def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
                   "external cgroup writers and hidden ancestors are not excluded",
                   "declared overhead is not a proven workload upper bound",
                   "existing candidate/receipt parser performs path checks and reads separately",
+                  "sealed snapshot execution depends on Linux memfd and /dev/fd support, and differs from TCEC path execution",
                   "whole/native identity does not prove executable continuity or source provenance",
                   "worker completeness and TT-specific NUMA placement remain unproved"]}
     launcher = output / "launcher"

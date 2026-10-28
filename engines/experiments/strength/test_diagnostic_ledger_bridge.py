@@ -1,6 +1,7 @@
 """Wave-to-ledger diagnostic wiring; fake S3 and toy runners only."""
 import hashlib
 import json
+from contextlib import nullcontext
 import sys
 import tempfile
 import threading
@@ -114,6 +115,10 @@ class DiagnosticBridgeTests(unittest.TestCase):
             def poll(self):
                 decision, self.decision = self.decision, None
                 return ([decision] if decision else []) + bridge.poll()
+            def can_release(self, job, observed, fence):
+                return job.identity == first.identity and fence.fence_id == 'fixture-fence'
+            def release_guard(self, job, observed, fence):
+                return nullcontext(self.can_release(job, observed, fence))
 
         def on_event(name, job, observation):
             events.append((name, job.identity))

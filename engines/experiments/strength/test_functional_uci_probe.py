@@ -8,6 +8,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import shutil
 import subprocess
 import os
 from pathlib import Path
@@ -400,6 +401,88 @@ class RealLauncherGuardTests(unittest.TestCase):
             self.assertEqual(json.loads(capture.read_text()),
                 {"slot": {"id": "test"}, "cgroup": {"path": "/fixture"},
                  "saved_ancestor_cpus": [0, 1], "saved_ancestor_nodes": [2, 3]})
+
+    def test_launcher_executes_sealed_snapshot_when_path_changes_during_placement(self):
+        # Submitted shell wrappers reopen $0 to read their own payload. Test
+        # both pathname replacement and in-place mutation after digest check.
+        for mode in ("replace", "mutate"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="rove-launcher-snapshot-") as tmp:
+                root = Path(tmp)
+                target = root / "target"
+                target.write_text('#!/bin/sh\ntail -n 1 "$0"\n# verified payload\n', encoding="utf-8")
+                target.chmod(0o700)
+                expected = hashlib.sha256(target.read_bytes()).hexdigest()
+                replacement = root / "replacement"
+                replacement.write_text('#!/bin/sh\necho substituted\n', encoding="utf-8")
+                replacement.chmod(0o700)
+                fake = root / "fixture_placement.py"
+                change = (" Path(" + repr(str(replacement)) + ").replace(" + repr(str(target)) + ")\n"
+                          if mode == "replace" else
+                          " Path(" + repr(str(target)) + ").write_text('#!/bin/sh\\necho substituted\\n')\n")
+                fake.write_text("from pathlib import Path\n"
+                    "def apply_slot(slot, **kwargs):\n" + change +
+                    " return {'fallback':None,'observed_policy':{'available':True,'request_applied':True,'mode':0}}\n",
+                    encoding="utf-8")
+                launcher, owner, release = (root / name for name in ("launcher", "owner", "release"))
+                with mock.patch.object(probe.placement, "__file__", str(fake)):
+                    probe._launcher(launcher, whole=target, whole_sha256=expected, slot={}, cgroup={}, saved_cpus=[],
+                        record=root / "receipt", owner_file=owner, release_file=release, temporary=root)
+                process = subprocess.Popen([str(launcher)], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           start_new_session=True)
+                try:
+                    fields = Path(f"/proc/{process.pid}/stat").read_text().rsplit(")", 1)[1].split()
+                    raw = json.dumps({"pid": process.pid, "pgid": int(fields[2]), "session": int(fields[3]),
+                                      "start_ticks": int(fields[19])}).encode()
+                    owner.write_bytes(raw)
+                    release.write_text(hashlib.sha256(raw).hexdigest(), encoding="ascii")
+                    stdout, stderr = process.communicate(timeout=5)
+                finally:
+                    if process.poll() is None:
+                        process.kill()
+                        process.communicate()
+                self.assertEqual(process.returncode, 0, stderr.decode(errors="replace"))
+                self.assertEqual(stdout, b"# verified payload\n")
+                self.assertNotEqual(hashlib.sha256(target.read_bytes()).hexdigest(), expected)
+
+    @unittest.skipUnless(shutil.which("xz") and shutil.which("cc"), "xz and a C compiler are required")
+    def test_launcher_executes_small_real_source_stream_from_sealed_snapshot(self):
+        # Exercise the real source-stream producer, including $0/tail/xz,
+        # the Python bootstrap and fd-exec of a tiny compiled C program.
+        pack = load("functional_probe_pack_stream", ROOT / "engines/compact/tiny-a/pack_stream.py")
+        source = b'#include <stdio.h>\nint main(void){puts("source-stream-ok");return 0;}\n'
+        whole, _ = pack.make_stream(source, ["cc", "-x", "c", "-o", "x", "-"],
+                                    compiler_group=lambda script: (script, {"fixture": True}))
+        with tempfile.TemporaryDirectory(prefix="rove-real-stream-") as tmp:
+            root = Path(tmp)
+            target = root / "target"
+            target.write_bytes(whole)
+            target.chmod(0o700)
+            fake = root / "fixture_placement.py"
+            fake.write_text("from pathlib import Path\n"
+                "def apply_slot(slot, **kwargs):\n"
+                " Path(" + repr(str(target)) + ").write_text('#!/bin/sh\\nexit 97\\n')\n"
+                " return {'fallback':None,'observed_policy':{'available':True,'request_applied':True,'mode':0}}\n",
+                encoding="utf-8")
+            launcher, owner, release = (root / name for name in ("launcher", "owner", "release"))
+            with mock.patch.object(probe.placement, "__file__", str(fake)):
+                probe._launcher(launcher, whole=target, whole_sha256=hashlib.sha256(whole).hexdigest(),
+                    slot={}, cgroup={}, saved_cpus=[], record=root / "receipt", owner_file=owner,
+                    release_file=release, temporary=root)
+            process = subprocess.Popen([str(launcher)], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       start_new_session=True)
+            try:
+                fields = Path(f"/proc/{process.pid}/stat").read_text().rsplit(")", 1)[1].split()
+                raw = json.dumps({"pid": process.pid, "pgid": int(fields[2]), "session": int(fields[3]),
+                                  "start_ticks": int(fields[19])}).encode()
+                owner.write_bytes(raw)
+                release.write_text(hashlib.sha256(raw).hexdigest(), encoding="ascii")
+                stdout, stderr = process.communicate(timeout=20)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.communicate()
+            self.assertEqual(process.returncode, 0, stderr.decode(errors="replace"))
+            self.assertEqual(stdout, b"source-stream-ok\n")
 
     def run_launcher(self, root, *, matching_owner, symlink_target=False):
         target = root / "target"
