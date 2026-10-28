@@ -946,6 +946,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                          "engines/experiments/strength/original_peer_build.py",
                          "engines/experiments/strength/peer_exact_runner.py",
                          "engines/experiments/strength/original_peer_uci.py",
+                         "engines/experiments/strength/opening_pgn.py",
                          "engines/scripts/league_resource_profiles.py",
                          "engines/experiments/tcec-scope/verify.py",
                          "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
@@ -1077,6 +1078,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/original_peer_build.py",
                      "engines/experiments/strength/peer_exact_runner.py",
                      "engines/experiments/strength/original_peer_uci.py",
+                     "engines/experiments/strength/opening_pgn.py",
                      "engines/scripts/league_resource_profiles.py",
                      "engines/experiments/tcec-scope/verify.py",
                      "engines/compact/tiny-entry-d/verify.py",
@@ -1098,7 +1100,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             declarations = {node.targets[0].id: node for node in tree.body
                             if isinstance(node, ast.Assign) and len(node.targets) == 1
                             and isinstance(node.targets[0], ast.Name)}
-            modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)[:-3]
+            modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)[:-4]
             core = ast.literal_eval(declarations["LEAGUE_CORE_R"].value)
             self.assertEqual(modules[-6:], ("functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
             self.assertEqual(len(core), 4)
@@ -1168,7 +1170,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
-                modules = ast.literal_eval(node.value)[:-3]
+                modules = ast.literal_eval(node.value)[:-4]
                 self.assertEqual(modules[-4:], ("league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
                 lines = raw.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-4]) + "\n"]
@@ -1187,7 +1189,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
                 names = ast.literal_eval(node.value)
-                names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py")) and
+                names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py", "/opening_pgn.py")) and
                               (cloud_has_host or not name.endswith(("/league_functional_host.py", "/peer_diagnostic_prepare.py"))))
                 lines = cloud.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
@@ -1214,7 +1216,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
-                modules = ast.literal_eval(node.value)[:-3]
+                modules = ast.literal_eval(node.value)[:-4]
                 self.assertEqual(modules[-3:], ("peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
                 lines = raw.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-3]) + "\n"]
@@ -1232,7 +1234,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
                 names = ast.literal_eval(node.value)
-                names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py")) and
+                names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py", "/opening_pgn.py")) and
                               (cloud_has_peer or not name.endswith("/peer_diagnostic_prepare.py")))
                 lines = cloud.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
@@ -1264,7 +1266,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
                     values = tuple(value for value in ast.literal_eval(node.value)
-                                   if not any(name in value for name in ("rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci"))
+                                   if not any(name in value for name in ("rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"))
                                    and (keep or "rove_b_tt_observe" not in value))
                     lines = raw.splitlines(keepends=True)
                     lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
@@ -1317,7 +1319,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                         and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                         and node.targets[0].id == "LEAGUE_HOST_MODULES")
-            modules = ast.literal_eval(node.value)[:-3]
+            modules = ast.literal_eval(node.value)[:-4]
             self.assertEqual(modules[-3:], ("peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
             lines = raw.splitlines(keepends=True)
             lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-3]) + "\n"]
@@ -1355,7 +1357,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
                     values = tuple(value for value in ast.literal_eval(node.value)
-                                   if not any(name in value for name in ("original_peer_build", "peer_exact_runner", "original_peer_uci"))
+                                   if not any(name in value for name in ("original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"))
                                    and (keep or "rove_b_static_tt" not in value))
                     lines = raw.splitlines(keepends=True)
                     lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
@@ -1381,15 +1383,14 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 self.make_materializer_origin(origin)
                 for filename, assignment, keep in (("seed.py", "LEAGUE_HOST_MODULES", seed_has),
                                                    ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has)):
-                    if keep:
-                        continue
                     path = origin / "engines/experiments/strength" / filename
                     raw = path.read_text(encoding="utf-8")
                     node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
                     values = tuple(value for value in ast.literal_eval(node.value)
-                                   if not any(name in value for name in original))
+                                   if "opening_pgn" not in value
+                                   and (keep or not any(name in value for name in original)))
                     lines = raw.splitlines(keepends=True)
                     lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
                     path.write_text("".join(lines), encoding="utf-8")
@@ -1403,6 +1404,58 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "incomplete original peer closure")
                 head = self.git(origin, "rev-parse", "HEAD").decode().strip()
                 with self.assertRaisesRegex(ValueError, "original peer source closure is incomplete"):
+                    ci.bind_materializer_source(origin, head)
+
+    def test_opening_pgn_import_requires_both_canonical_source_declarations(self):
+        imports = ("from . import opening_pgn\n", "import opening_pgn\n",
+                   "from rove4k_cloud_strength.opening_pgn import validate\n")
+        for seed_has, cloud_has, import_line in ((False, True, imports[0]),
+                                                 (True, False, imports[0]),
+                                                 *((False, False, line) for line in imports)):
+            with self.subTest(seed=seed_has, cloud=cloud_has, import_line=import_line), \
+                    tempfile.TemporaryDirectory(prefix="rove-ci-opening-closure-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                for filename, assignment, keep in (("seed.py", "LEAGUE_HOST_MODULES", seed_has),
+                                                   ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has)):
+                    if keep:
+                        continue
+                    path = origin / "engines/experiments/strength" / filename
+                    raw = path.read_text(encoding="utf-8")
+                    node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                and node.targets[0].id == assignment)
+                    values = tuple(value for value in ast.literal_eval(node.value) if "opening_pgn" not in value)
+                    lines = raw.splitlines(keepends=True)
+                    lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
+                    path.write_text("".join(lines), encoding="utf-8")
+                    self.git(origin, "add", "--", str(path.relative_to(origin)))
+                diagnostic = origin / "engines/experiments/strength/diagnostic_candidates.py"
+                diagnostic.write_text(import_line, encoding="utf-8")
+                self.git(origin, "add", "--", str(diagnostic.relative_to(origin)))
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "incomplete opening closure")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                with self.assertRaisesRegex(ValueError, "opening PGN source closure is incomplete"):
+                    ci.bind_materializer_source(origin, head)
+
+    def test_opening_pgn_cloud_declaration_rejects_duplicate_and_noncanonical_paths(self):
+        for replacement in ("engines/elsewhere/opening_pgn.py", "engines/experiments/strength/opening_pgn.py"):
+            with self.subTest(path=replacement), tempfile.TemporaryDirectory(prefix="rove-ci-opening-path-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                path = origin / "engines/experiments/strength/cloud_runtime.py"
+                raw = path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                names = ast.literal_eval(node.value) + (replacement,)
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
+                path.write_text("".join(lines), encoding="utf-8")
+                self.git(origin, "add", "--", str(path.relative_to(origin)))
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "invalid opening source path")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                with self.assertRaisesRegex(ValueError, "opening PGN source closure is incomplete"):
                     ci.bind_materializer_source(origin, head)
 
     def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):

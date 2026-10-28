@@ -31,9 +31,10 @@ from pathlib import Path
 import sys
 
 try:
-    from . import ledger, original_peer_uci, registry, run, topology
+    from . import ledger, opening_pgn, original_peer_uci, registry, run, topology
 except ImportError:
     import ledger
+    import opening_pgn
     import original_peer_uci
     import registry
     import run
@@ -401,10 +402,16 @@ def build_inputs(*, candidate_path, candidate_sha256, profile, bank_path, bank_s
     bank_path = _safe_input_path(bank_path)
     runner = run.runner_identity(runner_binary, runner_receipt)
     # Validate the path before the existing bank validator reads the PGN.
-    bank_preview, _ = run.json_input(bank_path, bank_sha256)
-    _safe_input_path(bank_preview["files"][stage]["path"])
-    bank, actual_bank_sha, openings, opening_path = run.validate_bank(bank_path, bank_sha256, stage)
+    bank_snapshot = opening_pgn.read_bank(bank_path, bank_sha256)
+    bank_preview = _strict_json(bank_snapshot)
+    preview_path = _safe_input_path(bank_preview["files"][stage]["path"])
+    snapshot_bytes = opening_pgn.read_snapshot(preview_path, bank_preview["files"][stage])
+    bank, actual_bank_sha, openings, opening_path = run.validate_bank(
+        bank_path, bank_sha256, stage, pgn_snapshot=snapshot_bytes, bank_snapshot=bank_snapshot)
     opening_path = _safe_input_path(opening_path)
+    if opening_path != preview_path:
+        raise ValueError("opening path differs from the validated snapshot")
+    opening_pgn.validate(snapshot_bytes, openings, run.rules_module())
     if snapshot is not None and target_cgroup is not None:
         raise ValueError("choose one explicit topology source")
     if target_cgroup is not None:

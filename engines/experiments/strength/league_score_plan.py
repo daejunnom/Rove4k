@@ -11,10 +11,11 @@ import itertools
 from pathlib import Path
 
 try:
-    from . import diagnostic_candidates, ledger, original_peer_uci, registry, run
+    from . import diagnostic_candidates, ledger, opening_pgn, original_peer_uci, registry, run
 except ImportError:
     import diagnostic_candidates
     import ledger
+    import opening_pgn
     import original_peer_uci
     import registry
     import run
@@ -69,10 +70,19 @@ def prepare(campaign, profile, candidate_path, candidate_sha256, bank_path,
     if len({row["identity"]["family"] for row in players}) != len(players):
         raise ValueError("a league stage requires one candidate per family")
     stage = "broad" if profile == "test-p16" else "high"
-    bank_preview, _ = run.json_input(bank_path, bank_sha256)
-    diagnostic_candidates._safe_input_path(bank_preview["files"][stage]["path"])
-    bank, bank_digest, openings, pgn_path = run.validate_bank(bank_path, bank_sha256, stage)
+    bank_snapshot = opening_pgn.read_bank(bank_path, bank_sha256)
+    bank_preview = diagnostic_candidates._strict_json(bank_snapshot)
+    preview_path = diagnostic_candidates._safe_input_path(bank_preview["files"][stage]["path"])
+    pgn_snapshot = opening_pgn.read_snapshot(preview_path, bank_preview["files"][stage])
+    bank, bank_digest, openings, pgn_path = run.validate_bank(
+        bank_path, bank_sha256, stage, pgn_snapshot=pgn_snapshot, bank_snapshot=bank_snapshot)
     pgn_path = diagnostic_candidates._safe_input_path(pgn_path)
+    if pgn_path != preview_path:
+        raise ValueError("opening path differs from the validated snapshot")
+    # Compare the same bounded snapshot against both its explicit bank pin and
+    # independently rendered ordered UCI moves. Later execution must still
+    # re-pin or freeze its own input; this does not reserve the pathname.
+    opening_pgn.validate(pgn_snapshot, openings, run.rules_module())
     runner = run.runner_identity(runner_binary, runner_receipt)
     pairs = []
     for index, (white, black) in enumerate(itertools.combinations(players, 2)):
@@ -92,13 +102,14 @@ def prepare(campaign, profile, candidate_path, candidate_sha256, bank_path,
                    "bank_path": str(bank_path), "bank_sha256": bank_digest,
                    "runner_binary": str(runner_binary), "runner_receipt": str(runner_receipt)},
         "opening_pgn": {"path": str(pgn_path), "sha256": bank["files"][stage]["sha256"],
-                        "bytes": bank["files"][stage]["bytes"]},
+                        "bytes": bank["files"][stage]["bytes"],
+                        "mapping_scope": "pinned canonical snapshot; later file identity not frozen"},
         "runner": runner, "players": players, "pairs": pairs,
         "clock": {"initial_seconds": 1800, "increment_seconds": 3,
                   "ponder_requested": False, "unsupported_ponder": "record-and-proceed"},
         "claims": {"local_pins_replayed": True, "producer_authenticated": False,
                    "runner_producer_authenticated": False, "actual_abi_verified": False,
-                   "opening_pgn_mapping_verified": False, "high_selection_verified": False,
+                   "opening_pgn_mapping_verified": True, "high_selection_verified": False,
                    "tt_allocation_observed": False, "worker_or_numa_observed": False,
                    "host_authenticated": False, "budget_authorized": False,
                    "score_qualified": False, "go_authorized": False, "score_final": False},

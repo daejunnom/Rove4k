@@ -49,9 +49,11 @@ class DiagnosticCandidatesTests(unittest.TestCase):
         self.candidate_path = self.root / "candidates.json"
         (self.root / "fastchess").write_bytes(b"runner")
         (self.root / "runner.json").write_text("{}", encoding="utf-8")
-        (self.root / "opening.pgn").write_text("fixture", encoding="utf-8")
+        (self.root / "opening.pgn").write_bytes(
+            b'[Event "Rove4k one"]\n[ECO "C60"]\n[Result "*"]\n\n'
+            b'1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 *\n')
         self.bank_path = self.root / "bank.json"
-        self.bank_path.write_text(json.dumps({"files": {stage: {"path": str(self.root / "opening.pgn")}
+        self.bank_path.write_text(json.dumps({"files": {stage: pin(self.root / "opening.pgn")
                                                           for stage in ("broad", "high")}}), encoding="utf-8")
         self.bank_sha = pin(self.bank_path)["sha256"]
         self.write_candidates()
@@ -80,9 +82,10 @@ class DiagnosticCandidatesTests(unittest.TestCase):
 
     def build(self, *, write=False, overrides=None):
         stage = "broad" if self.profile == "test-p16" else "high"
-        bank = {"files": {stage: {"sha256": "2" * 64}}}
+        bank = {"files": {stage: pin(self.root / "opening.pgn")}}
+        opening = {"id": "one", "eco": "C60", "moves": "e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6".split()}
         with patch.object(candidate.run, "runner_identity", return_value={"sha256": "3" * 64}), \
-             patch.object(candidate.run, "validate_bank", return_value=(bank, self.bank_sha, [{"id": "one"}], self.root / "opening.pgn")), \
+             patch.object(candidate.run, "validate_bank", return_value=(bank, self.bank_sha, [opening], self.root / "opening.pgn")), \
              patch.object(candidate.run, "league_placement", return_value=(self.slots(), list(range(176, 192)))), \
              patch.object(candidate.run, "load_plan", side_effect=AssertionError("scored plan used")), \
              patch.object(registry, "admit_to_test_league", side_effect=AssertionError("scored admission used")):
@@ -115,6 +118,14 @@ class DiagnosticCandidatesTests(unittest.TestCase):
                  patch.object(candidate, "read_candidates", side_effect=AssertionError("unexpected candidate read")):
                 with self.assertRaisesRegex(ValueError, "opening bank digest"):
                     candidate.build_inputs(**{**self.args(), "bank_sha256": bad})
+
+    def test_rehashed_opening_with_mismatched_moves_is_not_a_probe_input(self):
+        opening = self.root / "opening.pgn"
+        opening.write_bytes(opening.read_bytes().replace(b"Nf6 *", b"Nge7 *"))
+        self.bank_path.write_text(json.dumps({"files": {stage: pin(opening) for stage in ("broad", "high")}}), encoding="utf-8")
+        self.bank_sha = pin(self.bank_path)["sha256"]
+        with self.assertRaisesRegex(ValueError, "opening PGN differs"):
+            self.build()
 
     def test_protected_and_generated_paths_are_rejected_without_access(self):
         blocked = [".ENV.PROD", ".env.test", "package-lock.json", "NODE_MODULES/file", "dist/file",

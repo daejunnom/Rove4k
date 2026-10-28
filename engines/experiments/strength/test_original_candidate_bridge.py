@@ -118,10 +118,11 @@ class OriginalBridgeTests(unittest.TestCase):
                 path.write_text(json.dumps({"format": "rove4k-diagnostic-candidate-set-v1", "profile": profile,
                                             "candidates": [first, second]}), encoding="utf-8")
                 opening = root / "opening.pgn"
-                opening.write_text("fixture", encoding="utf-8")
+                opening.write_bytes(b'[Event "Rove4k fixture"]\n[ECO "C60"]\n[Result "*"]\n\n'
+                                    b'1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 *\n')
                 bank = root / "bank.json"
                 stage = "broad" if profile == "test-p16" else "high"
-                bank.write_text(json.dumps({"files": {stage: {"path": str(opening)}}}), encoding="utf-8")
+                bank.write_text(json.dumps({"files": {stage: pin(opening)}}), encoding="utf-8")
                 runner, receipt = root / "runner", root / "runner.json"
                 runner.write_bytes(b"runner")
                 receipt.write_text("{}", encoding="utf-8")
@@ -130,11 +131,13 @@ class OriginalBridgeTests(unittest.TestCase):
                     tuple((0, i * (workers // 2) + k) for k in range(workers // 2)),
                     (0,), workers, True, "default") for i in range(count)]
                 snapshot = SimpleNamespace(allowed_cpus=tuple(range(192)), to_record=lambda: {"fixture": True})
-                fake_bank = {"files": {stage: {"sha256": pin(opening)["sha256"]}}}
+                fake_bank = {"files": {stage: pin(opening)}}
+                opening_row = {"id": "fixture", "eco": "C60",
+                               "moves": "e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6".split()}
                 with patch.object(original.peers, "verify_blob"), \
                      patch.object(candidate.run, "runner_identity", return_value={"sha256": pin(runner)["sha256"]}), \
                      patch.object(candidate.run, "validate_bank", return_value=(fake_bank, pin(bank)["sha256"],
-                                  [{"id": "fixture"}], opening)), \
+                                  [opening_row], opening)), \
                      patch.object(candidate.run, "league_placement", return_value=(slots, [])):
                     result = candidate.build_inputs(candidate_path=path, candidate_sha256=pin(path)["sha256"],
                         profile=profile, bank_path=bank, bank_sha256=pin(bank)["sha256"], runner_binary=runner,

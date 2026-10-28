@@ -750,8 +750,15 @@ def qualified_players(value, profile, *, base=None):
     return accepted, rejected
 
 
-def validate_bank(path, expected_sha, stage):
-    bank, actual_sha = json_input(path, expected_sha)
+def validate_bank(path, expected_sha, stage, *, pgn_snapshot=None, bank_snapshot=None):
+    if bank_snapshot is None:
+        bank, actual_sha = json_input(path, expected_sha)
+    else:
+        if (type(bank_snapshot) is not bytes or not 0 < len(bank_snapshot) <= 32 << 20 or
+                type(expected_sha) is not str or not SHA.fullmatch(expected_sha) or
+                hashlib.sha256(bank_snapshot).hexdigest() != expected_sha):
+            raise ValueError("opening bank snapshot differs from its supplied digest")
+        bank, actual_sha = json.loads(bank_snapshot), expected_sha
     source = bank.get("source", {})
     if (source.get("revision") != "a6189a30dc273ccb21fc2536a9a2fefd5592a67a" or
             source.get("verified") is not True or source.get("license") != "CC0-1.0"):
@@ -774,8 +781,12 @@ def validate_bank(path, expected_sha, stage):
         raise ValueError("stage reuses an opening family")
     pgndata = bank["files"][stage]
     pgnpath = protected_input(pgndata["path"])
-    if registry.file_sha(pgnpath) != pgndata["sha256"] or pgnpath.stat().st_size != pgndata["bytes"]:
-        raise ValueError("opening PGN bytes differ from the bank")
+    if pgn_snapshot is None:
+        if registry.file_sha(pgnpath) != pgndata["sha256"] or pgnpath.stat().st_size != pgndata["bytes"]:
+            raise ValueError("opening PGN bytes differ from the bank")
+    elif (type(pgn_snapshot) is not bytes or len(pgn_snapshot) != pgndata["bytes"] or
+          hashlib.sha256(pgn_snapshot).hexdigest() != pgndata["sha256"]):
+        raise ValueError("opening PGN snapshot differs from the bank")
     return bank, actual_sha, openings, pgnpath
 
 

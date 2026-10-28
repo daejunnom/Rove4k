@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -54,14 +55,15 @@ class DraftPlanTests(unittest.TestCase):
             "binary_sha256": pin(runner)["sha256"], "command": {"returncode": 0,
             "forced_cleanup": False, "leader_reaped": True, "group_absent": True}}), encoding="utf-8")
         opening = root / "opening.pgn"
-        opening.write_bytes(b"synthetic pinned opening")
+        opening.write_bytes(b'[Event "Rove4k opening-1"]\n[ECO "C60"]\n[Result "*"]\n\n'
+                            b'1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 *\n')
         moves = "e2e4 e7e5 g1f3 b8c6 f1b5 a7a6 b5a4 g8f6".split()
         opening_info = pin(opening)
         bank = root / "bank.json"
         stage = "broad" if profile == "test-p16" else "high"
         bank.write_text(json.dumps({"bank_id": "fixture-bank", "source": {
             "revision": "a6189a30dc273ccb21fc2536a9a2fefd5592a67a", "verified": True, "license": "CC0-1.0"},
-            "stages": {stage: [{"id": "opening-1", "moves": moves, "family": " ".join(moves)}]},
+            "stages": {stage: [{"id": "opening-1", "eco": "C60", "moves": moves, "family": " ".join(moves)}]},
             "files": {stage: opening_info}}), encoding="utf-8")
         args = {"campaign": "draft-test", "profile": profile, "candidate_path": path,
             "candidate_sha256": candidates_sha, "bank_path": bank, "bank_sha256": pin(bank)["sha256"],
@@ -94,7 +96,9 @@ class DraftPlanTests(unittest.TestCase):
         self.assertFalse(players["ice4"]["evidence"]["allocation_observed"])
         claims = draft["content"]["claims"]
         self.assertIs(claims["local_pins_replayed"], True)
-        self.assertTrue(all(value is False for key, value in claims.items() if key != "local_pins_replayed"))
+        self.assertIs(claims["opening_pgn_mapping_verified"], True)
+        self.assertTrue(all(value is False for key, value in claims.items()
+                            if key not in ("local_pins_replayed", "opening_pgn_mapping_verified")))
         self.assertEqual(draft["content"]["clock"], {"initial_seconds": 1800, "increment_seconds": 3,
             "ponder_requested": False, "unsupported_ponder": "record-and-proceed"})
         pair, = draft["content"]["pairs"]
@@ -110,6 +114,44 @@ class DraftPlanTests(unittest.TestCase):
         self.assertEqual(peer["uci"]["threads"], 192)
         self.assertEqual(peer["identity"]["tt_bytes"], 256 << 30)
         self.assertIsNotNone(self.verify(draft))
+
+    def test_rehashed_pgn_with_different_moves_is_rejected(self):
+        args, _, _, _, opening = self.fixture()
+        opening.write_bytes(opening.read_bytes().replace(b"Nf6 *", b"Nge7 *"))
+        bank = Path(args["bank_path"])
+        record = json.loads(bank.read_text(encoding="utf-8"))
+        record["files"]["broad"] = pin(opening)
+        bank.write_text(json.dumps(record), encoding="utf-8")
+        args["bank_sha256"] = pin(bank)["sha256"]
+        with self.assertRaisesRegex(ValueError, "opening PGN differs"):
+            self.prepare(args)
+
+    def test_bank_validation_uses_same_pgn_snapshot_without_reopening(self):
+        args, _, _, _, opening = self.fixture()
+        file_sha = registry.file_sha
+        json_input = plan.run.json_input
+        def guarded(path):
+            if Path(path) == opening:
+                raise AssertionError("bank validator reopened the PGN pathname")
+            return file_sha(path)
+        def guarded_json(path, *args, **kwargs):
+            if Path(path) == Path(args_for_test["bank_path"]):
+                raise AssertionError("bank validator reopened the bank pathname")
+            return json_input(path, *args, **kwargs)
+        args_for_test = args
+        with patch.object(registry, "file_sha", side_effect=guarded), \
+             patch.object(plan.run, "json_input", side_effect=guarded_json):
+            draft = self.prepare(args)
+        self.assertTrue(draft["content"]["claims"]["opening_pgn_mapping_verified"])
+
+    @unittest.skipUnless(os.name == "posix", "Linux no-follow input contract")
+    def test_bank_snapshot_rejects_hardlink_before_input_use(self):
+        args, _, _, _, _ = self.fixture()
+        bank = Path(args["bank_path"])
+        alias = self.root / "bank-copy.json"
+        os.link(bank, alias)
+        with self.assertRaisesRegex(ValueError, "single-link"):
+            self.prepare(args)
 
     def test_candidate_profile_full_and_original_pins_are_revalidated(self):
         args, rove, peer, save, _ = self.fixture("test-p192")

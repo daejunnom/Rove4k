@@ -568,7 +568,7 @@ class SeedTests(unittest.TestCase):
         legacy = seed.checkout_files(checkout, origin)
         league_names = tuple("engines/experiments/strength/" + name + ".py" for name in
             ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe", "peak_receipt",
-             "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci")) + (
+             "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn")) + (
             "engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
             "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")
         self.assertTrue(all(name not in legacy for name in league_names))

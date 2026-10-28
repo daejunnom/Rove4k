@@ -397,6 +397,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
         cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
@@ -440,6 +444,12 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 require(matching in ((), (canonical,)) and
                         bool(matching) == (original in values["LEAGUE_HOST_MODULES"]),
                         "committed original peer source closure is incomplete")
+            opening_name = "engines/experiments/strength/" + "opening_pgn.py"
+            opening_entries = tuple(name for name in cloud_names
+                                    if name.replace("\\", "/").rsplit("/", 1)[-1] == "opening_pgn.py")
+            require(opening_entries in ((), (opening_name,)) and
+                    bool(opening_entries) == ("opening_pgn" in values["LEAGUE_HOST_MODULES"]),
+                    "committed opening PGN source closure is incomplete")
         else:
             require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
                     "committed peer diagnostic source closure is incomplete")
@@ -449,6 +459,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                     "committed B static source closure is incomplete")
             require(not {"original_peer_build", "peer_exact_runner", "original_peer_uci"}.intersection(values["LEAGUE_HOST_MODULES"]),
                     "committed original peer source closure is incomplete")
+            require("opening_pgn" not in values["LEAGUE_HOST_MODULES"],
+                    "committed opening PGN source closure is incomplete")
         if "diagnostic_candidates" in values["LEAGUE_HOST_MODULES"] and "rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"]:
             diagnostic_name = "engines/experiments/strength/" + "diagnostic_candidates.py"
             diagnostic_source = git(origin, "show", expected_head + ":" + diagnostic_name, limit=32 << 20)
@@ -498,6 +510,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                            if isinstance(node, ast.ImportFrom) and node.module is not None)
             require(not (imports & original_modules) or declared_original == original_modules,
                     "committed original peer source closure is incomplete")
+            require("opening_pgn" not in imports or "opening_pgn" in values["LEAGUE_HOST_MODULES"],
+                    "committed opening PGN source closure is incomplete")
     sources = {}
     for name, (blob, mode) in tracked.items():
         size = git(origin, "cat-file", "-s", blob).decode().strip()

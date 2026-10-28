@@ -102,6 +102,7 @@ LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py"
                             "engines/experiments/strength/original_peer_build.py",
                             "engines/experiments/strength/peer_exact_runner.py",
                             "engines/experiments/strength/original_peer_uci.py",
+                            "engines/experiments/strength/opening_pgn.py",
                             "engines/scripts/league_resource_profiles.py",
                             "engines/experiments/tcec-scope/verify.py",
                             "engines/compact/tiny-entry-d/verify.py",
