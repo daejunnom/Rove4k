@@ -1145,3 +1145,13 @@ SSM 전송·수집 및 peer 경로의 검사는 모의 호스트 기준이다. �
 실제 리그 전에는 원격 소유권·경기 시작과 비용 관측의 직렬화, 감독 프로세스
 중단 후 복구, 후보 파일 교체 방지 및 실제 호스트의 배치·메모리 관측을 별도로
 완성해야 한다. 실제 192 vCPU 실행과 최신 Spot Advisor 조건은 아직 확인되지 않았다.
+
+2026-10-28 [c4ke LZMA1EXT 비교 CI](https://github.com/daejunnom/Rove4k/actions/runs/40708808496)는
+동일한 P192 phalanx source와 launcher에서 기존 extended 전체 4099 B 대비
+원본 길이를 헤더에 기록하고 EOS를 생략한 표준 LZMA 전체 **4093 B**를 측정했다.
+두 번의 생성, Python·`xz -d` 복원, C++ 구문 검사와 synthetic·소형 roundtrip
+9개가 통과했다. 저장한 산출물은 크기·해시 중심 JSON뿐이다. 이는 크기와
+build-only 근거이며 TT 인덱스·실행·UCI·NUMA·기력·리그 적격을 증명하지
+않는다. 기존 launcher의 `g++` 사용과 TCEC 4K 허용 명령도 따로 확인해야 한다.
+이 인코딩을 A/B/C/E/full F에 적용할 수 있는지도 계열·프로필별 실제 전체 크기와
+기능 검증으로 비교한다. 크기 통과 뒤에도 추가 축약을 계속한다.
