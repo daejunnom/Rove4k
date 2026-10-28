@@ -26,6 +26,9 @@ concurrency:
 
 jobs:
   compare:
+    # Historical transformed-peer size experiment; original peer builds and
+    # Rove submission-size comparisons have separate workflows.
+    if: github.event_name == 'workflow_dispatch'
     name: c4ke-${{ matrix.source_variant }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45

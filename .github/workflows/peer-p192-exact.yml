@@ -49,6 +49,9 @@ concurrency:
 
 jobs:
   produce:
+    # Historical transformed-peer size experiment; league comparisons use
+    # unchanged upstream peers and do not run this matrix on pull requests.
+    if: github.event_name == 'workflow_dispatch'
     name: exact-P192-${{ matrix.peer }}-${{ matrix.variant }}-${{ matrix.launcher }}-${{ matrix.codec }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
