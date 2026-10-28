@@ -14,7 +14,7 @@ request and receipt formats. Neither format grants live authority.
 from __future__ import annotations
 
 import base64
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 import hashlib
 import json
 from pathlib import PurePosixPath
@@ -156,6 +156,170 @@ class PeerRequest:
 
     def record(self):
         return {'format': 'rove4k-ssm-peer-request-v1', **self.__dict__}
+
+
+def bootstrap_loader_manifest_sha256(pins):
+    """Canonical identity of the independently declared loader list."""
+    try:
+        from .league_pinned_bootstrap import LoaderPin
+    except ImportError:
+        from league_pinned_bootstrap import LoaderPin
+    if (type(pins) is not tuple or not 1 <= len(pins) <= 64
+            or any(type(pin) is not LoaderPin for pin in pins)
+            or len({pin.name for pin in pins}) != len(pins)):
+        raise ValueError('bounded distinct loader pins required')
+    rows = sorted((asdict(pin) for pin in pins), key=lambda row: row['name'])
+    return ledger.digest({'format': 'rove4k-bootstrap-loader-pins-v1', 'loaders': rows})
+
+
+@dataclass(frozen=True)
+class BootstrapEnvelope:
+    """Versioned, diagnostic-only binding; none of its assertions is authority."""
+    diagnostic: Request | PeerRequest
+    bootstrap: object
+    expected_bootstrap_sha256: str
+    expected_loader_manifest_sha256: str
+
+    def __post_init__(self):
+        try:
+            from .league_pinned_bootstrap import BootstrapRequest
+        except ImportError:
+            from league_pinned_bootstrap import BootstrapRequest
+        d, b = self.diagnostic, self.bootstrap
+        if type(d) not in (Request, PeerRequest) or type(b) is not BootstrapRequest:
+            raise ValueError('typed diagnostic and bootstrap request required')
+        bindings = ((d.campaign_id, b.campaign), (d.account_id, b.host_account),
+            (d.region, b.host_region), (d.instance_id, b.host_instance_id), (d.boot_id, b.host_boot_id),
+            (d.profile, b.profile), (d.seed_bucket, b.bucket), (d.seed_key, b.key),
+            (d.seed_version_id, b.version_id), (d.seed_archive_sha256, b.archive_sha256),
+            (d.seed_archive_bytes, b.archive_bytes), (d.seed_manifest_sha256, b.manifest_sha256),
+            (d.repository, b.repository), (d.source_head, b.source_head),
+            (d.producer_run_id, b.producer_run_id), (d.producer_run_attempt, b.producer_run_attempt))
+        if (any(left != right or type(left) is not type(right) for left, right in bindings)
+                or b.loader_pins != tuple(sorted(b.loader_pins, key=lambda pin: pin.name))
+                or type(self.expected_bootstrap_sha256) is not str or not _HEX.fullmatch(self.expected_bootstrap_sha256)
+                or self.expected_bootstrap_sha256 != b.bootstrap_sha256
+                or type(self.expected_loader_manifest_sha256) is not str or not _HEX.fullmatch(self.expected_loader_manifest_sha256)
+                or self.expected_loader_manifest_sha256 != bootstrap_loader_manifest_sha256(b.loader_pins)):
+            raise ValueError('diagnostic, bootstrap and independent source pins differ')
+
+    def record(self):
+        b = asdict(self.bootstrap)
+        b['loader_pins'] = sorted(b['loader_pins'], key=lambda row: row['name'])
+        return {'format': 'rove4k-ssm-seed-bootstrap-v3', 'diagnostic': self.diagnostic.record(),
+                'bootstrap': b, 'expected_bootstrap_sha256': self.expected_bootstrap_sha256,
+                'expected_loader_manifest_sha256': self.expected_loader_manifest_sha256}
+
+
+def parse_bootstrap_diagnostic(raw, *, expected_request_sha256):
+    """Parse canonical fake wire with an independent SHA; not authentication."""
+    try:
+        from .league_pinned_bootstrap import BootstrapRequest, LoaderPin
+    except ImportError:
+        from league_pinned_bootstrap import BootstrapRequest, LoaderPin
+    if type(raw) is not bytes or not 0 < len(raw) <= 512 << 10:
+        raise ValueError('bounded canonical diagnostic wire bytes required')
+    def unique(pairs):
+        result = dict(pairs)
+        if len(result) != len(pairs):
+            raise ValueError('duplicate diagnostic wire field')
+        return result
+    def reject(_value):
+        raise ValueError('non-finite diagnostic wire number')
+    try:
+        record = json.loads(raw, object_pairs_hook=unique, parse_constant=reject)
+        if ledger.canonical(record) != raw:
+            raise ValueError('noncanonical diagnostic wire')
+    except (ValueError, TypeError, UnicodeError, OverflowError):
+        raise ValueError('invalid diagnostic bootstrap wire data') from None
+    if (type(record) is not dict or set(record) != {'format', 'diagnostic', 'bootstrap',
+            'expected_bootstrap_sha256', 'expected_loader_manifest_sha256'}
+            or record['format'] != 'rove4k-ssm-seed-bootstrap-v3'
+            or type(record['diagnostic']) is not dict or type(record['bootstrap']) is not dict
+            or type(expected_request_sha256) is not str or not _HEX.fullmatch(expected_request_sha256)):
+        raise ValueError('exact diagnostic bootstrap wire required')
+    try:
+        if hashlib.sha256(raw).hexdigest() != expected_request_sha256:
+            raise ValueError('diagnostic bootstrap wire SHA differs')
+    except (TypeError, OverflowError):
+        raise ValueError('invalid diagnostic bootstrap wire data') from None
+    diagnostic = dict(record['diagnostic'])
+    kind = diagnostic.pop('format', None)
+    target = {'rove4k-ssm-functional-request-v2': Request,
+              'rove4k-ssm-peer-request-v1': PeerRequest}.get(kind)
+    if target is None:
+        raise ValueError('unsupported diagnostic wire format')
+    bootstrap = dict(record['bootstrap'])
+    pins = bootstrap.pop('loader_pins', None)
+    if type(pins) is not list or any(type(pin) is not dict for pin in pins):
+        raise ValueError('canonical loader list required')
+    try:
+        return BootstrapEnvelope(target(**diagnostic),
+            BootstrapRequest(**bootstrap, loader_pins=tuple(LoaderPin(**pin) for pin in pins)),
+            record['expected_bootstrap_sha256'], record['expected_loader_manifest_sha256'])
+    except (TypeError, KeyError, ValueError):
+        raise ValueError('invalid diagnostic bootstrap wire fields') from None
+
+
+class DiagnosticSSMSink:
+    """In-memory fixture only: cannot contact SSM or persist a replay fence."""
+    def __init__(self, region):
+        if not isinstance(region, str) or not _REGION.fullmatch(region):
+            raise ValueError('explicit fixture SSM region required')
+        self.region = region
+        self._records = []
+
+    @property
+    def records(self):
+        return [json.loads(item) for item in self._records]
+
+
+def record_bootstrap_diagnostic(envelope, *, plan, sink, bootstrap_source,
+                                expected_bootstrap_sha256, expected_loader_manifest_sha256):
+    """Record a non-sending bootstrap intent, never invoke SSM or source code.
+
+    A concrete live verifier and durable journal are still absent; this fixture
+    cannot be passed to public dispatch or authorize a launch, game or GO.
+    """
+    try:
+        from .league_controller import LeaguePlan
+    except ImportError:
+        from league_controller import LeaguePlan
+    if type(envelope) is not BootstrapEnvelope or type(plan) is not LeaguePlan or type(sink) is not DiagnosticSSMSink:
+        raise ValueError('typed diagnostic envelope, plan and in-memory sink required')
+    d, b = envelope.diagnostic, envelope.bootstrap
+    hosts = [h for h in plan.hosts if h.launch_token == b.host_launch_token]
+    if (len(hosts) != 1 or b.plan_sha256 != plan.sha256 or b.campaign != plan.campaign
+            or b.bucket != plan.bucket or b.bucket_region != plan.home_region
+            or b.bucket_owner != plan.account or b.host_account != plan.account
+            or b.host_region != hosts[0].region or b.profile not in (hosts[0].profile, *hosts[0].later_profiles)
+            or sink.region != b.host_region or plan.table.split(':', 5)[3] != plan.home_region
+            or plan.watchdog_arn.split(':', 5)[3] != plan.home_region):
+        raise ValueError('declared host, home region, plan or fixture SSM region differs')
+    if (type(bootstrap_source) is not bytes or not 0 < len(bootstrap_source) <= 512 << 10
+            or type(expected_bootstrap_sha256) is not str or not _HEX.fullmatch(expected_bootstrap_sha256)
+            or type(expected_loader_manifest_sha256) is not str or not _HEX.fullmatch(expected_loader_manifest_sha256)
+            or expected_bootstrap_sha256 != envelope.expected_bootstrap_sha256
+            or expected_loader_manifest_sha256 != envelope.expected_loader_manifest_sha256
+            or hashlib.sha256(bootstrap_source).hexdigest() != expected_bootstrap_sha256):
+        raise ValueError('independently supplied bootstrap or loader pin differs')
+    record = envelope.record()
+    request_sha = ledger.digest(record)
+    if any(json.loads(item)['request_sha256'] == request_sha for item in sink._records):
+        raise ValueError('duplicate in-memory diagnostic intent')
+    result = {'format': 'rove4k-ssm-bootstrap-intent-v1', 'request_sha256': request_sha,
+              'request': record,
+              'bootstrap_sha256': envelope.expected_bootstrap_sha256,
+              'loader_manifest_sha256': envelope.expected_loader_manifest_sha256,
+              'host_region': d.region, 'bucket_region': b.bucket_region,
+              'instance_id': d.instance_id, 'host_boot_id': d.boot_id,
+              'scope': {'ssm_contacted': False, 'journal_durable': False, 'replay_fenced': False,
+                        'running_bootstrap_authenticated': False, 'complete_loader_closure_verified': False,
+                        'host_authenticated': False, 'producer_authenticated': False,
+                        'aws_cost_confirmed': False, 'materialized': False,
+                        'runtime_qualified': False, 'launch_authorized': False, 'go_authorized': False}}
+    sink._records.append(ledger.canonical(result))
+    return json.loads(sink._records[-1])
 
 
 # The program is fixed; only the encoded canonical request varies. Materialize

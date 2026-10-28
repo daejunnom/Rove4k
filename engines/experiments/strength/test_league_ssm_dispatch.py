@@ -340,5 +340,195 @@ class DispatchTests(unittest.TestCase):
         self.assertIn('seed member differs', result.stderr)
 
 
+class BootstrapIntentTests(unittest.TestCase):
+    """In-memory fake SSM/S3: no network or remote source execution."""
+
+    def setUp(self):
+        try:
+            from . import league_pinned_bootstrap as bootstrap, league_seed_archive as archive
+            from .league_bootstrap_inspect import inspect_envelope
+            from .league_seed_layout import build_layout
+            from .league_controller import HostPlan
+            from .test_league_seed_layout import pinned_fixture
+            from .test_league_controller import make_plan
+            from .test_league_pinned_bootstrap import Client, PROGRAM
+        except ImportError:
+            import league_pinned_bootstrap as bootstrap
+            import league_seed_archive as archive
+            from league_bootstrap_inspect import inspect_envelope
+            from league_seed_layout import build_layout
+            from league_controller import HostPlan
+            from test_league_seed_layout import pinned_fixture
+            from test_league_controller import make_plan
+            from test_league_pinned_bootstrap import Client, PROGRAM
+        self.bootstrap, self.archive, self.Client, self.program = bootstrap, archive, Client, PROGRAM
+        self.inspect_envelope = inspect_envelope
+        self.build_layout = build_layout
+        # Logical archive names only; no source is loaded or written to disk.
+        self.logical = 'origin/A/build/main.c'
+        self.fixture, self.raw, self.pins = pinned_fixture()
+        self.manifest_sha = self.pins['expected_manifest_sha256']
+        self.plan = make_plan(hosts=(HostPlan(region='ap-southeast-1', profile='test-p16', slots=11,
+                                              launch_token='second-host-token'),))
+        origin = self.fixture.seed['source_origin']
+        instance = 'i-' + '1' * 17
+        boot = '12345678-1234-1234-1234-123456789abc'
+        self.diagnostic = dispatch.Request(self.plan.campaign, 'test-job', instance, self.plan.account,
+            'ap-southeast-1', self.manifest_sha, origin['head_sha'], 'c' * 64, 'test-p16', 'test-artifact',
+            self.plan.bucket, origin['repository'], origin['run_id'], origin['run_attempt'], '18',
+            self.plan.bucket, self.plan.campaign + '/seed/archive.zip', 'immutable-version',
+            hashlib.sha256(self.raw).hexdigest(), len(self.raw), boot)
+        loader = self.fixture.seed['source_tree'] + '/engines/experiments/strength/cloud_runtime.py'
+        source = self.fixture.files[loader]
+        pins = (bootstrap.LoaderPin(loader, hashlib.sha256(source).hexdigest(), len(source)),)
+        self.b = bootstrap.BootstrapRequest(campaign=self.plan.campaign, plan_sha256=self.plan.sha256,
+            bucket=self.plan.bucket, bucket_region=self.plan.home_region, bucket_owner=self.plan.account,
+            key=self.diagnostic.seed_key, version_id=self.diagnostic.seed_version_id,
+            archive_sha256=self.diagnostic.seed_archive_sha256, archive_bytes=len(self.raw),
+            manifest_sha256=self.manifest_sha, repository=origin['repository'], source_head=origin['head_sha'],
+            producer_run_id=origin['run_id'], producer_run_attempt=origin['run_attempt'],
+            host_account=self.plan.account, host_region=self.diagnostic.region, host_instance_id=instance,
+            host_boot_id=boot, host_launch_token='second-host-token', profile='test-p16',
+            host_role_arn=f'arn:aws:iam::{self.plan.account}:role/team/league-host',
+            caller_arn=f'arn:aws:sts::{self.plan.account}:assumed-role/league-host/{instance}',
+            transfer_quote_id='quote-for-regions', quote_observed_at=1700000000,
+            bootstrap_sha256=hashlib.sha256(PROGRAM).hexdigest(), loader_pins=pins)
+        self.envelope = dispatch.BootstrapEnvelope(self.diagnostic, self.b, self.b.bootstrap_sha256,
+            dispatch.bootstrap_loader_manifest_sha256(pins))
+
+    def test_fake_ssm_and_fake_s3_bind_cross_region_same_snapshot_without_authority(self):
+        sink = dispatch.DiagnosticSSMSink('ap-southeast-1')
+        intent = dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=sink,
+            bootstrap_source=self.program, expected_bootstrap_sha256=self.envelope.expected_bootstrap_sha256,
+            expected_loader_manifest_sha256=self.envelope.expected_loader_manifest_sha256)
+        self.assertEqual(intent['request_sha256'], ledger.digest(self.envelope.record()))
+        self.assertEqual(intent['bucket_region'], 'ap-southeast-2')
+        self.assertEqual(intent['host_region'], 'ap-southeast-1')
+        self.assertFalse(intent['scope']['ssm_contacted'])
+        self.assertFalse(intent['scope']['go_authorized'])
+        self.assertFalse(intent['scope']['complete_loader_closure_verified'])
+        self.assertFalse(intent['scope']['aws_cost_confirmed'])
+        self.assertFalse(intent['scope']['runtime_qualified'])
+        # A fake receiver reconstructs only the serialized wire; it receives no
+        # Python object, source contents, credential, or implicit authority.
+        decoded = dispatch.parse_bootstrap_diagnostic(ledger.canonical(sink.records[0]['request']),
+                                                       expected_request_sha256=intent['request_sha256'])
+        self.assertEqual(decoded.record(), self.envelope.record())
+        self.assertEqual(ledger.digest(decoded.record()), intent['request_sha256'])
+        client = self.Client(self.raw)
+        loaded = self.bootstrap.fetch_for_verified_loader(decoded.bootstrap, client, bootstrap_source=self.program)
+        self.assertEqual(loaded.archive, self.raw)
+        self.assertEqual(client.calls[0]['ExpectedBucketOwner'], self.plan.account)
+        self.assertEqual(client.calls[0]['VersionId'], self.diagnostic.seed_version_id)
+        checked, envelope_inspection = self.inspect_envelope(decoded.bootstrap, loaded, bootstrap_source=self.program)
+        self.assertIs(checked, loaded.archive)
+        self.assertTrue(envelope_inspection['scope']['declared_loader_bytes_compared'])
+        self.assertTrue(envelope_inspection['scope']['all_seed_members_checked'])
+        self.assertFalse(envelope_inspection['scope']['complete_loader_closure_verified'])
+        self.assertFalse(envelope_inspection['scope']['go_authorized'])
+        layout = self.build_layout(checked, expected_archive_sha256=decoded.bootstrap.archive_sha256,
+            expected_archive_bytes=decoded.bootstrap.archive_bytes, expected_manifest_sha256=decoded.bootstrap.manifest_sha256,
+            expected_origin=self.fixture.seed['source_origin'])
+        mapped = layout.physical_for(self.logical)
+        self.assertEqual(mapped, 'origin/A/__rove_seed_build_v1__/main.c')
+        self.assertEqual(layout.logical_for(mapped), self.logical)
+        self.assertEqual(layout.manifest['members'][self.logical]['sha256'],
+                         hashlib.sha256(self.fixture.files[self.logical]).hexdigest())
+        self.assertEqual(layout.manifest['rove'][0]['build'], 'origin/A/build')
+        for logical in (self.logical, 'origin/A/build/x', 'origin/A/build/native/x'):
+            physical = layout.physical_for(logical)
+            self.assertEqual(layout.logical_for(physical), logical)
+            self.assertNotIn('build', physical.split('/'))
+            entry = next(item for item in layout.entries if item.logical == logical)
+            self.assertEqual(entry.sha256, hashlib.sha256(self.fixture.files[logical]).hexdigest())
+        self.assertIs(layout.verify_for(checked, **self.pins), layout)
+        self.assertFalse(layout.scope()['materialized'])
+        self.assertFalse(layout.scope()['go_authorized'])
+        inspected = self.archive.inspect_snapshot(loaded.archive,
+            expected_archive_sha256=self.b.archive_sha256, expected_archive_bytes=self.b.archive_bytes,
+            expected_manifest_sha256=self.b.manifest_sha256,
+            expected_origin=self.fixture.seed['source_origin'])
+        self.assertTrue(inspected['scope']['workflow_proof_checked'])
+        self.assertFalse(inspected['scope']['materialized'])
+        self.assertFalse(inspected['scope']['go_authorized'])
+        self.assertEqual(sink.records[0], intent)
+        sink.records[0]['scope']['go_authorized'] = True
+        self.assertFalse(sink.records[0]['scope']['go_authorized'])
+        # Public dispatch remains closed even for this valid synthetic binding.
+        with self.assertRaises(RuntimeError):
+            dispatch.dispatch(self.envelope, plan=self.plan, journal=None, client=None)
+
+    def test_bootstrap_and_original_request_mismatch_rejected(self):
+        for change in ({'host_region': 'ap-southeast-2'}, {'host_boot_id': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'},
+                       {'profile': 'test-p192'}, {'version_id': 'different'}, {'manifest_sha256': 'd' * 64},
+                       {'producer_run_id': '999'}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                dispatch.BootstrapEnvelope(self.diagnostic, replace(self.b, **change),
+                    self.b.bootstrap_sha256, dispatch.bootstrap_loader_manifest_sha256(self.b.loader_pins))
+        with self.assertRaises(ValueError):
+            dispatch.BootstrapEnvelope(self.diagnostic, self.b, 'd' * 64,
+                                       dispatch.bootstrap_loader_manifest_sha256(self.b.loader_pins))
+        with self.assertRaises(ValueError):
+            dispatch.BootstrapEnvelope(self.diagnostic, self.b, self.b.bootstrap_sha256, 'd' * 64)
+        second = self.bootstrap.LoaderPin('source/extra.py', hashlib.sha256(b'x').hexdigest(), 1)
+        ordered = tuple(sorted((*self.b.loader_pins, second), key=lambda pin: pin.name))
+        ordered_request = replace(self.b, loader_pins=ordered)
+        manifest_sha = dispatch.bootstrap_loader_manifest_sha256(ordered)
+        dispatch.BootstrapEnvelope(self.diagnostic, ordered_request, self.b.bootstrap_sha256, manifest_sha)
+        with self.assertRaises(ValueError):
+            dispatch.BootstrapEnvelope(self.diagnostic, replace(self.b, loader_pins=tuple(reversed(ordered))),
+                                       self.b.bootstrap_sha256, manifest_sha)
+
+    def test_bad_plan_ssm_region_source_and_duplicate_do_not_send(self):
+        wrong_sink = dispatch.DiagnosticSSMSink('ap-southeast-2')
+        with self.assertRaises(ValueError):
+            dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=wrong_sink,
+                bootstrap_source=self.program, expected_bootstrap_sha256=self.envelope.expected_bootstrap_sha256,
+                expected_loader_manifest_sha256=self.envelope.expected_loader_manifest_sha256)
+        self.assertEqual(wrong_sink.records, [])
+        sink = dispatch.DiagnosticSSMSink('ap-southeast-1')
+        with self.assertRaises(ValueError):
+            dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=sink,
+                bootstrap_source=b'wrong', expected_bootstrap_sha256=self.envelope.expected_bootstrap_sha256,
+                expected_loader_manifest_sha256=self.envelope.expected_loader_manifest_sha256)
+        for changed in ('expected_bootstrap_sha256', 'expected_loader_manifest_sha256'):
+            pins = {'expected_bootstrap_sha256': self.envelope.expected_bootstrap_sha256,
+                    'expected_loader_manifest_sha256': self.envelope.expected_loader_manifest_sha256}
+            pins[changed] = 'd' * 64
+            with self.subTest(changed=changed), self.assertRaises(ValueError):
+                dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=sink,
+                                                       bootstrap_source=self.program, **pins)
+        self.assertEqual(sink.records, [])
+        dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=sink,
+            bootstrap_source=self.program, expected_bootstrap_sha256=self.envelope.expected_bootstrap_sha256,
+            expected_loader_manifest_sha256=self.envelope.expected_loader_manifest_sha256)
+        with self.assertRaises(ValueError):
+            dispatch.record_bootstrap_diagnostic(self.envelope, plan=self.plan, sink=sink,
+                bootstrap_source=self.program, expected_bootstrap_sha256=self.envelope.expected_bootstrap_sha256,
+                expected_loader_manifest_sha256=self.envelope.expected_loader_manifest_sha256)
+        self.assertEqual(len(sink.records), 1)
+
+    def test_fake_wire_rejects_unknown_fields_and_pin_manipulation(self):
+        valid = self.envelope.record()
+        expected_sha = ledger.digest(valid)
+        for changed in ({**valid, 'extra': 'not allowed'},
+                        {**valid, 'diagnostic': {**valid['diagnostic'], 'extra': 1}},
+                        {**valid, 'bootstrap': {**valid['bootstrap'], 'extra': 1}},
+                        {**valid, 'expected_loader_manifest_sha256': 'f' * 64}):
+            with self.subTest(changed=tuple(changed)), self.assertRaises(ValueError):
+                dispatch.parse_bootstrap_diagnostic(ledger.canonical(changed), expected_request_sha256=ledger.digest(changed))
+        resealed = {**valid, 'bootstrap': {**valid['bootstrap'], 'transfer_quote_id': 'different-quote'}}
+        self.assertNotEqual(ledger.digest(resealed), expected_sha)
+        with self.assertRaises(ValueError):
+            dispatch.parse_bootstrap_diagnostic(ledger.canonical(resealed), expected_request_sha256=expected_sha)
+        raw = ledger.canonical(valid)
+        duplicate = b'{"format":"other",' + raw[1:]
+        with self.assertRaises(ValueError):
+            dispatch.parse_bootstrap_diagnostic(duplicate, expected_request_sha256=hashlib.sha256(duplicate).hexdigest())
+        whitespace = raw + b'\n'
+        with self.assertRaises(ValueError):
+            dispatch.parse_bootstrap_diagnostic(whitespace, expected_request_sha256=hashlib.sha256(whitespace).hexdigest())
+
+
 if __name__ == '__main__':
     unittest.main()
