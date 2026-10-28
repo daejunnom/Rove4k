@@ -11,14 +11,14 @@ from unittest.mock import patch
 try:
     from . import peer_exact_proposal as proposal, peer_p192_exact as exact
     from . import peer_p192_exact_build as build, registry, seed
-    from .test_peer_p192_exact import sources
+    from .test_peer_p192_exact import sources, c4ke_structural_sources
 except ImportError:
     import peer_exact_proposal as proposal
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
     import registry
     import seed
-    from test_peer_p192_exact import sources
+    from test_peer_p192_exact import sources, c4ke_structural_sources
 
 
 class LegacySeedTests(unittest.TestCase):
@@ -35,6 +35,79 @@ class LegacySeedTests(unittest.TestCase):
                                                             league_required=league_required),
                              seed.named_python_dependencies(old, source_name=source_name,
                                                             league_required=league_required))
+
+
+@unittest.skipUnless(sys.platform == "linux", "Linux no-follow source snapshots required")
+class CandidateProposalTests(unittest.TestCase):
+    def test_emission_and_phalanx_producer_tools_are_exact_and_pinned(self):
+        emission = exact.peer_c4ke_move_emission
+        phalanx = exact.peer_c4ke_phalanx
+        edit = exact.peer_c4ke_edit_structural
+        original = c4ke_structural_sources()
+        context = phalanx._START + b"\r\nsynthetic pawn context\r\n" + phalanx._BEFORE
+        original["src/board.cpp"] += edit._EDIT_BEFORE + emission.PAWN_BEFORE + emission.PIECE_BEFORE
+        original["src/board.cpp"] += b"\r\n".join(emission.PAWN_CALLS) + context
+        original["src/chess.cpp"] += b"\r\n".join(emission.CONSTANTS) + b"\r\n#define LSB countr_zero\r\n"
+        original.update({"launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
+                         "LICENSE": b"synthetic license\n", "other.txt": b"fixture\n"})
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        def fake(command, snapshot, *, sandbox_home):
+            if command[-1] == "tcec":
+                return b"#include <stdint.h>\n/* fixture: no TT */\n", b"", {"fixture": "emit"}
+            return b"fixture version\n", b"", {"fixture": "tool"}
+        with tempfile.TemporaryDirectory(prefix="rove-peer-candidate-proposal-") as directory, \
+             patch.dict(exact.peers.SOURCE_BLOBS, {"c4ke": blobs}), \
+             patch.object(phalanx, "_CONTEXT_SHA256", exact.peers.sha(context)):
+            root = Path(directory).resolve()
+            source = root / "source"
+            source.mkdir()
+            for path, raw in original.items():
+                target = source / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+            for variant in ("edit-castle-emission-v1", "edit-castle-phalanx-v1"):
+                with self.subTest(variant=variant):
+                    produced = build.build("c4ke", source, root / variant, run=fake, variant=variant,
+                                           launcher_variant="gnu-tail-v1")
+                    receipt = Path(produced["path"])
+                    result = registry.inspect_exact_peer_proposal(receipt, produced["sha256"])
+                    self.assertFalse(result["eligible_for_diagnostic"])
+                    self.assertFalse(result["emitted_tt_semantics_verified"])
+                    record = json.loads(receipt.read_bytes())
+                    original_receipt = receipt.read_bytes()
+                    tools = record["producer_inputs"]
+                    expected = {"producer", "transform", "peer_base", "command_runner", "launcher_transform",
+                                "c4ke_structural_transform", "c4ke_edit_structural_transform",
+                                "c4ke_candidate_transform"}
+                    self.assertEqual(set(tools), expected)
+                    for key in ("c4ke_structural_transform", "c4ke_edit_structural_transform",
+                                "c4ke_candidate_transform"):
+                        snapshot = receipt.parent / (key + ".py")
+                        raw = snapshot.read_bytes()
+                        snapshot.write_bytes(raw + b"# tampered\n")
+                        with self.assertRaises(ValueError):
+                            registry.inspect_exact_peer_proposal(receipt, produced["sha256"])
+                        snapshot.write_bytes(raw)
+                    for operation in ("missing", "extra", "wrong_candidate"):
+                        changed = json.loads(receipt.read_bytes())
+                        candidate = receipt.parent / "c4ke_candidate_transform.py"
+                        candidate_raw = candidate.read_bytes()
+                        if operation == "missing":
+                            del changed["producer_inputs"]["c4ke_candidate_transform"]
+                        elif operation == "extra":
+                            changed["producer_inputs"]["unexpected"] = changed["producer_inputs"]["producer"]
+                        else:
+                            wrong = phalanx if variant == "edit-castle-emission-v1" else emission
+                            data = Path(wrong.__file__).read_bytes()
+                            candidate.write_bytes(data)
+                            changed["producer_inputs"]["c4ke_candidate_transform"] = {
+                                "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+                        modified = json.dumps(changed).encode()
+                        receipt.write_bytes(modified)
+                        with self.assertRaises(ValueError):
+                            registry.inspect_exact_peer_proposal(receipt, hashlib.sha256(modified).hexdigest())
+                        candidate.write_bytes(candidate_raw)
+                        receipt.write_bytes(original_receipt)
 
 
 @unittest.skipUnless(sys.platform == "linux", "Linux no-follow source snapshots required")

@@ -99,16 +99,22 @@ def inspect(producer_record, producer_sha256):
     if variant in ("castle-v1", "zobrist-v1", "castle-zobrist-v1"):
         modules["ice_structural_transform"] = exact.peer_ice_structural
     if variant in ("castle-or-v1", "ray-castle-or-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
-                   "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1"):
+                   "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
+                   "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
         modules["c4ke_structural_transform"] = exact.peer_c4ke_structural
     if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
-                   "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1"):
+                   "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
+                   "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
         modules["c4ke_edit_structural_transform"] = exact.peer_c4ke_edit_structural
     if variant in ("edit-castle-slider-v1", "edit-castle-startpos-v1"):
         modules["c4ke_loop_transform"] = (exact.peer_c4ke_slider_loop if variant == "edit-castle-slider-v1"
                                            else exact.peer_c4ke_startpos_loop)
     if variant == "edit-castle-quiet-v1":
         modules["c4ke_quiet_transform"] = exact.peer_c4ke_quiet_history
+    if variant in ("edit-castle-emission-v1", "edit-castle-phalanx-v1"):
+        modules["c4ke_candidate_transform"] = (exact.peer_c4ke_move_emission
+                                               if variant == "edit-castle-emission-v1"
+                                               else exact.peer_c4ke_phalanx)
     if launcher_variant == "gnu-tail-v1":
         try:
             from . import peer_launcher_trim as trim
