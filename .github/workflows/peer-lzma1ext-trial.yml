@@ -26,11 +26,19 @@ concurrency:
 
 jobs:
   compare:
+    name: c4ke-${{ matrix.source_variant }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        source_variant:
+          - edit-castle-phalanx-v1
+          - edit-castle-phalanx-ep-hash-v1
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       LZMA_DEB_VERSION: '5.6.1+really5.4.5-1ubuntu0.4'
+      SOURCE_VARIANT: ${{ matrix.source_variant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -77,13 +85,13 @@ jobs:
         run: |
           python -I -B engines/experiments/strength/peers.py source \
             --peer c4ke --out "$RUNNER_TEMP/lzma1ext-peer-source"
-      - name: Reproduce two baseline phalanx packages in temporary storage
+      - name: Reproduce two baseline packages in temporary storage
         run: |
           timeout --signal=TERM --kill-after=30s 2100s \
             python -I -B engines/experiments/strength/peer_p192_exact_build.py \
             --peer c4ke --source "$RUNNER_TEMP/lzma1ext-peer-source" \
             --out "$RUNNER_TEMP/lzma1ext-baseline" \
-            --source-variant edit-castle-phalanx-v1 --launcher-variant gnu-tail-v1 \
+            --source-variant "$SOURCE_VARIANT" --launcher-variant gnu-tail-v1 \
             --codec-search extended --wall-seconds 600
       - name: Check emitted C++ syntax without running an engine
         run: |
@@ -100,6 +108,7 @@ jobs:
         run: |
           python -I -B engines/experiments/strength/peer_lzma1ext_compare.py \
             --producer-root "$RUNNER_TEMP/lzma1ext-baseline" \
+            --source-variant "$SOURCE_VARIANT" \
             --helper-1 "$RUNNER_TEMP/lzma1ext-helper-1" \
             --helper-2 "$RUNNER_TEMP/lzma1ext-helper-2" \
             --xz "$(command -v xz)" --toolchain-json "$RUNNER_TEMP/lzma1ext-toolchain.json" \
@@ -108,7 +117,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: c4ke-lzma1ext-comparison-${{ github.sha }}
+          name: c4ke-lzma1ext-comparison-${{ matrix.source_variant }}-${{ github.sha }}
           path: ${{ runner.temp }}/lzma1ext-comparison.json
           if-no-files-found: warn
           retention-days: 7

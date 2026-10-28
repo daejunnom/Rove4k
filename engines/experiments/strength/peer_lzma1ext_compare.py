@@ -25,6 +25,7 @@ except ImportError:
 EXPECTED_REVISION = "22e318f59b3a9eed1d2b8161da832222d4a51033"
 TT_BYTES = 192 << 30
 PINNED_DEB_VERSION = "5.6.1+really5.4.5-1ubuntu0.4"
+SOURCE_VARIANTS = ("edit-castle-phalanx-v1", "edit-castle-phalanx-ep-hash-v1")
 
 
 def _sha(data):
@@ -39,7 +40,9 @@ def _read(path, maximum):
     return data
 
 
-def compare(root, helper1, helper2, xz):
+def compare(root, helper1, helper2, xz, source_variant=SOURCE_VARIANTS[0]):
+    if source_variant not in SOURCE_VARIANTS:
+        raise ValueError("unsupported c4ke source variant")
     root = Path(root).resolve(strict=True)
     receipt_data = _read(root / "peer-exact.json", 1 << 20)
     receipt = json.loads(receipt_data)
@@ -51,13 +54,13 @@ def compare(root, helper1, helper2, xz):
         raise ValueError("baseline proposal scope differs")
     if (receipt.get("complete") is not True or receipt.get("reproducible") is not True
             or receipt.get("peer") != "c4ke" or receipt.get("revision") != EXPECTED_REVISION
-            or receipt.get("source_variant") != "edit-castle-phalanx-v1"
+            or receipt.get("source_variant") != source_variant
             or receipt.get("launcher_variant") != "gnu-tail-v1"
             or receipt.get("codec_search", {}).get("name") != "extended"
             or receipt.get("resources", {}).get("workers") != 192
             or receipt.get("resources", {}).get("tt_bytes") != TT_BYTES
             or len(receipt.get("attempts", [])) != 2):
-        raise ValueError("baseline is not the exact pinned P192 phalanx experiment")
+        raise ValueError("baseline is not the requested exact pinned P192 phalanx experiment")
 
     output = []
     for index, (attempt, helper) in enumerate(zip(receipt["attempts"], (helper1, helper2)), 1):
@@ -107,7 +110,7 @@ def compare(root, helper1, helper2, xz):
         "format": "peer-lzma1ext-comparison-v1",
         "scope": "build-only size comparison; no engine execution or league admission",
         "peer": "c4ke", "revision": EXPECTED_REVISION,
-        "source_variant": "edit-castle-phalanx-v1", "launcher_variant": "gnu-tail-v1",
+        "source_variant": source_variant, "launcher_variant": "gnu-tail-v1",
         "baseline_receipt_sha256": _sha(receipt_data),
         "source": {"bytes": len(first["source"]), "sha256": _sha(first["source"])},
         "launcher": {"bytes": len(first["header"]), "sha256": _sha(first["header"])},
@@ -132,8 +135,9 @@ def main():
     parser.add_argument("--xz", required=True)
     parser.add_argument("--receipt", required=True)
     parser.add_argument("--toolchain-json", required=True)
+    parser.add_argument("--source-variant", choices=SOURCE_VARIANTS, default=SOURCE_VARIANTS[0])
     args = parser.parse_args()
-    result = compare(args.producer_root, args.helper_1, args.helper_2, args.xz)
+    result = compare(args.producer_root, args.helper_1, args.helper_2, args.xz, args.source_variant)
     toolchain = json.loads(_read(args.toolchain_json, 65536))
     expected_packages = {name: PINNED_DEB_VERSION for name in ("liblzma5", "liblzma-dev", "xz-utils")}
     if (toolchain.get("packages") != expected_packages

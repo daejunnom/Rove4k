@@ -92,6 +92,42 @@ class CompareTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "pinned version"):
                 compare.compare(self.root, "helper1", "helper2", "xz")
 
+    def test_each_allowlisted_variant_preserves_identity_without_exporting_bytes(self):
+        for variant in compare.SOURCE_VARIANTS:
+            with self.subTest(variant=variant):
+                self.receipt["source_variant"] = variant
+                self.write_receipt()
+                with patch.object(compare.trial, "encode_verified", return_value=(b"trial-payload", self.evidence)) as encode:
+                    result = compare.compare(self.root, "helper1", "helper2", "xz", variant)
+                self.assertEqual(encode.call_count, 2)
+                self.assertEqual(result["source_variant"], variant)
+                self.assertFalse(result["runtime_qualified"])
+                self.assertFalse(result["league_qualified"])
+                serialized = json.dumps(result).encode()
+                for private in (self.source, self.header, b"trial-payload"):
+                    self.assertNotIn(private, serialized)
+
+    def test_requested_variant_must_be_allowed_and_match_the_baseline(self):
+        with self.assertRaisesRegex(ValueError, "unsupported c4ke source variant"):
+            compare.compare(self.root, "helper1", "helper2", "xz", "unknown")
+        with self.assertRaisesRegex(ValueError, "requested exact pinned P192"):
+            compare.compare(self.root, "helper1", "helper2", "xz", compare.SOURCE_VARIANTS[1])
+        self.receipt["source_variant"] = compare.SOURCE_VARIANTS[1]
+        self.write_receipt()
+        with self.assertRaisesRegex(ValueError, "requested exact pinned P192"):
+            compare.compare(self.root, "helper1", "helper2", "xz", compare.SOURCE_VARIANTS[0])
+
+    def test_second_attempt_launcher_tamper_is_rejected_for_each_variant(self):
+        for variant in compare.SOURCE_VARIANTS:
+            with self.subTest(variant=variant):
+                self.receipt["source_variant"] = variant
+                self.write_receipt()
+                (self.root / "attempt-2" / "c4ke-tcec").write_bytes(b"X" + self.header[1:] + self.payload)
+                with patch.object(compare.trial, "encode_verified", return_value=(b"trial", self.evidence)):
+                    with self.assertRaisesRegex(ValueError, "pin differs"):
+                        compare.compare(self.root, "helper1", "helper2", "xz", variant)
+                (self.root / "attempt-2" / "c4ke-tcec").write_bytes(self.header + self.payload)
+
 
 if __name__ == "__main__":
     unittest.main()
