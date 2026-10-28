@@ -217,11 +217,13 @@ class LeagueTestBoundary(TestCase):
                     accepted, rejected = cloud.run.qualified_players(forced, "test-p4")
                     self.assertEqual(accepted, [])
                     self.assertEqual(len(rejected), 1)
-                program.write_bytes(b"tampered")
-                with self.assertRaisesRegex(ValueError, "artifact bytes"):
-                    inspect = (cloud.registry.admit_to_test_league if legacy_seed else
-                               cloud.registry.inspect_league_test_receipt)
-                    inspect(artifact, Path(result["receipt"]), result["receipt_sha256"])
+                for payload in (b"tampered", b"z" * size):
+                    with self.subTest(tampered_size=len(payload)):
+                        program.write_bytes(payload)
+                        with self.assertRaisesRegex(ValueError, "artifact bytes"):
+                            inspect = (cloud.registry.admit_to_test_league if legacy_seed else
+                                       cloud.registry.inspect_league_test_receipt)
+                            inspect(artifact, Path(result["receipt"]), result["receipt_sha256"])
 
 
 if __name__ == "__main__":

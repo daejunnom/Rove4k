@@ -434,9 +434,11 @@ def _read_inspection_file(value, digest, name, limit, *, hash_only=False, expect
             opened = os.fstat(stream.fileno())
             if (not stat.S_ISREG(before.st_mode) or not stat.S_ISREG(opened.st_mode) or
                     before.st_nlink != 1 or opened.st_nlink != 1 or
-                    (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino) or
-                    not 0 < opened.st_size <= limit or
-                    (expected_size is not None and opened.st_size != expected_size)):
+                    (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino)):
+                raise ValueError("SMT observation is not a bounded ordinary file")
+            if expected_size is not None and opened.st_size != expected_size:
+                raise ValueError("artifact bytes differ from the registered identity")
+            if not 0 < opened.st_size <= limit:
                 raise ValueError("SMT observation is not a bounded ordinary file")
             if hash_only:
                 hasher, count = hashlib.sha256(), 0
@@ -465,6 +467,8 @@ def _read_inspection_file(value, digest, name, limit, *, hash_only=False, expect
     except OSError as error:
         raise ValueError("cannot read owned inspection input") from error
     if actual_hash != digest:
+        if hash_only and expected_size is not None:
+            raise ValueError("artifact bytes differ from the registered identity")
         raise ValueError("inspection input identity changed")
     parent = before_chain[1]
     return path, raw, (parent.st_dev, parent.st_ino)
