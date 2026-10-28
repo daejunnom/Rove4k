@@ -51,6 +51,21 @@ def identifier(value):
     return value
 
 
+def inspect_exact_peer_proposal(producer_record, producer_sha256):
+    """Inspect experimental 3×2^33 source evidence without admitting an Artifact.
+
+    Legacy power-of-two Artifact serialization and league admission stay
+    unchanged. The exact producer has no emitted TT semantic or native
+    reference proof yet, so even an inspected proposal is not executable
+    diagnostic evidence and cannot qualify for scored play.
+    """
+    try:
+        from . import peer_exact_proposal
+    except ImportError:
+        import peer_exact_proposal
+    return peer_exact_proposal.inspect(producer_record, producer_sha256)
+
+
 def smt_runtime_evidence(report, artifact):
     """Recheck recorded host-bound SMT evidence without granting score admission.
 

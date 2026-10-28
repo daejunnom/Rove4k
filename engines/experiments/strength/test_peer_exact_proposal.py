@@ -1,0 +1,139 @@
+"""Experimental exact producer reinspection; no peer or large TT runs."""
+import ast
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+try:
+    from . import peer_exact_proposal as proposal, peer_p192_exact as exact
+    from . import peer_p192_exact_build as build, registry, seed
+    from .test_peer_p192_exact import sources
+except ImportError:
+    import peer_exact_proposal as proposal
+    import peer_p192_exact as exact
+    import peer_p192_exact_build as build
+    import registry
+    import seed
+    from test_peer_p192_exact import sources
+
+
+class LegacySeedTests(unittest.TestCase):
+    def test_lazy_proposal_api_adds_no_named_seed_dependencies(self):
+        raw = Path(registry.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(raw)
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                        and node.name == "inspect_exact_peer_proposal")
+        lines = raw.splitlines(keepends=True)
+        old = "".join(lines[:function.lineno - 1] + lines[function.end_lineno:])
+        source_name = "engines/experiments/strength/registry.py"
+        for league_required in (False, True):
+            self.assertEqual(seed.named_python_dependencies(raw, source_name=source_name,
+                                                            league_required=league_required),
+                             seed.named_python_dependencies(old, source_name=source_name,
+                                                            league_required=league_required))
+
+
+@unittest.skipUnless(sys.platform == "linux", "Linux no-follow source snapshots required")
+class ProposalTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="rove-peer-proposal-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name).resolve()
+        self.peer = "c4ke"
+        self.original = {**sources(self.peer), "launcher.sh": b"#!/bin/sh\ntail -n +5 \"$0\"\n# synthetic\n# end\n",
+                         "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"}
+        source = self.root / "upstream"
+        source.mkdir()
+        for relative, data in self.original.items():
+            path = source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        self.blobs = {name: exact.peers.git_blob(data) for name, data in self.original.items()}
+        self.blob_patch = patch.dict(exact.peers.SOURCE_BLOBS, {self.peer: self.blobs})
+        self.blob_patch.start()
+        self.addCleanup(self.blob_patch.stop)
+
+        def fake(command, snapshot, *, sandbox_home):
+            if command[-1] == "tcec":
+                return b"#include <stdint.h>\n/* fixture: no TT */\n", b"", {"fixture": "emit"}
+            return b"fixture version\n", b"", {"fixture": "tool"}
+
+        result = build.build(self.peer, source, self.root / "output", run=fake)
+        self.record = Path(result["path"])
+        self.digest = result["sha256"]
+
+    def inspect(self):
+        return registry.inspect_exact_peer_proposal(self.record, self.digest)
+
+    def test_actual_producer_files_replayed_without_admission(self):
+        result = self.inspect()
+        self.assertEqual(result["layout"], "peer-p192-exact-3x2p33-v1")
+        self.assertEqual(result["resources"]["tt_entries"], 3 << 33)
+        self.assertEqual(result["resources"]["tt_bytes"], 192 << 30)
+        self.assertTrue(result["source_snapshot_inverse_verified"])
+        self.assertTrue(result["retained_source_whole_consistent"])
+        for field in ("minifier_execution_replayed", "emitted_tt_semantics_verified", "native_reference_verified",
+                      "eligible_for_diagnostic", "eligible_for_scored_league"):
+            self.assertIs(result[field], False)
+        # The minifier fixture emitted no TT at all. A producer success flag or
+        # exact byte count therefore cannot qualify it for an Artifact.
+        with self.assertRaises((KeyError, TypeError, ValueError)):
+            registry.Artifact.from_record(result)
+
+    def test_receipt_or_snapshot_replacement_rejected(self):
+        for relative in ("attempt-1/main.cpp", "attempt-2/transform-proof.json",
+                         "attempt-1/source/src/board.cpp", "transform.py"):
+            with self.subTest(relative=relative):
+                path = self.record.parent / relative
+                old = path.read_bytes()
+                path.write_bytes(old + b"changed")
+                with self.assertRaises(ValueError):
+                    self.inspect()
+                path.write_bytes(old)
+        with self.assertRaisesRegex(ValueError, "receipt identity"):
+            registry.inspect_exact_peer_proposal(self.record, "0" * 64)
+
+    def test_fabricated_resource_or_semantics_claim_rejected(self):
+        original = self.record.read_bytes()
+        for mutate in (lambda r: r["resources"].update(tt_entries=1 << 34),
+                       lambda r: r["resources"].update(tt_entries=float(3 << 33)),
+                       lambda r: r["qualification"].update(emitted_tt_semantics_verified=True),
+                       lambda r: r["attempts"].pop()):
+            with self.subTest(mutation=mutate):
+                record = json.loads(original)
+                mutate(record)
+                self.record.write_text(json.dumps(record), encoding="utf-8")
+                self.digest = hashlib.sha256(self.record.read_bytes()).hexdigest()
+                with self.assertRaises(ValueError):
+                    self.inspect()
+        self.record.write_bytes(original)
+
+    def test_exact_layout_does_not_replace_legacy_artifact_contract(self):
+        record = {"id": "peer", "family": "c4ke", "path": self.record.parent / "attempt-1" / "c4ke",
+                  "purpose": "test", "profile": "test-p192", "workers": 192,
+                  "tt_bytes": 192 << 30, "entry_bytes": 8, "representation": "source-jit",
+                  "full": True, "sha256": "a" * 64, "whole_bytes": 1, "native_sha256": "b" * 64}
+        with self.assertRaisesRegex(ValueError, "TT extent"):
+            registry.Artifact(**record)
+
+    def test_hostile_lzma_dictionary_is_rejected(self):
+        record = json.loads(self.record.read_bytes())
+        row = record["attempts"][0]
+        whole_path = Path(row["whole"]["path"])
+        whole = bytearray(whole_path.read_bytes())
+        offset = row["header"]["bytes"]
+        whole[offset + 1:offset + 5] = b"\xff\xff\xff\x7f"
+        whole_path.write_bytes(whole)
+        row["whole"]["sha256"] = hashlib.sha256(whole).hexdigest()
+        self.record.write_text(json.dumps(record), encoding="utf-8")
+        self.digest = hashlib.sha256(self.record.read_bytes()).hexdigest()
+        with self.assertRaisesRegex(ValueError, "invalid retained source stream"):
+            self.inspect()
+
+
+if __name__ == "__main__":
+    unittest.main()

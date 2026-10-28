@@ -8,6 +8,9 @@ on:
       - 'engines/experiments/strength/test_peer_p192_exact*.py'
       - 'engines/experiments/strength/peer_exact_runner.py'
       - 'engines/experiments/strength/test_peer_exact_runner.py'
+      - 'engines/experiments/strength/peer_exact_proposal.py'
+      - 'engines/experiments/strength/test_peer_exact_proposal.py'
+      - 'engines/experiments/strength/registry.py'
       - 'engines/experiments/strength/peer_launcher_trim.py'
       - 'engines/experiments/strength/test_peer_launcher_trim.py'
       - 'engines/experiments/strength/peer_ice_structural.py'
@@ -83,6 +86,7 @@ jobs:
         run: |
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_p192_exact*.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_exact_runner.py'
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_exact_proposal.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_launcher_trim.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_ice_structural.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_structural.py'
@@ -111,6 +115,23 @@ jobs:
             --out "$RUNNER_TEMP/peer-p192-result-$PEER" \
             --source-variant "$SOURCE_VARIANT" --launcher-variant "$LAUNCHER_VARIANT" \
             --codec-search "$CODEC_SEARCH" --wall-seconds 600 "${rove_rust_args[@]}"
+      - name: Inspect retained exact source and whole evidence without admission
+        run: |
+          python - "$RUNNER_TEMP/peer-p192-result-$PEER/peer-exact.json" <<'PY'
+          import hashlib, json, pathlib, sys
+          from engines.experiments.strength import registry
+          receipt = pathlib.Path(sys.argv[1])
+          digest = hashlib.sha256(receipt.read_bytes()).hexdigest()
+          result = registry.inspect_exact_peer_proposal(receipt, digest)
+          assert result['source_snapshot_inverse_verified']
+          assert result['retained_source_whole_consistent']
+          assert not result['minifier_execution_replayed']
+          assert not result['emitted_tt_semantics_verified']
+          assert not result['native_reference_verified']
+          assert not result['eligible_for_diagnostic']
+          assert not result['eligible_for_scored_league']
+          print(json.dumps(result, sort_keys=True))
+          PY
       - name: Check emitted C++ syntax with the peer launcher options
         run: |
           if [ "$PEER" = c4ke ]; then
