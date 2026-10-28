@@ -1,0 +1,78 @@
+name: Experimental original peer build-only reference
+
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/strength/original_peer_build*.py'
+      - 'engines/experiments/strength/test_original_peer_build*.py'
+      - 'engines/experiments/strength/peer_exact_runner.py'
+      - 'engines/experiments/strength/test_peer_exact_runner.py'
+      - 'engines/experiments/strength/peer_runtime.py'
+      - 'engines/experiments/strength/peers.py'
+      - '.github/workflows/original-peer-build-trial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: original-peer-build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        peer: [ice4, c4ke]
+        profile: [test-p16, test-p192]
+    env:
+      PEER: ${{ matrix.peer }}
+      PROFILE: ${{ matrix.profile }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Test receipt and original build boundaries
+        run: |
+          python -I -B -m unittest discover -s engines/experiments/strength -p 'test_original_peer_build*.py'
+      - name: Fetch the pinned original source into temporary storage
+        run: |
+          if ! python -I -B engines/experiments/strength/peers.py source \
+              --peer "$PEER" --out "$RUNNER_TEMP/original-peer-source" \
+              >"$RUNNER_TEMP/original-source.log" 2>&1; then
+            echo 'Pinned original source acquisition failed.' >&2
+            exit 1
+          fi
+      - name: Build the pinned original twice without executing it
+        run: |
+          checkout_sha="$(git rev-parse HEAD)"
+          compiler_version="$(g++ -dumpfullversion -dumpversion 2>/dev/null)" || {
+            echo 'Compiler version preflight failed.' >&2
+            exit 1
+          }
+          export CHECKOUT_SHA="$checkout_sha"
+          if ! python -I -B engines/experiments/strength/original_peer_build_ci.py \
+              --peer "$PEER" --profile "$PROFILE" --source "$RUNNER_TEMP/original-peer-source" \
+              --out "$RUNNER_TEMP/original-peer-output" \
+              --receipt "$RUNNER_TEMP/original-peer-receipt.json" \
+              --compiler-cli-version "$compiler_version" \
+              >"$RUNNER_TEMP/original-build.log" 2>&1; then
+            echo 'Original peer build-only verification failed.' >&2
+            exit 1
+          fi
+      - name: Preserve the build-only JSON receipt
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: original-peer-build-${{ matrix.peer }}-${{ matrix.profile }}-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/original-peer-receipt.json
+          if-no-files-found: error
+          retention-days: 7
