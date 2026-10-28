@@ -1,0 +1,130 @@
+name: Rove TEST same-link map diagnostic
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/rove-test-map-diagnostic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  map-diagnostic:
+    name: map-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-atomic}
+          - {family: A, profile: test-p192, variant: square-atomic}
+          - {family: B, profile: test-p16, variant: league-atomic}
+          - {family: B, profile: test-p192, variant: league-atomic}
+          - {family: C, profile: test-p16, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, variant: ep-atomic}
+          - {family: E, profile: test-p192, variant: ep-atomic}
+          - {family: F, profile: test-p16, variant: atomic-assignment}
+          - {family: F, profile: test-p192, variant: atomic-assignment}
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || '' }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Initialize bounded diagnostic receipt
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          root="$RUNNER_TEMP/rove-map-${FAMILY}-${PROFILE}-${GITHUB_RUN_ATTEMPT}"
+          mkdir "$root"
+          printf 'MAP_DIAGNOSTIC_ROOT=%s\n' "$root" >> "$GITHUB_ENV"
+          python -I -B - "$root" <<'PY'
+          import json, os, pathlib, sys
+          out = pathlib.Path(sys.argv[1]) / 'receipt.json'
+          receipt = {'schema': 'rove4k.test-map-ci.v1', 'status': 'incomplete',
+                     'checkout_sha': os.environ['GITHUB_SHA'],
+                     'pr_head_sha': os.environ['PR_HEAD_SHA'] or None,
+                     'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                     'variant': os.environ['VARIANT'], 'final_league_selection': False,
+                     'engine_executed': False, 'test_qualified': False,
+                     'smt_qualified': False, 'go': False}
+          out.write_text(json.dumps(receipt, sort_keys=True, indent=2) + '\n')
+          PY
+      - name: Build the named pinned TEST source profile without engine execution
+        run: |
+          set -euo pipefail
+          if [ "$FAMILY" = B ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --emit-arguments > "$MAP_DIAGNOSTIC_ROOT/selection.txt"
+            mapfile -t selected < "$MAP_DIAGNOSTIC_ROOT/selection.txt"
+          else
+            selected=(--entry "$FAMILY" --profile "$PROFILE" --representation source-jit \
+              --b-variant control --phase-variant control --spelling-variant control \
+              --scan-variant control --ep-variant control --source-dependencies control \
+              --league-variant "$VARIANT")
+          fi
+          timeout --signal=TERM --kill-after=30s 1200s \
+            python -I -B engines/experiments/tcec-next/profile_build.py \
+            "${selected[@]}" --out "$MAP_DIAGNOSTIC_ROOT/build" > "$MAP_DIAGNOSTIC_ROOT/build.log" 2>&1
+          if [ "$FAMILY" = B ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --check-manifest "$MAP_DIAGNOSTIC_ROOT/build/build.json" > /dev/null
+          fi
+      - name: Readmit and replay the exact producer command with same-link map
+        run: |
+          set -euo pipefail
+          python -I -B - <<'PY'
+          import hashlib, json, os, pathlib, shutil, subprocess, sys
+          root = pathlib.Path(os.environ['MAP_DIAGNOSTIC_ROOT'])
+          build = root / 'build'
+          manifest = json.loads((build / 'build.json').read_text())
+          if (manifest.get('family') != os.environ['FAMILY'] or
+              manifest.get('resources', {}).get('id') != os.environ['PROFILE'] or
+              manifest.get('complete') is not True or manifest.get('reproducible') is not True):
+              raise ValueError('named TEST producer did not complete reproducibly')
+          if not isinstance(manifest.get('compile_executor'), list):
+              raise ValueError('actual compile_executor is required')
+          if os.environ['FAMILY'] != 'B' and manifest.get('post_league', {}).get('variant') != os.environ['VARIANT']:
+              raise ValueError('named league source variant differs')
+          # Hash the same resolved compiler and linker that the diagnostic checks;
+          # the recorded source-JIT compiler is a separate contract.
+          cc = shutil.which('cc')
+          if not cc:
+              raise ValueError('compiler missing')
+          ld = subprocess.run([cc, '-print-prog-name=ld'], check=True, capture_output=True,
+                              text=True, timeout=10).stdout.strip()
+          linker = shutil.which(ld)
+          if not linker:
+              raise ValueError('linker missing')
+          digest = lambda path: hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
+          sys.path.insert(0, str(pathlib.Path('engines/experiments/strength').resolve()))
+          import rove_actual_map
+          result = rove_actual_map.inspect(manifest, build, digest(cc), digest(linker))
+          if result['family'] != os.environ['FAMILY'] or result['profile'] != os.environ['PROFILE']:
+              raise ValueError('diagnostic candidate differs from matrix')
+          receipt = json.loads((root / 'receipt.json').read_text())
+          receipt.update(status='complete', diagnostic=result)
+          (root / 'receipt.json').write_text(json.dumps(receipt, sort_keys=True, indent=2) + '\n')
+          print(json.dumps({'status': receipt['status'], 'family': receipt['family'],
+                            'profile': receipt['profile'], 'variant': receipt['variant']}))
+          PY
+      - name: Preserve JSON receipt only
+        if: always() && env.MAP_DIAGNOSTIC_ROOT != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rove-map-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.MAP_DIAGNOSTIC_ROOT }}/receipt.json
+          if-no-files-found: error
+          retention-days: 7
