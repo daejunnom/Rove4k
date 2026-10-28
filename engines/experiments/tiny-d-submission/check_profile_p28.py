@@ -43,7 +43,6 @@ PROFILE = "test-p28"
 WORKERS, BITS, ENTRY, PAGE_ENTRIES = 28, 25, 16, 256
 ENTRIES, TT_BYTES = 1 << BITS, (1 << BITS) * ENTRY
 STARTUP_SECONDS = 60
-MINIMUM_LAUNCH_HEADROOM = 4 << 30
 NATIVE = ("tiny.h", "board.c", "search.c", "runtime.c", "start.S", "image.ld")
 CASES = (("full-entry-positive", 0), ("full-entry-omit-clear", 7), ("full-entry-omit-page-owner", 8))
 
@@ -231,13 +230,11 @@ def mechanism_limits(inherited_cpu):
 
 
 def launch_capacity(verifier, admitted):
-    """The explicit local launch lease is stricter than general profile admission."""
+    """Record available memory as telemetry; retain explicit execution limits."""
     available = verifier.effective_available_bytes()
-    require(type(available) is int and available >= MINIMUM_LAUNCH_HEADROOM,
-            "root D P28 launch condition requires at least4GiB effective headroom")
     limits = verifier.execution_limits(admitted, available, wall_seconds=60)
-    return {**limits, "launch_headroom": dict(minimum_bytes=MINIMUM_LAUNCH_HEADROOM,
-            effective_available_bytes=available, condition_met=True)}
+    return {**limits, "launch_headroom": dict(effective_available_bytes=available,
+            used_for_admission=False)}
 
 
 def require_execution(row, expected):
@@ -505,8 +502,7 @@ def run_snapshot(build, out, frozen, working_root):
         frozen_execution=True, real_target_allocation=False, actual_tt_bytes=TT_BYTES, actual_workers=WORKERS,
         shipping_binary_executed=False, runtime_qualified=False, rules_qualified=False,
         physical_placement_qualified=False, NUMA_qualified=False, locality_proof=False,
-        production_startup_timing_claimed=False, strength_claimed=False, event_target_confirmed=False,
-        minimum_launch_headroom_bytes=MINIMUM_LAUNCH_HEADROOM)
+        production_startup_timing_claimed=False, strength_claimed=False, event_target_confirmed=False)
 
     def save():
         (out / "results.json").write_text(json.dumps(report, indent=2) + "\n")

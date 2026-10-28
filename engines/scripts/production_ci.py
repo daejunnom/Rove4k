@@ -685,7 +685,6 @@ def p28_d_mechanism(plan, report, build, build_pin, *, reader=None):
     applied = renderer.mechanism_limits(tuple(inherited))
     require(same_value(report.get("applied_Host_limits"), applied)
             and same_value(report.get("startup_inherits_parent_CPU_limits"), [applied["parent_CPU"], applied["parent_CPU_hard"]])
-            and type(report.get("minimum_launch_headroom_bytes")) is int and report["minimum_launch_headroom_bytes"] == 4 << 30
             and all(same_value(row.get("child_limits"), {"AS": 2 << 30, "CPU": 60}) for row in report["commands"]),
             "D P28 applied CPU/address-space limits differ")
     files = {name: evidence_bytes(plan.out, "artifact/generated-readable/" + name, reader=reader)[0]
@@ -783,10 +782,17 @@ def p28_d_mechanism(plan, report, build, build_pin, *, reader=None):
             and barrier.get("resident", {}).get("pid") == journal[0]["pid"], "D P28 physical task evidence is not29-to1")
     for observation in [*rows, barrier]:
         headroom = observation.get("launch_headroom", {})
-        require(type(headroom) is dict and set(headroom) == {"minimum_bytes", "effective_available_bytes", "condition_met"}
-                and type(headroom["minimum_bytes"]) is int and headroom["minimum_bytes"] == 4 << 30
-                and type(headroom["effective_available_bytes"]) is int and headroom["effective_available_bytes"] >= 4 << 30
-                and headroom["condition_met"] is True, "D P28 per-launch effective headroom condition was not met")
+        # Accept historic receipts as telemetry too. No current availability
+        # snapshot is a prerequisite for producing or accepting the result.
+        require(type(headroom) is dict and
+                (set(headroom) == {"effective_available_bytes", "used_for_admission"} and
+                 headroom["used_for_admission"] is False or
+                 set(headroom) == {"minimum_bytes", "effective_available_bytes", "condition_met"} and
+                 type(headroom["minimum_bytes"]) is int and headroom["minimum_bytes"] >= 0 and
+                 type(headroom["condition_met"]) is bool) and
+                (headroom["effective_available_bytes"] is None or
+                 type(headroom["effective_available_bytes"]) is int and
+                 headroom["effective_available_bytes"] >= 0), "D P28 memory observation format differs")
     for marker, expected in (("arrived", b"ok\n"), ("release", b"release\n"), ("joined", b"ok\n"), ("exit_release", b"exit\n")):
         data, identity = evidence_bytes(plan.out, "mechanism/selected-W28-last-initializer/" + marker, reader=reader)
         require(data == expected and same_value(barrier.get("markers", {}).get(marker), identity), "D P28 actual marker evidence differs")

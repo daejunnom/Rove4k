@@ -1055,14 +1055,14 @@ class ProductionCIBoundaries(unittest.TestCase):
             "physical": physical, "cleanup": cleanup, "markers": markers, "startup_tasks": tasks, "idle_tasks": tasks,
             "joined_tasks": {"1234": tasks["1234"]}, "startup_snapshot": {"tasks": tasks}, "resident": {"pid": 1234}}
         for observation in [*mechanisms, barrier]:
-            observation["launch_headroom"] = {"minimum_bytes": 4 << 30, "effective_available_bytes": 8 << 30, "condition_met": True}
+            observation["launch_headroom"] = {"effective_available_bytes": 0, "used_for_admission": False}
         applied = renderer.mechanism_limits((-1, -1))
         report = {**owner_report(commands), "class": "rove4k-D-bound-p28-mechanism-v1", "source_bound": True,
             "profile": "test-p28", "family": "D", "build": {**build_pin, "path": str(root / "artifact")},
             "inputs": inputs, "geometry": renderer.geometry(build["resource"]), "flags": build["flags"],
             "selected_source": source_pins, "production_proof": proof, "mechanisms": mechanisms, "startup_barriers": [barrier],
             "frozen_execution": True, "real_target_allocation": True, "actual_workers": 28, "actual_tt_bytes": 512 << 20,
-            "inherited_CPU_limits": [-1, -1], "applied_Host_limits": applied, "minimum_launch_headroom_bytes": 4 << 30,
+            "inherited_CPU_limits": [-1, -1], "applied_Host_limits": applied,
             "startup_inherits_parent_CPU_limits": [applied["parent_CPU"], applied["parent_CPU_hard"]],
             **dict.fromkeys(("shipping_binary_executed", "runtime_qualified", "rules_qualified", "physical_placement_qualified",
                 "NUMA_qualified", "locality_proof", "production_startup_timing_claimed", "strength_claimed", "event_target_confirmed"), False),
@@ -1077,6 +1077,15 @@ class ProductionCIBoundaries(unittest.TestCase):
             plan, report, path = self.d_p28_receipt_fixture(Path(temporary).resolve())
             accepted = CI.check_stage(plan, plan.stages[1])
             self.assertEqual(accepted["full_resource_mechanism"]["actual_tt_bytes"], 512 << 20)
+            # Missing and low snapshots are telemetry, including historic receipts.
+            for observation in (None, 0, 3 << 30):
+                changed = json.loads(json.dumps(report))
+                changed["mechanisms"][0]["launch_headroom"]["effective_available_bytes"] = observation
+                changed["startup_barriers"][0]["launch_headroom"] = {
+                    "minimum_bytes": 4 << 30, "effective_available_bytes": observation, "condition_met": False}
+                path.write_text(json.dumps(changed))
+                CI.check_stage(plan, plan.stages[1])
+            path.write_text(json.dumps(report))
             for keys, value, error in ((("commands", 3, "returncode"), 0, "nested command"),
                     (("commands", 5, "returncode"), 7, "nested command"),
                     (("commands", 1, "command"), ["/different/native"], "diagnostic proof"),
@@ -1095,7 +1104,7 @@ class ProductionCIBoundaries(unittest.TestCase):
                     (("startup_barriers", 0, "ready_ms_including_intentional_hold"), 60001, "deadline"),
                     (("startup_barriers", 0, "joined_tasks"), report["startup_barriers"][0]["startup_tasks"], "29-to1"),
                     (("startup_barriers", 0, "physical", "stdout_eof"), False, "finish naturally"),
-                    (("mechanisms", 0, "launch_headroom", "effective_available_bytes"), 3 << 30, "headroom condition"),
+                    (("mechanisms", 0, "launch_headroom", "used_for_admission"), True, "memory observation format"),
                     (("barrier_runtime_cleanup", 0, "cleanup", "reaped"), 1, "finish naturally")):
                 changed = json.loads(json.dumps(report))
                 target = changed

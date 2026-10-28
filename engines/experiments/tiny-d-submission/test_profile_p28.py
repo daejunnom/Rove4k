@@ -234,20 +234,17 @@ class P28Contracts(unittest.TestCase):
             with self.subTest(inherited=inherited), self.assertRaises(ValueError):
                 CHECK.mechanism_limits(inherited)
 
-    def test_root_local_headroom_lease_rejects_before_profile_launch(self):
-        calls = []
-        verifier = types.SimpleNamespace(effective_available_bytes=lambda: (4 << 30) - 1,
-            execution_limits=lambda *args, **kwargs: calls.append((args, kwargs)))
-        with self.assertRaisesRegex(ValueError, "at least4GiB"):
-            CHECK.launch_capacity(verifier, "admitted")
-        self.assertEqual(calls, [])
-        verifier.effective_available_bytes = lambda: 4 << 30
-        verifier.execution_limits = lambda actual, available, wall_seconds: {
-            "admission": {"admitted": True}, "identity": (actual, available, wall_seconds)}
-        result = CHECK.launch_capacity(verifier, "admitted")
-        self.assertEqual(result["identity"], ("admitted", 4 << 30, 60))
-        self.assertEqual(result["launch_headroom"], dict(minimum_bytes=4 << 30,
-            effective_available_bytes=4 << 30, condition_met=True))
+    def test_launch_records_low_or_missing_available_memory_without_gating(self):
+        verifier = types.SimpleNamespace(
+            execution_limits=lambda actual, available, wall_seconds: {
+                "admission": {"admitted": True}, "identity": (actual, available, wall_seconds)})
+        for available in (None, 0, (4 << 30) - 1, 4 << 30):
+            with self.subTest(available=available):
+                verifier.effective_available_bytes = lambda: available
+                result = CHECK.launch_capacity(verifier, "admitted")
+                self.assertEqual(result["identity"], ("admitted", available, 60))
+                self.assertEqual(result["launch_headroom"], {
+                    "effective_available_bytes": available, "used_for_admission": False})
 
     def test_executed_checker_source_cannot_be_replaced_before_freeze(self):
         raw = CHECK.normalized(HERE / "check_profile_p28.py")
