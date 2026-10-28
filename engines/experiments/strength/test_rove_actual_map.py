@@ -142,6 +142,45 @@ class ActualMapSyntheticTests(unittest.TestCase):
             target.elf_candidate(bytes(relr), report['elf_value'])
 
     @unittest.skipUnless(shutil.which('cc'), 'C compiler unavailable')
+    def test_copy_relocation_uses_full_symbol_size(self):
+        source = b'#include <stdio.h>\nvoid *N; int main(void){return stdout==N;}\n'
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(['cc', '-x', 'c', '-', '-o', 'x', '-Wl,-Map=fixture.map'],
+                           input=source, cwd=directory, check=True, capture_output=True)
+            raw = bytearray(Path(directory, 'x').read_bytes())
+            address = target.map_candidate(Path(directory, 'fixture.map').read_bytes(), 'N')
+            self.assertIn(target.elf_candidate(raw, address), ('PIE', 'EXEC'))
+            elf = target.peer_runtime.Elf64(raw)
+            copy = None
+            for section in elf.sections:
+                if section[1] != 4:
+                    continue
+                for offset in range(section[4], section[4] + section[5], 24):
+                    dest, info = elf.unpack('QQ', offset)
+                    if info & 0xffffffff == 5:
+                        copy = (section, offset, dest, info >> 32)
+                        break
+            self.assertIsNotNone(copy, 'fixture must contain a COPY relocation')
+            section, offset, dest, index = copy
+            symtab = elf.sections[section[6]]
+            symbol_offset = symtab[4] + index * 24
+            # Forging a copy large enough to reach the candidate must be denied,
+            # including when its start is before the eight-byte candidate slot.
+            self.assertLess(dest, address)
+            collision = raw.copy()
+            struct.pack_into('<Q', collision, symbol_offset + 16, address - dest + 1)
+            with self.assertRaisesRegex(ValueError, 'intersects relocation'):
+                target.elf_candidate(bytes(collision), address)
+            wrong_symbol = raw.copy()
+            struct.pack_into('<Q', wrong_symbol, symbol_offset + 8, dest + 8)
+            with self.assertRaisesRegex(ValueError, 'invalid copy relocation symbol'):
+                target.elf_candidate(bytes(wrong_symbol), address)
+            bad_index = raw.copy()
+            struct.pack_into('<Q', bad_index, offset + 8, (1 << 32) * (symtab[5] // 24) + 5)
+            with self.assertRaisesRegex(ValueError, 'invalid copy relocation symbol table'):
+                target.elf_candidate(bytes(bad_index), address)
+
+    @unittest.skipUnless(shutil.which('cc'), 'C compiler unavailable')
     def test_elf_kind_uses_real_pie_and_nonpie_fixture(self):
         real_run = fixture.subprocess.run
         for pie in (True, False):

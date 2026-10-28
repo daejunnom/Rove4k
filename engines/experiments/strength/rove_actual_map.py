@@ -115,9 +115,25 @@ def elf_candidate(native, address):
         elf.segment(off, size)
         for i in range(off, off + size, width):
             target, info = elf.unpack("QQ", i)
-            if info & 0xffffffff not in (0, 6, 7, 8):
+            relocation = info & 0xffffffff
+            if relocation not in (0, 5, 6, 7, 8):
                 raise ValueError("unsupported relocation type")
-            if target < address + 8 and target + 8 > address:
+            write_width = 0 if relocation == 0 else 8
+            if relocation == 5:  # R_X86_64_COPY writes the dynamic symbol's size.
+                link, index = s[6], info >> 32
+                if link >= len(elf.sections):
+                    raise ValueError("copy relocation symbol table unavailable")
+                table = elf.sections[link]
+                if table[1] != 11 or table[9] != 24 or table[5] % 24 or index >= table[5] // 24:
+                    raise ValueError("invalid copy relocation symbol table")
+                elf.segment(table[4], table[5])
+                symbol = elf.unpack("IBBHQQ", table[4] + index * 24)
+                if symbol[3] == 0 or symbol[4] != target or symbol[5] == 0:
+                    raise ValueError("invalid copy relocation symbol")
+                write_width = symbol[5]
+            if target + write_width > 1 << 64:
+                raise ValueError("relocation range overflow")
+            if write_width and target < address + 8 and target + write_width > address:
                 raise ValueError("candidate intersects relocation")
     return "PIE" if elf.kind == 3 else "EXEC"
 
