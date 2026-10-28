@@ -211,6 +211,48 @@ class LocalLeagueStageTests(unittest.TestCase):
         self.assertEqual(result['results'][0]['gate_transport'], 'not_attempted')
         self.assertFalse(result['scored_go_allowed'])
 
+    def test_remote_cap_does_not_turn_local_trial_fence_into_scored_authority(self):
+        # The two declared hosts share a journal, but this is one process and
+        # the unmodified local trial deliberately has no cross-host fence.
+        # Record the second host's limit observation after the first host has
+        # an intent but before its local gate checks that intent.  Either a
+        # future stricter trial may cancel or the current trial may issue toy
+        # GO.  Neither outcome is proof of cross-host fencing or scored GO.
+        stage = LeagueStage(self.owner, self.host, 'test-p16', read_boot=lambda: self.host.boot_id,
+                            now_utc=self.clock, now_mono=time.monotonic,
+                            observe_interval=60.0, window_seconds=10.0)
+        with self.assertRaisesRegex(ValueError, 'restricted to explicit local trials'):
+            stage.run_wave([self.job(0)], 5, intent_owner=self.intent)
+        self.assertFalse((self.root / 'game-0').exists())
+
+        original_poll = self.intent.poll
+        marked = []
+        def cap_before_local_gate():
+            decisions = original_poll()
+            if decisions and not marked:
+                self.record('budget.v2.limit_confirmed', {
+                    'actual_usd': '120',
+                    'evidence': {'observation_id': 'host-b-cap-observation',
+                                 'instance_id': 'i-456', 'source': 'test'}}, at=1001)
+                marked.append(True)
+            return decisions
+
+        events = []
+        with patch.object(self.intent, 'poll', side_effect=cap_before_local_gate):
+            result = stage.run_wave([self.job(0)], 8, intent_owner=self.intent, local_trial=True,
+                on_event=lambda name, job, observed: events.append(name))
+        self.assertEqual(marked, [True])
+        if 'released' in events:
+            self.assertIn('completed', events)
+            self.assertEqual(result['results'][0]['gate_receipt'], 'matched')
+        else:
+            self.assertEqual(result['results'][0]['gate_transport'], 'not_attempted')
+        self.assertFalse(result['results'][0]['cleanup_forced'])
+        self.assertFalse(result['scored_go_allowed'])
+        self.assertFalse(result['remote_authority_verified'])
+        snapshot = self.store.load(self.root_anchor)
+        self.assertTrue(any(event['event'] == 'budget.v2.limit_confirmed' for event in snapshot.rows))
+
     def test_busy_budget_observer_does_not_stall_wave_selector(self):
         stage = self.stage()
         authorized = threading.Event()
