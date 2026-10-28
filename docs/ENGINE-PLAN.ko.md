@@ -1152,7 +1152,10 @@ SSM 전송·수집 및 peer 경로의 검사는 모의 호스트 기준이다. �
 두 번의 생성, Python·`xz -d` 복원, C++ 구문 검사와 synthetic·소형 roundtrip
 9개가 통과했다. 저장한 산출물은 크기·해시 중심 JSON뿐이다. 이는 크기와
 build-only 근거이며 TT 인덱스·실행·UCI·NUMA·기력·리그 적격을 증명하지
-않는다. 기존 launcher의 `g++` 사용과 TCEC 4K 허용 명령도 따로 확인해야 한다.
+않는다. 후속 [ep-hash 조합 CI](https://github.com/daejunnom/Rove4k/actions/runs/40712226808)는
+4097 → **4091 B**를 기록했다. 동일 source·launcher와 두 생성 시도, Python·`xz`
+복원 및 C++ 구문 검사를 확인했으며 같은 실행·기력·적격 한계가 적용된다.
+기존 launcher의 `g++` 사용과 TCEC 4K 허용 명령도 따로 확인해야 한다.
 같은 인코딩의 [Rove 비교 CI](https://github.com/daejunnom/Rove4k/actions/runs/40710108289)는
 열 조합의 동일 source·launcher와 2회 생성 및 Python·`xz` 복원을 확인했다.
 수치는 baseline → 실험 전체 바이트다.
