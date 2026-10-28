@@ -12,8 +12,10 @@ import re
 
 try:
     from . import peers
+    from . import peer_ice_structural
 except ImportError:
     import peers
+    import peer_ice_structural
 
 PROFILE = "test-p192-exact-v1"
 ENTRIES = 3 << 33
@@ -109,6 +111,11 @@ def _variant_edits(name, variant):
     if name == "c4ke" and variant in (SLOT_VARIANT, RAY_VARIANT, SLOT_RAY_VARIANT):
         return {SLOT_VARIANT: _SLOT_EDITS, RAY_VARIANT: _RAY_EDITS,
                 SLOT_RAY_VARIANT: _SLOT_RAY_EDITS}[variant]
+    if name == "ice4" and variant in peer_ice_structural.VARIANTS:
+        structural = peer_ice_structural.edit_specs(variant)
+        baseline = _EDITS["ice4"]
+        return {path: (*baseline.get(path, ()), *structural.get(path, ()))
+                for path in baseline.keys() | structural.keys()}
     raise ValueError("unsupported peer transform variant")
 
 
@@ -238,6 +245,9 @@ def transform(name, source_files, *, variant="baseline"):
         receipt["variant"] = variant
         receipt["shared_slot_scope"] = "pinned TCEC source review; runtime and minifier behavior unverified"
     elif variant in (SLOT_VARIANT, RAY_VARIANT, SLOT_RAY_VARIANT):
+        receipt["variant"] = variant
+        receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
+    elif name == "ice4" and variant in peer_ice_structural.VARIANTS:
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     return output, receipt

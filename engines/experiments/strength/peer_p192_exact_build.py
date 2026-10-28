@@ -191,7 +191,10 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
     peer = peers.peer_spec(name)
     if codec_search not in peers.CODEC_SEARCHES:
         raise ValueError("unknown bounded peer codec search")
-    if variant not in ("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1") or (variant != "baseline" and name != "c4ke"):
+    c4ke_variants = ("share-v1", "slot-v1", "ray-v1", "slot-ray-v1")
+    ice_variants = ("castle-v1", "zobrist-v1", "castle-zobrist-v1")
+    if not (variant == "baseline" or (name == "c4ke" and variant in c4ke_variants) or
+            (name == "ice4" and variant in ice_variants)):
         raise ValueError("unsupported peer source variant")
     if launcher_variant not in ("upstream", "gnu-tail-v1"):
         raise ValueError("unsupported launcher variant")
@@ -209,6 +212,12 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
     tool_paths = {"producer": own, "transform": Path(exact.__file__).resolve(strict=True).read_bytes(),
                   "peer_base": Path(peers.__file__).resolve(strict=True).read_bytes(),
                   "command_runner": Path(runner.__file__).resolve(strict=True).read_bytes()}
+    if variant in ice_variants:
+        try:
+            from . import peer_ice_structural as ice
+        except ImportError:
+            import peer_ice_structural as ice
+        tool_paths["ice_structural_transform"] = Path(ice.__file__).resolve(strict=True).read_bytes()
     if launcher_variant == "gnu-tail-v1":
         try:
             from . import peer_launcher_trim as trim
@@ -376,7 +385,8 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--codec-search", choices=tuple(peers.CODEC_SEARCHES), default="compact")
-    parser.add_argument("--source-variant", choices=("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1"), default="baseline")
+    parser.add_argument("--source-variant", choices=("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1",
+                                                     "castle-v1", "zobrist-v1", "castle-zobrist-v1"), default="baseline")
     parser.add_argument("--launcher-variant", choices=("upstream", "gnu-tail-v1"), default="upstream")
     parser.add_argument("--cpu", type=int, default=None)
     parser.add_argument("--rustup-home", type=Path, default=None,

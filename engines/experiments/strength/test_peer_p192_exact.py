@@ -70,6 +70,14 @@ def slot_ray_sources():
     return value
 
 
+def ice_structural_sources():
+    value = sources("ice4")
+    structural = exact.peer_ice_structural.edit_specs("castle-zobrist-v1")
+    for path, edits in structural.items():
+        value[path] = value.get(path, b"synthetic context\n") + b"\n".join(edit[1] for edit in edits)
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -137,6 +145,25 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_ice_structural_variants_compose_with_exact_tt_and_reject_cross_variant(self):
+        all_sources = ice_structural_sources()
+        variants = exact.peer_ice_structural.VARIANTS
+        for variant in variants:
+            original = {path: all_sources[path] for path in exact.source_closure("ice4", variant=variant)}
+            with self.subTest(variant=variant), pin_synthetic("ice4", original):
+                changed, receipt = exact.transform("ice4", original, variant=variant)
+                self.assertEqual(receipt["variant"], variant)
+                self.assertEqual(exact.restore("ice4", changed, receipt, variant=variant), original)
+                self.assertIn(b"calloc(3ull << 33, 8)", changed["src/board.cpp"])
+                self.assertIn(b"TT[((zobrist >> 16) * 3) >> 15]", changed["src/board.cpp"])
+                self.assertIn(b"TT[((board.zobrist >> 16) * 3) >> 15]", changed["src/search.cpp"])
+                for other in ("baseline", *variants):
+                    if other != variant:
+                        with self.assertRaises(ValueError):
+                            exact.restore("ice4", changed, receipt, variant=other)
+                with self.assertRaises(ValueError):
+                    exact.source_closure("c4ke", variant=variant)
+
     def test_baseline_receipt_and_closure_are_unchanged(self):
         for name in ("ice4", "c4ke"):
             original = sources(name)

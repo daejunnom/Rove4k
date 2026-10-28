@@ -13,10 +13,12 @@ from unittest.mock import patch
 
 try:
     from . import peer_p192_exact as exact, peer_p192_exact_build as build
+    from . import peer_ice_structural as ice
     from .test_peer_p192_exact import sources, share_sources, slot_ray_sources
 except ImportError:
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
+    import peer_ice_structural as ice
     from test_peer_p192_exact import sources, share_sources, slot_ray_sources
 
 
@@ -97,6 +99,33 @@ class ExactProducerTests(unittest.TestCase):
                     self.assertEqual(len(attempts), 2)
                     self.assertEqual(record["source_variant"], variant)
                     self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
+                    self.assertFalse(record["qualification"]["runtime_qualified"])
+                    self.assertFalse(record["qualification"]["league_qualified"])
+
+    def test_ice_structural_variants_run_through_producer(self):
+        name = "ice4"
+        original = sources(name)
+        for path, edits in ice.edit_specs("castle-zobrist-v1").items():
+            original[path] = original.get(path, b"synthetic context\n") + b"\n".join(e[1] for e in edits)
+        original.update({"launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
+                         "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"})
+        source = self.root / "ice-upstream"
+        source.mkdir()
+        for relative, data in original.items():
+            path = source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}):
+            for variant in ice.VARIANTS:
+                with self.subTest(variant=variant):
+                    run, attempts = self.fake_runner(name, original, variant=variant)
+                    record = build.build(name, source, self.root / variant, run=run,
+                                         variant=variant, launcher_variant="gnu-tail-v1")["record"]
+                    self.assertEqual(len(attempts), 2)
+                    self.assertEqual(record["source_variant"], variant)
+                    self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
+                    self.assertIn("ice_structural_transform", record["producer_inputs"])
                     self.assertFalse(record["qualification"]["runtime_qualified"])
                     self.assertFalse(record["qualification"]["league_qualified"])
 
