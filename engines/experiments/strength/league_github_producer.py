@@ -336,11 +336,14 @@ def _inspect(request, *, seed_root, candidate_path, family, variant, get, archiv
                      and type(rows) is list and len(rows) == 1 and type(rows[0]) is dict
                      and rows[0].get('number') == provenance.get('pull_request')
                      and type(rows[0].get('head')) is dict and type(rows[0].get('base')) is dict
-                     and type(rows[0]['head'].get('repo')) is dict
+                     and type(rows[0]['head'].get('repo')) is dict and type(rows[0]['base'].get('repo')) is dict
                      and rows[0]['head'].get('sha') == run['head_sha']
                      and rows[0]['head']['repo'].get('id') == head_repo.get('id')
                      and rows[0]['head'].get('ref') == provenance.get('head_branch')
-                     and rows[0]['base'].get('sha') == provenance.get('reported_base_sha'),
+                     and rows[0]['base'].get('sha') == provenance.get('reported_base_sha')
+                     and rows[0]['base']['repo'].get('id') == repo['id']
+                     and type(rows[0]['base'].get('ref')) is str and rows[0]['base']['ref']
+                     and 'refs/heads/' + rows[0]['base']['ref'] == provenance.get('base_ref'),
                      'PR source provenance is absent or differs')
     else:
         _require(run.get('event') in ('push', 'workflow_dispatch') and run['head_sha'] == request.source_head,

@@ -177,12 +177,19 @@ class SourceObservationTests(unittest.TestCase):
         # The actual cloud validator treats historical PR proof as absent.
         with self.assertRaises(ValueError): self.inspect()
         self.run.update(head_repository={'id':42}, head_branch='feature', pull_requests=[{
-            'number':17, 'head':{'sha':'b'*40, 'ref':'feature', 'repo':{'id':42}}, 'base':{'sha':'d'*40}}])
+            'number':17, 'head':{'sha':'b'*40, 'ref':'feature', 'repo':{'id':42}},
+            'base':{'sha':'d'*40, 'ref':'develop', 'repo':{'id':42}}}])
         proof = {'api_head_sha':'b'*40, 'repository_id':42, 'head_repository_id':42, 'head_branch':'feature',
-                 'pull_request':17, 'reported_base_sha':'d'*40}
+                 'pull_request':17, 'reported_base_sha':'d'*40, 'base_ref':'refs/heads/develop'}
         with patch.object(p.cloud, 'validate_workflow_provenance', return_value=proof):
             self.assertEqual(self.inspect()['api_head'], 'b'*40)
             self.run['head_repository']['id'] = 43
+            with self.assertRaises(ValueError): self.inspect()
+            self.run['head_repository']['id'] = 42
+            self.run['pull_requests'][0]['base']['repo']['id'] = 43
+            with self.assertRaises(ValueError): self.inspect()
+            self.run['pull_requests'][0]['base']['repo']['id'] = 42
+            self.run['pull_requests'][0]['base']['ref'] = 'other'
             with self.assertRaises(ValueError): self.inspect()
 
     def test_simple_pr_merge_uses_live_commit_and_pr_snapshots(self):
