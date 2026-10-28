@@ -1034,6 +1034,9 @@ class DeploymentBindingTests(unittest.TestCase):
     def test_new_league_host_source_is_required_and_pinned_only_for_new_profiles(self):
         manifest, _ = seed_fixture()
         self.assertTrue(all(not Path(name).name.startswith("test_") for name in cloud.LEAGUE_HOST_SOURCE_FILES))
+        for name in ("league_executor", "league_score_plan", "sealed_opening_exec"):
+            canonical = "engines/experiments/strength/" + name + ".py"
+            self.assertEqual(cloud.LEAGUE_HOST_SOURCE_FILES.count(canonical), 1)
         for name in cloud.HOST_SOURCE_FILES:
             raw = (cloud.ROOT / name).read_bytes().replace(b"\r\n", b"\n")
             manifest["members"]["source/" + name] = {**cloud.pin(raw), "mode": 0o600}

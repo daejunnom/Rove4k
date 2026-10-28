@@ -38,6 +38,12 @@ BUCKET = "rove-ci-artifacts"
 START = 2_000_000_000
 NOW = START + 100
 HEAD = "c" * 40
+DRAFT_MODULES = ("league_executor", "league_score_plan", "sealed_opening_exec")
+
+
+def without_draft_modules(names):
+    """Reconstruct a pre-draft historical inventory by name, not tail length."""
+    return tuple(name for name in names if Path(name).stem not in DRAFT_MODULES)
 
 
 def iso(epoch):
@@ -934,6 +940,14 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
         owned.assert_not_called()
         self.assertEqual(materializer_calls, [])
 
+    def historical_fastchess_without_sealed_opening(self, origin):
+        """Reproduce a historical runner source predating the sealed-FD gate."""
+        path = origin / "engines/experiments/strength/fastchess.py"
+        body = path.read_bytes()
+        self.assertIn(b"ROVE_OPENING_FD", body)
+        path.write_bytes(body.replace(b"ROVE_OPENING_FD", b"OLD_OPENING_FD"))
+        self.git(origin, "add", "--", str(path.relative_to(origin)))
+
     def test_hidden_modified_materializer_or_imported_sibling_is_rejected_before_download(self):
         for relative in ("engines/experiments/strength/cloud_runtime.py", "engines/experiments/strength/aws.py",
                          "engines/experiments/strength/memory_observation.py",
@@ -947,6 +961,9 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                          "engines/experiments/strength/peer_exact_runner.py",
                          "engines/experiments/strength/original_peer_uci.py",
                          "engines/experiments/strength/opening_pgn.py",
+                         "engines/experiments/strength/league_executor.py",
+                         "engines/experiments/strength/league_score_plan.py",
+                         "engines/experiments/strength/sealed_opening_exec.py",
                          "engines/scripts/league_resource_profiles.py",
                          "engines/experiments/tcec-scope/verify.py",
                          "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
@@ -989,6 +1006,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             root = Path(directory)
             origin = root / "original-git"
             self.make_materializer_origin(origin)
+            self.historical_fastchess_without_sealed_opening(origin)
             seed_path = origin / "engines/experiments/strength/seed.py"
             body = seed_path.read_bytes().replace(b"LEAGUE_HOST_MODULES =", b"OLD_LEAGUE_HOST_MODULES =", 1).replace(
                 b"LEAGUE_CORE_R =", b"OLD_LEAGUE_CORE_R =", 1)
@@ -1015,6 +1033,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             with self.subTest(old_modules=old_modules), tempfile.TemporaryDirectory(prefix="rove-ci-prior-league-materializer-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 path = origin / "engines/experiments/strength/seed.py"
                 raw = path.read_text(encoding="utf-8")
                 node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
@@ -1079,6 +1098,9 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/peer_exact_runner.py",
                      "engines/experiments/strength/original_peer_uci.py",
                      "engines/experiments/strength/opening_pgn.py",
+                     "engines/experiments/strength/league_executor.py",
+                     "engines/experiments/strength/league_score_plan.py",
+                     "engines/experiments/strength/sealed_opening_exec.py",
                      "engines/scripts/league_resource_profiles.py",
                      "engines/experiments/tcec-scope/verify.py",
                      "engines/compact/tiny-entry-d/verify.py",
@@ -1100,7 +1122,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             declarations = {node.targets[0].id: node for node in tree.body
                             if isinstance(node, ast.Assign) and len(node.targets) == 1
                             and isinstance(node.targets[0], ast.Name)}
-            modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)[:-4]
+            modules = without_draft_modules(ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value))[:-4]
             core = ast.literal_eval(declarations["LEAGUE_CORE_R"].value)
             self.assertEqual(modules[-6:], ("functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
             self.assertEqual(len(core), 4)
@@ -1165,12 +1187,13 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             with self.subTest(cloud_has_host=cloud_has_host), tempfile.TemporaryDirectory(prefix="rove-ci-functional-host-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 seed_path = origin / "engines/experiments/strength/seed.py"
                 raw = seed_path.read_text(encoding="utf-8")
                 node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
-                modules = ast.literal_eval(node.value)[:-4]
+                modules = without_draft_modules(ast.literal_eval(node.value))[:-4]
                 self.assertEqual(modules[-4:], ("league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
                 lines = raw.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-4]) + "\n"]
@@ -1188,7 +1211,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
-                names = ast.literal_eval(node.value)
+                names = without_draft_modules(ast.literal_eval(node.value))
                 names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py", "/opening_pgn.py")) and
                               (cloud_has_host or not name.endswith(("/league_functional_host.py", "/peer_diagnostic_prepare.py"))))
                 lines = cloud.splitlines(keepends=True)
@@ -1211,12 +1234,13 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             with self.subTest(cloud_has_peer=cloud_has_peer), tempfile.TemporaryDirectory(prefix="rove-ci-peer-host-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 seed_path = origin / "engines/experiments/strength/seed.py"
                 raw = seed_path.read_text(encoding="utf-8")
                 node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
-                modules = ast.literal_eval(node.value)[:-4]
+                modules = without_draft_modules(ast.literal_eval(node.value))[:-4]
                 self.assertEqual(modules[-3:], ("peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
                 lines = raw.splitlines(keepends=True)
                 lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-3]) + "\n"]
@@ -1233,7 +1257,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
-                names = ast.literal_eval(node.value)
+                names = without_draft_modules(ast.literal_eval(node.value))
                 names = tuple(name for name in names if not name.endswith(("/rove_b_tt_observe.py", "/rove_b_static_tt.py", "/original_peer_build.py", "/peer_exact_runner.py", "/original_peer_uci.py", "/opening_pgn.py")) and
                               (cloud_has_peer or not name.endswith("/peer_diagnostic_prepare.py")))
                 lines = cloud.splitlines(keepends=True)
@@ -1256,6 +1280,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             with self.subTest(seed=seed_has_observer, cloud=cloud_has_observer), tempfile.TemporaryDirectory(prefix="rove-ci-b-closure-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 for filename, assignment, keep in (
                     ("seed.py", "LEAGUE_HOST_MODULES", seed_has_observer),
                     ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has_observer),
@@ -1265,7 +1290,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
-                    values = tuple(value for value in ast.literal_eval(node.value)
+                    values = tuple(value for value in without_draft_modules(ast.literal_eval(node.value))
                                    if not any(name in value for name in ("rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"))
                                    and (keep or "rove_b_tt_observe" not in value))
                     lines = raw.splitlines(keepends=True)
@@ -1319,7 +1344,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                         and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                         and node.targets[0].id == "LEAGUE_HOST_MODULES")
-            modules = ast.literal_eval(node.value)[:-4]
+            modules = without_draft_modules(ast.literal_eval(node.value))[:-4]
             self.assertEqual(modules[-3:], ("peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"))
             lines = raw.splitlines(keepends=True)
             lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-3]) + "\n"]
@@ -1347,6 +1372,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                  tempfile.TemporaryDirectory(prefix="rove-ci-b-static-closure-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 for filename, assignment, keep in (
                     ("seed.py", "LEAGUE_HOST_MODULES", seed_has_static),
                     ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has_static),
@@ -1356,7 +1382,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
-                    values = tuple(value for value in ast.literal_eval(node.value)
+                    values = tuple(value for value in without_draft_modules(ast.literal_eval(node.value))
                                    if not any(name in value for name in ("original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"))
                                    and (keep or "rove_b_static_tt" not in value))
                     lines = raw.splitlines(keepends=True)
@@ -1381,6 +1407,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     tempfile.TemporaryDirectory(prefix="rove-ci-original-peer-closure-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 for filename, assignment, keep in (("seed.py", "LEAGUE_HOST_MODULES", seed_has),
                                                    ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has)):
                     path = origin / "engines/experiments/strength" / filename
@@ -1388,7 +1415,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
-                    values = tuple(value for value in ast.literal_eval(node.value)
+                    values = tuple(value for value in without_draft_modules(ast.literal_eval(node.value))
                                    if "opening_pgn" not in value
                                    and (keep or not any(name in value for name in original)))
                     lines = raw.splitlines(keepends=True)
@@ -1416,16 +1443,16 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     tempfile.TemporaryDirectory(prefix="rove-ci-opening-closure-") as directory:
                 origin = Path(directory) / "original-git"
                 self.make_materializer_origin(origin)
+                self.historical_fastchess_without_sealed_opening(origin)
                 for filename, assignment, keep in (("seed.py", "LEAGUE_HOST_MODULES", seed_has),
                                                    ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has)):
-                    if keep:
-                        continue
                     path = origin / "engines/experiments/strength" / filename
                     raw = path.read_text(encoding="utf-8")
                     node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
                                 and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                                 and node.targets[0].id == assignment)
-                    values = tuple(value for value in ast.literal_eval(node.value) if "opening_pgn" not in value)
+                    values = tuple(value for value in without_draft_modules(ast.literal_eval(node.value))
+                                   if keep or "opening_pgn" not in value)
                     lines = raw.splitlines(keepends=True)
                     lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
                     path.write_text("".join(lines), encoding="utf-8")
@@ -1457,6 +1484,75 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                 head = self.git(origin, "rev-parse", "HEAD").decode().strip()
                 with self.assertRaisesRegex(ValueError, "opening PGN source closure is incomplete"):
                     ci.bind_materializer_source(origin, head)
+
+    def test_draft_league_source_requires_matching_canonical_declarations(self):
+        # A partial current draft inventory is not a historical inventory.
+        # Neither source declaration may silently omit an individual module.
+        for name in DRAFT_MODULES:
+            for filename, assignment in (("seed.py", "LEAGUE_HOST_MODULES"),
+                                          ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES")):
+                with self.subTest(missing=name, file=filename), tempfile.TemporaryDirectory(prefix="rove-ci-draft-source-") as directory:
+                    origin = Path(directory) / "original-git"
+                    self.make_materializer_origin(origin)
+                    path = origin / "engines/experiments/strength" / filename
+                    raw = path.read_text(encoding="utf-8")
+                    node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                and node.targets[0].id == assignment)
+                    values = tuple(value for value in ast.literal_eval(node.value) if Path(value).stem != name)
+                    lines = raw.splitlines(keepends=True)
+                    lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
+                    path.write_text("".join(lines), encoding="utf-8")
+                    self.git(origin, "add", "--", str(path.relative_to(origin)))
+                    self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "incomplete draft closure")
+                    head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                    with self.assertRaisesRegex(ValueError, "source closure"):
+                        ci.bind_materializer_source(origin, head)
+
+    def test_sealed_runner_marker_rejects_removing_entire_draft_source_set(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-sealed-runner-downgrade-") as directory:
+            origin = Path(directory) / "original-git"
+            self.make_materializer_origin(origin)
+            for filename, assignment in (("seed.py", "LEAGUE_HOST_MODULES"),
+                                         ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES")):
+                path = origin / "engines/experiments/strength" / filename
+                raw = path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == assignment)
+                values = without_draft_modules(ast.literal_eval(node.value))
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
+                path.write_text("".join(lines), encoding="utf-8")
+                self.git(origin, "add", "--", str(path.relative_to(origin)))
+            fastchess = origin / "engines/experiments/strength/fastchess.py"
+            self.assertIn(b"ROVE_OPENING_FD", fastchess.read_bytes())
+            self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "remove sealed runner closure")
+            head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+            with self.assertRaisesRegex(ValueError, "sealed league source closure is incomplete"):
+                ci.bind_materializer_source(origin, head)
+
+    def test_draft_league_cloud_declaration_rejects_duplicate_and_noncanonical_paths(self):
+        for name in DRAFT_MODULES:
+            canonical = "engines/experiments/strength/" + name + ".py"
+            for extra in (canonical, "engines/elsewhere/" + name + ".py"):
+                with self.subTest(name=name, extra=extra), tempfile.TemporaryDirectory(prefix="rove-ci-draft-path-") as directory:
+                    origin = Path(directory) / "original-git"
+                    self.make_materializer_origin(origin)
+                    path = origin / "engines/experiments/strength/cloud_runtime.py"
+                    raw = path.read_text(encoding="utf-8")
+                    node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                    values = ast.literal_eval(node.value) + (extra,)
+                    lines = raw.splitlines(keepends=True)
+                    lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(values) + "\n"]
+                    path.write_text("".join(lines), encoding="utf-8")
+                    self.git(origin, "add", "--", str(path.relative_to(origin)))
+                    self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "invalid draft closure path")
+                    head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                    with self.assertRaisesRegex(ValueError, "source closure"):
+                        ci.bind_materializer_source(origin, head)
 
     def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):
         def omit_league(body):

@@ -349,6 +349,11 @@ def bind_materializer_source(origin, expected_head, *, out=None):
     # Examine committed text only; never execute a checkout module here.
     run_source = git(origin, "show", expected_head + ":engines/experiments/strength/run.py", limit=32 << 20)
     verifier_source = git(origin, "show", expected_head + ":engines/experiments/tcec-next/profile_verify.py", limit=32 << 20)
+    fastchess_name = "engines/experiments/strength/" + "fastchess.py"
+    fastchess_source = git(origin, "show", expected_head + ":" + fastchess_name, limit=32 << 20)
+    sealed_opening_feature = any(isinstance(node, ast.Constant) and isinstance(node.value, str)
+                                 and "ROVE_OPENING_FD" in node.value
+                                 for node in ast.walk(ast.parse(fastchess_source)))
     has_league_import = any(
         (isinstance(node, ast.ImportFrom) and node.module is not None
          and node.module.split(".")[-1] == "memory_observation")
@@ -359,7 +364,7 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "LEAGUE_PROFILE_OWNER"
                                               for target in node.targets)
         for node in ast.parse(verifier_source).body)
-    require(not (has_league_import or has_league_owner) or league <= set(values),
+    require(not (has_league_import or has_league_owner or sealed_opening_feature) or league <= set(values),
             "committed league materializer source closure is incomplete")
     names = tuple("engines/experiments/strength/" + name + ".py" for name in modules) + tuple(logical(name) for name in core)
     if league <= set(values):
@@ -400,6 +405,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn", "league_executor", "league_score_plan", "sealed_opening_exec"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
@@ -450,6 +459,13 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             require(opening_entries in ((), (opening_name,)) and
                     bool(opening_entries) == ("opening_pgn" in values["LEAGUE_HOST_MODULES"]),
                     "committed opening PGN source closure is incomplete")
+            for helper in ("league_executor", "league_score_plan", "sealed_opening_exec"):
+                canonical = "engines/experiments/strength/" + helper + ".py"
+                matching = tuple(name for name in cloud_names
+                                 if name.replace("\\", "/").rsplit("/", 1)[-1] == helper + ".py")
+                require(matching in ((), (canonical,)) and
+                        bool(matching) == (helper in values["LEAGUE_HOST_MODULES"]),
+                        "committed sealed league source closure is incomplete")
         else:
             require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
                     "committed peer diagnostic source closure is incomplete")
@@ -461,6 +477,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                     "committed original peer source closure is incomplete")
             require("opening_pgn" not in values["LEAGUE_HOST_MODULES"],
                     "committed opening PGN source closure is incomplete")
+            require(not {"league_executor", "league_score_plan", "sealed_opening_exec"}.intersection(values["LEAGUE_HOST_MODULES"]),
+                    "committed sealed league source closure is incomplete")
         if "diagnostic_candidates" in values["LEAGUE_HOST_MODULES"] and "rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"]:
             diagnostic_name = "engines/experiments/strength/" + "diagnostic_candidates.py"
             diagnostic_source = git(origin, "show", expected_head + ":" + diagnostic_name, limit=32 << 20)
@@ -484,6 +502,12 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         declared_original = original_modules.intersection(values["LEAGUE_HOST_MODULES"])
         require(not declared_original or declared_original == original_modules,
                 "committed original peer source closure is incomplete")
+        sealed_modules = {"league_executor", "league_score_plan", "sealed_opening_exec"}
+        declared_sealed = sealed_modules.intersection(values["LEAGUE_HOST_MODULES"])
+        require(not declared_sealed or declared_sealed == sealed_modules,
+                "committed sealed league source closure is incomplete")
+        require(not sealed_opening_feature or declared_sealed == sealed_modules,
+                "committed sealed league source closure is incomplete")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
         names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")
@@ -498,7 +522,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
         tracked[name] = (blob, mode)
     require(set(tracked) == set(names), "committed materializer source closure is missing")
     if league <= set(values):
-        for consumer in ("diagnostic_candidates", "peak_ready_probe", "original_peer_build"):
+        for consumer in ("diagnostic_candidates", "peak_ready_probe", "original_peer_build",
+                         "league_executor", "league_score_plan", "sealed_opening_exec"):
             if consumer not in values["LEAGUE_HOST_MODULES"]:
                 continue
             source_name = "engines/experiments/strength/" + consumer + ".py"
@@ -512,6 +537,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                     "committed original peer source closure is incomplete")
             require("opening_pgn" not in imports or "opening_pgn" in values["LEAGUE_HOST_MODULES"],
                     "committed opening PGN source closure is incomplete")
+            require(not (imports & sealed_modules) or declared_sealed == sealed_modules,
+                    "committed sealed league source closure is incomplete")
     sources = {}
     for name, (blob, mode) in tracked.items():
         size = git(origin, "cat-file", "-s", blob).decode().strip()
