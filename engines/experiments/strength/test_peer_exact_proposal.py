@@ -2,6 +2,7 @@
 import ast
 import hashlib
 import json
+import lzma
 from pathlib import Path
 import sys
 import tempfile
@@ -11,14 +12,14 @@ from unittest.mock import patch
 try:
     from . import peer_exact_proposal as proposal, peer_p192_exact as exact
     from . import peer_p192_exact_build as build, registry, seed
-    from .test_peer_p192_exact import sources, c4ke_structural_sources
+    from .test_peer_p192_exact import sources, c4ke_structural_sources, c4ke_phalanx_extra_sources
 except ImportError:
     import peer_exact_proposal as proposal
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
     import registry
     import seed
-    from test_peer_p192_exact import sources, c4ke_structural_sources
+    from test_peer_p192_exact import sources, c4ke_structural_sources, c4ke_phalanx_extra_sources
 
 
 class LegacySeedTests(unittest.TestCase):
@@ -39,6 +40,79 @@ class LegacySeedTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform == "linux", "Linux no-follow source snapshots required")
 class CandidateProposalTests(unittest.TestCase):
+    def test_phalanx_extra_producer_tools_are_exact_and_pinned(self):
+        original, hashes = c4ke_phalanx_extra_sources()
+        original.update({"launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
+                         "LICENSE": b"synthetic license\n", "other.txt": b"fixture\n"})
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        phalanx, ep = exact.peer_c4ke_phalanx, exact.peer_c4ke_ep_hash
+        real_compress = lzma.compress
+
+        def tiny_compress(data, *, format, filters):
+            return real_compress(data, format=format, filters=[dict(filters[0], dict_size=65536)])
+
+        def fake(command, snapshot, *, sandbox_home):
+            if command[-1] == "tcec":
+                return b"#include <stdint.h>\n/* fixture: no TT */\n", b"", {"fixture": "emit"}
+            return b"fixture version\n", b"", {"fixture": "tool"}
+
+        with tempfile.TemporaryDirectory(prefix="rove-peer-extra-proposal-") as directory, \
+             patch.dict(exact.peers.SOURCE_BLOBS, {"c4ke": blobs}), \
+             patch.object(phalanx, "_CONTEXT_SHA256", hashes["phalanx_context"]), \
+             patch.object(ep, "_EDIT_SHA", hashes["ep_edit"]), patch.object(ep, "_MAKE_SHA", hashes["ep_make"]), \
+             patch.object(exact.peers.lzma, "compress", side_effect=tiny_compress):
+            root = Path(directory).resolve()
+            source = root / "source"
+            source.mkdir()
+            for path, raw in original.items():
+                target = source / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(raw)
+            variants = ("edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1",
+                        "edit-castle-phalanx-pop-lsb-v1")
+            for variant in variants:
+                with self.subTest(variant=variant):
+                    produced = build.build("c4ke", source, root / variant, run=fake, variant=variant,
+                                           launcher_variant="gnu-tail-v1")
+                    receipt = Path(produced["path"])
+                    record = json.loads(receipt.read_bytes())
+                    result = registry.inspect_exact_peer_proposal(receipt, produced["sha256"])
+                    self.assertTrue(result["source_snapshot_inverse_verified"])
+                    self.assertFalse(result["eligible_for_diagnostic"])
+                    self.assertFalse(result["eligible_for_scored_league"])
+                    self.assertEqual(set(record["producer_inputs"]), {
+                        "producer", "transform", "peer_base", "command_runner", "launcher_transform",
+                        "c4ke_structural_transform", "c4ke_edit_structural_transform",
+                        "c4ke_candidate_transform", "c4ke_extra_transform"})
+                    original_receipt = receipt.read_bytes()
+                    for operation in ("missing", "extra"):
+                        changed = json.loads(original_receipt)
+                        if operation == "missing":
+                            del changed["producer_inputs"]["c4ke_extra_transform"]
+                        else:
+                            changed["producer_inputs"]["unexpected"] = changed["producer_inputs"]["producer"]
+                        modified = json.dumps(changed).encode()
+                        receipt.write_bytes(modified)
+                        with self.assertRaisesRegex(ValueError, "producer tool set differs"):
+                            registry.inspect_exact_peer_proposal(receipt, hashlib.sha256(modified).hexdigest())
+                    receipt.write_bytes(original_receipt)
+                    snapshot = receipt.parent / "c4ke_extra_transform.py"
+                    raw = snapshot.read_bytes()
+                    snapshot.write_bytes(raw + b"# tampered\n")
+                    with self.assertRaises(ValueError):
+                        registry.inspect_exact_peer_proposal(receipt, produced["sha256"])
+                    snapshot.write_bytes(raw)
+                    # A self-consistent descriptor for the wrong module must also fail.
+                    wrong = Path(phalanx.__file__).read_bytes()
+                    snapshot.write_bytes(wrong)
+                    changed = json.loads(receipt.read_bytes())
+                    changed["producer_inputs"]["c4ke_extra_transform"] = {
+                        "bytes": len(wrong), "sha256": hashlib.sha256(wrong).hexdigest()}
+                    modified = json.dumps(changed).encode()
+                    receipt.write_bytes(modified)
+                    with self.assertRaisesRegex(ValueError, "producer snapshot differs"):
+                        registry.inspect_exact_peer_proposal(receipt, hashlib.sha256(modified).hexdigest())
+
     def test_emission_and_phalanx_producer_tools_are_exact_and_pinned(self):
         emission = exact.peer_c4ke_move_emission
         phalanx = exact.peer_c4ke_phalanx
