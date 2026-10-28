@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -282,6 +283,89 @@ class ZipAndApiTests(unittest.TestCase):
 
     def test_duplicate_json_key_is_rejected(self):
         with self.assertRaises(ValueError): p._json(b'{"id":1,"id":2}')
+
+
+@unittest.skipUnless(os.name == 'posix', 'isolated fake gh executable requires POSIX')
+class GhTransportTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='rove4k-fake-gh-')
+        self.root = Path(self.temp.name)
+        self.executable = self.root / 'gh'
+        self.args = self.root / 'args'
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def run_fake(self, body, call):
+        self.executable.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$ROVE_FAKE_GH_ARGS"\n' + body + '\n')
+        self.executable.chmod(0o700)
+        # The subprocess receives a fake command through PATH; no GitHub token
+        # is read, logged or passed as an explicit argument by this fixture.
+        with patch.dict(os.environ, {'PATH': str(self.root) + os.pathsep + os.environ.get('PATH', ''),
+                                    'ROVE_FAKE_GH_ARGS': str(self.args)}):
+            return call()
+
+    def test_json_and_archive_use_exact_fixed_get_argv(self):
+        path = '/repos/daejunnom/Rove4k/actions/runs/123/attempts/1'
+        value = self.run_fake('printf \'{"id":123}\'', lambda: p._gh_api_json(path))
+        self.assertEqual(value, {'id': 123})
+        self.assertEqual(self.args.read_text().splitlines(), ['api', '--hostname', 'github.com', '--method', 'GET', path])
+        archive = self.run_fake("printf 'PK\\003\\004fixture'", lambda: p._gh_api_archive(456))
+        self.assertEqual(archive, b'PK\x03\x04fixture')
+        self.assertEqual(self.args.read_text().splitlines(),
+                         ['api', '--hostname', 'github.com', '--method', 'GET',
+                          '/repos/daejunnom/Rove4k/actions/artifacts/456/zip'])
+
+    def test_invalid_path_and_id_are_rejected_before_spawn(self):
+        def probe():
+            for path in ('/repos/other/repo/actions/runs/123',
+                         '/repos/daejunnom/Rove4k/issues/1',
+                         '/repos/daejunnom/Rove4k/actions/runs/1\nunsafe'):
+                with self.subTest(path=path), self.assertRaises(ValueError): p._gh_api_json(path)
+            for bad in ('0', '-1', '123/zip', True):
+                with self.subTest(bad=bad), self.assertRaises(ValueError): p._gh_api_archive(bad)
+        self.run_fake('exit 1', probe)
+        self.assertFalse(self.args.exists())
+
+    def test_failure_and_timeout_do_not_expose_stderr(self):
+        marker = 'sensitive-test-diagnostic'
+        def failure():
+            with self.assertRaises(RuntimeError) as caught:
+                p._gh_read('/repos/daejunnom/Rove4k/actions/runs/123/attempts/1', 128)
+            self.assertNotIn(marker, str(caught.exception))
+        self.run_fake('printf "' + marker + '" >&2; exit 7', failure)
+        def timeout():
+            started = time.monotonic()
+            with self.assertRaises(RuntimeError) as caught:
+                p._gh_read('/repos/daejunnom/Rove4k/actions/runs/123/attempts/1', 128, timeout=0.1)
+            self.assertNotIn(marker, str(caught.exception))
+            self.assertLess(time.monotonic() - started, 4)
+        self.run_fake('exec sleep 5', timeout)
+
+    def test_output_over_limit_is_rejected(self):
+        def oversized():
+            with self.assertRaises((ValueError, RuntimeError)):
+                p._gh_read('/repos/daejunnom/Rove4k/actions/runs/123/attempts/1', 8)
+        self.run_fake("printf '123456789abcdef'", oversized)
+
+    def test_windows_gh_fallback_only_when_linux_gh_is_absent(self):
+        fallback = self.root / 'gh.exe'
+        fallback.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "$ROVE_FAKE_GH_ARGS"\nprintf \'{"id":123}\'\n')
+        fallback.chmod(0o700)
+        path = '/repos/daejunnom/Rove4k/actions/runs/123/attempts/1'
+        with patch.dict(os.environ, {'PATH': str(self.root), 'ROVE_FAKE_GH_ARGS': str(self.args)}):
+            self.assertEqual(p._gh_api_json(path), {'id': 123})
+        self.assertEqual(self.args.read_text().splitlines(),
+                         ['api', '--hostname', 'github.com', '--method', 'GET', path])
+
+        # An existing gh which returns an authentication error must not be
+        # replaced with a second CLI whose account could differ.
+        self.args.unlink()
+        self.executable.write_text('#!/bin/sh\nexit 1\n')
+        self.executable.chmod(0o700)
+        with patch.dict(os.environ, {'PATH': str(self.root), 'ROVE_FAKE_GH_ARGS': str(self.args)}):
+            with self.assertRaises(RuntimeError): p._gh_api_json(path)
+        self.assertFalse(self.args.exists())
 
 
 if __name__ == '__main__':

@@ -14,8 +14,11 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import stat
+import subprocess
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -85,6 +88,85 @@ def _api_headers():
     _require(bool(token), 'GitHub workflow token required')
     return {'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
             'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'Rove4k-producer-observer'}
+
+
+def _gh_endpoint(path):
+    """Allow only the fixed read-only endpoints used by this observer."""
+    prefix = '/repos/' + _REPO + '/'
+    _require(type(path) is str and path.startswith(prefix), 'fixed GitHub endpoint required')
+    tail = path[len(prefix):]
+    digit = r'[1-9][0-9]{0,19}'
+    patterns = (
+        r'actions/runs/' + digit + r'/attempts/' + digit,
+        r'actions/runs/' + digit + r'/attempts/' + digit + r'/jobs\?per_page=100&page=' + digit,
+        r'actions/runs/' + digit + r'/artifacts\?per_page=100&page=' + digit,
+        r'actions/artifacts/' + digit + r'(?:/zip)?',
+        r'git/commits/[0-9a-f]{40}',
+        r'pulls/' + digit,
+    )
+    _require(any(re.fullmatch(pattern, tail) for pattern in patterns), 'fixed GitHub endpoint required')
+    return path
+
+
+def _gh_read(path, limit, *, timeout=30):
+    """Read bounded bytes using gh's existing authentication, never its token."""
+    _gh_endpoint(path)
+    _require(type(limit) is int and 0 < limit <= _MAX_ARCHIVE, 'invalid response limit')
+    _require(type(timeout) in (int, float) and 0 < timeout <= 300, 'invalid response timeout')
+    # Linux first; Windows gh.exe may also be on PATH under WSL.  Do not
+    # switch accounts after an authentication error from an existing gh.
+    proc = None
+    for executable in ('gh', 'gh.exe'):
+        try:
+            proc = subprocess.Popen([executable, 'api', '--hostname', 'github.com', '--method', 'GET', path],
+                                    stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            break
+        except FileNotFoundError:
+            continue
+        except OSError:
+            raise RuntimeError('GitHub CLI observation failed') from None
+    if proc is None:
+        raise RuntimeError('GitHub CLI observation failed')
+    deadline = time.monotonic() + timeout
+    output = bytearray()
+    try:
+        with selectors.DefaultSelector() as selector:
+            selector.register(proc.stdout, selectors.EVENT_READ)
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not selector.select(remaining):
+                    raise RuntimeError('GitHub CLI observation timed out')
+                data = os.read(proc.stdout.fileno(), min(65536, limit + 1 - len(output)))
+                if not data:
+                    break
+                output.extend(data)
+                _require(len(output) <= limit, 'GitHub response exceeds bound')
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError('GitHub CLI observation timed out')
+        try:
+            status = proc.wait(timeout=remaining)
+        except subprocess.TimeoutExpired:
+            raise RuntimeError('GitHub CLI observation timed out') from None
+        if status != 0:
+            raise RuntimeError('GitHub CLI observation failed')
+        return bytes(output)
+    except OSError:
+        raise RuntimeError('GitHub CLI observation failed') from None
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+            proc.wait()
+        proc.stdout.close()
+
+
+def _gh_api_json(path):
+    return _json(_gh_read(path, _MAX_JSON))
+
+
+def _gh_api_archive(artifact_id):
+    artifact_id = _decimal(artifact_id)
+    return _gh_read('/repos/' + _REPO + '/actions/artifacts/' + str(artifact_id) + '/zip', _MAX_ARCHIVE)
 
 
 def _api_json(path):
@@ -418,3 +500,10 @@ def observe_github(request, *, seed_root, candidate_path, family, variant):
     _require(sys.platform == 'linux', 'raw ZIP path verification requires Linux')
     return _inspect(request, seed_root=seed_root, candidate_path=candidate_path, family=family, variant=variant,
                     get=_api_json, archive=_api_archive)
+
+
+def observe_github_via_gh(request, *, seed_root, candidate_path, family, variant):
+    """Read via gh's existing authentication without accessing token values."""
+    _require(sys.platform == 'linux', 'raw ZIP path verification requires Linux')
+    return _inspect(request, seed_root=seed_root, candidate_path=candidate_path, family=family, variant=variant,
+                    get=_gh_api_json, archive=_gh_api_archive)
