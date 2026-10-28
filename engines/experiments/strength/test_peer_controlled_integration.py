@@ -116,6 +116,11 @@ class ControlledLifecycleIntegrationTests(unittest.TestCase):
         self.topology_module = SimpleNamespace(Topology=SimpleNamespace(snapshot=lambda:topology))
         self.helper = SimpleNamespace(Budget=lambda seconds:SimpleNamespace(left=lambda maximum:maximum), OWNED=[])
         self.patches = [
+            # Hosted CI's setup-python adds LD_LIBRARY_PATH for the test
+            # interpreter.  These fixture lifecycles exercise their own child
+            # process; model the non-interposed environment required by the
+            # real qualifier, and separately verify the guard below.
+            patch.dict(os.environ, {'LD_PRELOAD':'', 'LD_AUDIT':'', 'LD_LIBRARY_PATH':''}),
             patch.object(runtime, 'sibling', side_effect=self.sibling),
             patch.object(runtime, 'read_record', side_effect=self.read_record),
             patch.object(runtime, '_verify_frozen'), patch.object(runtime, 'validate_build', return_value=self.admitted),
@@ -183,6 +188,14 @@ class ControlledLifecycleIntegrationTests(unittest.TestCase):
         self.assertIsNone(result['admission'])
         self.assertFalse(result['record']['controlled_diagnostic']['authorizes_go'])
         self.assertTrue(all(x.process.poll() is not None for x in FakeOwned.instances))
+
+    def test_loader_interposition_is_rejected_before_launch(self):
+        for name in ('LD_PRELOAD', 'LD_AUDIT', 'LD_LIBRARY_PATH'):
+            with self.subTest(variable=name), patch.dict(os.environ, {name:'/fixture/interposition'}):
+                with self.assertRaisesRegex(ValueError, 'loader without external interposition'):
+                    self.run_qualification('interposed-' + name)
+                self.assertFalse(FakeOwned.instances)
+                self.assertFalse((self.root / ('interposed-' + name)).exists())
 
     def test_oom_stops_next_session_and_retains_incomplete_result(self):
         self.oom_after = 2
