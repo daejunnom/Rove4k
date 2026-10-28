@@ -1,9 +1,10 @@
 """Compose owner-requested fetch and seed inspection on one bytes snapshot.
 
 This is a diagnostic bridge, not an installed bootstrap, SSM authority, host
-authentication, source provenance authentication or materialization. A real
-bootstrap must pin this module and its complete transitive source closure before
-the seed exists. No files are deleted on success or failure.
+authentication or source provenance authentication. The optional materialize
+method creates a local alias-aware tree but does not connect the cloud consumer.
+A real bootstrap must pin the complete transitive source closure before the
+seed exists. No files are deleted on success or failure.
 """
 from __future__ import annotations
 
@@ -107,6 +108,14 @@ class PreparedSnapshot:
 
     def close(self):
         self._lease.close()
+
+    def materialize(self, spec, root):
+        """Create a local alias-aware materialization; does not authorize GO."""
+        try:
+            from .league_seed_materialize import materialize
+        except ImportError:
+            from league_seed_materialize import materialize
+        return materialize(self, spec, root)
 
 
 def stage_and_inspect(spec, s3, root):
