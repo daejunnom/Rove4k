@@ -443,6 +443,115 @@ class Contracts(unittest.TestCase):
             self.assertTrue(all(not row["remaining_processes"] for row in results))
 
     @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_post_send_exception_never_aborts_or_signals_started_runner(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-sent-exception-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index, mode in enumerate(("three", "flood")):
+                target = root / str(index)
+                jobs.append(wave.WaveJob(f"game-{index}",
+                    (sys.executable, str(script), mode, str(target / "events.jsonl")), {},
+                    {"game": str(index)}, target))
+            sent = []
+            original = wave.socket.socket.sendall
+            def observe_send(sock, data, *args):
+                sent.append(data)
+                return original(sock, data, *args)
+            with patch.object(wave.socket.socket, "sendall", observe_send):
+                results = wave.WaveExecutor(output_limit_bytes=1024).run_wave(jobs, 8,
+                    authorize_go=lambda job, obs: True, observe_transport=lambda job, obs: None)
+            trace = _read_rows(root / "0" / "events.jsonl")
+            self.assertEqual([row["event"] for row in trace], ["spawn", "go", "finish"])
+            self.assertEqual(sent.count(b"GO\n"), 2)
+            self.assertNotIn(b"ABORT\n", sent)
+            self.assertEqual(results[0]["gate_transport"], "sent")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[0]["remaining_processes"], [])
+            self.assertTrue(any("output limit" in row.get("wave_error_context", "") for row in results))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_selector_failure_during_settlement_keeps_started_runners_alive(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-selector-fault-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index in range(2):
+                target = root / str(index)
+                jobs.append(wave.WaveJob(f"game-{index}",
+                    (sys.executable, str(script), "three", str(target / "events.jsonl")), {},
+                    {"game": str(index)}, target))
+            go_writes, injected = [], []
+            original_send = wave.socket.socket.sendall
+            original_selector = wave.selectors.DefaultSelector
+            def observe_send(sock, data, *args):
+                if data == b"GO\n": go_writes.append(data)
+                return original_send(sock, data, *args)
+            class FaultSelector:
+                def __init__(self): self.inner = original_selector()
+                def __getattr__(self, name): return getattr(self.inner, name)
+                def select(self, timeout=None):
+                    if len(go_writes) == 2 and len(injected) < 2:
+                        injected.append(True)
+                        raise OSError("injected transient selector failure")
+                    return self.inner.select(timeout)
+            with patch.object(wave.socket.socket, "sendall", observe_send), \
+                    patch.object(wave.selectors, "DefaultSelector", FaultSelector):
+                results = wave.WaveExecutor().run_wave(jobs, 8,
+                    authorize_go=lambda job, obs: True, observe_transport=lambda job, obs: None)
+            # If settlement regresses and returns early, wait only for these
+            # exact owned children; never signal another process.
+            for row in results:
+                if row.get("returncode") is None:
+                    try: os.waitpid(row["pid"], 0)
+                    except ChildProcessError: pass
+            self.assertEqual(len(injected), 2)
+            for index, row in enumerate(results):
+                trace = _read_rows(root / str(index) / "events.jsonl")
+                self.assertEqual([entry["event"] for entry in trace], ["spawn", "go", "finish"])
+                self.assertEqual(row["returncode"], 0)
+                self.assertFalse(row["cleanup_forced"])
+                self.assertEqual(row["remaining_processes"], [])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_uncertain_full_go_is_not_resent_and_owner_finishes_naturally(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-uncertain-full-go-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            jobs = []
+            for index, mode in enumerate(("three", "brief")):
+                target = root / str(index)
+                jobs.append(wave.WaveJob(f"game-{index}",
+                    (sys.executable, str(script), mode, str(target / "events.jsonl")), {},
+                    {"game": str(index)}, target))
+            original = wave.socket.socket.sendall
+            sends, first = [], []
+            def fail_after_full_write(sock, data, *args):
+                sends.append((sock.fileno(), data))
+                if data == b"GO\n" and not first:
+                    first.append(sock.fileno())
+                    original(sock, data, *args)
+                    raise OSError("injected lost result after complete GO write")
+                return original(sock, data, *args)
+            with patch.object(wave.socket.socket, "sendall", fail_after_full_write):
+                results = wave.WaveExecutor().run_wave(jobs, 8,
+                    authorize_go=lambda job, obs: True, observe_transport=lambda job, obs: None)
+            trace = _read_rows(root / "0" / "events.jsonl")
+            self.assertEqual([row["event"] for row in trace], ["spawn", "go", "finish"])
+            self.assertEqual([data for fd, data in sends if fd == first[0]], [b"GO\n"])
+            self.assertEqual(results[0]["gate_transport"], "uncertain")
+            self.assertEqual(results[0]["status"], "delivery_unresolved")
+            self.assertEqual(results[0]["returncode"], 0)
+            self.assertFalse(results[0]["cleanup_forced"])
+            self.assertEqual(results[0]["remaining_processes"], [])
+            self.assertEqual(results[1]["gate_transport"], "not_attempted")
+            self.assertTrue(results[1]["gate_cancelled"])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
     def test_expired_admission_deadline_does_not_kill_earlier_sent_game(self):
         with tempfile.TemporaryDirectory(prefix="rove-wave-deadline-") as folder:
             root = Path(folder)
@@ -932,6 +1041,96 @@ class AsyncContracts(unittest.TestCase):
                 self.assertEqual(results[1]["status"], "cancelled_unreconciled")
                 self.assertNotIn(("released", "game-1"), events)
                 self.assertEqual(transports, ["game-0"])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_drain_waits_for_started_orphan_after_runner_exits(self):
+        # A short-lived runner may exit while its game process keeps running in
+        # the same session. Become a subreaper for this owned fixture so the
+        # orphan can be reaped even when the host's PID 1 does not reap promptly.
+        import ctypes
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        if libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0:
+            self.skipTest("Linux child-subreaper state unavailable")
+        if libc.prctl(36, 1, 0, 0, 0) != 0:
+            self.skipTest("Linux child-subreaper unavailable")
+        try:
+            with tempfile.TemporaryDirectory(prefix="rove-drain-orphan-") as folder:
+                root = Path(folder)
+                marker, pid_path = root / "finished", root / "child.pid"
+                script = root / "toy.py"
+                script.write_text(ASYNC_TOY.replace("time.sleep(.2)\n", """
+if sys.argv[1] == 'orphan':
+    import subprocess
+    program = "import pathlib,time;time.sleep(2.5);pathlib.Path(%r).write_text('finished')" % sys.argv[2]
+    child = subprocess.Popen([sys.executable, '-c', program], stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL, close_fds=True)
+    open(sys.argv[3], 'w').write(str(child.pid))
+    sys.exit(0)
+time.sleep(.2)
+"""))
+                jobs = [wave.WaveJob("game-0", (sys.executable, str(script), "orphan", str(marker), str(pid_path)),
+                                     {}, async_metadata(0), root / "0"),
+                        wave.WaveJob("game-1", (sys.executable, str(script), "normal"),
+                                     {}, async_metadata(1), root / "1")]
+                events, reaped, stop = [], [], threading.Event()
+
+                def reap_fixture_child():
+                    while not stop.is_set():
+                        try:
+                            pid = int(pid_path.read_text())
+                            got, status = os.waitpid(pid, os.WNOHANG)
+                            if got:
+                                reaped.append((got, status))
+                                return
+                        except (FileNotFoundError, ValueError, ChildProcessError):
+                            pass
+                        time.sleep(.01)
+
+                reaper = threading.Thread(target=reap_fixture_child, daemon=True)
+                reaper.start()
+
+                class Mailbox(FixtureReleaseGuard):
+                    def __init__(self): self.pending = []
+                    def request(self, job, observation):
+                        binding = json.dumps({"identity": job.identity, "start_job": job.start_job},
+                                             sort_keys=True, allow_nan=False, separators=(",", ":")).encode()
+                        now = time.monotonic()
+                        self.pending.append(wave.AsyncGateDecision(job.identity, True, wave.ReleaseFence(
+                            job.identity, "fence-" + job.identity, hashlib.sha256(binding).hexdigest(), now, now + 6)))
+                    def poll(self):
+                        first = next((v for v in self.pending if v.identity == "game-0"), None)
+                        if first is not None:
+                            self.pending.remove(first)
+                            return [first]
+                        if ("released", "game-0") in events and self.pending:
+                            second = self.pending.pop(0)
+                            return [wave.AsyncGateDecision(second.identity, False)]
+                        return []
+
+                try:
+                    results = run_fixture_wave(root, jobs, 8, async_authorizer=Mailbox(),
+                        observe_transport=lambda job, obs: None,
+                        on_event=lambda event, job, obs: events.append((event, job.identity)))
+                    self.assertTrue(marker.is_file(), "started fixture child must finish naturally")
+                    self.assertEqual(marker.read_text(), "finished")
+                    self.assertEqual(results[0]["gate_transport"], "sent")
+                    self.assertEqual(results[0]["gate_receipt"], "matched")
+                    self.assertFalse(results[0]["cleanup_forced"])
+                    self.assertEqual(results[0]["remaining_processes"], [])
+                    self.assertEqual(results[1]["gate_transport"], "not_attempted")
+                    self.assertTrue(results[1]["gate_cancelled"])
+                    self.assertEqual(sum(event == ("released", "game-0") for event in events), 1)
+                finally:
+                    # The fixture child has a fixed 2.5-second natural lifetime.
+                    # Wait only on that exact owned PID; do not signal it.
+                    reaper.join(timeout=4)
+                    stop.set()
+                    reaper.join(timeout=1)
+                self.assertEqual(len(reaped), 1)
+                self.assertEqual(os.waitstatus_to_exitcode(reaped[0][1]), 0)
+        finally:
+            libc.prctl(36, previous.value, 0, 0, 0)
 
     @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
     def test_async_requires_intent_owner_before_starting_a_runner(self):

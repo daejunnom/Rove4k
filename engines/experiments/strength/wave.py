@@ -447,12 +447,16 @@ def _owned_members(child: _Child) -> list[dict]:
         observed["pid_reused"] = True
         return []
     result = []
+    unreadable = False
     for path in Path("/proc").iterdir():
         if not path.name.isdigit():
             continue
         try:
             item = _proc_identity(int(path.name))
-        except (ProcessLookupError, PermissionError):
+        except ProcessLookupError:
+            continue
+        except PermissionError:
+            unreadable = True
             continue
         if item and item["pgid"] == observed["pgid"] and item["session"] == observed["session"]:
             result.append(item)
@@ -463,7 +467,18 @@ def _owned_members(child: _Child) -> list[dict]:
             pass
         else:
             result.append({"pid": None, "state": "group_exists_unobserved", "pgid": observed["pgid"], "session": observed["session"]})
+    # A restricted /proc can hide a live member behind an otherwise visible
+    # zombie.  An extant group is not settled if any candidate is unreadable.
+    if unreadable and result:
+        observed["ownership_unreadable"] = True
+        result.append({"pid": None, "state": "group_members_unobservable",
+                       "pgid": observed["pgid"], "session": observed["session"]})
     return result
+
+
+def _live_owned_members(child: _Child) -> list[dict]:
+    """Keep unknown ownership conservative; a zombie cannot execute or be killed."""
+    return [member for member in _owned_members(child) if member.get("state") != "Z"]
 
 
 def _signal(child: _Child, sig: int) -> bool:
@@ -508,6 +523,16 @@ class WaveExecutor:
         yields None only when temporarily busy, False for denial, and True
         when held. Only literal True from both permits a GO. Neither establishes
         a global ownership fence or atomicity across hosts.
+
+        In individual-authorized and async modes, an owner with sent or
+        uncertain GO is preserved after any exception, not only budget drain.
+        This deliberately has no settlement timeout: a still-running owner or
+        an unreadable /proc observation can block indefinitely and continue to
+        consume resources. An unreadable PID cannot be associated with a group,
+        so even an unrelated PID can leave an extant zombie-only group unknown.
+        This wait alone establishes no performance or scoring eligibility.
+        A process group does not prove cgroup-wide settlement, and process
+        interruption, external termination and durable recovery are separate.
         """
         if sys.platform != "linux":
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
@@ -1077,15 +1102,34 @@ class WaveExecutor:
 
         def abort_controls():
             for child in children:
+                # A sent or partially sent GO may already have been consumed.
+                # Do not send an additional command to that owner.
+                if (authorize_go is not None or asynchronous) and child.observation.get("gate_transport") in ("sent", "uncertain"):
+                    continue
+                if authorize_go is not None or asynchronous:
+                    child.observation.setdefault("gate_cancel_started_monotonic", time.monotonic())
+                    child.observation["gate_cancelled"] = True
                 if child.control is not None:
                     try:
                         child.control.sendall(b"ABORT\n")
                     except OSError:
                         pass
 
+        def possible_go_still_live(child):
+            if not (authorize_go is not None or asynchronous) or child.observation.get("gate_transport") not in ("sent", "uncertain"):
+                return False
+            try:
+                return bool(_live_owned_members(child))
+            except Exception as error:
+                # Losing /proc evidence is not proof of physical settlement.
+                child.observation.setdefault("settlement_ownership_error", repr(error))
+                return True
+
         def drain_until(deadline, *, signal_at_start=None):
             if signal_at_start is not None:
                 for child in children:
+                    if (authorize_go is not None or asynchronous) and child.observation.get("gate_transport") in ("sent", "uncertain"):
+                        continue
                     if _signal(child, signal_at_start):
                         child.observation["cleanup_forced"] = True
             while time.monotonic() < deadline:
@@ -1213,6 +1257,7 @@ class WaveExecutor:
                 if authorize_go is not None or asynchronous:
                     cleanup_cancelled()
                 if (all(child.process.poll() is not None for child in children) and
+                        all(not possible_go_still_live(child) for child in children) and
                         (not asynchronous or all(child.observation.get("gate_receipt") != "pending" and child.control is None
                                                  for child in children))):
                     break
@@ -1250,6 +1295,31 @@ class WaveExecutor:
             # Read any final output while all original leaders and groups settle.
             # The three phases are collective, never a per-job timeout sum.
             try:
+                # Even an exception is not evidence that a complete or partial
+                # GO failed to reach its runner. Keep its original process and
+                # output channels under observation until the live group ends;
+                # never retry or signal a potentially started game here.
+                while any(possible_go_still_live(child) for child in children):
+                    try:
+                        pump(self.poll_seconds)
+                    except Exception as error:
+                        # Keep the original pipes and owners alive even when
+                        # selector polling fails.  Drain nonblocking log FDs
+                        # directly so a running engine cannot stall on output.
+                        for child in children:
+                            child.observation.setdefault("settlement_pump_error", repr(error))
+                            for channel in child.channels:
+                                if channel.pipe is not None and not channel.pipe.closed:
+                                    try:
+                                        read_log(channel)
+                                    except Exception as read_error:
+                                        child.observation.setdefault("settlement_read_error", repr(read_error))
+                        time.sleep(self.poll_seconds)
+                    try:
+                        cleanup_cancelled()
+                    except Exception as error:
+                        for child in children:
+                            child.observation.setdefault("settlement_cancel_error", repr(error))
                 drain_until(time.monotonic() + 2)
                 if any(_owned_members(child) for child in children):
                     drain_until(time.monotonic() + 1, signal_at_start=signal.SIGTERM)
