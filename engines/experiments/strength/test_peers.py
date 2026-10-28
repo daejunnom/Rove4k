@@ -127,10 +127,59 @@ class PeerInputs(unittest.TestCase):
         source = b"#include<bits/stdc++.h>\nint main(){return 0;}\n"
         rows = PEERS.codec_grid(source)
         self.assertEqual(len(rows), 20)
+        self.assertTrue(all("lc" not in row for row in rows))
         self.assertEqual(rows[0]["payload_bytes"], min(row["payload_bytes"] for row in rows))
         self.assertTrue(all(lzma.decompress(row["payload"], format=lzma.FORMAT_ALONE) == source for row in rows))
         with self.assertRaisesRegex(ValueError, "unknown bounded"):
             PEERS.codec_grid(source, search="unbounded-upstream")
+
+    def test_literal_search_roundtrips_repeats_and_orders_ties(self):
+        source = b"#include<bits/stdc++.h>\nint main(){return 0;}\n" * 3
+        real_compress = lzma.compress
+        seen = []
+
+        def small_fixture(data, *, format, filters):
+            # Keep the test bounded; production still uses the original preset dictionary.
+            self.assertEqual(format, lzma.FORMAT_ALONE)
+            self.assertEqual((filters[0]["lp"], filters[0]["pb"]), (0, 0))
+            seen.append((filters[0]["lc"], filters[0]["mf"], filters[0]["nice_len"]))
+            return real_compress(data, format=format, filters=[dict(filters[0], dict_size=65536)])
+
+        with patch.object(PEERS.lzma, "compress", side_effect=small_fixture):
+            rows = PEERS.codec_grid(source, search="literal-v1")
+            repeated = PEERS.codec_grid(source, search="literal-v1")
+        self.assertEqual(len(rows), 80)
+        self.assertEqual(rows, repeated)
+        self.assertEqual(len(set(seen)), 80)
+        self.assertEqual(len(seen), 160)
+        self.assertEqual({row["lc"] for row in rows}, {0, 1, 3, 4})
+        for row in rows:
+            self.assertEqual(row["payload"][0], row["lc"])
+            self.assertEqual(lzma.decompress(row["payload"], format=lzma.FORMAT_ALONE), source)
+            self.assertEqual(row["payload_sha256"], PEERS.sha(row["payload"]))
+        keys = [(row["payload_bytes"], row["mf"], row["nice_len"], row["lc"]) for row in rows]
+        self.assertEqual(keys, sorted(keys))
+        self.assertLess(len({key[0] for key in keys}), len(keys))  # exercises tie ordering
+
+    def test_existing_codec_profiles_retain_previous_rows(self):
+        source = b"int main(){return 0;}\n" * 3
+        real_compress = lzma.compress
+
+        def small_fixture(data, *, format, filters):
+            return real_compress(data, format=format, filters=[dict(filters[0], dict_size=65536)])
+
+        for search in ("compact", "extended"):
+            expected = []
+            for finder in (lzma.MF_HC3, lzma.MF_HC4, lzma.MF_BT2, lzma.MF_BT3, lzma.MF_BT4):
+                for nice in PEERS.CODEC_SEARCHES[search]:
+                    payload = small_fixture(source, format=lzma.FORMAT_ALONE,
+                        filters=[{"id": lzma.FILTER_LZMA1, "preset": 9 | lzma.PRESET_EXTREME,
+                                  "lc": 2, "lp": 0, "pb": 0, "mf": finder, "nice_len": nice}])
+                    expected.append({"mf": finder, "nice_len": nice, "payload": payload,
+                                     "payload_bytes": len(payload), "payload_sha256": PEERS.sha(payload)})
+            expected.sort(key=lambda row: (row["payload_bytes"], row["mf"], row["nice_len"]))
+            with self.subTest(search=search), patch.object(PEERS.lzma, "compress", side_effect=small_fixture):
+                self.assertEqual(PEERS.codec_grid(source, search=search), expected)
 
     @unittest.skipUnless(sys.platform == "linux", "actual process ownership test requires Linux")
     def test_failed_command_preserves_diagnostic_and_timeout_settles(self):

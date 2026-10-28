@@ -171,7 +171,7 @@ class ExactProducerTests(unittest.TestCase):
             path.write_bytes(data)
         blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
         with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}):
-            for variant in ("edit-loop-v1", "edit-castle-or-v1"):
+            for variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
                 with self.subTest(variant=variant):
                     run, attempts = self.fake_runner(name, original, variant=variant)
                     record = build.build(name, source, self.root / variant, run=run,
@@ -180,10 +180,29 @@ class ExactProducerTests(unittest.TestCase):
                     self.assertEqual(record["source_variant"], variant)
                     self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
                     self.assertIn("c4ke_edit_structural_transform", record["producer_inputs"])
-                    if variant == "edit-castle-or-v1":
+                    if variant in ("edit-castle-or-v1", "edit-castle-alloc24-v1"):
                         self.assertIn("c4ke_structural_transform", record["producer_inputs"])
                     self.assertFalse(record["qualification"]["runtime_qualified"])
                     self.assertFalse(record["qualification"]["league_qualified"])
+
+    def test_literal_search_reaches_producer_receipt(self):
+        name = "c4ke"
+        source, original = self.fixture(name)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        real_compress = lzma.compress
+        def small_fixture(data, *, format, filters):
+            return real_compress(data, format=format, filters=[dict(filters[0], dict_size=65536)])
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}), \
+             patch.object(exact.peers.lzma, "compress", side_effect=small_fixture):
+            run, attempts = self.fake_runner(name, original)
+            record = build.build(name, source, self.root / "literal-out", run=run,
+                                 codec_search="literal-v1")["record"]
+        self.assertEqual(len(attempts), 2)
+        self.assertEqual(record["codec_search"]["name"], "literal-v1")
+        self.assertEqual(record["codec_search"]["literal_contexts"], (0, 1, 3, 4))
+        for attempt in record["attempts"]:
+            self.assertIn(attempt["selected_codec"]["lc"], (0, 1, 3, 4))
+        self.assertFalse(record["qualification"]["runtime_qualified"])
 
     def test_both_peers_produce_two_matching_full_streams_without_qualification(self):
         for name in ("ice4", "c4ke"):

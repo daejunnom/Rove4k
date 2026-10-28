@@ -78,7 +78,9 @@ RESOURCE_CAPS = {"test-p4": 128 << 20, "test-p28": 512 << 20,
 CODEC_SEARCHES = {
     "compact": (16, 64, 128, 273),
     "extended": (16, 24, 32, 40, 48, 56, 64, 72, 80, 96, 112, 128, 160, 192, 224, 273),
+    "literal-v1": (16, 64, 128, 273),
 }
+LITERAL_SEARCH_LC = {"literal-v1": (0, 1, 3, 4)}
 OFFICIAL_WORKERS = 256
 OFFICIAL_TT_BITS = 35
 
@@ -359,16 +361,20 @@ def codec_grid(source, *, search="compact"):
     finders = (lzma.MF_HC3, lzma.MF_HC4, lzma.MF_BT2, lzma.MF_BT3, lzma.MF_BT4)
     for finder in finders:
         for nice in CODEC_SEARCHES[search]:
-            filters = [{"id": lzma.FILTER_LZMA1, "preset": 9 | lzma.PRESET_EXTREME,
-                        "lc": 2, "lp": 0, "pb": 0, "mf": finder, "nice_len": nice}]
-            payload = lzma.compress(source, format=lzma.FORMAT_ALONE, filters=filters)
-            decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE, memlimit=1 << 30)
-            restored = decoder.decompress(payload, max_length=len(source) + 1)
-            if restored != source or not decoder.eof or decoder.unused_data:
-                raise ValueError("peer payload restore mismatch or extra stream")
-            candidates.append({"mf": finder, "nice_len": nice, "payload": payload,
-                               "payload_bytes": len(payload), "payload_sha256": sha(payload)})
-    return sorted(candidates, key=lambda row: (row["payload_bytes"], row["mf"], row["nice_len"]))
+            for lc in LITERAL_SEARCH_LC.get(search, (2,)):
+                filters = [{"id": lzma.FILTER_LZMA1, "preset": 9 | lzma.PRESET_EXTREME,
+                            "lc": lc, "lp": 0, "pb": 0, "mf": finder, "nice_len": nice}]
+                payload = lzma.compress(source, format=lzma.FORMAT_ALONE, filters=filters)
+                decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE, memlimit=1 << 30)
+                restored = decoder.decompress(payload, max_length=len(source) + 1)
+                if restored != source or not decoder.eof or decoder.unused_data:
+                    raise ValueError("peer payload restore mismatch or extra stream")
+                row = {"mf": finder, "nice_len": nice, "payload": payload,
+                       "payload_bytes": len(payload), "payload_sha256": sha(payload)}
+                if search in LITERAL_SEARCH_LC:
+                    row["lc"] = lc
+                candidates.append(row)
+    return sorted(candidates, key=lambda row: (row["payload_bytes"], row["mf"], row["nice_len"], row.get("lc", 2)))
 
 
 def bounded_run(command, cwd, *, timeout=600, cpu=5, memory_bytes=2 << 30, output_bytes=2 << 20,

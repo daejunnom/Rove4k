@@ -17,6 +17,7 @@ on:
       - 'engines/experiments/strength/peer_c4ke_edit_structural.py'
       - 'engines/experiments/strength/test_peer_c4ke_edit_structural.py'
       - 'engines/experiments/strength/peers.py'
+      - 'engines/experiments/strength/test_peers.py'
       - '.github/workflows/peer-p192-exact.yml'
   workflow_dispatch:
 
@@ -53,6 +54,9 @@ jobs:
           - {peer: c4ke, variant: ray-castle-or-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-loop-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-or-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-or-v1, launcher: gnu-tail-v1, codec: extended}
+          - {peer: c4ke, variant: edit-castle-alloc24-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-or-v1, launcher: gnu-tail-v1, codec: literal-v1}
     env:
       PEER: ${{ matrix.peer }}
       SOURCE_VARIANT: ${{ matrix.variant }}
@@ -74,6 +78,9 @@ jobs:
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_ice_structural.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_structural.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_edit_structural.py'
+          python -B -m unittest -v \
+            engines.experiments.strength.test_peers.PeerInputs.test_literal_search_roundtrips_repeats_and_orders_ties \
+            engines.experiments.strength.test_peers.PeerInputs.test_existing_codec_profiles_retain_previous_rows
       - name: Fetch only pinned upstream source into temporary storage
         run: |
           python -I -B engines/experiments/strength/peers.py source \
@@ -101,6 +108,22 @@ jobs:
             c++ -O3 -pthread -xc++ -fsyntax-only \
               "$RUNNER_TEMP/peer-p192-result-$PEER/attempt-1/main.cpp"
           fi
+      - name: Check selected LZMA stream with xz
+        run: |
+          python - "$RUNNER_TEMP/peer-p192-result-$PEER" <<'PY'
+          import json, pathlib, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          report = json.loads((root / 'peer-exact.json').read_text())
+          for attempt in report['attempts']:
+              package = pathlib.Path(attempt['whole']['path']).read_bytes()
+              source = (pathlib.Path(attempt['whole']['path']).parent / 'main.cpp').read_bytes()
+              restored = subprocess.run(['xz', '--format=lzma', '--decompress', '--stdout'],
+                                        input=package[attempt['header']['bytes']:],
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True).stdout
+              if restored != source:
+                  raise SystemExit('xz output differs from the generated source')
+          print('xz restored both selected streams; launcher eligibility remains unverified')
+          PY
       - name: Report actual whole-file size and admission scope
         run: |
           python - "$RUNNER_TEMP/peer-p192-result-$PEER/peer-exact.json" <<'PY'
