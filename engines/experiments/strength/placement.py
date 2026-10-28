@@ -762,7 +762,8 @@ def main():
         parser.error("actual command, absolute slot input and new absolute observation required")
     value = json.loads(args.slot.read_text())
     observation = apply_slot(value["slot"], cgroup=value.get("cgroup"),
-                             saved_ancestor_cpus=value.get("saved_ancestor_cpus"))
+                             saved_ancestor_cpus=value.get("saved_ancestor_cpus"),
+                             saved_ancestor_nodes=value.get("saved_ancestor_nodes"))
     with args.record.open("x", encoding="utf-8") as output:
         json.dump(observation, output, sort_keys=True)
         output.flush()

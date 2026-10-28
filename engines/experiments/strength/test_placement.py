@@ -711,6 +711,70 @@ finally:
             self.assertIn("pre-exec", record["stage"])
 
     @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
+    def test_cli_passes_saved_node_envelope_only_for_original_owned_group(self):
+        # Temporary files model cgroup attributes; this exercises the real CLI
+        # and apply_slot path, not a kernel cgroup or authenticated snapshot.
+        with tempfile.TemporaryDirectory() as tmp:
+            parent = Path(tmp).resolve()
+            group = parent / "slot-000"
+            group.mkdir()
+            (parent / "cpuset.mems.effective").write_text("0-1\n")
+            (group / "cpuset.cpus.effective").write_text("2-3\n")
+            (group / "cpuset.mems.effective").write_text("1\n")
+            (group / "memory.max").write_text("4096\n")
+            (group / "cgroup.procs").write_text("x")
+            st = group.stat()
+            receipt = {"path": str(group), "device": st.st_dev, "inode": st.st_ino,
+                       "cpus": [2, 3], "memory_nodes": [1], "memory_max": 4096}
+            slot = {"cpus": [2, 3], "memory_nodes": [1], "policy": "inherit"}
+            slot_path = parent / "slot.json"
+            original_read = Path.read_text
+
+            def read(path, *args, **kwargs):
+                if str(path) == "/sys/devices/system/node/online":
+                    return "0-1\n"
+                if str(path) == "/sys/devices/system/cpu/online":
+                    return "2-3\n"
+                return original_read(path, *args, **kwargs)
+
+            def run_case(name, nodes, *, succeeds):
+                (group / "cgroup.procs").write_text("x")
+                record = parent / (name + ".json")
+                value = {"slot": slot, "cgroup": receipt, "saved_ancestor_cpus": [2, 3]}
+                if nodes is not None:
+                    value["saved_ancestor_nodes"] = nodes
+                slot_path.write_text(json.dumps(value))
+                command = ["placement.py", "--slot", str(slot_path), "--record", str(record),
+                           "--", "/bin/true"]
+                with patch.object(sys, "argv", command), \
+                     patch.object(Path, "read_text", autospec=True, side_effect=read), \
+                     patch.object(placement.os, "sched_getaffinity", return_value={2, 3}), \
+                     patch.object(placement.os, "sched_setaffinity") as affinity, \
+                     patch.object(placement, "allowed_nodes", side_effect=[{0}, {1}]), \
+                     patch.object(placement, "memory_policy", return_value={"available": False}), \
+                     patch.object(placement.os, "execvpe") as execute:
+                    if succeeds:
+                        placement.main()
+                        affinity.assert_called_once_with(0, {2, 3})
+                        execute.assert_called_once()
+                        self.assertEqual(execute.call_args.args[:2], ("/bin/true", ["/bin/true"]))
+                        data = json.loads(record.read_text())
+                        self.assertEqual(data["saved_ancestor_nodes"], [0, 1])
+                        self.assertEqual(data["effective_allowed_nodes"], [1])
+                        self.assertEqual((group / "cgroup.procs").read_text(), str(os.getpid()))
+                    else:
+                        with self.assertRaises(ValueError):
+                            placement.main()
+                        self.assertFalse(record.exists())
+                        self.assertEqual((group / "cgroup.procs").read_text(), "x")
+                        affinity.assert_not_called()
+                        execute.assert_not_called()
+
+            run_case("missing", None, succeeds=False)
+            run_case("unowned-node", [0], succeeds=False)
+            run_case("valid", [0, 1], succeeds=True)
+
+    @unittest.skipUnless(hasattr(os, "sched_getaffinity"), "Linux execution port")
     def test_failed_observation_does_not_claim_successful_set_fell_back(self):
         policy = [{"available": False}, {"available": False, "request_applied": True,
                                           "reason": "get_mempolicy rejected", "errno": 1}]

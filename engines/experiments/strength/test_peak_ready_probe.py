@@ -88,7 +88,10 @@ class PeakReadyTests(unittest.TestCase):
             class Executor:
                 def run_wave(self, jobs, wall_seconds, release_callback, on_event, *, authorize_go, observe_transport):
                     self_outer.assertEqual(jobs[0].argv[1], str(Path(probe.placement.__file__).resolve()))
-                    self_outer.assertEqual(json.loads((entries[0]["out"] / "slot.json").read_text())["cgroup"], group)
+                    recorded = json.loads((entries[0]["out"] / "slot.json").read_text())
+                    self_outer.assertEqual(recorded["cgroup"], group)
+                    self_outer.assertEqual(recorded["saved_ancestor_nodes"], [0, 1])
+                    self_outer.assertEqual(recorded["saved_ancestor_cpus"], list(slot.cpus))
                     (entries[0]["out"] / "placement.json").write_text("{}")
                     on_event("ready", jobs[0], {"pid": 1, "start_ticks": 2})
                     self_outer.assertTrue(release_callback())
@@ -148,6 +151,121 @@ class PeakReadyTests(unittest.TestCase):
                     probe.ready_probe(profile="test-p192", entries=entries, runner=files[0],
                             runner_sha256=sha(files[0]), opening=files[3], opening_sha256=original_opening,
                             saved_ancestor_cpus=slot.cpus, channel=channel)
+
+    def test_narrow_controller_or_unrelated_parent_refuses_before_spawn(self):
+        """The READY path only inherits a checked controller node envelope."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            slot = topology.Slot("p192", tuple(range(192)), tuple((0, i) for i in range(96)),
+                                 (0, 1), 192, True, "default")
+            controller_path = root / "cohort" / "controller"
+            controller_path.mkdir(parents=True)
+            (controller_path / "cgroup.procs").write_text(str(os.getpid()))
+            controller = {"path": str(controller_path), "device": 1, "inode": 2,
+                          "cpus": [190, 191], "memory_nodes": [0, 1], "memory_max": 1024}
+            group = {"path": str(root / "cohort" / "slot-000"), "device": 1, "inode": 3,
+                     "cpus": list(slot.cpus), "memory_nodes": [0, 1], "memory_max": 1024}
+            output = root / "not-created"
+            entries = [{"slot": slot, "out": output, "opening_start": 1, "engines": []}]
+            class Channel:
+                def handoff(self):
+                    return {"games": {"p192": group}, "controller": controller,
+                            "runtime_admission": False}
+            for kind in ("narrow", "forged-controller", "outside-parent"):
+                with self.subTest(kind=kind):
+                    group["path"] = str(root / ("outside" if kind == "outside-parent" else "cohort") / "slot-000")
+                    actual_controller = {**controller, "memory_nodes": [0] if kind == "narrow" else [0, 1]}
+                    def observe(record):
+                        if kind == "forged-controller" and record is controller:
+                            raise ValueError("owned cgroup effective masks differ from their original receipt")
+                        return actual_controller if record is controller else group
+                    with patch.object(probe, "_file_sha", return_value="a" * 64), \
+                         patch.object(probe.placement, "verify_cgroup_live", side_effect=observe), \
+                         patch.object(probe.os, "sched_getaffinity", return_value={190, 191}, create=True), \
+                         patch.object(probe.wave, "WaveExecutor") as spawn:
+                        with self.assertRaisesRegex(ValueError, "controller memory nodes|supervisor parent|effective masks"):
+                            probe.ready_probe(profile="test-p192", entries=entries,
+                                              runner=root / "runner", runner_sha256="a" * 64,
+                                              opening=root / "openings", opening_sha256="a" * 64,
+                                              saved_ancestor_cpus=slot.cpus, channel=Channel())
+                    spawn.assert_not_called()
+                    self.assertFalse(output.exists())
+
+    def test_p16_full_cohort_uses_live_controller_node_envelope(self):
+        """A CPU-reserved controller still encompasses both live NUMA nodes."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            files = []
+            for name in ("runner", "white", "black", "openings"):
+                path = root / name
+                path.write_bytes(name.encode())
+                files.append(path)
+            sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+            cohort = root / "cohort"
+            controller_path = cohort / "controller"
+            controller_path.mkdir(parents=True)
+            (controller_path / "cgroup.procs").write_text(str(os.getpid()))
+            controller = {"path": str(controller_path), "device": 1, "inode": 2,
+                          "cpus": list(range(176, 192)), "memory_nodes": [0, 1], "memory_max": 1024}
+            entries, groups = [], {}
+            for index in range(11):
+                slot_id = f"slot-{index:03d}"
+                cpus = tuple(range(16 * index, 16 * (index + 1)))
+                node = 0 if index < 6 else 1
+                slot = topology.Slot(slot_id, cpus, tuple((node, index * 8 + j) for j in range(8)),
+                                     (node,), 16, True, "default")
+                groups[slot_id] = {"path": str(cohort / slot_id), "device": 1, "inode": 10 + index,
+                                   "cpus": list(cpus), "memory_nodes": [node], "memory_max": 1024}
+                entries.append({"slot": slot, "out": root / "jobs" / slot_id, "opening_start": index + 1,
+                    "engines": [{"id": "white", "path": files[1], "whole_sha256": sha(files[1]),
+                                 "native_sha256": "a" * 64, "tt_bytes": 12 << 30},
+                                {"id": "black", "path": files[2], "whole_sha256": sha(files[2]),
+                                 "native_sha256": "b" * 64, "tt_bytes": 12 << 30}]})
+            class Channel:
+                def handoff(self):
+                    return {"games": groups, "controller": controller, "runtime_admission": False}
+                def active(self, members):
+                    self.members = members
+                    return True
+                def settled(self):
+                    return True
+            channel = Channel()
+            self_outer = self
+            class Executor:
+                def run_wave(self, jobs, wall_seconds, release_callback, on_event, *, authorize_go, observe_transport):
+                    self_outer.assertEqual(len(jobs), 11)
+                    for job, entry in zip(jobs, entries):
+                        config = json.loads((entry["out"] / "slot.json").read_text())
+                        self_outer.assertEqual(config["slot"]["cpus"], list(entry["slot"].cpus))
+                        self_outer.assertEqual(config["slot"]["memory_nodes"], list(entry["slot"].memory_nodes))
+                        self_outer.assertEqual(config["saved_ancestor_nodes"], [0, 1])
+                        self_outer.assertEqual(config["saved_ancestor_cpus"], list(range(192)))
+                        self_outer.assertEqual(config["cgroup"], groups[entry["slot"].id])
+                        self_outer.assertTrue(set(controller["cpus"]).isdisjoint(entry["slot"].cpus))
+                        self_outer.assertIn("tc=30:00+3", job.argv)
+                        self_outer.assertIn("option.Ponder=false", job.argv)
+                        on_event("ready", job, {"pid": 1, "start_ticks": 2})
+                        self_outer.assertIs(authorize_go(job, {}), False)
+                    self_outer.assertTrue(release_callback())
+                    return [{"identity": job.identity, "pid": 1, "returncode": 0,
+                             "remaining_processes": [], "readers_done": True,
+                             "gate_released": False, "gate_cancelled": True,
+                             "gate_authorized": False, "gate_authorization_unknown": False,
+                             "gate_transport": "not_attempted"} for job in jobs]
+            observed = {"engines": [{"pid": 11, "native_sha256": "a" * 64},
+                                    {"pid": 22, "native_sha256": "b" * 64}]}
+            with patch.object(probe.placement, "verify_cgroup_live", side_effect=lambda record: record), \
+                 patch.object(probe.os, "sched_getaffinity", return_value=set(controller["cpus"]), create=True), \
+                 patch.object(probe, "_read_receipt", return_value={}), \
+                 patch.object(probe.run, "verify_preexec_placement"), \
+                 patch.object(probe.placement, "observe_game_engines", return_value=observed), \
+                 patch.object(probe.wave, "WaveExecutor", return_value=Executor()):
+                result = probe.ready_probe(profile="test-p16", entries=entries, runner=files[0],
+                    runner_sha256=sha(files[0]), opening=files[3], opening_sha256=sha(files[3]),
+                    saved_ancestor_cpus=tuple(range(192)), channel=channel)
+            self.assertEqual(len(channel.members), 11)
+            self.assertEqual(result["games_started"], 0)
+            self.assertIs(result["runtime_admission"], False)
 
     def test_context_and_receipt_are_recorded_without_admission(self):
         with tempfile.TemporaryDirectory() as tmp:

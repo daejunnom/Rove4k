@@ -70,7 +70,7 @@ def _read_receipt(path):
     return json.loads(raw)
 
 
-def accept_supervisor_groups(*, slots, channel):
+def accept_supervisor_groups(*, slots, channel, include_controller_nodes=False):
     """Consume the original group handoff without taking cleanup ownership.
 
     Inode and kernel masks are verified at this instant; the supervisor's
@@ -86,7 +86,7 @@ def accept_supervisor_groups(*, slots, channel):
             set(groups) != {slot.id for slot in slots}):
         raise ValueError("supervisor groups differ from frozen slots")
     controller = handoff.get("controller")
-    placement.verify_cgroup_live(controller)
+    controller_live = placement.verify_cgroup_live(controller)
     if str(os.getpid()) not in (Path(controller["path"]) / "cgroup.procs").read_text().split():
         raise ValueError("controller is not in its supervisor-owned group")
     if set(os.sched_getaffinity(0)) != set(controller["cpus"]):
@@ -95,6 +95,15 @@ def accept_supervisor_groups(*, slots, channel):
         live = placement.verify_cgroup_live(groups[slot.id])
         if live["cpus"] != sorted(slot.cpus) or live["memory_nodes"] != sorted(slot.memory_nodes):
             raise ValueError("live supervisor group masks differ from the frozen slot")
+        if Path(groups[slot.id]["path"]).parent != Path(controller["path"]).parent:
+            raise ValueError("controller and game groups do not share their supervisor parent")
+        # This existing diagnostic keeps the controller on every game node.
+        # A narrower controller needs a separately verified ancestor-envelope
+        # handoff; do not spawn a runner and rely on its later failure.
+        if not set(slot.memory_nodes) <= set(controller_live["memory_nodes"]):
+            raise ValueError("controller memory nodes must include every game node before placement")
+    if include_controller_nodes:
+        return groups, list(controller_live["memory_nodes"])
     return groups
 
 
@@ -121,7 +130,8 @@ def ready_probe(*, profile, entries, runner, runner_sha256, opening, opening_sha
     slots = [entry.get("slot") for entry in entries]
     if any(not isinstance(slot, topology.Slot) for slot in slots) or len({slot.id for slot in slots}) != count:
         raise ValueError("distinct frozen slots are required")
-    groups = accept_supervisor_groups(slots=slots, channel=channel)
+    groups, saved_ancestor_nodes = accept_supervisor_groups(slots=slots, channel=channel,
+                                                            include_controller_nodes=True)
     jobs, specs, ready = [], {}, {}
     for entry in entries:
         slot = entry["slot"]
@@ -147,7 +157,8 @@ def ready_probe(*, profile, entries, runner, runner_sha256, opening, opening_sha
         out.mkdir(parents=True)
         slot_file, receipt_file = out / "slot.json", out / "placement.json"
         slot_file.write_text(json.dumps({"slot": slot.to_record(), "cgroup": group,
-                                         "saved_ancestor_cpus": list(saved_ancestor_cpus)}, sort_keys=True), encoding="utf-8")
+                                         "saved_ancestor_cpus": list(saved_ancestor_cpus),
+                                         "saved_ancestor_nodes": saved_ancestor_nodes}, sort_keys=True), encoding="utf-8")
         commands = [fastchess.EngineCommand(engine["id"], (str(Path(engine["path"])),)) for engine in engines]
         argv = fastchess.single_game_argv(Path(runner), *commands, opening_pgn=opening,
                                          opening_start=entry["opening_start"], out=out)
