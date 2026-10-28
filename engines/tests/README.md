@@ -66,10 +66,12 @@ search timeouts. A manifest's `expected_program_sha256` pins selected packaging
 artifacts before execution.
 
 [target_startup.py](target_startup.py) separately checks larger fixed worker
-profiles with explicit available-memory admission and process resource limits.
-It verifies startup task counts/identity and physical termination for quit and
-EOF without searching. Those startup-only results do not replace the chess
-behavior checks here or establish target-hardware scalability.
+profiles with process resource limits. Available memory is recorded as telemetry
+and does not decide whether to start. The harness checks startup task counts and
+identity, quit and EOF without searching. If process-group settlement cannot be
+confirmed, it preserves the unresolved child rather than signalling a possibly
+reused group and refuses another start in that process. Startup-only results do
+not replace the chess behavior checks here or establish target-hardware scaling.
 
 The old paired C/Rust [target search harness](../../archive/engines/tests/target_search.py)
 and [parallel comparison harness](../../archive/engines/tests/compare_parallel.py)

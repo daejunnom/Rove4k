@@ -2,8 +2,8 @@
 """Opt-in Linux startup checks for fixed large profiles; never submits a search.
 
 The central builder deliberately does not execute these profiles. This separate
-check admits one native file at a time using current host memory and explicit
-limits, then observes the real process through /proc. An oversubscribed local
+check starts one native file at a time with explicit limits and records current
+host memory as telemetry, then observes the real process through /proc. An oversubscribed local
 startup is evidence of software resource admission, not hardware scalability.
 """
 
@@ -14,27 +14,46 @@ import os
 from pathlib import Path, PurePosixPath
 import resource
 import selectors
-import signal
 import subprocess
 import sys
 import time
 
 
 GIB = 1024 ** 3
+_UNSETTLED = {}
 
 
 def memory_available():
-    for line in Path("/proc/meminfo").read_text().splitlines():
-        if line.startswith("MemAvailable:"):
-            return int(line.split()[1]) * 1024
-    raise RuntimeError("Linux MemAvailable is unavailable")
+    """Return a point-in-time observation, or None when it is unavailable."""
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            if line.startswith("MemAvailable:"):
+                fields = line.split()
+                if len(fields) != 3 or fields[2] != "kB":
+                    return None
+                value = int(fields[1])
+                return value * 1024 if value >= 0 else None
+    except (OSError, ValueError):
+        pass
+    return None
+
+
+def bounded_child_limit(requested, inherited):
+    """Do not raise an inherited finite soft or hard resource limit."""
+    return min([requested] + [value for value in inherited if value != resource.RLIM_INFINITY])
 
 
 def resource_admission(expected_threads, args):
     available = memory_available()
+    upper_bound = available
+    memory_complete = available is not None
+    cgroup_found = False
+    advisory_available = max(args.minimum_available_bytes, 2 * args.max_rss_bytes)
     result = {"mem_available_bytes": available, "cgroup_limits": [],
               "max_rss_bytes": args.max_rss_bytes,
-              "required_available_bytes": max(args.minimum_available_bytes, 2 * args.max_rss_bytes),
+              "required_available_bytes": advisory_available,
+              "advisory_available_bytes": advisory_available,
+              "memory_observation_scope": "telemetry only; not a startup admission gate",
               "rlimit_as_bytes": args.address_space_bytes, "rlimit_data_bytes": args.data_bytes,
               "rlimit_cpu_seconds": args.cpu_seconds,
               "inherited_stack_limit": resource.getrlimit(resource.RLIMIT_STACK),
@@ -43,8 +62,7 @@ def resource_admission(expected_threads, args):
     for label, name, requested in (("address_space_bytes", resource.RLIMIT_AS, args.address_space_bytes),
                                     ("data_bytes", resource.RLIMIT_DATA, args.data_bytes),
                                     ("cpu_seconds", resource.RLIMIT_CPU, args.cpu_seconds)):
-        _, hard = resource.getrlimit(name)
-        result["applied_limits"][label] = requested if hard == resource.RLIM_INFINITY else min(requested, hard)
+        result["applied_limits"][label] = bounded_child_limit(requested, resource.getrlimit(name))
     # A cgroup can impose a lower ceiling than the VM. Inspect every applicable
     # v2 ancestor without assuming WSL exposes a particular cgroup mount.
     relative = next((line.split(":", 2)[2] for line in Path("/proc/self/cgroup").read_text().splitlines()
@@ -61,21 +79,46 @@ def resource_admission(expected_threads, args):
             continue
         if ".." in suffix.parts:
             continue
+        cgroup_found = True
         directory = mount.joinpath(*suffix.parts)
         while directory == mount or mount in directory.parents:
             observation = {"path": str(directory)}
             for kind in ("memory", "pids"):
                 maximum, current = directory / (kind + ".max"), directory / (kind + ".current")
-                if maximum.exists() and current.exists():
-                    cap, used = maximum.read_text().strip(), int(current.read_text())
+                try:
+                    present = maximum.exists() and current.exists()
+                except OSError:
+                    if kind != "memory":
+                        raise
+                    observation[kind] = {"unavailable": True}
+                    memory_complete = False
+                    continue
+                if present:
+                    try:
+                        cap, used = maximum.read_text().strip(), int(current.read_text())
+                        if used < 0:
+                            raise ValueError("negative cgroup observation")
+                        if cap != "max":
+                            cap_bytes = int(cap)
+                            if cap_bytes < 0:
+                                raise ValueError("negative cgroup observation")
+                    except (OSError, ValueError):
+                        if kind != "memory":
+                            raise
+                        observation[kind] = {"unavailable": True}
+                        memory_complete = False
+                        continue
                     observation[kind] = {"max": cap, "current": used}
                     if cap != "max":
-                        headroom = max(0, int(cap) - used)
+                        headroom = max(0, cap_bytes - used)
                         observation[kind]["headroom"] = headroom
                         if kind == "memory":
-                            available = min(available, headroom)
+                            upper_bound = headroom if upper_bound is None else min(upper_bound, headroom)
                         elif headroom < expected_threads + 64:
                             result["rejection"] = "insufficient cgroup task headroom"
+                elif kind == "memory":
+                    observation[kind] = {"unavailable": True}
+                    memory_complete = False
             result["cgroup_limits"].append(observation)
             if directory == mount:
                 break
@@ -94,9 +137,13 @@ def resource_admission(expected_threads, args):
         result["uid_current_tasks"] = owned_threads
         if nproc - owned_threads < expected_threads + 64:
             result["rejection"] = "insufficient per-user task headroom"
-    result["effective_available_bytes"] = available
-    if available < result["required_available_bytes"]:
-        result["rejection"] = "insufficient current available memory"
+    memory_complete = memory_complete and cgroup_found
+    result["memory_observation_complete"] = memory_complete
+    result["observed_available_upper_bound_bytes"] = upper_bound
+    result["effective_available_bytes"] = upper_bound if memory_complete else None
+    result["advisory_available_met"] = (
+        False if upper_bound is not None and upper_bound < advisory_available else
+        True if memory_complete else None)
     return result
 
 
@@ -117,8 +164,7 @@ def set_child_limits(address_bytes, data_bytes, cpu_seconds):
     for name, requested in ((resource.RLIMIT_AS, address_bytes),
                             (resource.RLIMIT_DATA, data_bytes),
                             (resource.RLIMIT_CPU, cpu_seconds)):
-        _, hard = resource.getrlimit(name)
-        limit = requested if hard == resource.RLIM_INFINITY else min(requested, hard)
+        limit = bounded_child_limit(requested, resource.getrlimit(name))
         resource.setrlimit(name, (limit, limit))
 
 
@@ -131,33 +177,28 @@ def group_exists(pid):
 
 
 def end_owned_group(child):
-    """Drain group ownership even if the leader has already exited."""
-    needed = group_exists(child.pid)
-    if needed:
-        try:
-            os.killpg(child.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        until = time.monotonic() + 2
-        while group_exists(child.pid) and time.monotonic() < until:
-            child.poll()  # Reap an exited direct child, including its zombie.
-            time.sleep(0.01)
-        if group_exists(child.pid):
-            try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+    """Never signal a group after this harness may have reaped its leader.
+
+    A live child or visible/unknown group is retained as unresolved.  No
+    later startup is allowed in this process, and the report remains failed.
+    The group probe uses signal zero only; it cannot prove a visible group is
+    still the original one after a leader has been reaped.
+    """
     try:
-        child.wait(timeout=2)
-    except subprocess.TimeoutExpired:
-        return needed, False
-    until = time.monotonic() + 1
-    while group_exists(child.pid) and time.monotonic() < until:
-        time.sleep(0.01)
-    return needed, not group_exists(child.pid)
+        exited = child.poll() is not None
+        gone = exited and not group_exists(child.pid)
+    except (OSError, ChildProcessError):
+        gone = False
+    if not gone:
+        _UNSETTLED[child.pid] = child
+    return False, gone
 
 
 def check_one(path, expected_threads, mode, args):
+    if _UNSETTLED:
+        return {"termination": mode, "expected_total_threads": expected_threads,
+                "process_started": False, "passed": False, "observations": [],
+                "error": "prior owned process group is unsettled; process not started"}
     admission = resource_admission(expected_threads, args)
     record = {"termination": mode, "expected_total_threads": expected_threads,
               "admission": admission,
@@ -294,10 +335,11 @@ def check_one(path, expected_threads, mode, args):
         forced, group_gone = end_owned_group(child)
         record["forced_group_cleanup"] = forced
         record["owned_process_group_gone"] = group_gone
+        record["cleanup_scope"] = "no process-group signals; unresolved groups prevent another startup"
         if forced and record["passed"]:
             record.update({"passed": False, "error": "owned group outlived normal direct-child exit"})
         if not group_gone:
-            record.update({"passed": False, "error": "owned process group remains after cleanup"})
+            record.update({"passed": False, "error": "owned process group unsettled; no group signal was sent; manual reconciliation required"})
         if selector is not None:
             drain_deadline = time.monotonic() + 1
             while selector.get_map() and time.monotonic() < drain_deadline:
@@ -329,7 +371,7 @@ def check_one(path, expected_threads, mode, args):
         record["observed_peak_threads"] = peak_threads
         record["stdout"] = buffers["stdout"].decode(errors="replace")
         record["stderr"] = buffers["stderr"].decode(errors="replace")
-        record["physical_process_exit_confirmed"] = child.poll() is not None
+        record["physical_process_exit_confirmed"] = child.returncode is not None
         record["mem_available_after_bytes"] = memory_available()
     return record
 
@@ -339,7 +381,8 @@ def main():
     parser.add_argument("--manifest", type=Path, action="append", required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--forms", default="original", help="explicit native source forms to execute")
-    parser.add_argument("--minimum-available-bytes", type=int, default=6 * GIB)
+    parser.add_argument("--minimum-available-bytes", type=int, default=6 * GIB,
+                        help="advisory memory observation threshold; never gates startup")
     parser.add_argument("--max-rss-bytes", type=int, default=3 * GIB)
     parser.add_argument("--address-space-bytes", type=int, default=8 * GIB)
     # Linux RLIMIT_DATA also constrains anonymous mmap reservations, including
@@ -355,7 +398,9 @@ def main():
     repo = Path(__file__).resolve().parents[2]
     if args.out == repo or repo in args.out.parents:
         parser.error("--out must be outside the checkout")
-    if min(args.minimum_available_bytes, args.max_rss_bytes, args.address_space_bytes,
+    if args.minimum_available_bytes < 0:
+        parser.error("advisory memory threshold must be non-negative")
+    if min(args.max_rss_bytes, args.address_space_bytes,
            args.data_bytes, args.cpu_seconds, args.timeout_seconds) <= 0:
         parser.error("resource ceilings and deadlines must be positive")
     report = {"schema": 1, "purpose": "startup/protocol/thread identity/physical shutdown only",
