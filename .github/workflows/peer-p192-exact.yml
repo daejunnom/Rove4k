@@ -75,6 +75,8 @@ jobs:
           - {peer: c4ke, variant: edit-castle-quiet-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-emission-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: extended}
+          - {peer: c4ke, variant: edit-castle-phalanx-v1, launcher: gnu-tail-v1, codec: literal-v1}
     env:
       PEER: ${{ matrix.peer }}
       SOURCE_VARIANT: ${{ matrix.variant }}
