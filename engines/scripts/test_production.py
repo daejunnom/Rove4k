@@ -96,17 +96,35 @@ class ResourceContracts(unittest.TestCase):
         self.assertEqual(sum(row.entries for row in rows), 8)
         self.assertEqual(sum(row.entries != 0 for row in rows), 1)
 
-    def test_execution_gate_rejects_before_allocator_is_called(self):
+    def test_available_memory_is_observed_not_an_execution_gate(self):
         profile = production.resource_profile("tcec-provisional")
         layout = profile.layout(24)
-        admission = production.host_admission(profile, layout, 15 << 30,
-                                               other_peak_bytes=2 << 30)
-        self.assertFalse(admission.admitted)
-        self.assertIn("before allocation", admission.reason)
-        with self.assertRaisesRegex(ValueError, "insufficient effective headroom"):
-            admission.require()
-        self.assertTrue(production.require_host_capacity(profile, layout, 320 << 30,
-                                                        other_peak_bytes=2 << 30).admitted)
+        required = layout.bytes + (2 << 30) + 256 * production.MiB
+        for available in (None, -7, 0, 15 << 30, 320 << 30):
+            with self.subTest(available=available):
+                admission = production.require_host_capacity(profile, layout, available,
+                                                              other_peak_bytes=2 << 30)
+                self.assertTrue(admission.admitted)
+                self.assertEqual(admission.available_bytes, available)
+                self.assertEqual(admission.to_record()["available_bytes"], available)
+                self.assertEqual(admission.required_bytes, required)
+                self.assertFalse(admission.to_record()["allocation_confirmed"])
+                self.assertIn("allocation not attempted", admission.reason)
+        with self.assertRaisesRegex(ValueError, "hard workload limit"):
+            production.require_host_capacity(profile, layout, 320 << 30,
+                                             other_peak_bytes=2 << 30,
+                                             hard_limit_bytes=required - 1)
+        self.assertTrue(production.require_host_capacity(profile, layout, 0,
+                                                        other_peak_bytes=2 << 30,
+                                                        hard_limit_bytes=required).admitted)
+        for invalid in (True, "0", 1.5):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                production.host_admission(profile, layout, invalid)
+        for invalid in (-1, True, "0"):
+            with self.subTest(invalid_hard_limit=invalid), self.assertRaises(ValueError):
+                production.host_admission(profile, layout, 0, hard_limit_bytes=invalid)
+        with self.assertRaisesRegex(ValueError, "overflows"):
+            production.host_admission(profile, layout, 0, other_peak_bytes=1 << 63)
         with self.assertRaisesRegex(ValueError, "does not match"):
             production.host_admission(profile, production.TTLayout(24, 18, 1 << 18,
                                                                   24 << 18, (1 << 18) - 1), 15 << 30)

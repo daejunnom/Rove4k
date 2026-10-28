@@ -83,6 +83,84 @@ def compound_gate_fixture(build, family="A", profile="test-p4", *, v2=False):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_league_test_size_policy_preserves_submission_boundary(self):
+        required = {name: True for name in (
+            "reproduction", "size", "startup", "dependencies", "cleanup", "protocol",
+            "legal_moves", "resources", "lifecycle", "placement")}
+        required["size"] = VERIFY.submission_size_within_limit(4096)
+        self.assertEqual(VERIFY.qualification_policy("general4k", "test", required), [])
+        oversized = {**required, "size": VERIFY.submission_size_within_limit(4097)}
+        self.assertEqual(VERIFY.qualification_policy("general4k", "test", oversized), ["size"])
+        self.assertEqual(VERIFY.qualification_policy("league-test", "test", oversized), [])
+        for failed in ("reproduction", "startup", "dependencies", "cleanup", "protocol",
+                       "legal_moves", "resources", "lifecycle", "placement"):
+            with self.subTest(failed=failed):
+                self.assertEqual(VERIFY.qualification_policy("league-test", "test",
+                                 {**oversized, failed: False}), [failed])
+
+    def test_league_test_scope_never_applies_to_submission(self):
+        with self.assertRaisesRegex(ValueError, "requires a TEST profile"):
+            VERIFY.qualification_policy("league-test", "submission", {"size": False})
+        with self.assertRaisesRegex(ValueError, "unknown qualification scope"):
+            VERIFY.qualification_policy("unknown", "test", {"size": True})
+        for size in (None, 0, 1, "true"):
+            with self.subTest(size=size), self.assertRaisesRegex(ValueError, "size observation"):
+                VERIFY.qualification_policy("league-test", "test", {"size": size})
+        complete = {name: True for name in VERIFY.QUALIFICATION_CHECKS}
+        for changed in ({"size": True}, {**complete, "startup": 1},
+                        {**complete, "undeclared": True}):
+            with self.subTest(checks=changed), self.assertRaisesRegex(ValueError, "every explicit boolean"):
+                VERIFY.qualification_policy("league-test", "test", changed)
+
+    def test_league_test_report_assembly_keeps_real_size_and_no_score_authority(self):
+        for count in (4096, 4097):
+            checks = {name: True for name in (
+                "reproduction", "startup", "dependencies", "cleanup", "protocol",
+                "legal_moves", "resources", "lifecycle", "placement")}
+            checks["size"] = VERIFY.submission_size_within_limit(count)
+            failures = VERIFY.qualification_policy("league-test", "test", checks)
+            record = {"format": "rove4k-qualification-v1", "division": "general4k",
+                      "artifact": {"purpose": "test", "whole_bytes": count}, "checks": checks,
+                      "failures": failures, "complete": not failures, "test_qualified": not failures,
+                      "release_qualified": False, "event_target_confirmed": False}
+            with self.subTest(bytes=count):
+                report = VERIFY.scoped_qualification_record(record, "league-test")
+                self.assertEqual((report["format"], report["division"], report["qualification_scope"]),
+                                 ("rove4k-qualification-v2", "league-test", "league-test"))
+                self.assertIs(report["checks"]["size"], count == 4096)
+                self.assertIs(report["submission_size_within_4096"], count == 4096)
+                self.assertIs(report["test_qualified"], True)
+                self.assertIs(report["score_authorized"], False)
+                self.assertIs(report["release_qualified"], False)
+        bad = {"artifact": {"purpose": "test", "whole_bytes": 4097}, "checks": {"size": True}}
+        with self.assertRaisesRegex(ValueError, "recorded submission size"):
+            VERIFY.scoped_qualification_record(bad, "league-test")
+
+    def test_league_test_submission_profile_rejected_before_receipt_read(self):
+        candidate = admitted(profile_id="tcec-provisional")
+        with self.assertRaisesRegex(ValueError, "requires a TEST profile"):
+            VERIFY.qualification_record(candidate, Path("not-inspected"), Path("not-inspected/runtime.json"),
+                                        qualification_scope="league-test")
+
+    def test_league_test_cli_submission_is_rejected_before_target_or_engine_work(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-qualification-scope-") as temporary:
+            root = Path(temporary).resolve()
+            build, out = root / "source", root / "out"
+            build.mkdir()
+            (build / "build.json").write_text("{}")
+            args = ["profile_verify.py", "--build", str(build), "--out", str(out),
+                    "--qualification-scope", "league-test", "--target-compiler-receipt", str(root / "cc.json"),
+                    "--source-bundle", str(root / "bundle.zip"), "--source-seal", str(root / "seal.json")]
+            with patch.object(VERIFY.sys, "argv", args), patch.object(VERIFY.sys, "platform", "linux"), \
+                    patch.object(VERIFY, "resource", object()), \
+                    patch.object(VERIFY, "admit_c_build", return_value=admitted("tcec-provisional")), \
+                    patch.object(VERIFY, "target_module", side_effect=AssertionError("target subprocess")), \
+                    patch.object(VERIFY, "execution_limits", side_effect=AssertionError("resource scan")), \
+                    patch.object(VERIFY, "run_runtime", side_effect=AssertionError("engine launch")), \
+                    self.assertRaisesRegex(ValueError, "requires a TEST profile"):
+                VERIFY.main()
+            self.assertFalse(out.exists())
+
     def test_profile_proof_inventory_requires_every_frozen_support(self):
         from copy import deepcopy
         production = {"engines/scripts/production.py"}
@@ -1450,15 +1528,22 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "compiled its executing module"):
             VERIFY.executing_source(altered)
 
-    def test_large_submission_is_rejected_by_real_headroom_before_execution(self):
+    def test_large_submission_memory_observation_does_not_prove_allocation(self):
         record = admitted("tcec-provisional")
-        with self.assertRaisesRegex(ValueError, "insufficient effective headroom before allocation"):
-            VERIFY.execution_limits(record, 16 << 30)
-        # A successful arithmetic admission is not execution or qualification.
-        limits = VERIFY.execution_limits(record, 512 << 30)
-        self.assertEqual(limits["admission"]["tt_bytes"], 192 << 30)
-        self.assertGreater(limits["address_space_bytes"], 192 << 30)
-        self.assertNotIn("qualified", limits)
+        for available in (-4096, 0, 16 << 30, 512 << 30, None):
+            with self.subTest(available=available):
+                limits = VERIFY.execution_limits(record, available)
+                self.assertEqual(limits["admission"]["tt_bytes"], 192 << 30)
+                self.assertEqual(limits["admission"]["available_bytes"], available)
+                self.assertIs(limits["admission"]["availability_observed"], available is not None)
+                self.assertIsNone(limits["admission"]["availability_complete"])
+                self.assertIs(limits["admission"]["allocation_confirmed"], False)
+                self.assertGreater(limits["address_space_bytes"], 192 << 30)
+                self.assertEqual(limits["startup_seconds"], 60)
+                self.assertNotIn("qualified", limits)
+        for invalid in (True, 1 << 63, -(1 << 63) - 1):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, "integer or unknown"):
+                VERIFY.execution_limits(record, invalid)
 
     def test_generic_tt_or_mislabeled_workers_do_not_match_production(self):
         api = VERIFY.contracts()
@@ -1512,7 +1597,7 @@ class ProfileRuntimeAdmission(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing from the admitted input closure"):
             VERIFY.profile_resource("test-p16", input_pins={})
 
-    def test_league_runtime_headroom_rejects_before_execution(self):
+    def test_league_runtime_headroom_is_telemetry_not_execution_approval(self):
         from dataclasses import replace
         pins = {VERIFY.LEAGUE_PROFILE_OWNER: dict(VERIFY.LEAGUE_PROFILE_OWNER_PIN)}
         for profile_id, tt_bytes, cpus, available in (("test-p16", 12 << 30, 16, 16 << 30),
@@ -1522,9 +1607,11 @@ class ProfileRuntimeAdmission(unittest.TestCase):
                 selected = replace(admitted(), profile_id=profile_id, resources=profile.to_record(24),
                                    input_pins=pins)
                 with patch.object(VERIFY.os, "sched_getaffinity", return_value=set(range(cpus)), create=True):
-                    with self.assertRaisesRegex(ValueError, "insufficient effective headroom before allocation"):
-                        VERIFY.execution_limits(selected, tt_bytes)
+                    low = VERIFY.execution_limits(selected, 0)
                     limits = VERIFY.execution_limits(selected, available)
+                self.assertEqual(low["admission"]["available_bytes"], 0)
+                self.assertIs(low["admission"]["availability_observed"], True)
+                self.assertIs(low["admission"]["allocation_confirmed"], False)
                 self.assertEqual(limits["admission"]["tt_bytes"], tt_bytes)
                 self.assertEqual(limits["CPU_budget_effective_cpus"], cpus)
                 self.assertGreater(limits["address_space_bytes"], tt_bytes)
@@ -1597,6 +1684,20 @@ class ProfileRuntimeAdmission(unittest.TestCase):
             self.assertEqual(VERIFY.effective_available_bytes(proc, cgroups), 448 << 20)
             (cgroups / "slice/job/memory.current").write_text(str(1 << 30))
             self.assertEqual(VERIFY.effective_available_bytes(proc, cgroups), 0)
+
+    def test_missing_or_unreadable_memory_observation_does_not_become_zero(self):
+        with tempfile.TemporaryDirectory(prefix="rove4k-profile-memory-unknown-") as temporary:
+            root = Path(temporary)
+            proc, cgroups = root / "proc", root / "cgroups"
+            proc.mkdir()
+            self.assertIsNone(VERIFY.effective_available_bytes(proc, cgroups))
+            (proc / "meminfo").write_text("MemAvailable: invalid kB\n")
+            self.assertIsNone(VERIFY.effective_available_bytes(proc, cgroups))
+        limits = VERIFY.execution_limits(admitted(), None)
+        self.assertIsNone(limits["admission"]["available_bytes"])
+        self.assertIs(limits["admission"]["availability_observed"], False)
+        self.assertIs(limits["admission"]["allocation_confirmed"], False)
+        self.assertEqual(limits["startup_seconds"], 60)
 
     def test_effective_headroom_includes_cgroup_v1_memory_controller(self):
         with tempfile.TemporaryDirectory(prefix="rove4k-profile-budget-v1-") as temporary:

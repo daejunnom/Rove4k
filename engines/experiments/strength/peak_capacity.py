@@ -1,4 +1,4 @@
-"""Live, conservative pre-GO capacity observation; not an admission authority.
+"""Live pre-GO memory observation; not an admission authority.
 
 The observed values are point-in-time kernel reads, not a memory reservation.
 In particular, a namespace-relative cgroup mount may conceal ancestors, and
@@ -69,20 +69,25 @@ def _finite_remaining(rows):
             raise ValueError("malformed visible ancestor observation")
         if row.get("root_memory_files_unavailable") is True:
             continue
+        if (row.get("root_memory_files_unavailable") is not False or
+                not {"limit_bytes", "current_bytes", "remaining_bytes"} <= row.keys()):
+            raise ValueError("malformed visible ancestor observation")
         limit, current, available = row.get("limit_bytes"), row.get("current_bytes"), row.get("remaining_bytes")
-        if (type(current) is not int or current < 0 or
+        if (current is not None and (type(current) is not int or current < 0) or
                 limit is None and available is not None or
-                limit is not None and (type(limit) is not int or type(available) is not int or
-                                       limit <= 0 or available <= 0 or limit - current != available)):
+                limit is not None and (type(limit) is not int or limit < 0 or
+                                       (current is None and available is not None) or
+                                       (current is not None and (type(available) is not int or
+                                                                 limit - current != available)))):
             raise ValueError("malformed visible ancestor memory bound")
-        if limit is not None:
+        if limit is not None and available is not None:
             remaining.append(available)
     return remaining
 
 
 def inspect_capacity(*, profile, root, games, groups, controller, frozen_topology,
                      per_game_headroom_bytes, controller_headroom_bytes, controller_path):
-    """Read actual kernel capacity and reject inconsistent or insufficient bounds.
+    """Read memory telemetry without rejecting low current availability.
 
     Source hashes identify files read at observation time; they do not prove
     that the loaded code is trusted. This result never grants launch authority.
@@ -138,16 +143,16 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
         if any(not isinstance(row, dict) for row in artifacts):
             raise ValueError("engine TT extent differs from the named profile")
         extents = [_positive(row.get("tt_bytes"), "engine TT") for row in artifacts]
-        if (profile == "test-p192" and any(value != 192 << 30 for value in extents) or
+        # These records contain no authenticated engine family.  Both values
+        # are valid arithmetic inputs, not proof that a 256-GiB row is a peer.
+        if (profile == "test-p192" and any(value not in (192 << 30, 256 << 30) for value in extents) or
                 profile == "test-p16" and any(value > 16 << 30 for value in extents)):
             raise ValueError("engine TT extent differs from the named profile")
         tt = sum(extents)
         declared = tt + per_game
         if live["memory_max"] < declared:
             raise ValueError("game cgroup memory limit is below TT and declared headroom")
-        # memory.max is the kernel's actual upper bound for the whole leaf.
-        # It may exceed the caller's estimate because of page alignment or a
-        # deliberately larger limit. Capacity must cover that entire bound.
+        # memory.max is a configured kernel upper bound, not a reservation.
         amount = live["memory_max"]
         game_extents.append({"slot": slot.id, "tt_bytes": tt,
                              "declared_required_bytes": declared,
@@ -179,36 +184,37 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
             observation.get("delegated_effective_nodes") != list(current.allowed_nodes)):
         raise ValueError("capacity observation is not bound to actual slots or the target cgroup identity")
     required = sum(row["memory_max_bytes"] for row in game_extents) + live_controller["memory_max"]
-    host_available = _positive(observation["host_memavailable_bytes"], "host available memory")
+    if required >= 1 << 63:
+        raise ValueError("cohort memory extent exceeds the supported integer range")
+    host_available = observation.get("host_memavailable_bytes")
+    if host_available is not None and (type(host_available) is not int or not 0 <= host_available < (1 << 63)):
+        raise ValueError("invalid host available-memory observation")
     target_bounds = _finite_remaining(observation["delegated_cgroup"])
     observer_bounds = _finite_remaining(observation["controller_cgroup"])
-    target_available = min([host_available, *target_bounds])
-    observer_available = min(observer_bounds) if observer_bounds else None
+    target_observations = ([host_available] if host_available is not None else []) + target_bounds
+    target_unknown = any(row.get("root_memory_files_unavailable") is True or
+                         row.get("limit_bytes") is not None and row.get("current_bytes") is None
+                         for row in observation["delegated_cgroup"])
+    observer_unknown = any(row.get("root_memory_files_unavailable") is True or
+                           row.get("limit_bytes") is not None and row.get("current_bytes") is None
+                           for row in observation["controller_cgroup"])
+    target_available = min(target_observations) if host_available is not None and not target_unknown else None
+    observer_available = min(observer_bounds) if observer_bounds and not observer_unknown else None
     # The observer may live in a smaller sibling cgroup. Its private finite
     # limit constrains that process, not the separate game/controller leaves.
     # Shared ancestors already occur in the target chain and remain included.
-    if target_available < required:
-        raise ValueError("host or target finite ancestor capacity is below declared cohort extent")
-    node_available = observation["node_available_bytes"]
-    controller_nodes = live_controller["memory_nodes"]
-    if any(node not in node_available for node in controller_nodes):
-        raise ValueError("controller permitted-node capacity observations are incomplete")
-    if sum(node_available[node] for node in controller_nodes) < required:
-        raise ValueError("controller permitted-node MemFree capacity is below the cohort extent; reclaimable cache is excluded")
+    node_available = observation.get("node_available_bytes", {})
+    if not isinstance(node_available, dict) or any(
+            type(node) is not int or node < 0 or
+            value is not None and (type(value) is not int or not 0 <= value < (1 << 63))
+            for node, value in node_available.items()):
+        raise ValueError("invalid node free-memory observations")
     node_conservative_controller_fits = {}
     if profile == "test-p16":
         for node, amount in node_games.items():
-            if node not in node_available or node_available[node] < amount:
-                raise ValueError("NUMA node MemFree capacity is below the node-local games; reclaimable cache is excluded")
-            # Charging the entire controller reserve to each node is a
-            # useful worst case, not a necessary condition when allocations
-            # can be split across nodes. The actual distribution is unknown.
-            node_conservative_controller_fits[node] = node_available[node] >= amount + live_controller["memory_max"]
-    else:
-        nodes = slots[0].memory_nodes
-        game_required = required - live_controller["memory_max"]
-        if any(node not in node_available for node in nodes) or sum(node_available[node] for node in nodes) < game_required:
-            raise ValueError("P192 game-node MemFree capacity is below game extent; reclaimable cache is excluded")
+            observed = node_available.get(node)
+            node_conservative_controller_fits[node] = (
+                observed >= amount + live_controller["memory_max"] if observed is not None else None)
     return {"format": "rove4k-diagnostic-capacity-assessment-v1", "profile": profile,
             "boot_id": observation["boot_id"], "capacity": observation,
             "target_common_parent": {"path": str(common_parent), "device": parent_stat.st_dev,
@@ -226,9 +232,11 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
                            "observer_visible_remaining_bytes": observer_available,
                            "observer_future_headroom_verified": False,
                            "node_controller_reserve_worst_case_fits": node_conservative_controller_fits,
-                           "node_capacity_basis": "kernel node MemFree; reclaimable cache excluded; no reservation",
+                           "node_capacity_basis": "kernel node MemFree telemetry; not a capacity admission or reservation",
+                           "current_availability_used_for_admission": False,
+                           "physical_capacity_verified": False,
                            "controller_node_distribution_verified": False,
-                           "controller_node_aggregate_arithmetic_checked": True,
+                           "controller_node_aggregate_arithmetic_checked": False,
                            "overhead_is_declared_not_verified": True,
                            "p192_node_distribution_verified": False},
             "unresolved": ["hidden_ancestors", "exclusive_cgroup_and_host_writers",

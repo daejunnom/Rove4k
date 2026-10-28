@@ -11,9 +11,9 @@ import math
 from pathlib import Path
 
 try:
-    from .ledger import CampaignResults, read_journal, digest
+    from .ledger import CampaignResults, read_journal, digest, cooperative_gc_scope_id, valid_boot_id, valid_id
 except ImportError:
-    from ledger import CampaignResults, read_journal, digest
+    from ledger import CampaignResults, read_journal, digest, cooperative_gc_scope_id, valid_boot_id, valid_id
 
 
 def order_standings(standings, player_families=None):
@@ -41,7 +41,217 @@ def order_standings(standings, player_families=None):
     return sorted(rows, key=key)
 
 
+def finite_monotonic(value):
+    return (type(value) in (int, float) and 0 <= value <= ((1 << 63) - 1) / 1_000_000_000
+            and math.isfinite(value))
+
+
+def conservative_monotonic_ns(value, *, lower):
+    """Bound float clock rounding outwards, without accepting an unobserved gap."""
+    if not finite_monotonic(value):
+        raise ValueError("finite monotonic time required")
+    if type(value) is int:
+        return value * 1_000_000_000
+    neighbour = math.nextafter(value, -math.inf if lower else math.inf)
+    numerator, denominator = neighbour.as_integer_ratio()
+    scaled = numerator * 1_000_000_000
+    return scaled // denominator if lower else -((-scaled) // denominator)
+
+
+def cooperative_gc_status(rows, campaign, state):
+    """Classify explicit GC by the owning controller, not Python's automatic GC.
+
+    A missing, incomplete or inconsistent interval is not a clean interval.
+    Journal records identify the declared owner; they are not host attestation.
+    """
+    indexed = [(index, row) for index, row in enumerate(rows)
+               if row.get("campaign") == campaign and row.get("pair") == state.pair
+               and row.get("game") == state.game and row.get("attempt") == state.attempt]
+    if any(type(row.get("attempt")) is not int for _, row in indexed):
+        return "unverified"
+    def events(name):
+        return [(index, row.get("data")) for index, row in indexed if row.get("event") == name]
+    processes = events("game.process")
+    completions = events("game.process_completed")
+    opened = events("game.cooperative_gc_open")
+    closed = events("game.cooperative_gc_close")
+    result = events("game.result")
+    if len(processes) != 1 or len(completions) != 1 or len(opened) != 1 or len(closed) != 1 or not result:
+        return "unverified"
+    process_index, process = processes[0]
+    completed_index, completed = completions[0]
+    open_index, start = opened[0]
+    close_index, end = closed[0]
+    if not (process_index < open_index < completed_index < result[0][0] < close_index):
+        return "unverified"
+    if any(type(value) is not dict for value in (process, completed, start, end)):
+        return "unverified"
+    for name in ("pid", "pgid", "session", "start_ticks"):
+        if (type(process.get(name)) is not int or type(completed.get(name)) is not int or
+                process[name] != completed[name]):
+            return "unverified"
+    if (process["pid"] <= 0 or process["pgid"] != process["pid"] or
+            process["session"] != process["pid"] or process["start_ticks"] < 0 or
+            type(process.get("identity")) is not str or not process["identity"] or
+            completed.get("identity") != process["identity"] or
+            completed.get("gate_released") is not True or
+            completed.get("cleanup_forced") is not False or
+            type(completed.get("returncode")) is not int or completed["returncode"] != 0 or
+            completed.get("readers_done") is not True or completed.get("remaining_processes") != []):
+        return "unverified"
+    identity_names = {"instance_id", "boot_id", "launch_pid", "launch_start_ticks",
+                      "observer_pid", "observer_start_ticks", "scope_start_ns"}
+    common = identity_names | {"format", "coverage_scope", "scope_id", "request_count",
+                               "performed_count", "active_count", "coverage_complete"}
+    if set(start) != common or set(end) != common | {"scope_end_ns", "result_sha256"}:
+        return "unverified"
+    if any(type(start[name]) is not type(end[name]) or start[name] != end[name]
+           for name in identity_names | {"format", "coverage_scope", "scope_id"}):
+        return "unverified"
+    if (start["format"] != "rove4k-cooperative-gc-v1" or
+            start["coverage_scope"] != "owned-controller-explicit-gc" or
+            start["coverage_complete"] is not True or end["coverage_complete"] is not True or
+            end["result_sha256"] != state.result_sha256):
+        return "unverified"
+    identity = {name: start[name] for name in identity_names}
+    try:
+        expected = cooperative_gc_scope_id(campaign, state.pair, state.game, state.attempt, identity)
+    except (TypeError, ValueError):
+        return "unverified"
+    if (start["scope_id"] != expected or type(process.get("pid")) is not int or
+            type(process.get("start_ticks")) is not int or
+            process.get("instance_id") != identity["instance_id"] or
+            process.get("boot_id") != identity["boot_id"] or process.get("pid") != identity["launch_pid"] or
+            process.get("start_ticks") != identity["launch_start_ticks"] or
+            type(end["scope_end_ns"]) is not int or
+            not identity["scope_start_ns"] <= end["scope_end_ns"] <= (1 << 63) - 1):
+        return "unverified"
+    spawned, finished = process.get("spawn_monotonic"), completed.get("completed_monotonic")
+    if (not finite_monotonic(spawned) or not finite_monotonic(finished) or finished < spawned or
+            identity["scope_start_ns"] > conservative_monotonic_ns(spawned, lower=True) or
+            end["scope_end_ns"] < conservative_monotonic_ns(finished, lower=False)):
+        return "unverified"
+    for name in ("request_count", "performed_count"):
+        if (type(start[name]) is not int or type(end[name]) is not int or
+                not 0 <= start[name] <= end[name] <= (1 << 63) - 1):
+            return "unverified"
+    if any(type(value) is not int or not 0 <= value <= (1 << 63) - 1
+           for value in (start["active_count"], end["active_count"])):
+        return "unverified"
+    if any(record["performed_count"] > record["request_count"] or
+           record["active_count"] > record["request_count"] - record["performed_count"]
+           for record in (start, end)):
+        return "unverified"
+    if (start["active_count"] or end["active_count"] or
+            any(end[name] != start[name] for name in ("request_count", "performed_count"))):
+        return "intervened"
+    return "clean"
+
+
+def reconcile_cooperative_gc_scopes(rows, campaign, results, accepted, statuses):
+    """Reject contradictory concurrent scopes from the same controller or host.
+
+    This only compares scopes present in this journal; it is not proof that
+    every other process on a host is observed.
+    """
+    windows, unresolved = [], []
+    for state in results.games.values():
+        relevant = [(index, row) for index, row in enumerate(rows) if row.get("campaign") == campaign and
+                    row.get("pair") == state.pair and row.get("game") == state.game and
+                    row.get("attempt") == state.attempt]
+        status = cooperative_gc_status(rows, campaign, state) if state.result is not None else "unverified"
+        if status == "unverified":
+            unresolved.append((state, relevant))
+            continue
+        open_index, opened = next((index, row) for index, row in relevant
+                                  if row.get("event") == "game.cooperative_gc_open")
+        close_index, closed = next((index, row) for index, row in relevant
+                                   if row.get("event") == "game.cooperative_gc_close")
+        start, end = opened["data"], closed["data"]
+        windows.append({"game": state.game, "attempt": state.attempt, "start": start, "end": end,
+                        "open_index": open_index, "close_index": close_index,
+                        "host": (start["instance_id"], start["boot_id"]),
+                        "observer": (start["observer_pid"], start["observer_start_ticks"])})
+    def mark(window, value):
+        state = accepted.get(window["game"])
+        if state is not None and state.attempt == window["attempt"]:
+            statuses[window["game"]] = value
+    groups = defaultdict(list)
+    for window in windows:
+        groups[window["host"], window["observer"]].append(window)
+    for group in groups.values():
+        snapshots = []
+        for window in group:
+            for timestamp, row in ((window["start"]["scope_start_ns"], window["start"]),
+                                   (window["end"]["scope_end_ns"], window["end"])):
+                snapshots.append((timestamp, row["request_count"], row["performed_count"],
+                                  row["active_count"]))
+        snapshots.sort()
+        if any((later[0] == earlier[0] and later[1:] != earlier[1:]) or
+               later[1] < earlier[1] or later[2] < earlier[2]
+               for earlier, later in zip(snapshots, snapshots[1:])):
+            for window in group:
+                mark(window, "unverified")
+            continue
+        for window in group:
+            if any(active and window["start"]["scope_start_ns"] <= timestamp <= window["end"]["scope_end_ns"]
+                   for timestamp, _, _, active in snapshots):
+                mark(window, "intervened")
+    for index, first in enumerate(windows):
+        for second in windows[index + 1:]:
+            if (first["host"] == second["host"] and first["observer"] != second["observer"] and
+                    max(first["start"]["scope_start_ns"], second["start"]["scope_start_ns"]) <=
+                    min(first["end"]["scope_end_ns"], second["end"]["scope_end_ns"])):
+                mark(first, "unverified")
+                mark(second, "unverified")
+    for state, relevant in unresolved:
+        processes = [row.get("data") for _, row in relevant if row.get("event") == "game.process"]
+        completions = [row.get("data") for _, row in relevant if row.get("event") == "game.process_completed"]
+        for window in windows:
+            if len(processes) != 1 or type(processes[0]) is not dict:
+                mark(window, "unverified")
+                continue
+            process = processes[0]
+            instance, boot = process.get("instance_id"), process.get("boot_id")
+            try:
+                valid_id(instance)
+            except ValueError:
+                mark(window, "unverified")
+                continue
+            if not valid_boot_id(boot):
+                mark(window, "unverified")
+                continue
+            if (instance, boot) != window["host"]:
+                continue
+            spawned = process.get("spawn_monotonic")
+            if not finite_monotonic(spawned):
+                mark(window, "unverified")
+                continue
+            finished = None
+            if len(completions) == 1 and type(completions[0]) is dict:
+                completion = completions[0]
+                end_time = completion.get("completed_monotonic")
+                identity = ("pid", "pgid", "session", "start_ticks")
+                if (all(type(process.get(name)) is int and type(completion.get(name)) is int and
+                        process[name] == completion[name] for name in identity) and
+                        process["pid"] > 0 and process["pgid"] == process["pid"] and
+                        process["session"] == process["pid"] and process["start_ticks"] >= 0 and
+                        type(process.get("identity")) is str and process["identity"] and
+                        completion.get("identity") == process["identity"] and
+                        completion.get("readers_done") is True and completion.get("remaining_processes") == [] and
+                        type(completion.get("returncode")) is int and finite_monotonic(end_time) and
+                        end_time >= spawned):
+                    finished = end_time
+            possible_start = conservative_monotonic_ns(spawned, lower=True)
+            possible_end = None if finished is None else conservative_monotonic_ns(finished, lower=False)
+            if (possible_start <= window["end"]["scope_end_ns"] and
+                    (possible_end is None or possible_end >= window["start"]["scope_start_ns"])):
+                mark(window, "unverified")
+    return statuses
+
+
 def collect(rows, campaign, *, expected_pairs=None, profile=None, player_families=None):
+    rows = list(rows)
     results = CampaignResults.replay(campaign, rows)
     pairs = [pair for pair in results.pairs() if profile is None or pair["profile"] == profile]
     if expected_pairs is not None and len(expected_pairs) != len(set(expected_pairs)):
@@ -54,9 +264,17 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None, player_familie
         pairs = [pair for pair in pairs if pair["pair"] in expected]
     else:
         unexpected = set()
+    accepted = {state.game: state for state in results.games.values() if state.accepted}
+    gc_status = {game: cooperative_gc_status(rows, campaign, state) for game, state in accepted.items()}
+    gc_status = reconcile_cooperative_gc_scopes(rows, campaign, results, accepted, gc_status)
+    performance_pairs = [pair for pair in pairs if all(gc_status.get(game) == "clean" for game in pair["games"])]
+    performance_ids = {pair["pair"] for pair in performance_pairs}
+    performance_excluded = [{"pair": pair["pair"], "games": [
+        {"game": game, "attempt": accepted[game].attempt, "cooperative_gc": gc_status[game]}
+        for game in pair["games"]]} for pair in pairs if pair["pair"] not in performance_ids]
     table = defaultdict(lambda: {"points": 0.0, "games": 0, "pairs": 0, "W": 0, "D": 0, "L": 0})
     head = defaultdict(float)
-    for pair in pairs:
+    for pair in performance_pairs:
         a, b, score = pair["first_player"], pair["second_player"], pair["score"]
         table[a]["points"] += score
         table[b]["points"] += 2 - score
@@ -77,8 +295,10 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None, player_familie
             raw_games.append({"game": state.game, "pair": state.pair, "attempt": state.attempt,
                               "white": state.spec["white"], "black": state.spec["black"],
                               "result": state.result["result"], "reason": state.result["reason"],
-                              "complete_pair": state.pair in complete_ids})
-            if state.pair in complete_ids:
+                              "complete_pair": state.pair in complete_ids,
+                              "cooperative_gc": gc_status[state.game],
+                              "performance_included": state.pair in performance_ids})
+            if state.pair in performance_ids:
                 result = state.result["result"]
                 if result == "1/2-1/2":
                     table[state.spec["white"]]["D"] += 1
@@ -105,8 +325,9 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None, player_familie
             "missing_pairs": [] if expected is None else sorted(expected - complete_ids),
             "other_stage_pairs_excluded": sorted(unexpected), "campaign_stage_complete": complete,
             "standings": standings, "raw_completed_games": raw_games, "incomplete_attempts": incomplete_games,
-            "selection_ready": complete,
-            "scope": "complete colour pairs at one TEST resource profile; partials preserved; no Elo, equivalence or W256 claim"}
+            "performance_pairs": performance_pairs, "performance_excluded_pairs": performance_excluded,
+            "selection_ready": complete and len(performance_pairs) == len(pairs),
+            "scope": "complete colour pairs preserved; performance requires complete owned-controller explicit GC observation; no host attestation, Elo, equivalence or W256 claim"}
 
 
 def select_high(summary, broad_families, high_players):

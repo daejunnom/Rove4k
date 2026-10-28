@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import errno
 import json
 import os
 from pathlib import Path
@@ -109,9 +110,9 @@ class CapacityObservationTests(unittest.TestCase):
         self.assertEqual([row["path"] for row in result["delegated_cgroup"]],
                          [str(child), str(self.delegated), str(self.mount)])
 
-    def test_missing_invalid_and_exhausted_nonroot_limits_fail_closed(self):
+    def test_missing_or_invalid_nonroot_limits_fail_closed(self):
         limit = self.delegated / "memory.max"
-        for value in ("", "junk", "0", "-1", str(1 << 64), "99999999"):
+        for value in ("", "junk", "-1", str(1 << 64)):
             with self.subTest(value=value):
                 self.write(limit, value)
                 with self.assertRaises(ValueError):
@@ -121,20 +122,131 @@ class CapacityObservationTests(unittest.TestCase):
             self.observe()
 
     def test_host_node_and_boot_validation_do_not_fabricate_available_bytes(self):
-        for text in ("", "MemAvailable: 0 kB\n", "MemAvailable: 2 MB\n",
+        for text in ("MemAvailable: 2 MB\n", "MemAvailable: bad kB\n",
+                     "MemAvailable: 2 kB\nMemAvailable: invalid\n",
                      "MemAvailable: 2 kB\nMemAvailable: 3 kB\n", f"MemAvailable: {1 << 60} kB\n"):
             with self.subTest(text=text):
                 self.write(self.proc / "meminfo", text)
-                with self.assertRaises(ValueError):
-                    self.observe()
+                result = self.observe()
+                self.assertIsNone(result["host_memavailable_bytes"])
+                self.assertIsNone(result["host_available_bytes"])
+                self.assertIn({"metric": "host_memavailable_bytes", "error": "malformed"},
+                              result["telemetry_errors"])
         self.write(self.proc / "meminfo", "MemAvailable: 1048576 kB\n")
         self.write(self.nodes / "node0/meminfo", "Node 1 MemFree: 50 kB\n")
         with self.assertRaises(ValueError):
             self.observe()
+        self.write(self.nodes / "node0/meminfo", "Node 0 MemFree: 50 kB\nNode 1 MemFree: 50 kB\n")
+        with self.assertRaises(ValueError):
+            self.observe()
+        self.write(self.nodes / "node0/meminfo", "Node 0 MemFree: 50 MB\n")
+        result = self.observe()
+        self.assertIsNone(result["node_available_bytes"][0])
+        self.assertIn({"metric": "node_available_bytes", "node": 0, "error": "malformed"},
+                      result["telemetry_errors"])
         self.write(self.nodes / "node0/meminfo", "Node 0 MemFree: 10 kB\n")
         self.write(self.proc / "sys/kernel/random/boot_id", "bad\n")
         with self.assertRaises(ValueError):
             self.observe()
+
+    def test_zero_and_negative_headroom_are_recorded_without_admission(self):
+        self.write(self.proc / "meminfo", "MemAvailable: 0 kB\n")
+        self.write(self.nodes / "node0/meminfo", "Node 0 MemFree: 0 kB\n")
+        self.write(self.delegated / "memory.max", "100000000\n")
+        equal = self.observe()
+        self.assertEqual(equal["host_memavailable_bytes"], 0)
+        self.assertEqual(equal["host_available_bytes"], 0)
+        self.assertEqual(equal["node_available_bytes"][0], 0)
+        self.assertEqual(equal["delegated_cgroup"][0]["remaining_bytes"], 0)
+        self.assertFalse(equal["runtime_admission_complete"])
+        self.write(self.delegated / "memory.current", "100000001\n")
+        over = self.observe()
+        self.assertEqual(over["delegated_cgroup"][0]["remaining_bytes"], -1)
+        self.assertEqual(over["host_available_bytes"], -1)
+        self.assertFalse(over["runtime_admission_complete"])
+        self.write(self.delegated / "memory.max", "0\n")
+        zero_limit = self.observe()
+        self.assertEqual(zero_limit["delegated_cgroup"][0]["limit_bytes"], 0)
+        self.assertEqual(zero_limit["delegated_cgroup"][0]["remaining_bytes"], -100000001)
+
+    def test_unavailable_metrics_are_null_not_unlimited_or_zero(self):
+        self.write(self.proc / "meminfo", "MemTotal: 123 kB\n")
+        self.write(self.nodes / "node0/meminfo", "Node 0 MemTotal: 123 kB\n")
+        self.delegated.joinpath("memory.current").unlink()
+        result = self.observe()
+        self.assertIsNone(result["host_memavailable_bytes"])
+        self.assertIsNone(result["host_available_bytes"])
+        self.assertIsNone(result["node_available_bytes"][0])
+        self.assertEqual(result["delegated_cgroup"][0]["limit_bytes"], 500000000)
+        self.assertIsNone(result["delegated_cgroup"][0]["current_bytes"])
+        self.assertIsNone(result["delegated_cgroup"][0]["remaining_bytes"])
+        self.assertIn({"metric": "host_memavailable_bytes", "error": "missing"}, result["telemetry_errors"])
+        self.assertIn({"metric": "node_available_bytes", "node": 0, "error": "missing"}, result["telemetry_errors"])
+        self.assertIn({"metric": "cgroup_current_bytes", "path": str(self.delegated), "error": "missing"},
+                      result["telemetry_errors"])
+        self.assertFalse(result["runtime_admission_complete"])
+
+    def test_missing_finite_ancestor_usage_does_not_fabricate_effective_capacity(self):
+        self.delegated.joinpath("memory.current").unlink()
+        result = self.observe()
+        self.assertEqual(result["host_memavailable_bytes"], 1 << 30)
+        self.assertIsNone(result["host_available_bytes"])
+
+    def test_unreadable_and_malformed_usage_are_distinct_unknown_telemetry(self):
+        original = observation._file
+        def denied(path, **kwargs):
+            if Path(path) in (self.proc / "meminfo", self.nodes / "node0/meminfo", self.controller / "memory.current"):
+                raise PermissionError("fixture telemetry access denied")
+            return original(path, **kwargs)
+        with patch.object(observation, "_file", side_effect=denied):
+            result = self.observe()
+        self.assertIsNone(result["host_memavailable_bytes"])
+        self.assertIsNone(result["host_available_bytes"])
+        self.assertIsNone(result["node_available_bytes"][0])
+        self.assertIsNone(result["controller_cgroup"][0]["current_bytes"])
+        self.assertIn({"metric": "host_memavailable_bytes", "error": "unreadable"}, result["telemetry_errors"])
+        self.assertIn({"metric": "node_available_bytes", "node": 0, "error": "unreadable"}, result["telemetry_errors"])
+        self.assertIn({"metric": "cgroup_current_bytes", "path": str(self.controller), "error": "unreadable"},
+                      result["telemetry_errors"])
+        for value in ("-1\n", "junk\n", "\n", str(1 << 64), "1\n2\n"):
+            with self.subTest(value=value):
+                self.write(self.controller / "memory.current", value)
+                result = self.observe()
+                self.assertIsNone(result["controller_cgroup"][0]["current_bytes"])
+                self.assertIsNone(result["controller_cgroup"][0]["remaining_bytes"])
+                self.assertIsNone(result["host_available_bytes"])
+                self.assertIn({"metric": "cgroup_current_bytes", "path": str(self.controller), "error": "malformed"},
+                              result["telemetry_errors"])
+
+    def test_invalid_encoding_and_oversized_metric_are_unknown_not_paths_ignored(self):
+        for data in (b"\xff", b"x" * 65537):
+            with self.subTest(length=len(data)):
+                (self.proc / "meminfo").write_bytes(data)
+                result = self.observe()
+                self.assertIsNone(result["host_memavailable_bytes"])
+                self.assertIn({"metric": "host_memavailable_bytes", "error": "malformed"},
+                              result["telemetry_errors"])
+
+    def test_transient_read_error_is_unknown_but_unsafe_path_error_is_rejected(self):
+        original = observation._file
+        measured = (self.proc / "meminfo", self.nodes / "node0/meminfo", self.controller / "memory.current")
+        def failed_read(path, **kwargs):
+            if Path(path) in measured:
+                raise OSError(errno.EIO, "fixture I/O failure")
+            return original(path, **kwargs)
+        with patch.object(observation, "_file", side_effect=failed_read):
+            result = self.observe()
+        self.assertIsNone(result["host_memavailable_bytes"])
+        self.assertIsNone(result["node_available_bytes"][0])
+        self.assertIsNone(result["controller_cgroup"][0]["current_bytes"])
+        self.assertIn({"metric": "host_memavailable_bytes", "error": "unreadable"}, result["telemetry_errors"])
+        def unsafe_path(path, **kwargs):
+            if Path(path) == self.proc / "meminfo":
+                raise OSError(errno.ELOOP, "fixture unsafe path")
+            return original(path, **kwargs)
+        with patch.object(observation, "_file", side_effect=unsafe_path):
+            with self.assertRaises(OSError):
+                self.observe()
 
     def test_cgroup_membership_and_mount_mapping_are_bound(self):
         for text in ("0::/../escape\n", "0::/missing\n", "0::/controller\n0::/controller\n", "bad\n"):
@@ -290,6 +402,23 @@ class CapacityObservationTests(unittest.TestCase):
             self.skipTest("symlink unavailable")
         with self.assertRaises(ValueError):
             self.observe()
+
+    def test_node_directory_replacement_during_metric_read_is_rejected(self):
+        original = observation._optional_kb_file
+        node = self.nodes / "node0"
+        swapped = False
+        def replacing(path, *args, **kwargs):
+            nonlocal swapped
+            result = original(path, *args, **kwargs)
+            if Path(path) == node / "meminfo" and not swapped:
+                swapped = True
+                node.rename(self.nodes / "node0-previous")
+                node.mkdir()
+                self.write(node / "meminfo", "Node 0 MemFree: 131072 kB\n")
+            return result
+        with patch.object(observation, "_optional_kb_file", side_effect=replacing):
+            with self.assertRaisesRegex(ValueError, "node directory identity changed"):
+                self.observe()
 
 
 if __name__ == "__main__":

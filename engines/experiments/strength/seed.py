@@ -52,7 +52,7 @@ CORE_R = ("engines/experiments/tcec-next/profile_verify.py", "engines/experiment
 # These files are needed only by the new league profiles. Keep the legacy
 # P4/P28 source closure unchanged; neither declaration authorizes a league run.
 LEAGUE_HOST_MODULES = ("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
-                       "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe")
+                       "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt")
 LEAGUE_CORE_R = ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")
 LEAGUE_PROFILES = ("test-p16", "test-p192")
@@ -60,7 +60,7 @@ LEAGUE_PROFILES = ("test-p16", "test-p192")
 # This is scanner metadata, not a blanket exemption for the owning file.
 LEAGUE_DEPENDENCY_DECLARATIONS = {
     "engines/experiments/strength/seed.py": ("LEAGUE_CORE_R", ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py", "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
-    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/experiments/strength/rove_runtime_observation.py", "engines/experiments/strength/rove_worker_observer.py", "engines/experiments/strength/rove_vma_observer.py", "engines/experiments/strength/functional_uci_probe.py", "engines/experiments/strength/functional_probe_session.py", "engines/experiments/strength/league_functional_host.py", "engines/experiments/strength/peer_diagnostic_prepare.py", "engines/experiments/strength/rove_b_tt_observe.py", "engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py", "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+    "engines/experiments/strength/cloud_runtime.py": ("LEAGUE_HOST_SOURCE_FILES", ("engines/experiments/strength/memory_observation.py", "engines/experiments/strength/overhead.py", "engines/experiments/strength/league_probe.py", "engines/experiments/strength/diagnostic_candidates.py", "engines/experiments/strength/peak_capacity.py", "engines/experiments/strength/peak_probe_session.py", "engines/experiments/strength/peak_ready_probe.py", "engines/experiments/strength/peak_receipt.py", "engines/experiments/strength/peak_supervisor.py", "engines/experiments/strength/rove_runtime_observation.py", "engines/experiments/strength/rove_worker_observer.py", "engines/experiments/strength/rove_vma_observer.py", "engines/experiments/strength/functional_uci_probe.py", "engines/experiments/strength/functional_probe_session.py", "engines/experiments/strength/league_functional_host.py", "engines/experiments/strength/peer_diagnostic_prepare.py", "engines/experiments/strength/rove_b_tt_observe.py", "engines/experiments/strength/rove_b_static_tt.py", "engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py", "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
     "engines/experiments/strength/registry.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
     "engines/experiments/strength/peer_runtime.py": ("LEAGUE_SOURCE_FILES", ("engines/scripts/league_resource_profiles.py",)),
     "engines/experiments/tcec-next/profile_verify.py": ("LEAGUE_PROFILE_OWNER", "engines/scripts/league_resource_profiles.py"),
@@ -171,7 +171,10 @@ def named_python_dependencies(raw, *, source_name, league_required=True):
                                     in ("b5025cf1c17efb69f2577490e22395341bf23413bc0128227246e81fd735487f",
                                         "8db777a41eb8ccc9a892db1c582adb025ed5b020462ae1a299f0e3df9b4db064",
                                         "34816517640704b11800d27a7a4068bbffaa4dad868983c98bbaef8fc8aa7978",
-                                        "59d86117ee5d5f7d76e04b60bf0f0d29c00037a374a825b512cb4351dda71f17")):
+                                        "59d86117ee5d5f7d76e04b60bf0f0d29c00037a374a825b512cb4351dda71f17",
+                                        "1b14b487f371b0eafed84755a2a715802ca04978368cfef493fef243e45b707b",
+                                        "162809d3dd9fac4203709036ba3fa6ee42fb3188b2ce0ef04b345ade0b843475",
+                                        "a8737e79c64c79072c252b2103b463c925e6b600d2f224142e2055773eb34ad5")):
                                 metadata_nodes.update(id(node) for node in ast.walk(statement))
     return tuple(node.value for node in ast.walk(tree)
                  if id(node) not in metadata_nodes and isinstance(node, ast.Constant)

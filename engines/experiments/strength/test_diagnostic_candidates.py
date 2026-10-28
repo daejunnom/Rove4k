@@ -292,6 +292,37 @@ class DiagnosticCandidatesTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "P192 diagnostics require 192 GiB"):
                 candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
 
+    def test_exact_p192_peer_cannot_bypass_unverified_source_with_file_pins(self):
+        self.profile = "test-p192"
+        self.rows = self.rows[:1]
+        artifact = self.rows[0]["artifact"]
+        artifact.update(profile=self.profile, workers=192, entry_bytes=8,
+                        tt_bytes=192 << 30, layout_id="peer-p192-exact-3x2p33-v1")
+        for family in ("ice4", "c4ke"):
+            artifact["family"] = family
+            for evidence in ({"kind": "file-pins-only"}, {"kind": "peer-reference-v1"},
+                             {"kind": "peer-exact-reference-v1"}):
+                with self.subTest(family=family, evidence=evidence):
+                    self.rows[0]["evidence"] = evidence
+                    self.write_candidates()
+                    with patch.object(candidate, "_pinned_file", side_effect=AssertionError("unexpected candidate read")):
+                        with self.assertRaisesRegex(ValueError, "P192 peer diagnostic awaits source and native"):
+                            candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+
+    def test_p192_peer_cannot_forge_a_24_byte_legacy_layout(self):
+        self.profile = "test-p192"
+        self.rows = self.rows[:1]
+        self.rows[0]["artifact"].update(profile=self.profile, workers=192,
+                                        entry_bytes=24, tt_bytes=192 << 30)
+        self.rows[0]["evidence"] = {"kind": "file-pins-only"}
+        for family in ("ice4", "c4ke"):
+            with self.subTest(family=family):
+                self.rows[0]["artifact"]["family"] = family
+                self.write_candidates()
+                with patch.object(candidate, "_pinned_file", side_effect=AssertionError("unexpected candidate read")):
+                    with self.assertRaisesRegex(ValueError, "P192 peer diagnostic awaits source and native"):
+                        candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+
     def test_p16_legacy_peer_16g_still_obeys_the_approved_cap(self):
         self.rows = self.rows[:1]
         artifact = self.rows[0]["artifact"]
@@ -372,6 +403,95 @@ class DiagnosticCandidatesTests(unittest.TestCase):
             admitted.resources["tt_bytes"] += 1
             with self.assertRaisesRegex(ValueError, "source admission differs"):
                 candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+
+    def test_b_evidence_requires_pinned_mode_and_rejects_replaced_static_files(self):
+        try:
+            from . import rove_b_static_tt
+        except ImportError:
+            import rove_b_static_tt
+        directory = self.root / "b-output"
+        (directory / "native").mkdir(parents=True)
+        row = self.rows[1]
+        for source, target in ((row["artifact"]["path"], directory / "x"),
+                               (row["source"]["path"], directory / "main.c"),
+                               (row["native"]["path"], directory / "native" / "x")):
+            shutil.copyfile(source, target)
+        row["artifact"]["path"] = str(directory / "x")
+        row["source"], row["native"] = pin(directory / "main.c"), pin(directory / "native" / "x")
+        build_report = directory / "build.json"
+        build_report.write_text("{}", encoding="utf-8")
+        artifact = row["artifact"]
+        admitted = SimpleNamespace(family="B", profile_id=self.profile, representation="source-jit", full=True,
+            program="x", source="main.c", native="native/x",
+            resources={"workers": 16, "tt_bytes": artifact["tt_bytes"], "tt_entry_bytes": 24},
+            expected={"source_sha256": row["source"]["sha256"], "native_sha256": row["native"]["sha256"],
+                      "whole_sha256": artifact["sha256"]})
+        verifier = SimpleNamespace(admit_c_build=Mock(return_value=admitted))
+        basic = {"kind": "rove-profile-build-v1", "build": pin(build_report)}
+        row["evidence"] = dict(basic)
+        self.write_candidates()
+        with patch.object(candidate, "_profile_verifier", return_value=verifier):
+            with self.assertRaisesRegex(ValueError, "explicit B static evidence mode"):
+                candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+            row["evidence"] = dict(basic, b_static_mode="legacy-no-static", b_static_files={}, b_producer_report=None)
+            self.write_candidates()
+            rows, _ = candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+            self.assertEqual(rows[1]["evidence"]["b_static_mode"], "legacy-no-static")
+            for name, value in (("b_static_files", {"b-static-tt.json": {}}),
+                                ("b_producer_report", {"path": "fake"})):
+                row["evidence"][name] = value
+                self.write_candidates()
+                with self.subTest(field=name), self.assertRaisesRegex(ValueError, "legacy B candidate"):
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+                row["evidence"][name] = {} if name == "b_static_files" else None
+            row["evidence"]["b_static_mode"] = "sealed-static-correlated"
+            self.write_candidates()
+            with self.assertRaisesRegex(ValueError, "incomplete B static"):
+                candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+            row["evidence"]["b_static_mode"] = "legacy-no-static"
+            self.write_candidates()
+            for name, data in (("b-static-tt.json", b"{}"), ("compiler-sha256.txt", b"a" * 64),
+                               ("linker-sha256.txt", b"b" * 64)):
+                (directory / name).write_bytes(data)
+            with self.assertRaisesRegex(ValueError, "legacy B candidate"):
+                candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+            static = {"symbol": "qq", "elf_symbol_offset": 128, "tt_bytes": 12 << 30,
+                      "source_sha256": row["source"]["sha256"], "native_sha256": row["native"]["sha256"],
+                      "compiler_replay_independently_verified": False, "producer_authenticated": False,
+                      "tt_semantics_proven": False}
+            static["report_sha256"] = hashlib.sha256(b"{}").hexdigest()
+            producer = {"format": "rove4k.github-source-observation-v1", "family": "B", "profile": self.profile,
+                        "variant": "league-atomic", "candidate_pins_match": True, "candidate_files_observed": False,
+                        "runtime_qualified": False, "authorizes_go": False,
+                        "b_static_correlation": dict(static, producer_artifact_observed=True)}
+            producer_path = directory / "observation.json"
+            producer_path.write_text(json.dumps(producer), encoding="utf-8")
+            file_pins = {name: candidate._b_pin((directory / name).read_bytes()) for name in candidate._B_STATIC_NAMES}
+            row["evidence"] = dict(basic, b_static_mode="sealed-static-correlated", b_static_files=file_pins,
+                                   b_producer_report=pin(producer_path))
+            self.write_candidates()
+            with patch.object(rove_b_static_tt, "validate_report_bytes", return_value=dict(static)):
+                rows, _ = candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+                self.assertEqual(rows[1]["evidence"]["b_static_mode"], "sealed-static-correlated")
+                self.assertFalse(rows[1]["evidence"]["b_static_correlation"]["producer_authenticated"])
+                producer_bytes = producer_path.read_bytes()
+                producer_path.write_bytes(producer_bytes + b" ")
+                with self.assertRaises(ValueError):
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+                producer_path.write_bytes(producer_bytes)
+                for name in candidate._B_STATIC_NAMES:
+                    path = directory / name
+                    original = path.read_bytes()
+                    path.write_bytes(original + b"changed")
+                    with self.subTest(name=name), self.assertRaisesRegex(ValueError, "static candidate file pins differ"):
+                        candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
+                    path.write_bytes(original)
+                # Replacing every adjacent file while keeping the candidate pin is also rejected.
+                originals = {name: (directory / name).read_bytes() for name in candidate._B_STATIC_NAMES}
+                for name in candidate._B_STATIC_NAMES:
+                    (directory / name).write_bytes(originals[name] + b"changed")
+                with self.assertRaisesRegex(ValueError, "static candidate file pins differ"):
+                    candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile)
 
     def test_peer_generation_and_three_native_references_are_independently_bound(self):
         row = self.rows[0]

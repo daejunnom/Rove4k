@@ -84,10 +84,28 @@ def add_leg(journal, leg, *, acknowledged=True, pair="fixture-pair", result="1-0
     spec = game_spec(leg, players=players)
     keys = {"pair": pair, "game": pair + f"-leg{leg}", "attempt": 0}
     journal.append("game.started", spec, **keys)
+    # A test-only owned-controller GC scope; real coverage requires the runner hook.
+    process = {"instance_id": "i-fixture", "boot_id": "01234567-89ab-cdef-0123-456789abcdef",
+               "pid": 100 + leg, "pgid": 100 + leg, "session": 100 + leg,
+               "start_ticks": 200 + leg, "identity": keys["game"], "spawn_monotonic": 0.0000015}
+    identity = {"instance_id": process["instance_id"], "boot_id": process["boot_id"],
+                "launch_pid": process["pid"], "launch_start_ticks": process["start_ticks"],
+                "observer_pid": 42, "observer_start_ticks": 10, "scope_start_ns": 1000 + leg}
+    scope = {**identity, "format": "rove4k-cooperative-gc-v1",
+             "coverage_scope": "owned-controller-explicit-gc", "coverage_complete": True,
+             "scope_id": ledger.cooperative_gc_scope_id("fixture", pair, keys["game"], 0, identity),
+             "request_count": 0, "performed_count": 0, "active_count": 0}
+    journal.append("game.process", process, **keys)
+    journal.append("game.cooperative_gc_open", scope, **keys)
     data = {**{name: spec[name] for name in ("white", "black", "profile", "opening_id", "opening_sha256", "bank_id", "artifact_sha256")},
             "result": result, "reason": "completed_chess_result", "pgn_sha256": sha(b"unit-pgn"),
             "raw_sha256": sha(b"unit-raw"), "pgn_object_key": "fixture/games/pgn", "raw_object_key": "fixture/games/raw"}
+    journal.append("game.process_completed", {**process, "gate_released": True, "cleanup_forced": False,
+                   "returncode": 0, "readers_done": True, "remaining_processes": [],
+                   "completed_monotonic": 0.0000018}, **keys)
     journal.append("game.result", data, **keys)
+    journal.append("game.cooperative_gc_close", {**scope, "scope_end_ns": 2000 + leg,
+                   "result_sha256": ledger.digest(data)}, **keys)
     if acknowledged:
         journal.append("game.remote_confirmed", {"sha256": ledger.digest(data), "verified": True,
             "object_key": "unit-test/result", "backend": "s3", "bucket": "unit-test-bucket",
@@ -651,7 +669,7 @@ class PlanAndControllerTests(unittest.TestCase):
                     "per_game_overhead_bytes": (2 << 30) + 1, "overhead_evidence_sha256": "c" * 64,
                     "controller_reserve_bytes": 2 << 30, "page_bytes": 4096}
         for profile, sizes, expected_count in (("test-p16", (12 << 30, 16 << 30), 11),
-                                               ("test-p192", (192 << 30, 128 << 30), 1)):
+                                               ("test-p192", (192 << 30, 256 << 30), 1)):
             with self.subTest(profile=profile):
                 slots, _ = run.league_placement(snapshot, profile)
                 players = [Artifact("A", sizes[0]), Artifact("B", sizes[1])]
@@ -661,11 +679,30 @@ class PlanAndControllerTests(unittest.TestCase):
                 self.assertEqual(len(groups), expected_count)
                 self.assertEqual(manager.calls, [(slot.id, expected) for slot in slots])
                 self.assertFalse(proof["runtime_admission_complete"])
+                # Current free memory is telemetry, not an allocation promise
+                # or a reason to refuse the requested profile.
+                for observations in ({"host_available_bytes": 1 << 30},
+                                     {"host_available_bytes": 0, "node_available_bytes": {0: 0, 1: None}},
+                                     {"host_available_bytes": None, "node_available_bytes": None}):
+                    manager = Manager()
+                    measured = {**evidence, **observations}
+                    groups, proof = run.create_league_cgroups(manager, slots, players, profile,
+                                                              memory_preflight=measured)
+                    self.assertEqual(manager.calls, [(slot.id, expected) for slot in slots])
+                    self.assertEqual(proof["supplied_host_available_bytes"], measured["host_available_bytes"])
+                    self.assertFalse(proof["availability_used_for_admission"])
+                    self.assertFalse(proof["physical_capacity_verified"])
+                    self.assertFalse(proof["runtime_admission_complete"])
                 manager = Manager()
-                with self.assertRaises(ValueError):
-                    run.create_league_cgroups(manager, slots, players, profile,
-                        memory_preflight={**evidence, "host_available_bytes": 1 << 30})
-                self.assertEqual(manager.calls, [])
+                no_telemetry = {name: value for name, value in evidence.items()
+                                if name not in ("host_available_bytes", "node_available_bytes")}
+                groups, proof = run.create_league_cgroups(manager, slots, players, profile,
+                                                          memory_preflight=no_telemetry)
+                self.assertEqual(manager.calls, [(slot.id, expected) for slot in slots])
+                self.assertIsNone(proof["supplied_host_available_bytes"])
+                self.assertEqual(proof["supplied_node_available_bytes"], {})
+                self.assertFalse(proof["physical_capacity_verified"])
+                manager = Manager()
                 with self.assertRaisesRegex(ValueError, "explicit observed memory"):
                     run.create_league_cgroups(manager, slots, players, profile)
                 self.assertEqual(manager.calls, [])
@@ -691,6 +728,12 @@ class PlanAndControllerTests(unittest.TestCase):
         self.assertEqual(actual, capacity)
         self.assertEqual(preflight["node_available_bytes"], capacity["node_available_bytes"])
         observe.assert_called_once_with(records, Path("/fixture/cgroup"))
+        missing_telemetry = {name: value for name, value in capacity.items()
+                             if name not in ("host_available_bytes", "node_available_bytes")}
+        _, preflight = run.capture_league_preflight(slots, Path("/fixture/cgroup"), overhead,
+                                                   Mock(return_value=missing_telemetry))
+        self.assertIsNone(preflight["host_available_bytes"])
+        self.assertIsNone(preflight["node_available_bytes"])
         class Artifact:
             def __init__(self, name):
                 self.name = name

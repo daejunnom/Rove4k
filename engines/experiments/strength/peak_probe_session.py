@@ -6,7 +6,9 @@ proves resident TT pages, or qualifies a scored league. It must run on the
 target Linux host, with all outputs outside the repository. Receipt integrity
 and a matching digest do not authenticate the producer or prove a measurement:
 fabricated samples can match them. Executable hash-to-exec races and external
-cgroup writers are not fenced. The receipt must not be used for admission.
+cgroup writers are not fenced. P192 TT extents are declarations only: this
+manifest does not authenticate an engine family or bind 256 GiB to an original
+peer. The receipt must not be used for admission.
 """
 from __future__ import annotations
 
@@ -35,6 +37,22 @@ class CohortSetupFailure(RuntimeError):
         self.records = records
         self.cleanup_errors = cleanup_errors
         self.owner = owner
+
+
+def _declared_tt_extents(profile, engines):
+    """Validate diagnostic extents without claiming family provenance."""
+    values = [peak_capacity._positive(engine.get("tt_bytes"), "engine TT") for engine in engines]
+    if profile == "test-p16":
+        if any(value > 16 << 30 for value in values):
+            raise ValueError("engine TT exceeds the profile limit")
+    elif profile == "test-p192":
+        if any(value > 256 << 30 for value in values):
+            raise ValueError("engine TT exceeds the profile limit")
+        if any(value not in (192 << 30, 256 << 30) for value in values):
+            raise ValueError("P192 requires exactly 192 or 256 GiB TT per engine")
+    else:
+        raise ValueError("named P16 or P192 profile required")
+    return values
 
 
 def _require_delegated_root(root):
@@ -67,8 +85,9 @@ class OwnedProbeCohort:
     creates a fresh campaign subtree; enabling those root controllers is not
     reverted by cleanup. This is not proof of exclusive access, available
     physical-memory reservation, trusted provenance or scored admission. The
-    supervisor still checks live capacity before a pre-GO diagnostic starts;
-    the observation cannot establish a future memory bound or grant GO.
+    supervisor observes memory before a pre-GO diagnostic starts; current
+    free memory is telemetry, not a reservation or admission threshold.
+    The observation cannot establish a future memory bound or grant GO.
     """
     def __init__(self, manager, manifest_path, manifest_sha256, profile, games,
                  controller, artifacts, per_game_headroom_bytes, controller_headroom_bytes):
@@ -114,7 +133,6 @@ class OwnedProbeCohort:
         if ([entry["slot"].to_record() for entry in entries] != [slot.to_record() for slot in slots]):
             raise ValueError("manifest slots differ from the target cohort")
         limits, artifacts, outputs = {}, {}, set()
-        cap = 16 << 30 if manifest["profile"] == "test-p16" else 192 << 30
         for entry in entries:
             slot, engines = entry["slot"], entry["engines"]
             if type(engines) is not list or len(engines) != 2 or any(type(engine) is not dict for engine in engines):
@@ -142,11 +160,7 @@ class OwnedProbeCohort:
                             for key in ("whole_sha256", "native_sha256")) or
                         peak_ready_probe._file_sha(Path(path)) != engine["whole_sha256"]):
                     raise ValueError("pinned engine identity differs")
-            values = [peak_capacity._positive(engine.get("tt_bytes"), "engine TT") for engine in engines]
-            if any(value > cap for value in values):
-                raise ValueError("engine TT exceeds the profile limit")
-            if manifest["profile"] == "test-p192" and any(value != cap for value in values):
-                raise ValueError("P192 requires exactly 192 GiB TT per engine")
+            values = _declared_tt_extents(manifest["profile"], engines)
             limits[slot.id] = placement._align_memory_extent(sum(values) + per_game, page)
             artifacts[slot.id] = [{key: engine[key] for key in ("id", "whole_sha256", "native_sha256", "tt_bytes")}
                                   for engine in engines]

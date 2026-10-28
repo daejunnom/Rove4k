@@ -172,7 +172,7 @@ class PeerRuntimeTests(unittest.TestCase):
                 if phase == "create":
                     qualify.assert_not_called()
 
-    def test_controlled_peer_preflight_requires_original_group_and_live_capacity(self):
+    def test_controlled_peer_preflight_keeps_ownership_and_treats_free_memory_as_telemetry(self):
         import functional_probe_session
         import memory_observation
         import peak_capacity
@@ -210,7 +210,12 @@ class PeerRuntimeTests(unittest.TestCase):
                 runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
             manager.created = [(group_path, 7, 42)]
             capacity["node_available_bytes"] = {0: 1}
-            with self.assertRaisesRegex(ValueError, "capacity is insufficient"):
+            capacity["host_memavailable_bytes"] = 0
+            observed = runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
+            self.assertFalse(observed["current_availability_enforced"])
+            self.assertEqual(observed["capacity"]["node_available_bytes"], {0: 1})
+            group["memory_max"] = 16 << 30
+            with self.assertRaisesRegex(ValueError, "cgroup memory limit is insufficient"):
                 runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
 
     def test_controlled_peer_source_closure_detects_live_and_snapshot_changes(self):
@@ -218,8 +223,20 @@ class PeerRuntimeTests(unittest.TestCase):
             base = Path(tmp).resolve()
             source, frozen = base / "source", base / "frozen"
             paths = runtime.SOURCE_FILES + runtime.LEAGUE_SOURCE_FILES + runtime.CONTROLLED_SOURCE_FILES
-            for module in ("rove_b_tt_observe.py", "rove_vma_observer.py"):
-                self.assertIn("engines/experiments/strength/" + module, paths)
+            # The controlled functional path imports these transitively: run
+            # owns ledger/collection, while peak_probe_session loads the peak
+            # supervisor, receipt and wave modules.  The profile verifier and
+            # shared input reader are loaded dynamically by the UCI probe.
+            transitive = tuple("engines/experiments/strength/" + module + ".py" for module in (
+                "budget", "collect", "durability", "fastchess", "ledger", "overhead",
+                "peak_ready_probe", "peak_supervisor", "wave", "peak_receipt")) + (
+                "engines/experiments/tcec-next/profile_verify.py",
+                "engines/scripts/production_input.py",
+            )
+            for relative in transitive + tuple("engines/experiments/strength/" + module for module in
+                                               ("rove_b_tt_observe.py", "rove_vma_observer.py")):
+                self.assertIn(relative, paths)
+            self.assertEqual(len(paths), len(set(paths)))
             pins = {}
             for relative in paths:
                 raw = (runtime.ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
@@ -230,6 +247,25 @@ class PeerRuntimeTests(unittest.TestCase):
                 pins[relative] = {"bytes": len(raw), "sha256": runtime.sha(raw)}
             context = SimpleNamespace(source_pins=pins, frozen=frozen)
             with patch.object(runtime, "ROOT", source):
+                runtime._check_controlled_sources(context)
+                # Earlier controlled receipts lacking a new dependency stay
+                # historical and cannot be reinterpreted as the fuller set.
+                for relative in transitive:
+                    missing = dict(pins)
+                    missing.pop(relative)
+                    with self.subTest(missing=relative), self.assertRaisesRegex(ValueError, "source closure is incomplete"):
+                        runtime._check_controlled_sources(SimpleNamespace(source_pins=missing, frozen=frozen))
+                extra = dict(pins)
+                extra["engines/experiments/strength/unexpected.py"] = {"bytes": 1, "sha256": "0" * 64}
+                with self.assertRaisesRegex(ValueError, "source closure is incomplete"):
+                    runtime._check_controlled_sources(SimpleNamespace(source_pins=extra, frozen=frozen))
+                for relative in transitive:
+                    for changed_root, original_root in ((source, frozen), (frozen, source)):
+                        changed = changed_root / relative
+                        changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
+                        with self.subTest(module=relative, changed=str(changed_root)), self.assertRaisesRegex(ValueError, "source closure changed"):
+                            runtime._check_controlled_sources(context)
+                        shutil.copyfile(original_root / relative, changed)
                 runtime._check_controlled_sources(context)
                 changed = source / runtime.CONTROLLED_SOURCE_FILES[0]
                 changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
@@ -445,6 +481,10 @@ class PeerRuntimeTests(unittest.TestCase):
             league = base / "league"
             old_pins = runtime._freeze(legacy)
             new_pins = runtime._freeze(league, league_required=True)
+            # Controlled-only additions must not alter the legacy reference
+            # closure nor retroactively qualify a stored snapshot.
+            self.assertEqual(set(old_pins), set(runtime.SOURCE_FILES))
+            self.assertEqual(set(new_pins), set(runtime.SOURCE_FILES + runtime.LEAGUE_SOURCE_FILES))
             owner = runtime.LEAGUE_SOURCE_FILES[0]
             self.assertNotIn(owner, old_pins)
             self.assertIn(owner, new_pins)
@@ -626,14 +666,14 @@ class PeerRuntimeTests(unittest.TestCase):
                             patch.object(runtime, "construct_owned") as launch:
                         with self.assertRaisesRegex(ValueError, "explicit functional-only opt-in"):
                             runtime.qualify_peer(reference, out, {}, allow_functional=False)
-                        with self.assertRaisesRegex(ValueError, "controlled cgroup ancestry and memory reservation"):
+                        with self.assertRaisesRegex(ValueError, "controlled cgroup ownership and source identity"):
                             runtime.qualify_peer(reference, out, {}, allow_functional=True)
                         verify.assert_not_called()
                         build.assert_not_called()
                         launch.assert_not_called()
                         self.assertFalse(out.exists())
 
-    def test_large_peer_budget_requires_actual_memory_and_inherited_limits(self):
+    def test_large_peer_budget_records_available_memory_and_enforces_inherited_limits(self):
         layout = {"id": "test-p16", "workers": 16, "tt_bytes": 16 << 30}
         cpus = list(range(16))
         required = (17 << 30)
@@ -651,9 +691,12 @@ class PeerRuntimeTests(unittest.TestCase):
                  "cpu": [result["cpu_seconds"][1]] * 2}
         self.assertEqual(runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
             availability=available, parent_limits=exact)["cpu_seconds"], [2240, 2272])
-        with self.assertRaisesRegex(ValueError, "insufficient actual"):
-            runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
-                availability={"effective_available_bytes": required - 1}, parent_limits=parents)
+        for observed in (required - 1, 0, -1, None):
+            record = {"effective_available_bytes": observed}
+            result_low = runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                availability=record, parent_limits=parents)
+            self.assertEqual(result_low["availability"], record)
+            self.assertFalse(result_low["current_availability_enforced"])
         for field, index in (("cpu", 0), ("cpu", 1), ("address_space", 0), ("address_space", 1)):
             changed = {name: list(pair) for name, pair in exact.items()}
             changed[field][index] -= 1
@@ -664,11 +707,50 @@ class PeerRuntimeTests(unittest.TestCase):
             with self.subTest(cpus=bad_cpus), self.assertRaisesRegex(ValueError, "logical CPU envelope"):
                 runtime.peer_runtime_budget(layout, cpus=bad_cpus, wall_seconds=180,
                                             availability=available, parent_limits=parents)
-        big = {"id": "test-p192", "workers": 192, "tt_bytes": 128 << 30}
+        big = {"id": "test-p192", "workers": 192, "tt_bytes": 192 << 30}
         observed = runtime.peer_runtime_budget(big, cpus=list(range(192)), wall_seconds=180,
-            availability={"effective_available_bytes": (128 << 30) + (3328 << 20)}, parent_limits=parents)
-        self.assertEqual(observed["required_available_bytes"], (128 << 30) + (3328 << 20))
+            availability={"effective_available_bytes": (192 << 30) + (3328 << 20)}, parent_limits=parents)
+        self.assertEqual(observed["required_available_bytes"], (192 << 30) + (3328 << 20))
         self.assertEqual(observed["cpu_seconds"], [26880, 27264])
+
+    def test_p192_peer_budget_requires_exact_192g_and_enforces_each_limit(self):
+        layout = {"id": "test-p192", "workers": 192, "tt_bytes": 192 << 30}
+        cpus = list(range(192))
+        required = (192 << 30) + (3328 << 20)
+        address_space = (192 << 30) + (3072 << 20)
+        availability = {"effective_available_bytes": required}
+        exact = {"address_space": [address_space, address_space], "cpu": [27264, 27264]}
+        result = runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                                            availability=availability, parent_limits=exact)
+        self.assertEqual(result["tt_bytes"], 192 << 30)
+        self.assertEqual(result["required_available_bytes"], required)
+        self.assertEqual(result["address_space_bytes"], address_space)
+        self.assertEqual(result["cpu_seconds"], [26880, 27264])
+        for invalid_workers in (191, 192.0, True):
+            with self.subTest(workers=invalid_workers), self.assertRaisesRegex(ValueError, "unsupported large peer runtime profile"):
+                runtime.peer_runtime_budget({**layout, "workers": invalid_workers}, cpus=cpus,
+                                            wall_seconds=180, availability=availability, parent_limits=exact)
+        for size in (128 << 30, (192 << 30) - 1, (192 << 30) + 1, True):
+            with self.subTest(tt_bytes=size), self.assertRaisesRegex(ValueError, "finite resource profile"):
+                runtime.peer_runtime_budget({**layout, "tt_bytes": size}, cpus=cpus,
+                    wall_seconds=180, availability=availability, parent_limits=exact)
+        result_low = runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+            availability={"effective_available_bytes": 0}, parent_limits=exact)
+        self.assertFalse(result_low["current_availability_enforced"])
+        for field, index in (("cpu", 0), ("cpu", 1), ("address_space", 0), ("address_space", 1)):
+            changed = {name: list(pair) for name, pair in exact.items()}
+            changed[field][index] -= 1
+            with self.subTest(field=field, index=index), self.assertRaisesRegex(ValueError, "inherited"):
+                runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=180,
+                                            availability=availability, parent_limits=changed)
+        for bad_cpus in (cpus[:-1], [0] * 192, cpus[1:] + [False]):
+            with self.subTest(cpus=bad_cpus), self.assertRaisesRegex(ValueError, "logical CPU envelope"):
+                runtime.peer_runtime_budget(layout, cpus=bad_cpus, wall_seconds=180,
+                                            availability=availability, parent_limits=exact)
+        for invalid_wall in (59, 601, True):
+            with self.subTest(wall_seconds=invalid_wall), self.assertRaisesRegex(ValueError, "bounded peer wall time"):
+                runtime.peer_runtime_budget(layout, cpus=cpus, wall_seconds=invalid_wall,
+                                            availability=availability, parent_limits=exact)
 
     def test_child_rechecks_inherited_limits_without_raising_them(self):
         resource = SimpleNamespace(RLIM_INFINITY=-1, getrlimit=Mock(return_value=(400, 500)),
@@ -697,6 +779,11 @@ class PeerRuntimeTests(unittest.TestCase):
             result = runtime.effective_available_bytes(proc, cgroup)
             self.assertEqual(result["host_available_bytes"], 2000 * 1024)
             self.assertEqual(result["effective_available_bytes"], 700000)
+            (proc / "meminfo").write_text("MemAvailable: 0 kB\n")
+            (cgroup / "a" / "b" / "memory.current").write_text("1000001")
+            exhausted = runtime.effective_available_bytes(proc, cgroup)
+            self.assertEqual(exhausted["host_available_bytes"], 0)
+            self.assertEqual(exhausted["effective_available_bytes"], -1)
             (proc / "self" / "cgroup").write_text("0::/\n")
             with self.assertRaisesRegex(ValueError, "root-only cgroup namespace"):
                 runtime.effective_available_bytes(proc, cgroup)
@@ -716,18 +803,21 @@ class PeerRuntimeTests(unittest.TestCase):
                 runtime.effective_available_bytes(proc, cgroup)
 
     @unittest.skipUnless(sys.platform == "linux", "Linux resource limits")
-    def test_peer_budget_refresh_fails_when_available_memory_falls(self):
+    def test_peer_budget_refresh_records_low_or_unavailable_memory_without_blocking(self):
         layout = {"id": "test-p16", "workers": 16, "tt_bytes": 16 << 30}
         enough = {"effective_available_bytes": 17 << 30}
         reduced = {"effective_available_bytes": (17 << 30) - 1}
-        with patch.object(runtime, "effective_available_bytes", side_effect=[enough, reduced]) as available, \
+        with patch.object(runtime, "effective_available_bytes", side_effect=[enough, reduced, ValueError("unavailable")]) as available, \
                 patch("resource.getrlimit", return_value=(-1, -1)) as limits:
             first = runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
             self.assertEqual(first["required_available_bytes"], 17 << 30)
-            with self.assertRaisesRegex(ValueError, "insufficient actual"):
-                runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
-        self.assertEqual(available.call_count, 2)
-        self.assertEqual(limits.call_count, 4)
+            second = runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
+            third = runtime.observed_peer_runtime_budget(layout, cpus=list(range(16)), wall_seconds=180)
+            self.assertEqual(second["availability"], reduced)
+            self.assertFalse(second["current_availability_enforced"])
+            self.assertEqual(third["availability"]["status"], "unavailable")
+        self.assertEqual(available.call_count, 3)
+        self.assertEqual(limits.call_count, 6)
 
     def test_worker_and_tt_numa_evidence_are_identity_bound_and_scoped(self):
         with tempfile.TemporaryDirectory(prefix="rove-peer-evidence-") as directory:

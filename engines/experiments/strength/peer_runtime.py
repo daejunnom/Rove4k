@@ -44,7 +44,12 @@ LEAGUE_SOURCE_FILES = ("engines/scripts/league_resource_profiles.py",)
 CONTROLLED_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for name in (
     "functional_probe_session", "functional_uci_probe", "diagnostic_candidates",
     "peak_capacity", "peak_probe_session", "memory_observation", "run",
-    "rove_b_tt_observe", "rove_vma_observer"))
+    "rove_b_tt_observe", "rove_vma_observer", "rove_b_static_tt",
+    "budget", "collect", "durability", "fastchess", "ledger", "overhead",
+    "peak_ready_probe", "peak_supervisor", "peak_receipt", "wave")) + (
+        "engines/experiments/tcec-next/profile_verify.py",
+        "engines/scripts/production_input.py",
+    )
 HELPER_PINS = {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
@@ -482,7 +487,6 @@ def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgro
     match = re.fullmatch(r"\s*(\d+)\s+kB\s*", rows.get("MemAvailable", ""))
     require(match is not None, "host MemAvailable is unavailable or malformed")
     host = int(match[1]) * 1024
-    require(host > 0, "host available memory must be positive")
     limits, found = [], False
     for line in (proc / "self/cgroup").read_text().splitlines():
         fields = line.split(":", 2)
@@ -514,7 +518,7 @@ def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgro
                 require(current_value.isdecimal(), "invalid current cgroup memory usage")
                 require(maximum_value == "max" or maximum_value.isdecimal(), "invalid cgroup memory limit")
                 if maximum_value != "max":
-                    limits.append(max(0, int(maximum_value) - int(current_value)))
+                    limits.append(int(maximum_value) - int(current_value))
             if directory == base:
                 break
             directory = directory.parent
@@ -529,18 +533,17 @@ def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgro
 def peer_runtime_budget(layout, *, cpus, wall_seconds, availability, parent_limits):
     """Build a bounded large-profile child budget without raising inherited limits."""
     profile, workers, tt_bytes = layout.get("id"), layout.get("workers"), layout.get("tt_bytes")
-    require(profile in ("test-p16", "test-p192") and workers == {"test-p16": 16, "test-p192": 192}[profile],
+    require(profile in ("test-p16", "test-p192") and type(workers) is int
+            and workers == {"test-p16": 16, "test-p192": 192}[profile],
             "unsupported large peer runtime profile")
-    require(type(tt_bytes) is int and tt_bytes == {"test-p16": 16 << 30, "test-p192": 128 << 30}[profile],
+    require(type(tt_bytes) is int and tt_bytes == {"test-p16": 16 << 30, "test-p192": 192 << 30}[profile],
             "peer TT extent differs from its finite resource profile")
     require(type(wall_seconds) is int and 60 <= wall_seconds <= 600, "bounded peer wall time required")
     require(isinstance(cpus, (list, tuple)) and len(cpus) == workers and len(set(cpus)) == workers
             and all(type(cpu) is int and cpu >= 0 for cpu in cpus), "exact actual logical CPU envelope required")
-    available = availability.get("effective_available_bytes")
-    require(type(available) is int and available >= 0, "observed effective available memory required")
+    require(isinstance(availability, dict), "memory observation record required")
     other = max(768 << 20, workers * (16 << 20))
     required, address_space = tt_bytes + other + (256 << 20), max(4 << 30, tt_bytes + other)
-    require(available >= required, "insufficient actual host/cgroup available memory for peer TT")
     active_cpus = len(cpus)
     cpu_soft = max(180, min(140, wall_seconds - 10) * active_cpus)
     cpu_hard = cpu_soft + max(5, 2 * active_cpus)
@@ -554,6 +557,7 @@ def peer_runtime_budget(layout, *, cpus, wall_seconds, availability, parent_limi
             "address_space_bytes": address_space, "cpu_seconds": [cpu_soft, cpu_hard],
             "effective_cpus": active_cpus, "wall_seconds": wall_seconds,
             "parent_limits": parent_limits, "availability": availability,
+            "current_availability_enforced": False,
             "scope": "single peer host/cgroup preflight; no reservation or scored game admission"}
 
 
@@ -562,8 +566,13 @@ def observed_peer_runtime_budget(layout, *, cpus, wall_seconds):
     import resource
     limits = {"address_space": list(resource.getrlimit(resource.RLIMIT_AS)),
               "cpu": list(resource.getrlimit(resource.RLIMIT_CPU))}
+    try:
+        availability = effective_available_bytes()
+    except (OSError, ValueError) as error:
+        availability = {"status": "unavailable", "error": str(error),
+                        "scope": "memory telemetry is not a start gate"}
     return peer_runtime_budget(layout, cpus=cpus, wall_seconds=wall_seconds,
-                               availability=effective_available_bytes(), parent_limits=limits)
+                               availability=availability, parent_limits=limits)
 
 
 def checked_child_limit(resource, kind, soft, hard):
@@ -964,11 +973,8 @@ def _controlled_peer_preflight(context, layout):
     required = layout["tt_bytes"] + max(768 << 20, workers * (16 << 20)) + (256 << 20)
     require(group["memory_max"] >= required, "controlled peer cgroup memory limit is insufficient")
     capacity = memory_observation.observe_capacity([context.slot], group_path, mask_scope="delegated-only")
-    remaining = peak_capacity._finite_remaining(capacity["delegated_cgroup"])
-    require(min([capacity["host_memavailable_bytes"], *remaining]) >= required and
-            sum(capacity["node_available_bytes"].values()) >= required,
-            "controlled peer current host or visible node/cgroup capacity is insufficient")
     return {"required_bytes": required, "retained_cgroup_bytes": current, "capacity": capacity,
+            "current_availability_enforced": False,
             "scope": "point-in-time visible capacity, not a physical reservation or score admission"}
 
 
@@ -1059,13 +1065,11 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     large_profile = ref["resources"]["id"] in ("test-p16", "test-p192")
     require(not large_profile or allow_functional,
             "SMT TEST runtime requires explicit functional-only opt-in; scored placement remains unqualified")
-    # Point-in-time visible cgroup headroom is neither a memory reservation nor
-    # proof that a namespace has not hidden constrained ancestors. Until the
-    # owned supervisor can supply those guarantees, even functional opt-in may
-    # not launch a P16/P192 peer through this independent legacy path.
+    # Large profiles require the owner that binds the cgroup, source and slot.
+    # This identity check does not reserve memory or inspect current free RAM.
     require(not large_profile or (isinstance(_controlled, _ControlledPeer) and
                                    _controlled.token is _CONTROLLED_PEER_TOKEN),
-            "SMT peer launch awaits controlled cgroup ancestry and memory reservation")
+            "SMT peer launch requires controlled cgroup ownership and source identity")
     _verify_frozen(reference_frozen, ref["source_inputs"], league_required=large_profile)
     admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
     require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")

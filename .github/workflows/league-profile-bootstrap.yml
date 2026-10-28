@@ -376,7 +376,9 @@ jobs:
                   admitted, json.loads((build / 'build.json').read_text()), build,
                   (root / 'compiler-sha256.txt').read_text().strip(),
                   (root / 'linker-sha256.txt').read_text().strip())
-              (root / 'b-static-tt.json').write_text(json.dumps(static, indent=2) + '\n')
+              (build / 'b-static-tt.json').write_text(json.dumps(static, indent=2) + '\n')
+              for name in ('compiler-sha256.txt', 'linker-sha256.txt'):
+                  (build / name).write_bytes((root / name).read_bytes())
               print(json.dumps(static, sort_keys=True))
           PY
       - name: Seal the admitted source for P16 and P192 seed transport

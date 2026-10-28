@@ -25,10 +25,11 @@ import urllib.request
 import zipfile
 
 try:
-    from . import cloud_runtime as cloud, seed
+    from . import cloud_runtime as cloud, seed, rove_b_static_tt
 except ImportError:
     import cloud_runtime as cloud
     import seed
+    import rove_b_static_tt
 
 _REPO = 'daejunnom/Rove4k'
 _WORKFLOW = '.github/workflows/league-profile-bootstrap.yml'
@@ -437,8 +438,12 @@ def _inspect(request, *, seed_root, candidate_path, family, variant, get, archiv
              'exact source job was not uniquely successful')
     steps = jobs[0].get('steps')
     _require(type(steps) is list, 'source job steps missing')
-    for step_name in ('Seal the admitted source for P16 and P192 seed transport',
-                      'Preserve actual artifacts, bounded command logs and failures'):
+    required_steps = ['Seal the admitted source for P16 and P192 seed transport',
+                      'Preserve actual artifacts, bounded command logs and failures']
+    b_atomic = family == 'B' and variant == 'league-atomic'
+    if b_atomic:
+        required_steps.append('Strictly readmit the actual generated candidate without runtime')
+    for step_name in required_steps:
         hits = [s for s in steps if type(s) is dict and s.get('name') == step_name]
         _require(len(hits) == 1 and hits[0].get('status') == 'completed' and hits[0].get('conclusion') == 'success',
                  'source sealing or artifact upload was not successful')
@@ -464,11 +469,13 @@ def _inspect(request, *, seed_root, candidate_path, family, variant, get, archiv
     data = archive(artifact_id)
     _require(type(data) is bytes and hashlib.sha256(data).hexdigest() == digest[7:], 'artifact ZIP digest differs')
     selected = {'source-bundle.zip', 'source-seal.json', 'build/build.json', 'build/main.c', 'build/native/x', 'build/x'}
+    static_members = ('b-static-tt.json', 'compiler-sha256.txt', 'linker-sha256.txt') if b_atomic else ()
+    selected.update('build/' + item for item in static_members)
     outer = _zip_members(data, selected)
     _require(outer['source-bundle.zip'] == bundle and outer['source-seal.json'] == seal,
              'artifact transport files differ from seed')
     build = row['build']
-    for item in ('build.json', 'main.c', 'native/x', 'x'):
+    for item in ('build.json', 'main.c', 'native/x', 'x', *static_members):
         _require(outer['build/' + item] == read(build + '/' + item), 'artifact build member differs from seed')
     whole, source, native = (cloud.pin(outer[name]) for name in ('build/x', 'build/main.c', 'build/native/x'))
     _require(candidate['artifact'].get('sha256') == whole['sha256']
@@ -477,20 +484,31 @@ def _inspect(request, *, seed_root, candidate_path, family, variant, get, archiv
              and type(candidate.get('source')) is dict and type(candidate.get('native')) is dict
              and all(candidate['source'].get(key) == source[key] and candidate['native'].get(key) == native[key]
                      for key in ('bytes', 'sha256')), 'candidate pins differ from producer build')
-    nested = _zip_members(bundle, {'build/build.json', 'build/main.c', 'build/native/x', 'build/x'})
+    nested = _zip_members(bundle, {'build/build.json', 'build/main.c', 'build/native/x', 'build/x',
+                                   *('build/' + item for item in static_members)})
     _require(all(nested[name] == outer[name] for name in nested), 'source bundle build differs from artifact')
     # `_zip_members` has already preflighted every nested name and type with
     # the stronger protected-path policy before the shared collector reads it.
     expanded = seed.archive_members(bundle)
     _require(seal_json.get('members') == {name: cloud.pin(value[0]) for name, value in sorted(expanded.items())},
              'source seal does not match the complete bundle member map')
+    static = None
+    if b_atomic:
+        static = rove_b_static_tt.validate_report(
+            _json(outer['build/b-static-tt.json']), profile=request.profile,
+            source=outer['build/main.c'], native=outer['build/native/x'],
+            manifest=_json(outer['build/build.json']),
+            compiler_sha=outer['build/compiler-sha256.txt'].decode('ascii').strip(),
+            linker_sha=outer['build/linker-sha256.txt'].decode('ascii').strip())
+        static['report_sha256'] = hashlib.sha256(outer['build/b-static-tt.json']).hexdigest()
+        static['producer_artifact_observed'] = True
     return {'format': 'rove4k.github-source-observation-v1', 'repository': _REPO, 'run_id': run_id,
             'run_attempt': attempt, 'artifact_id': artifact_id, 'job_id': jobs[0]['id'],
             'source_head': request.source_head, 'api_head': run['head_sha'], 'family': family,
             'profile': request.profile, 'variant': variant, 'artifact_sha256': digest[7:],
             'source_bundle_sha256': hashlib.sha256(bundle).hexdigest(),
             'source_seal_sha256': hashlib.sha256(seal).hexdigest(),
-            'candidate_pins_match': True, 'candidate_files_observed': False,
+            'candidate_pins_match': True, 'candidate_files_observed': False, 'b_static_correlation': static,
             'workflow_commit_reviewed': False, 'host_authenticated': False,
             'runtime_qualified': False, 'authorizes_go': False}
 

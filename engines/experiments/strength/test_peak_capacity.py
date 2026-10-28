@@ -89,7 +89,9 @@ class CapacityTests(unittest.TestCase):
             self.assertIn(term, reasons)
         self.assertEqual(result["capacity"]["boot_id"], self.observation["boot_id"])
         self.assertTrue(result["source_sha256"])
-        self.assertIn("reclaimable cache excluded", result["arithmetic"]["node_capacity_basis"])
+        self.assertIn("not a capacity admission", result["arithmetic"]["node_capacity_basis"])
+        self.assertFalse(result["arithmetic"]["current_availability_used_for_admission"])
+        self.assertFalse(result["arithmetic"]["physical_capacity_verified"])
 
     def test_legacy_and_unknown_profiles_are_rejected(self):
         for profile in ("test-p4", "test-p28", "unknown"):
@@ -98,23 +100,21 @@ class CapacityTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.inspect()
 
-    def test_insufficient_host_and_game_limit_fail_before_launch(self):
-        self.observation["host_memavailable_bytes"] = 1
-        with self.assertRaises(ValueError):
-            self.inspect()
+    def test_low_host_observation_does_not_replace_hard_game_limit(self):
+        self.observation["host_memavailable_bytes"] = 0
+        observed = self.inspect()
+        self.assertEqual(observed["arithmetic"]["target_available_bytes"], 0)
+        self.assertFalse(observed["launch_permitted"])
         self.observation["host_memavailable_bytes"] = self.host_limit
         self.groups[self.slot.id]["memory_max"] = self.game_limit - 1
         with self.assertRaises(ValueError):
             self.inspect()
 
-    def test_kernel_limits_not_just_declared_extents_bound_cohort(self):
-        # A caller may create leaves larger than the estimates. The kernel
-        # can charge the full limits; admission must cover that upper bound.
+    def test_kernel_limits_are_recorded_even_when_free_memory_is_lower(self):
         self.groups[self.slot.id]["memory_max"] = self.game_limit + 80
         self.controller["memory_max"] = 50
         self.observation["host_memavailable_bytes"] = self.game_limit + 129
-        with self.assertRaisesRegex(ValueError, "capacity"):
-            self.inspect()
+        self.assertEqual(self.inspect()["arithmetic"]["target_available_bytes"], self.game_limit + 129)
         self.observation["host_memavailable_bytes"] = self.game_limit + 130
         result = self.inspect()
         self.assertEqual(result["arithmetic"]["required_bytes"], self.game_limit + 130)
@@ -130,15 +130,13 @@ class CapacityTests(unittest.TestCase):
         self.assertFalse(result["launch_permitted"])
         self.assertIn("representative_overhead_bound", result["unresolved"])
 
-    def test_target_parent_and_its_shared_ancestor_limits_bound_the_cohort(self):
+    def test_target_parent_and_ancestor_remaining_are_telemetry(self):
         self.observation["delegated_cgroup"][0].update(limit_bytes=self.game_limit + 29, remaining_bytes=self.game_limit + 29)
-        with self.assertRaisesRegex(ValueError, "capacity"):
-            self.inspect()
+        self.assertEqual(self.inspect()["arithmetic"]["target_available_bytes"], self.game_limit + 29)
         self.observation["delegated_cgroup"][0].update(limit_bytes=self.host_limit, remaining_bytes=self.host_limit)
         self.observation["delegated_cgroup"][1].update(limit_bytes=self.game_limit + 29, remaining_bytes=self.game_limit + 29)
         self.observation["controller_cgroup"][1].update(limit_bytes=self.game_limit + 29, remaining_bytes=self.game_limit + 29)
-        with self.assertRaisesRegex(ValueError, "capacity"):
-            self.inspect()
+        self.assertEqual(self.inspect()["arithmetic"]["target_available_bytes"], self.game_limit + 29)
 
     def test_unlimited_observer_has_no_finite_visible_limit(self):
         self.observation["controller_cgroup"][0].update(limit_bytes=None, remaining_bytes=None)
@@ -153,11 +151,29 @@ class CapacityTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.inspect()
                 self.observation[field] = original
+                self.observation[field][0] = {}
+                with self.assertRaises(ValueError):
+                    self.inspect()
+                self.observation[field] = original
 
-    def test_insufficient_node_capacity_fails_before_launch(self):
-        self.observation["node_available_bytes"] = {0: 1, 1: 1}
-        with self.assertRaises(ValueError):
-            self.inspect()
+    def test_low_or_unknown_node_free_is_not_a_launch_gate(self):
+        self.observation["node_available_bytes"] = {0: 0, 1: None}
+        result = self.inspect()
+        self.assertFalse(result["launch_permitted"])
+        self.assertFalse(result["arithmetic"]["physical_capacity_verified"])
+
+    def test_zero_hard_limit_and_negative_or_unknown_remaining_are_telemetry(self):
+        row = self.observation["delegated_cgroup"][0]
+        row.update(limit_bytes=0, current_bytes=1, remaining_bytes=-1)
+        self.observation["host_memavailable_bytes"] = 0
+        result = self.inspect()
+        self.assertEqual(result["arithmetic"]["target_available_bytes"], -1)
+        self.assertFalse(result["runtime_admission"])
+        row.update(current_bytes=None, remaining_bytes=None)
+        self.observation["host_memavailable_bytes"] = None
+        result = self.inspect()
+        self.assertIsNone(result["arithmetic"]["target_available_bytes"])
+        self.assertFalse(result["arithmetic"]["current_availability_used_for_admission"])
 
     def test_p192_controller_only_node_counts_towards_controller_reserve(self):
         self.controller["memory_nodes"] = [0, 1, 2]
@@ -165,20 +181,16 @@ class CapacityTests(unittest.TestCase):
         self.observation["node_available_bytes"] = {0: self.tt, 1: self.tt + 20, 2: 30}
         result = self.inspect()
         self.assertFalse(result["launch_permitted"])
-        self.assertTrue(result["arithmetic"]["controller_node_aggregate_arithmetic_checked"])
+        self.assertFalse(result["arithmetic"]["controller_node_aggregate_arithmetic_checked"])
         self.assertFalse(result["arithmetic"]["controller_node_distribution_verified"])
         self.assertEqual(set(self.last_observe.kwargs["extra_nodes"]), {0, 1, 2})
-        # Aggregate capacity over controller nodes is now one byte short.
+        # Current node-free values remain telemetry even below declared extents.
         self.observation["node_available_bytes"][2] = 29
-        with self.assertRaises(ValueError):
-            self.inspect()
-        # Plenty of controller-only memory cannot replace P192 game-node room.
+        self.assertFalse(self.inspect()["launch_permitted"])
         self.observation["node_available_bytes"] = {0: self.tt, 1: self.tt + 19, 2: 100}
-        with self.assertRaises(ValueError):
-            self.inspect()
+        self.assertFalse(self.inspect()["launch_permitted"])
         self.observation["node_available_bytes"] = {0: self.tt, 1: self.tt + 20}
-        with self.assertRaises(ValueError):
-            self.inspect()
+        self.assertFalse(self.inspect()["launch_permitted"])
 
     def test_mismatching_topology_and_slot_observation_fail(self):
         self.snapshot = SimpleNamespace(to_record=lambda: {"frozen": "other"},
@@ -268,7 +280,7 @@ class CapacityTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "kernel memory.peak is required"):
             self.inspect()
 
-    def test_each_p192_engine_requires_exactly_192_gib(self):
+    def test_p192_arithmetic_accepts_rove_and_peer_extents_without_provenance_claim(self):
         result = self.inspect()
         self.assertEqual(result["arithmetic"]["games"][0]["tt_bytes"], 2 * self.tt)
         for index in (0, 1):
@@ -278,6 +290,25 @@ class CapacityTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "engine TT extent differs"):
                         self.inspect()
                     self.games[0]["artifacts"][index]["tt_bytes"] = self.tt
+        self.games[0]["artifacts"][1]["tt_bytes"] = 256 << 30
+        self.groups[self.slot.id]["memory_max"] = (192 << 30) + (256 << 30) + 20
+        result = self.inspect()
+        self.assertEqual(result["arithmetic"]["games"][0]["tt_bytes"], 448 << 30)
+        self.assertIn("artifact_resource_provenance", result["unresolved"])
+        self.assertFalse(result["runtime_admission"])
+        self.games[0]["artifacts"][0]["tt_bytes"] = 256 << 30
+        self.groups[self.slot.id]["memory_max"] = (512 << 30) + 20
+        result = self.inspect()
+        self.assertEqual(result["arithmetic"]["games"][0]["tt_bytes"], 512 << 30)
+        self.assertFalse(result["arithmetic"]["physical_capacity_verified"])
+        self.games[0]["artifacts"][0]["tt_bytes"] += 1
+        with self.assertRaisesRegex(ValueError, "engine TT extent differs"):
+            self.inspect()
+
+    def test_cohort_integer_overflow_is_not_a_free_memory_check(self):
+        self.groups[self.slot.id]["memory_max"] = (1 << 63) - 1
+        with self.assertRaisesRegex(ValueError, "supported integer range"):
+            self.inspect()
 
     def test_p16_node_capacity_does_not_invent_controller_distribution(self):
         self.profile = "test-p16"
@@ -316,11 +347,9 @@ class CapacityTests(unittest.TestCase):
         self.assertFalse(result["launch_permitted"])
         self.assertEqual(set(self.last_observe.kwargs["extra_nodes"]), {0, 1, 2})
         self.observation["node_available_bytes"][2] = 29
-        with self.assertRaises(ValueError):
-            self.inspect()
+        self.assertFalse(self.inspect()["launch_permitted"])
         self.observation["node_available_bytes"][0] = 6 * 220 - 1
-        with self.assertRaises(ValueError):
-            self.inspect()
+        self.assertFalse(self.inspect()["launch_permitted"])
 
         # P16 is an upper bound, so the explicitly accepted 12 GiB table is
         # valid for each engine. These are integer fixtures, not allocations.

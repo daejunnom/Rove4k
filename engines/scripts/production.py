@@ -382,10 +382,12 @@ class HostAdmission:
     admitted: bool
     reason: str
     required_bytes: int
-    available_bytes: int
+    available_bytes: int | None
     tt_bytes: int
     other_peak_bytes: int
     reserve_bytes: int
+    hard_limit_bytes: int | None = None
+    allocation_confirmed: bool = False
 
     def require(self) -> HostAdmission:
         if not self.admitted:
@@ -396,12 +398,21 @@ class HostAdmission:
         return asdict(self)
 
 
-def host_admission(profile: ResourceProfile, layout: TTLayout, available_bytes: int,
-                   *, other_peak_bytes: int = 0, reserve_bytes: int = 256 * MiB) -> HostAdmission:
-    """Pure execution gate: the caller supplies effective host/cgroup headroom."""
-    _integer(available_bytes, "available_bytes")
+def host_admission(profile: ResourceProfile, layout: TTLayout, available_bytes: int | None,
+                   *, other_peak_bytes: int = 0, reserve_bytes: int = 256 * MiB,
+                   hard_limit_bytes: int | None = None) -> HostAdmission:
+    """Validate resource arithmetic; free memory is only an observation.
+
+    A caller may supply a separately established hard workload limit. The
+    changing available-memory observation is never substituted for that limit,
+    and this calculation does not allocate or establish runtime capacity.
+    """
+    if available_bytes is not None and type(available_bytes) is not int:
+        raise ValueError("available_bytes must be an integer or None")
     _integer(other_peak_bytes, "other_peak_bytes")
     _integer(reserve_bytes, "reserve_bytes")
+    if hard_limit_bytes is not None:
+        _integer(hard_limit_bytes, "hard_limit_bytes")
     if layout.bytes > profile.tt_cap_bytes:
         raise ValueError("layout exceeds the profile TT cap")
     if layout != profile.layout(layout.entry_bytes):
@@ -409,15 +420,16 @@ def host_admission(profile: ResourceProfile, layout: TTLayout, available_bytes: 
     required = layout.bytes + other_peak_bytes + reserve_bytes
     if required > (1 << 63) - 1:
         raise ValueError("execution budget overflows the admitted address domain")
-    admitted = required <= available_bytes
-    reason = ("headroom admitted; execution has not been performed" if admitted else
-              f"insufficient effective headroom before allocation: need {required}, have {available_bytes}")
+    admitted = hard_limit_bytes is None or required <= hard_limit_bytes
+    reason = ("resource arithmetic validated; available memory is an observation; allocation not attempted"
+              if admitted else
+              f"configured hard workload limit before allocation: need {required}, limit {hard_limit_bytes}")
     return HostAdmission(admitted, reason, required, available_bytes,
-                         layout.bytes, other_peak_bytes, reserve_bytes)
+                         layout.bytes, other_peak_bytes, reserve_bytes, hard_limit_bytes)
 
 
 def require_host_capacity(profile: ResourceProfile, layout: TTLayout,
-                          available_bytes: int, **kwargs) -> HostAdmission:
+                          available_bytes: int | None, **kwargs) -> HostAdmission:
     return host_admission(profile, layout, available_bytes, **kwargs).require()
 
 

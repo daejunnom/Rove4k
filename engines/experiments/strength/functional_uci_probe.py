@@ -137,13 +137,25 @@ def _launcher(path, *, whole, whole_sha256, slot, cgroup, saved_cpus, saved_node
     path.chmod(0o700)
 
 
+def _bind_b_static_live(observed, static, source_sha256):
+    """Correlate data only; no source authentication or score authority."""
+    if (observed["symbol_candidate"] != static["symbol"] or
+            observed["elf_symbol_offset"] != static["elf_symbol_offset"] or
+            observed["declared_range_bytes"] != static["tt_bytes"] or
+            observed["native_sha256"] != static["native_sha256"] or
+            source_sha256 != static["source_sha256"]):
+        raise ValueError("B live symbol differs from static correlation")
+    observed["static_correlation"] = static
+    return observed
+
+
 @peer_runtime.owned_signals
 def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
                   slot, cgroup, saved_ancestor_cpus, out, wall_seconds=120, saved_ancestor_nodes=None):
     """Run one pinned candidate in a fresh owned cgroup, without score authority.
 
-    This uses point-in-time capacity and kernel cgroup limits, not a physical
-    reservation. The caller remains responsible for the cgroup's ownership,
+    Point-in-time availability is telemetry, not an admission condition or
+    physical reservation. The caller remains responsible for cgroup ownership,
     creating/removing it and recording any external runtime prerequisites.
     """
     if sys.platform != "linux":
@@ -215,11 +227,6 @@ def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
     if group["memory_max"] < required:
         raise ValueError("cgroup memory.max is below TT and declared headroom")
     capacity = memory_observation.observe_capacity([slot], group_path, mask_scope="delegated-only")
-    remaining = peak_capacity._finite_remaining(capacity["delegated_cgroup"])
-    available = min([capacity["host_memavailable_bytes"], *remaining])
-    node_available = sum(capacity["node_available_bytes"].values())
-    if available < required or node_available < required:
-        raise ValueError("current host or visible cgroup/node capacity is insufficient")
     output = diagnostic_candidates._safe_output_path(out)
     output.mkdir(mode=0o700)
     own_directory = output / "owned"
@@ -236,10 +243,11 @@ def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
               "whole_sha256": artifact.sha256, "native_sha256": artifact.native_sha256,
               "tt_bytes": artifact.tt_bytes, "workers": artifact.workers, "source_evidence": candidate["evidence"],
               "source_sha256": candidate["source"]["sha256"],
-              "placement": group, "topology": observed_topology.to_record(), "capacity": capacity, "declared_overhead_bytes": overhead,
+              "placement": group, "topology": observed_topology.to_record(), "capacity": capacity,
+              "current_availability_enforced": False, "declared_overhead_bytes": overhead,
               "required_bytes": required, "memory_events_before": events_before, "boot_id": boot_id,
               "complete": False, "scored_game_admitted": False,
-              "limitations": ["point-in-time availability is not memory reservation",
+              "limitations": ["point-in-time availability is telemetry, not an admission condition or memory reservation",
                   "external cgroup writers and hidden ancestors are not excluded",
                   "declared overhead is not a proven workload upper bound",
                   "existing candidate/receipt parser performs path checks and reads separately",
@@ -284,9 +292,13 @@ def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
             def symbol_observer():
                 if owned not in owner.OWNED:
                     raise ValueError("B diagnostic process is no longer in the original owner registry")
-                return rove_b_tt_observe.observe_owned_b(
+                observed = rove_b_tt_observe.observe_owned_b(
                     owned, native_sha256=artifact.native_sha256, expected_identity=identity,
                     cgroup=cgroup, profile=profile, allowed_nodes=slot["memory_nodes"])
+                static = candidate["evidence"].get("b_static_correlation")
+                if static is not None:
+                    _bind_b_static_live(observed, static, candidate["source"]["sha256"])
+                return observed
         result = exercise_protocol(owned, oracle=oracle, scope=scope, native_sha256=artifact.native_sha256,
                                    cpus=slot["cpus"], launched_at=launch_started,
                                    symbol_observer=symbol_observer)

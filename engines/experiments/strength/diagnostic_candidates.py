@@ -98,6 +98,56 @@ def _profile_verifier():
     return module
 
 
+_B_STATIC_NAMES = ("b-static-tt.json", "compiler-sha256.txt", "linker-sha256.txt")
+
+
+def _strict_json(raw):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate producer report field")
+            result[key] = value
+        return result
+    def invalid(_):
+        raise ValueError("non-finite producer report value")
+    value = json.loads(raw, object_pairs_hook=unique, parse_constant=invalid)
+    if type(value) is not dict:
+        raise ValueError("producer observation must be an object")
+    return value
+
+
+def _b_producer_matches(report, profile, static):
+    """Compare unauthenticated report data; never authorize source or GO."""
+    if report.get("format") == "rove4k-source-observations-56d-v1":
+        if report.get("authorizes_go") is not False or report.get("engine_executed") is not False:
+            raise ValueError("producer observation collection scope differs")
+        rows = report.get("results")
+        if type(rows) is not list:
+            raise ValueError("producer observation results missing")
+        rows = [row for row in rows if type(row) is dict and
+                (row.get("family"), row.get("profile")) == ("B", profile)]
+        if len(rows) != 1:
+            raise ValueError("producer observation must uniquely identify B")
+        report = rows[0]
+    expected = dict(static, producer_artifact_observed=True)
+    try:
+        identical = (json.dumps(report.get("b_static_correlation"), sort_keys=True, separators=(",", ":"), allow_nan=False) ==
+                     json.dumps(expected, sort_keys=True, separators=(",", ":"), allow_nan=False))
+    except (TypeError, ValueError):
+        identical = False
+    if (report.get("format") != "rove4k.github-source-observation-v1" or
+            report.get("family") != "B" or report.get("profile") != profile or
+            report.get("variant") != "league-atomic" or report.get("candidate_pins_match") is not True or
+            report.get("candidate_files_observed") is not False or report.get("runtime_qualified") is not False or
+            report.get("authorizes_go") is not False or not identical):
+        raise ValueError("B producer static correlation differs from the sealed candidate")
+
+
+def _b_pin(raw):
+    return {"bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
 def _source_evidence(evidence, artifact, whole, source, native):
     """Replay existing generation checks when their exact pinned receipts exist."""
     if evidence == {"kind": "file-pins-only"}:
@@ -106,9 +156,15 @@ def _source_evidence(evidence, artifact, whole, source, native):
     if type(evidence) is not dict:
         raise ValueError("explicit diagnostic source evidence required")
     kind = evidence.get("kind")
-    if kind == "rove-profile-build-v1" and set(evidence) == {"kind", "build"}:
+    if kind == "rove-profile-build-v1":
         if artifact.family not in "ABCEF":
             raise ValueError("Rove build evidence is for Rove candidates only")
+        if artifact.family == "B":
+            if (set(evidence) != {"kind", "build", "b_static_mode", "b_static_files", "b_producer_report"} or
+                    evidence["b_static_mode"] not in ("legacy-no-static", "sealed-static-correlated")):
+                raise ValueError("explicit B static evidence mode is required")
+        elif set(evidence) != {"kind", "build"}:
+            raise ValueError("unexpected Rove build evidence fields")
         report_path = _pinned_file(evidence["build"])
         manifest, _ = run.json_input(report_path, evidence["build"]["sha256"])
         admitted = _profile_verifier().admit_c_build(manifest, report_path.parent)
@@ -122,8 +178,46 @@ def _source_evidence(evidence, artifact, whole, source, native):
                 any(expected[prefix + "_sha256"] != digest for prefix, digest in
                     (("source", registry.file_sha(source)), ("native", artifact.native_sha256), ("whole", artifact.sha256)))):
             raise ValueError("Rove source admission differs from diagnostic candidate")
-        return {"kind": kind, "receipt_sha256": evidence["build"]["sha256"],
-                "source_contract_verified": True, "native_reference_files_replay_verified": True}
+        result = {"kind": kind, "receipt_sha256": evidence["build"]["sha256"],
+                  "source_contract_verified": True, "native_reference_files_replay_verified": True}
+        if artifact.family == "B":
+            paths = [report_path.parent / name for name in _B_STATIC_NAMES]
+            present = [path.exists() for path in paths]
+            mode = evidence["b_static_mode"]
+            result["b_static_mode"] = mode
+            if mode == "legacy-no-static":
+                if any(present) or evidence["b_static_files"] != {} or evidence["b_producer_report"] is not None:
+                    raise ValueError("legacy B candidate contains or claims static evidence")
+            elif not all(present):
+                raise ValueError("incomplete B static correlation files")
+            if any(present):
+                if not all(present):
+                    raise ValueError("incomplete B static correlation files")
+                raw = []
+                for path in paths:
+                    path = _safe_input_path(path)
+                    if not path.is_file() or path.stat().st_size > (1 << 20):
+                        raise ValueError("invalid B static correlation file")
+                    raw.append(path.read_bytes())
+                try:
+                    from . import rove_b_static_tt
+                except ImportError:
+                    import rove_b_static_tt
+                actual_pins = {name: _b_pin(data) for name, data in zip(_B_STATIC_NAMES, raw)}
+                if json.dumps(evidence["b_static_files"], sort_keys=True, separators=(",", ":")) != json.dumps(actual_pins, sort_keys=True, separators=(",", ":")):
+                    raise ValueError("B static candidate file pins differ")
+                correlation = rove_b_static_tt.validate_report_bytes(
+                    raw[0], profile=artifact.profile, source=source.read_bytes(),
+                    native=native.read_bytes(), manifest=manifest,
+                    compiler_sha=raw[1].decode("ascii").strip(), linker_sha=raw[2].decode("ascii").strip())
+                correlation["report_sha256"] = hashlib.sha256(raw[0]).hexdigest()
+                producer_path = _pinned_file(evidence["b_producer_report"])
+                producer_raw = producer_path.read_bytes()
+                if _b_pin(producer_raw) != {key: evidence["b_producer_report"][key] for key in ("bytes", "sha256")}:
+                    raise ValueError("B producer observation changed while reading")
+                _b_producer_matches(_strict_json(producer_raw), artifact.profile, correlation)
+                result["b_static_correlation"] = correlation
+        return result
     if kind == "peer-reference-v1" and set(evidence) == {"kind", "build", "reference"}:
         if artifact.family not in ("ice4", "c4ke"):
             raise ValueError("peer evidence is for pinned comparison peers only")
@@ -208,6 +302,12 @@ def read_candidates(path, expected_sha256, profile, *, allow_single=False):
         # valid legacy artifact but must not enter this diagnostic cohort.
         if profile == "test-p192" and artifact.tt_bytes != 192 << 30:
             raise ValueError("P192 diagnostics require 192 GiB TT per engine")
+        # A peer layout identifies geometry only.  Until exact-P192 peer source
+        # and native reference have a dedicated proof, reject the entire peer
+        # family here: a fabricated 24-byte legacy layout must not bypass the
+        # exact-layout gate via file-pins-only evidence either.
+        if profile == "test-p192" and artifact.family in ("ice4", "c4ke"):
+            raise ValueError("P192 peer diagnostic awaits source and native reference verification")
         whole = _pinned_file({"path": str(artifact.path), "sha256": artifact.sha256,
                               "bytes": artifact.whole_bytes}, expected=artifact.sha256)
         source = _pinned_file(row["source"])

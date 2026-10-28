@@ -8,6 +8,7 @@ cannot be established by these reads and are always explicitly unverified.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import errno
 import hashlib
 import json
 import os
@@ -17,6 +18,10 @@ import time
 
 
 MAXIMUM = (1 << 63) - 1
+
+
+class _TelemetryFormatError(ValueError):
+    """Malformed bounded file contents, distinct from an unsafe file path."""
 
 
 def _root(path):
@@ -47,11 +52,11 @@ def _file(path, *, filesystem=False):
     with os.fdopen(os.open(path, flags), "rb") as stream:
         data = stream.read(65537)
     if len(data) > 65536:
-        raise ValueError("observation file exceeds bounded extent")
+        raise _TelemetryFormatError("observation file exceeds bounded extent")
     try:
         return os.fsdecode(data) if filesystem else data.decode("ascii")
     except UnicodeDecodeError as error:
-        raise ValueError("invalid observation encoding") from error
+        raise _TelemetryFormatError("invalid observation encoding") from error
 
 
 def _kb(text, expression, message):
@@ -59,9 +64,39 @@ def _kb(text, expression, message):
     if len(hits) != 1 or not hits[0].isdecimal():
         raise ValueError(message)
     value = int(hits[0]) * 1024
-    if not 0 < value <= MAXIMUM:
+    if not 0 <= value <= MAXIMUM:
         raise ValueError(message)
     return value
+
+
+def _optional_kb_file(path, expression, label_expression, message, *, incompatible_label_expression=None):
+    """Return a value and a bounded status; unsafe paths remain errors."""
+    try:
+        text = _file(path)
+    except FileNotFoundError:
+        return None, "missing"
+    except PermissionError:
+        return None, "unreadable"
+    except _TelemetryFormatError:
+        return None, "malformed"
+    except OSError as error:
+        if error.errno in (errno.ELOOP, errno.ENOTDIR, errno.EISDIR):
+            raise
+        return None, "unreadable"
+    # A missing metric is distinct from an explicitly malformed or duplicate
+    # metric. Other fields in procfs/node meminfo are not relevant here.
+    labels = re.findall(label_expression, text, flags=re.MULTILINE)
+    if (incompatible_label_expression and
+            len(re.findall(incompatible_label_expression, text, flags=re.MULTILINE)) != len(labels)):
+        raise ValueError(message)
+    if not labels:
+        return None, "missing"
+    if len(labels) != 1:
+        return None, "malformed"
+    try:
+        return _kb(text, expression, message), None
+    except ValueError:
+        return None, "malformed"
 
 
 def _linux_list(text):
@@ -110,7 +145,7 @@ def _cgroup_ancestors(path, mount):
     """Read all visible v2 ancestors. Missing kernel root files are explicit."""
     if not path.is_relative_to(mount):
         raise ValueError("cgroup path escapes the mount")
-    records, finite = [], []
+    records, finite, errors = [], [], []
     current = path
     mount_device = mount.stat().st_dev
     while True:
@@ -124,18 +159,38 @@ def _cgroup_ancestors(path, mount):
         else:
             # Intermediate or partially visible/malformed controller files are
             # not silently treated as unlimited.
-            maximum, usage = _file(maximum_path).strip(), _file(usage_path).strip()
-            if maximum != "max" and not maximum.isdecimal() or not usage.isdecimal():
+            maximum = _file(maximum_path).strip()
+            try:
+                usage = _file(usage_path).strip()
+                usage_error = None
+            except FileNotFoundError:
+                usage = None
+                usage_error = "missing"
+            except PermissionError:
+                usage = None
+                usage_error = "unreadable"
+            except _TelemetryFormatError:
+                usage = None
+                usage_error = "malformed"
+            except OSError as error:
+                if error.errno in (errno.ELOOP, errno.ENOTDIR, errno.EISDIR):
+                    raise
+                usage = None
+                usage_error = "unreadable"
+            if maximum != "max" and not maximum.isdecimal():
                 raise ValueError("invalid visible cgroup v2 memory values")
-            used = int(usage)
-            if used < 0 or used > MAXIMUM:
-                raise ValueError("cgroup current usage outside supported range")
+            try:
+                used = None if usage is None else int(usage) if usage.isdecimal() else None
+                if usage is not None and (used is None or not 0 <= used <= MAXIMUM):
+                    used, usage_error = None, "malformed"
+            except ValueError:
+                used, usage_error = None, "malformed"
+            if usage_error:
+                errors.append({"metric": "cgroup_current_bytes", "path": str(current), "error": usage_error})
             limit = None if maximum == "max" else int(maximum)
-            if limit is not None and not 0 < limit <= MAXIMUM:
+            if limit is not None and not 0 <= limit <= MAXIMUM:
                 raise ValueError("invalid finite cgroup memory limit")
-            remaining = None if limit is None else limit - used
-            if remaining is not None and remaining <= 0:
-                raise ValueError("visible cgroup has no remaining memory")
+            remaining = None if limit is None or used is None else limit - used
             if remaining is not None:
                 finite.append(remaining)
             records.append({"path": str(current), "limit_bytes": limit, "current_bytes": used,
@@ -143,7 +198,7 @@ def _cgroup_ancestors(path, mount):
         if current == mount:
             break
         current = current.parent
-    return records, finite
+    return records, finite, errors
 
 
 def _mount_record(text, mount):
@@ -237,8 +292,8 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
     boot = _file(proc_root / "sys/kernel/random/boot_id").strip().lower()
     if not re.fullmatch(r"[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}", boot):
         raise ValueError("invalid boot identity")
-    host = _kb(_file(proc_root / "meminfo"), r"^MemAvailable:\s*(\d+)\s+kB\s*$",
-               "host MemAvailable is missing or invalid")
+    host, host_error = _optional_kb_file(proc_root / "meminfo", r"^MemAvailable:\s*(\d+)\s+kB\s*$",
+               r"^MemAvailable:", "host MemAvailable is invalid")
     membership_text = _file(proc_root / "self/cgroup")
     mount_text = _file(proc_root / "self/mountinfo", filesystem=True)
     mount_record = _mount_record(mount_text, mount)
@@ -275,15 +330,42 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
         raise ValueError("exactly one visible cgroup v2 membership is required")
     controller = _below(mount, membership[0])
     controller_stat, delegated_stat = controller.stat(), delegated.stat()
-    controller_rows, controller_finite = _cgroup_ancestors(controller, mount)
-    delegated_rows, delegated_finite = _cgroup_ancestors(delegated, mount)
-    node_available = {}
+    controller_rows, controller_finite, controller_errors = _cgroup_ancestors(controller, mount)
+    delegated_rows, delegated_finite, delegated_errors = _cgroup_ancestors(delegated, mount)
+    telemetry_errors = ([{"metric": "host_memavailable_bytes", "error": host_error}] if host_error else [])
+    telemetry_errors.extend(controller_errors)
+    telemetry_errors.extend(delegated_errors)
+    node_available, node_identities = {}, {}
+    node_root_stat = node_root.stat()
     for node in sorted(observed_nodes):
         directory = node_root / f"node{node}"
         if directory.is_symlink() or not directory.is_dir() or not directory.resolve().is_relative_to(node_root):
             raise ValueError("node directory is unavailable or unsafe")
-        node_available[node] = _kb(_file(directory / "meminfo"),
-            rf"^Node\s+{node}\s+MemFree:\s*(\d+)\s+kB\s*$", "node MemFree is missing or invalid")
+        node_stat = directory.stat()
+        node_identities[node] = (node_stat.st_dev, node_stat.st_ino)
+        node_available[node], node_error = _optional_kb_file(directory / "meminfo",
+            rf"^Node\s+{node}\s+MemFree:\s*(\d+)\s+kB\s*$",
+            rf"^Node\s+{node}\s+MemFree:", "node MemFree is invalid",
+            incompatible_label_expression=r"^Node\s+\d+\s+MemFree:")
+        if node_error:
+            telemetry_errors.append({"metric": "node_available_bytes", "node": node, "error": node_error})
+    # A missing memory metric is allowed; losing or replacing the directory
+    # whose NUMA identity we observed is a different, structural failure.
+    try:
+        root_after = node_root.stat()
+        if (node_root.is_symlink() or node_root.resolve(strict=True) != node_root or
+                (root_after.st_dev, root_after.st_ino) != (node_root_stat.st_dev, node_root_stat.st_ino)):
+            raise ValueError("node root identity changed during observation")
+        for node, identity in node_identities.items():
+            directory = node_root / f"node{node}"
+            if (directory.is_symlink() or not directory.is_dir() or
+                    not directory.resolve(strict=True).is_relative_to(node_root)):
+                raise ValueError("node directory identity changed during observation")
+            after = directory.stat()
+            if (after.st_dev, after.st_ino) != identity:
+                raise ValueError("node directory identity changed during observation")
+    except OSError as error:
+        raise ValueError("node directory identity changed during observation") from error
     page = os.sysconf("SC_PAGE_SIZE") if page_size_for_test is None else page_size_for_test
     if type(page) is not int or not 0 < page <= 1 << 30 or page & (page - 1):
         raise ValueError("invalid kernel page size")
@@ -298,7 +380,11 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
             cpu_affinity_for_test is None and set(os.sched_getaffinity(0)) != controller_cpus or
             _file(proc_root / "sys/kernel/random/boot_id").strip().lower() != boot):
         raise ValueError("cgroup identity, membership, mount or boot changed during observation")
-    effective = min([host, *controller_finite, *delegated_finite])
+    # An unknown finite ancestor cannot be treated as infinite capacity.
+    # Preserve negative over-limit readings as observations, not start gates.
+    missing_finite = any(row.get("limit_bytes") is not None and row.get("current_bytes") is None
+                         for row in (*controller_rows, *delegated_rows))
+    effective = None if host is None or missing_finite else min([host, *controller_finite, *delegated_finite])
     return {"format": "rove4k-memory-capacity-observation-v1", "boot_id": boot,
             "time_utc": datetime.now(timezone.utc).isoformat(), "started_monotonic_ns": started,
             "completed_monotonic_ns": time.monotonic_ns(), "mount": mount_record,
@@ -312,8 +398,9 @@ def observe_capacity(slots, cgroup_root, *, proc_root=Path("/proc"),
             "slot_sha256": hashlib.sha256(slot_bytes).hexdigest(), "slots": rows,
             "host_memavailable_bytes": host, "host_available_bytes": effective,
             "controller_cgroup": controller_rows, "delegated_cgroup": delegated_rows,
+            "telemetry_errors": telemetry_errors,
             "node_available_bytes": node_available, "page_bytes": page,
             "test_inputs": page_size_for_test is not None or cpu_affinity_for_test is not None or proc_root != Path("/proc") or
                            node_root != Path("/sys/devices/system/node") or mount != Path("/sys/fs/cgroup"),
             "hidden_ancestors_verified": False, "runtime_admission_complete": False,
-            "scope": "one point-in-time visible read; no reservation, overhead, TT placement or hidden-ancestor claim"}
+            "scope": "one point-in-time visible read; unknown metrics are null, negative headroom is retained; no reservation, overhead, TT placement or hidden-ancestor claim"}

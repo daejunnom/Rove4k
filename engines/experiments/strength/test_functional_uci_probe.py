@@ -179,7 +179,8 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             self.assertFalse((root / "out").exists())
 
     def run_fixture(self, root, *, oom=False, group_path="/sys/fs/cgroup/rove-functional-fixture", available=80 << 30,
-                    fail_after_registration=False, saved_nodes=None, family="A", symbol_error=None, symbol_delay=0):
+                    fail_after_registration=False, saved_nodes=None, family="A", symbol_error=None, symbol_delay=0,
+                    memory_max=16 << 30, cgroup_remaining=None):
         whole = root / "toy"
         write_toy(whole)
         source = root / "source.c"
@@ -198,10 +199,12 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
                 "physical_cores": [[0, core] for core in range(8)],
                 "memory_nodes": [0], "smt": True, "policy": "default"}
         cgroup = {"path": group_path, "device": 1, "inode": 2,
-                  "cpus": list(range(16)), "memory_nodes": [0], "memory_max": 16 << 30}
+                  "cpus": list(range(16)), "memory_nodes": [0], "memory_max": memory_max}
         observed = {"path": group_path, "cpus": list(range(16)), "memory_nodes": [0],
-                    "device": 1, "inode": 2, "memory_max": 16 << 30}
-        capacity = {"delegated_cgroup": {}, "host_memavailable_bytes": available,
+                    "device": 1, "inode": 2, "memory_max": memory_max}
+        ancestor = [] if cgroup_remaining is None else [{"limit_bytes": 1, "current_bytes": 1 - cgroup_remaining,
+                                                         "remaining_bytes": cgroup_remaining}]
+        capacity = {"delegated_cgroup": ancestor, "host_memavailable_bytes": available,
                     "node_available_bytes": {0: available}}
         events_before = {"oom": 0, "oom_kill": 0}
         events_after = {"oom": int(oom), "oom_kill": 0}
@@ -249,7 +252,6 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             patches.enter_context(mock.patch.object(probe.topology.Topology, "snapshot_target", return_value=topology_fixture))
             patches.enter_context(mock.patch.object(probe.topology, "plan_slots", return_value=(slot_fixture,)))
             patches.enter_context(mock.patch.object(probe.memory_observation, "observe_capacity", return_value=capacity))
-            patches.enter_context(mock.patch.object(probe.peak_capacity, "_finite_remaining", return_value=[available]))
             patches.enter_context(mock.patch.object(probe.memory_observation, "_file", side_effect=fixture_cgroup_file))
             patches.enter_context(mock.patch.object(probe, "_events", side_effect=[events_before, events_after]))
             patches.enter_context(mock.patch.object(probe, "_launcher", side_effect=fixture_launcher))
@@ -311,6 +313,21 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             self.assertEqual(self.symbol_call["allowed_nodes"], [0])
             self.assertFalse(report["scored_game_admitted"])
 
+    def test_static_live_correlation_rejects_each_changed_identity(self):
+        static = {"symbol": "qq", "elf_symbol_offset": 512, "tt_bytes": 12 << 30,
+                  "native_sha256": "a" * 64, "source_sha256": "b" * 64,
+                  "producer_authenticated": False, "tt_semantics_proven": False}
+        observed = {"symbol_candidate": "qq", "elf_symbol_offset": 512,
+                    "declared_range_bytes": 12 << 30, "native_sha256": "a" * 64,
+                    "claims": {"symbol_represents_tt": False, "score_go_authority": False}}
+        self.assertEqual(probe._bind_b_static_live(dict(observed), static, "b" * 64)["static_correlation"], static)
+        for name, value in (("symbol_candidate", "other"), ("elf_symbol_offset", 513),
+                            ("declared_range_bytes", 1), ("native_sha256", "c" * 64)):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                probe._bind_b_static_live(dict(observed, **{name: value}), static, "b" * 64)
+        with self.assertRaises(ValueError):
+            probe._bind_b_static_live(observed, static, "c" * 64)
+
     def test_b_symbol_observation_unavailable_keeps_uci_result_unqualified(self):
         with tempfile.TemporaryDirectory(prefix="rove-functional-b-unavailable-") as tmp:
             report = self.run_fixture(Path(tmp), family="B",
@@ -361,14 +378,26 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             self.assertTrue((Path(tmp) / "out" / "functional-runtime.json").is_file())
             self.assertFalse(self.owner.OWNED)
 
-    def test_arbitrary_cgroup_and_insufficient_capacity_are_rejected_before_launch(self):
+    def test_arbitrary_cgroup_is_rejected_before_launch(self):
         with tempfile.TemporaryDirectory(prefix="rove-functional-invalid-") as tmp:
             with self.assertRaisesRegex(ValueError, "visible cgroup2 descendant"):
                 self.run_fixture(Path(tmp), group_path=str(Path(tmp) / "fake-cgroup"))
             self.assertFalse((Path(tmp) / "out").exists())
+
+    def test_low_current_availability_is_recorded_without_preflight_rejection(self):
         with tempfile.TemporaryDirectory(prefix="rove-functional-small-") as tmp:
-            with self.assertRaisesRegex(ValueError, "capacity is insufficient"):
-                self.run_fixture(Path(tmp), available=1 << 30)
+            report = self.run_fixture(Path(tmp), available=0, cgroup_remaining=-1)
+            self.assertTrue(report["complete"])
+            self.assertEqual(report["capacity"]["host_memavailable_bytes"], 0)
+            self.assertEqual(report["capacity"]["node_available_bytes"], {0: 0})
+            self.assertEqual(report["capacity"]["delegated_cgroup"][0]["remaining_bytes"], -1)
+            self.assertIs(report["current_availability_enforced"], False)
+            self.assertFalse(report["scored_game_admitted"])
+
+    def test_cgroup_hard_limit_is_still_enforced_before_launch(self):
+        with tempfile.TemporaryDirectory(prefix="rove-functional-hard-cap-") as tmp:
+            with self.assertRaisesRegex(ValueError, "cgroup memory.max"):
+                self.run_fixture(Path(tmp), memory_max=12 << 30)
             self.assertFalse((Path(tmp) / "out").exists())
 
 

@@ -76,13 +76,12 @@ def _align_memory_extent(extent, page_bytes):
 
 
 def slot_memory_budget(tt_bytes, *, overhead_bytes, available_bytes, page_bytes, node_available_bytes=None):
-    """Size one game's cgroup from both artifact TT extents and observed bounds.
+    """Size one game's cgroup from both artifact TT extents and overhead.
 
     The caller must supply actual, already-admitted artifact extents, an
-    explicit operational allowance, and a current host availability reading.
-    A node availability reading is optional for a multi-node slot; when absent,
-    this result does not assert node capacity. This comparison is per game,
-    not an admission for several concurrent slots or a reservation of memory.
+    explicit operational allowance, and optional current availability readings.
+    These readings are observations only, not admission conditions or memory
+    reservations. This is per-game sizing, not proof of runtime capacity.
     """
     maximum = (1 << 63) - 1
     if (not isinstance(tt_bytes, (list, tuple)) or len(tt_bytes) != 2 or
@@ -90,41 +89,40 @@ def slot_memory_budget(tt_bytes, *, overhead_bytes, available_bytes, page_bytes,
         raise ValueError("two positive actual artifact TT byte extents are required")
     if type(overhead_bytes) is not int or not 0 < overhead_bytes <= maximum:
         raise ValueError("an explicit positive operational overhead in bytes is required")
-    if type(available_bytes) is not int or not 0 < available_bytes <= maximum:
-        raise ValueError("a positive observed host available-byte bound is required")
+    if available_bytes is not None and (type(available_bytes) is not int or
+                                        not -maximum <= available_bytes <= maximum):
+        raise ValueError("an observed host available-byte value must be a bounded signed integer")
     if node_available_bytes is not None and (
-            type(node_available_bytes) is not int or not 0 < node_available_bytes <= maximum):
-        raise ValueError("an observed node available-byte bound must be positive")
+            type(node_available_bytes) is not int or not 0 <= node_available_bytes <= maximum):
+        raise ValueError("an observed node available-byte value must be nonnegative")
     raw_memory = sum(tt_bytes) + overhead_bytes
     if raw_memory > maximum:
         raise ValueError("single-game cgroup memory extent exceeds the supported range")
     memory_max = _align_memory_extent(raw_memory, page_bytes)
-    if memory_max > available_bytes:
-        raise ValueError("single-game memory extent exceeds observed host availability")
-    if node_available_bytes is not None and memory_max > node_available_bytes:
-        raise ValueError("single-game memory extent exceeds observed node availability")
     return {"tt_bytes": list(tt_bytes), "overhead_bytes": overhead_bytes,
             "unrounded_memory_bytes": raw_memory, "page_bytes": page_bytes,
             "page_rounding_bytes": memory_max - raw_memory,
             "memory_max": memory_max, "supplied_available_bytes": available_bytes,
             "supplied_node_available_bytes": node_available_bytes,
             "node_bound_provided": node_available_bytes is not None,
-            "capacity_scope": ("one slot; caller-supplied bounds only; "
-                               + ("node bound provided" if node_available_bytes is not None
-                                  else "node capacity not checked")
+            "availability_used_for_admission": False, "physical_capacity_verified": False,
+            "capacity_scope": ("one slot; caller-supplied observations only; "
+                               + ("node observation provided" if node_available_bytes is not None
+                                  else "node observation unavailable")
                                + "; not a concurrent admission or reservation")}
 
 
 def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, node_available_bytes,
                             per_game_overhead_bytes, overhead_evidence_sha256, controller_reserve_bytes,
                             page_bytes):
-    """Compare one cohort's conservative simultaneous memory demand to supplied bounds.
+    """Calculate one cohort's conservative simultaneous memory demand.
 
     Caller supplies verified artifact identities, the exact candidate slots,
-    current effective host/node bounds and a separately authenticated overhead
-    receipt. The digest is a binding label, not receipt authentication. This
+    optional current host/node observations and a separately authenticated
+    overhead receipt. The digest is a binding label, not receipt authentication. This
     pure arithmetic check neither reserves resources nor verifies provenance,
-    freshness, runtime TT residency or actual per-node page distribution.
+    freshness, runtime TT residency or actual per-node page distribution. The
+    available-memory observations do not reject a candidate.
     """
     maximum = (1 << 63) - 1
 
@@ -141,7 +139,10 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
         raise ValueError("a bound overhead evidence SHA-256 is required")
     overhead = positive(per_game_overhead_bytes, "a positive per-game operational overhead is required")
     reserve = positive(controller_reserve_bytes, "a positive controller reserve is required")
-    available = positive(host_available_bytes, "a positive supplied host available-byte bound is required")
+    if host_available_bytes is not None and (type(host_available_bytes) is not int or
+                                              not -maximum <= host_available_bytes <= maximum):
+        raise ValueError("a supplied host available-byte observation must be a bounded signed integer")
+    available = host_available_bytes
     players = []
     seen_players = set()
     for artifact in artifacts:
@@ -163,13 +164,15 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
     expected_count = 11 if profile == "test-p16" else 1
     if not isinstance(slots, (tuple, list)) or len(slots) != expected_count:
         raise ValueError("P16 requires eleven slots and P192 requires one slot")
-    if not isinstance(node_available_bytes, dict) or not node_available_bytes:
-        raise ValueError("per-node supplied available-byte bounds are required")
+    if node_available_bytes is not None and not isinstance(node_available_bytes, dict):
+        raise ValueError("per-node available-byte observations must be a mapping")
     node_bounds = {}
-    for node, value in node_available_bytes.items():
+    for node, value in (node_available_bytes or {}).items():
         if type(node) is not int or node < 0:
             raise ValueError("a nonnegative numeric NUMA node id is required")
-        node_bounds[node] = positive(value, "a positive node available-byte bound is required")
+        if value is not None and (type(value) is not int or not 0 <= value <= maximum):
+            raise ValueError("a node available-byte observation must be nonnegative or unavailable")
+        node_bounds[node] = value
     records, seen_slots, p16_nodes = [], set(), Counter()
     for slot in slots:
         if not isinstance(slot, dict):
@@ -182,8 +185,6 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
             raise ValueError("distinct slot identity and NUMA node list required")
         if profile == "test-p16" and len(nodes) != 1:
             raise ValueError("P16 slots must each use exactly one NUMA node")
-        if any(node not in node_bounds for node in nodes):
-            raise ValueError("supplied node bound is missing for an actual slot")
         seen_slots.add(name)
         if profile == "test-p16":
             p16_nodes[nodes[0]] += per_slot
@@ -191,23 +192,17 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
     required = per_slot * len(records) + reserve
     if required > maximum:
         raise ValueError("concurrent memory extent exceeds the supported range")
-    if required > available:
-        raise ValueError("concurrent memory extent exceeds supplied host availability")
     if profile == "test-p16":
-        for node, amount in p16_nodes.items():
-            if amount > node_bounds[node]:
-                raise ValueError("P16 slot aggregate exceeds supplied NUMA node availability")
         node_check = {"kind": "per-node-game-sums", "required_bytes": dict(sorted(p16_nodes.items())),
-                      "controller_distribution_verified": False}
+                      "observations_complete": all(node_bounds.get(node) is not None for node in p16_nodes),
+                      "capacity_checked": False, "controller_distribution_verified": False}
     else:
         allowed_nodes = records[0]["memory_nodes"]
-        aggregate = sum(node_bounds[node] for node in allowed_nodes)
-        if aggregate > maximum:
-            raise ValueError("supplied node aggregate exceeds the supported range")
-        if required > aggregate:
-            raise ValueError("P192 game plus controller exceeds supplied aggregate node availability")
+        complete = all(node_bounds.get(node) is not None for node in allowed_nodes)
+        aggregate = sum(node_bounds[node] for node in allowed_nodes) if complete else None
         node_check = {"kind": "aggregate-only", "allowed_nodes": allowed_nodes,
                       "supplied_aggregate_bytes": aggregate,
+                      "observations_complete": complete, "capacity_checked": False,
                       "per_node_distribution_verified": False}
     return {"profile": profile, "worst_two_artifacts": worst, "per_game_overhead_bytes": overhead,
             "overhead_evidence_sha256": overhead_evidence_sha256,
@@ -216,7 +211,8 @@ def league_memory_admission(artifacts, slots, *, profile, host_available_bytes, 
             "controller_reserve_bytes": reserve, "required_bytes": required,
             "supplied_host_available_bytes": available, "supplied_node_available_bytes": dict(sorted(node_bounds.items())),
             "node_check": node_check, "runtime_admission_complete": False,
-            "capacity_scope": "caller-supplied bounds and digest only; no provenance, freshness, reservation or TT page claim"}
+            "availability_used_for_admission": False, "physical_capacity_verified": False,
+            "capacity_scope": "caller-supplied observations and digest only; no provenance, freshness, reservation or TT page claim"}
 
 
 class CgroupSetupFailure(RuntimeError):

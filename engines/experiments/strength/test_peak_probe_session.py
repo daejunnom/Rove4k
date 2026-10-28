@@ -74,13 +74,13 @@ class ProbeSessionTests(unittest.TestCase):
         self.run_case(tt_mismatch=True)
 
     def test_owned_cohort_creates_two_tt_extents_and_never_cleans_live_child(self):
-        # This group-manager fixture does not create real kernel cgroups. An
-        # insufficient live preflight must fail before any controller launch.
+        # This group-manager fixture does not create real kernel cgroups. A
+        # mismatched cgroup identity must fail before any controller launch.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
             engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
-                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 192 << 30}]
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 256 << 30}]
             manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
                         "opening_start": 1, "out": str(root / "out")}], "saved_ancestor_cpus": [0, 1],
                         "topology": {"fixture": [1, 2]}, "runner": str(root / "runner"), "runner_sha256": "e" * 64,
@@ -126,14 +126,14 @@ class ProbeSessionTests(unittest.TestCase):
                 owner = session.OwnedProbeCohort.create(root=root, campaign="fixture", manifest_path=root / "m.json",
                     manifest_sha256="f" * 64, per_game_headroom_bytes=2000, controller_headroom_bytes=1000)
                 self.assertEqual(owner.manager.calls[:2], [("controller", [0, 1], [0], 4096),
-                                                          ("slot-000", [0, 1], [0], (384 << 30) + 4096)])
-                self.assertEqual(owner.artifacts["slot-000"][1]["tt_bytes"], 192 << 30)
+                                                          ("slot-000", [0, 1], [0], (448 << 30) + 4096)])
+                self.assertEqual(owner.artifacts["slot-000"][1]["tt_bytes"], 256 << 30)
                 with patch.object(session.placement, "verify_cgroup_live", side_effect=lambda row: row), \
                      patch.object(session.overhead, "_sha_file", return_value="e" * 64), \
                      patch.object(Path, "read_text", return_value="12345678-1234-1234-1234-123456789abc"), \
-                     patch.object(session.peak_capacity, "inspect_capacity", side_effect=ValueError("insufficient live capacity")), \
+                     patch.object(session.peak_capacity, "inspect_capacity", side_effect=ValueError("cgroup identity differs")), \
                      patch.object(session.peak_supervisor.subprocess, "Popen") as popen:
-                    with self.assertRaisesRegex(ValueError, "insufficient live capacity"):
+                    with self.assertRaisesRegex(ValueError, "cgroup identity differs"):
                         owner.observe(report_path=root / "pending.json", append=lambda *_: None)
                     popen.assert_not_called()
                 live = SimpleNamespace(pid=4321, poll=lambda: None)
@@ -167,10 +167,11 @@ class ProbeSessionTests(unittest.TestCase):
                         manifest_sha256="f" * 64, per_game_headroom_bytes=1, controller_headroom_bytes=1)
                 manager.assert_not_called()
 
-    def test_p192_requires_exact_192_gib_for_each_engine_before_cgroup_creation(self):
+    def test_p192_requires_declared_192_or_256_gib_before_cgroup_creation(self):
         # These are extent declarations only; no memory is allocated.
         for which in (0, 1):
-            for extent in (128 << 30, (192 << 30) - 1, (192 << 30) + 1):
+            for extent in (128 << 30, (192 << 30) - 1, (192 << 30) + 1,
+                           (256 << 30) - 1, (256 << 30) + 1):
                 with self.subTest(engine=which, extent=extent), tempfile.TemporaryDirectory() as tmp:
                     root = Path(tmp).resolve()
                     slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
@@ -198,6 +199,15 @@ class ProbeSessionTests(unittest.TestCase):
                             session.OwnedProbeCohort.create(root=root, campaign="fixture", manifest_path=root / "m.json",
                                 manifest_sha256="f" * 64, per_game_headroom_bytes=1, controller_headroom_bytes=1)
                         manager.assert_not_called()
+
+    def test_p192_extent_declarations_do_not_prove_engine_family(self):
+        rove, peer = 192 << 30, 256 << 30
+        # This test is only arithmetic: artifact family/provenance is not in
+        # the manifest and no actual allocation or league GO is performed.
+        for values, expected in (((rove, rove), 384), ((rove, peer), 448), ((peer, peer), 512)):
+            with self.subTest(values=values):
+                engines = [{"tt_bytes": value} for value in values]
+                self.assertEqual(sum(session._declared_tt_extents("test-p192", engines)), expected << 30)
 
     def test_p16_rejects_an_engine_over_16_gib_before_cgroup_creation(self):
         with tempfile.TemporaryDirectory() as tmp:

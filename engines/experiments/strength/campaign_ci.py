@@ -389,6 +389,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
         cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
@@ -419,11 +423,28 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             observer_bound = bool(observer_entries)
             require(observer_bound == ("rove_b_tt_observe" in values["LEAGUE_HOST_MODULES"]),
                     "committed B observer source closure is incomplete")
+            static_path = "engines/experiments/strength/" + "rove_b_static_tt.py"
+            static_entries = tuple(name for name in cloud_names
+                                   if name.replace("\\", "/").rsplit("/", 1)[-1] == "rove_b_static_tt.py")
+            require(static_entries in ((), (static_path,)) and
+                    bool(static_entries) == ("rove_b_static_tt" in values["LEAGUE_HOST_MODULES"]),
+                    "committed B static source closure is incomplete")
         else:
             require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
                     "committed peer diagnostic source closure is incomplete")
             require("rove_b_tt_observe" not in values["LEAGUE_HOST_MODULES"],
                     "committed B observer source closure is incomplete")
+            require("rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"],
+                    "committed B static source closure is incomplete")
+        if "diagnostic_candidates" in values["LEAGUE_HOST_MODULES"] and "rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"]:
+            diagnostic_name = "engines/experiments/strength/" + "diagnostic_candidates.py"
+            diagnostic_source = git(origin, "show", expected_head + ":" + diagnostic_name, limit=32 << 20)
+            static_imported = any(
+                (isinstance(node, ast.ImportFrom) and node.module is not None and node.module.split(".")[-1] == "rove_b_static_tt")
+                or (isinstance(node, (ast.Import, ast.ImportFrom)) and
+                    any(alias.name.split(".")[-1] == "rove_b_static_tt" for alias in node.names))
+                for node in ast.walk(ast.parse(diagnostic_source)))
+            require(not static_imported, "committed B static source closure is incomplete")
         if "functional_uci_probe" in values["LEAGUE_HOST_MODULES"] and not observer_bound:
             functional_name = "engines/experiments/strength/" + "functional_uci_probe.py"
             functional_source = git(origin, "show", expected_head + ":" + functional_name, limit=32 << 20)

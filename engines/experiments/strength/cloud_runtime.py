@@ -15,6 +15,7 @@ from dataclasses import asdict, dataclass, is_dataclass
 import hashlib
 import importlib.util
 import importlib
+import inspect
 import io
 import json
 import os
@@ -97,6 +98,7 @@ LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py"
                             "engines/experiments/strength/league_functional_host.py",
                             "engines/experiments/strength/peer_diagnostic_prepare.py",
                             "engines/experiments/strength/rove_b_tt_observe.py",
+                            "engines/experiments/strength/rove_b_static_tt.py",
                             "engines/scripts/league_resource_profiles.py",
                             "engines/experiments/tcec-scope/verify.py",
                             "engines/compact/tiny-entry-d/verify.py",
@@ -1031,6 +1033,52 @@ def qualification_slot(slot):
         require(os.sched_getaffinity(0) == original, "qualification did not restore original host affinity")
 
 
+def require_rove_league_test(verify, admitted):
+    """Require a source-pinned TEST verifier before compiling an admitted build.
+
+    Whole-file size remains an observed submission property; it is not a TEST
+    admission limit. A legacy verifier may use its original general-4K path
+    only for an already eligible small file. An oversized legacy seed must be
+    regenerated with an explicit v2 TEST verifier before compiler or engine use.
+    """
+    require(admitted.full is True, "blocked_full: source seed does not authorize native fallback")
+    size = admitted.expected.get("whole_bytes")
+    require(type(size) is int and size > 0, "positive complete-file size required")
+    resource = getattr(verify, "profile_resource", None)
+    record = getattr(verify, "qualification_record", None)
+    require(callable(resource) and callable(record), "explicit league-test qualification bridge required")
+    try:
+        scope = inspect.signature(record).parameters.get("qualification_scope")
+    except (TypeError, ValueError) as error:
+        raise ValueError("explicit league-test qualification bridge required") from error
+    require(resource(admitted.profile_id, input_pins=admitted.input_pins).purpose == "test",
+            "league-test scope requires a TEST profile")
+    if scope is None:
+        require(size <= 4096, "legacy v1 seed exceeds 4KiB; regenerate with a league-test verifier")
+        return False
+    require(scope.kind in (inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            "explicit league-test qualification bridge required")
+    return True
+
+
+def validate_rove_league_test_record(proof, admitted):
+    """Reject a legacy, size-forged, or release-authorizing TEST receipt."""
+    size = admitted.expected["whole_bytes"]
+    within = size <= 4096
+    require(type(proof) is dict and proof.get("format") == "rove4k-qualification-v2" and
+            proof.get("division") == "league-test" and proof.get("qualification_scope") == "league-test",
+            "explicit league-test qualification receipt required")
+    checks = proof.get("checks")
+    require(type(checks) is dict and checks.get("size") is within and
+            proof.get("submission_size_within_4096") is within,
+            "league-test receipt size observation differs")
+    artifact = proof.get("artifact")
+    require(type(artifact) is dict and type(artifact.get("whole_bytes")) is int and
+            artifact["whole_bytes"] == size, "league-test receipt artifact size differs")
+    require(proof.get("score_authorized") is False and proof.get("release_qualified") is False and
+            proof.get("event_target_confirmed") is False, "league-test receipt cannot authorize score or release")
+
+
 def prepare_rove(row, *, seed, root, out, consumer, slot, execute_command, restored_layout):
     source = Path(root) / seed["source_tree"]
     verify = load_module("rove_cloud_profile_verify", source / "engines/experiments/tcec-next/profile_verify.py")
@@ -1044,8 +1092,7 @@ def prepare_rove(row, *, seed, root, out, consumer, slot, execute_command, resto
         admitted = verify.admit_d_build(manifest, build, row["candidate"])
     else:
         admitted = verify.admit_c_build(manifest, build)
-    require(admitted.full and admitted.expected["whole_bytes"] <= 4096,
-            "blocked_size/full: source seed does not authorize native fallback")
+    has_test_scope = require_rove_league_test(verify, admitted)
     out = new_external(out)
     out.mkdir(parents=True)
     compiler_out = out / "compiler"
@@ -1059,15 +1106,60 @@ def prepare_rove(row, *, seed, root, out, consumer, slot, execute_command, resto
     with qualification_slot(slot):
         limits = verify.execution_limits(admitted, verify.effective_available_bytes())
         verify.run_runtime(admitted, build, out / "runtime", limits, target_reference=reference)
-        proof = verify.qualification_record(admitted, build, out / "runtime/runtime.json",
-            rules_path=Path(rules), target_reference=reference)
-    receipt = out / "qualification.json"
-    proof_pin = json_new(receipt, proof)
-    artifact = registry.Artifact.from_record({**proof["artifact"], "path": str(build / admitted.program)})
-    registry.admit_to_test_league(artifact, receipt, proof_pin["sha256"])
+        proof = None
+        if has_test_scope:
+            proof = verify.qualification_record(admitted, build, out / "runtime/runtime.json",
+                rules_path=Path(rules), target_reference=reference, qualification_scope="league-test")
+        legacy_proof = None
+        if admitted.expected["whole_bytes"] <= 4096:
+            kwargs = {"rules_path": Path(rules), "target_reference": reference}
+            if has_test_scope:
+                kwargs["qualification_scope"] = "general4k"
+            legacy_proof = verify.qualification_record(admitted, build, out / "runtime/runtime.json", **kwargs)
+    if proof is not None:
+        validate_rove_league_test_record(proof, admitted)
+    else:
+        require(type(legacy_proof) is dict, "legacy source did not produce a general4k receipt")
+    identity = proof["artifact"] if proof is not None else legacy_proof.get("artifact")
+    require(type(identity) is dict and identity.get("family") == admitted.family and
+            identity.get("profile") == admitted.profile_id and
+            type(identity.get("whole_bytes")) is int and identity["whole_bytes"] == admitted.expected["whole_bytes"] and
+            identity.get("sha256") == admitted.expected["whole_sha256"],
+            "qualification must bind the admitted TEST source artifact")
+    artifact = registry.Artifact.from_record({**identity, "path": str(build / admitted.program)})
+    receipt = None
+    proof_pin = None
+    if proof is not None:
+        receipt = out / "qualification.json"
+        proof_pin = json_new(receipt, proof)
+        inspection = registry.inspect_league_test_receipt(artifact, receipt, proof_pin["sha256"])
+        require(inspection.get("diagnostic_eligible") is True and inspection.get("score_authorized") is False,
+                "league-test inspection must remain diagnostic only")
+    legacy = None
+    if legacy_proof is not None:
+        require(type(legacy_proof) is dict and legacy_proof.get("format") == "rove4k-qualification-v1" and
+                legacy_proof.get("division") == "general4k" and
+                type(legacy_proof.get("artifact")) is dict and
+                ledger.canonical(legacy_proof["artifact"]) == ledger.canonical(identity) and
+                type(legacy_proof.get("checks")) is dict and legacy_proof["checks"].get("size") is True and
+                legacy_proof.get("release_qualified") is False and
+                legacy_proof.get("event_target_confirmed") is False,
+                "separate legacy general4k receipt must bind the same TEST artifact")
+        legacy_path = out / "general4k-qualification.json"
+        legacy_pin = json_new(legacy_path, legacy_proof)
+        legacy_admission = registry.admit_to_test_league(artifact, legacy_path, legacy_pin["sha256"])
+        require(legacy_admission.get("qualified") is True, "legacy score qualification is missing")
+        legacy = {"receipt": str(legacy_path), "receipt_sha256": legacy_pin["sha256"]}
     json_new(out / "cloud-reference.json", reference.to_record())
+    if proof is None:
+        require(legacy is not None, "legacy source did not produce a general4k receipt")
+        return {"artifact": {**artifact.identity(), "path": str(artifact.path)}, **legacy,
+                "qualification_scope": "legacy-general4k", "diagnostic_eligible": False,
+                "score_authorized": False, "legacy_scored_receipt": legacy}
     return {"artifact": {**artifact.identity(), "path": str(artifact.path)},
-            "receipt": str(receipt), "receipt_sha256": proof_pin["sha256"]}
+            "receipt": str(receipt), "receipt_sha256": proof_pin["sha256"],
+            "qualification_scope": "league-test", "diagnostic_eligible": True, "score_authorized": False,
+            "legacy_scored_receipt": legacy}
 
 
 def prepare_peer(row, *, seed, root, out, slot):
@@ -1099,7 +1191,7 @@ def prepare_registry(seed, root, out, consumer, profile, *, execute_command, res
     slot = topology.plan_slots(observed, physical, physical, reserve_physical=8, max_slots=1)[0]
     out = new_external(out)
     out.mkdir(parents=True)
-    players, rejected = [], []
+    players, diagnostic_players, rejected = [], [], []
     for kind, driver in (("rove", rove_driver), ("peers", peer_driver)):
         for row in seed.get(kind, []):
             if row["profile"] != profile:
@@ -1109,14 +1201,49 @@ def prepare_registry(seed, root, out, consumer, profile, *, execute_command, res
                 kwargs.update(consumer=consumer, execute_command=execute_command, restored_layout=restored_layout)
             try:
                 result = driver(row, **kwargs)
-                registry.admit_to_test_league(registry.Artifact.from_record(result["artifact"]),
-                    Path(result["receipt"]), result["receipt_sha256"])
-                players.append(result)
+                artifact = registry.Artifact.from_record(result["artifact"])
+                require(artifact.family == row["family"] and artifact.profile == row["profile"],
+                        "prepared artifact differs from selected seed row")
+                if kind == "rove":
+                    if result.get("qualification_scope") == "legacy-general4k":
+                        require(result.get("diagnostic_eligible") is False and
+                                result.get("score_authorized") is False,
+                                "legacy receipt cannot claim v2 diagnostic scope")
+                        legacy_admission = registry.admit_to_test_league(artifact, Path(result["receipt"]),
+                                                                        result["receipt_sha256"])
+                        require(legacy_admission.get("qualified") is True,
+                                "legacy score qualification is missing")
+                        players.append({"artifact": result["artifact"], "receipt": result["receipt"],
+                                        "receipt_sha256": result["receipt_sha256"]})
+                        continue
+                    inspection = registry.inspect_league_test_receipt(artifact, Path(result["receipt"]),
+                                                                       result["receipt_sha256"])
+                    require(inspection.get("diagnostic_eligible") is True and
+                            inspection.get("score_authorized") is False,
+                            "league-test inspection must remain diagnostic only")
+                    legacy = result.get("legacy_scored_receipt")
+                    legacy_player = None
+                    if legacy is not None:
+                        require(type(legacy) is dict and set(legacy) == {"receipt", "receipt_sha256"},
+                                "separate legacy general4k receipt required")
+                        legacy_admission = registry.admit_to_test_league(artifact, Path(legacy["receipt"]),
+                                                                        legacy["receipt_sha256"])
+                        require(legacy_admission.get("qualified") is True,
+                                "legacy score qualification is missing")
+                        legacy_player = {"artifact": result["artifact"], **legacy}
+                    diagnostic_players.append({**result, "qualification_scope": "league-test",
+                                               "diagnostic_eligible": True, "score_authorized": False})
+                    if legacy_player is not None:
+                        players.append(legacy_player)
+                else:
+                    registry.admit_to_test_league(artifact, Path(result["receipt"]), result["receipt_sha256"])
+                    players.append(result)
             except ValueError as error:
                 # An explicitly ineligible source remains rejected; it does not
                 # turn into a configurable/native fallback or a passed flag.
                 rejected.append({"family": row["family"], "profile": profile, "reason": str(error)})
     value = {"format": "rove4k-league-registry-v1", "players": players,
+             "diagnostic_players": diagnostic_players, "diagnostic_score_authorized": False,
              "source_origin": seed["source_origin"], "consumer": consumer.to_record(), "rejected": rejected}
     json_new(out / "registry.json", value)
     return out / "registry.json"

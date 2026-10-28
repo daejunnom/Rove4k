@@ -25,6 +25,38 @@ def valid_id(value):
     return value
 
 
+def valid_boot_id(value):
+    return type(value) is str and re.fullmatch(
+        r"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}", value) is not None
+
+
+def cooperative_gc_scope_id(campaign, pair, game, attempt, identity):
+    """Bind a controller-observed cooperative-GC interval to one physical attempt.
+
+    This is a content identity, not host attestation.  The owner must journal
+    its scope open and close and cover all of its explicit cooperative calls.
+    """
+    for value in (campaign, pair, game):
+        valid_id(value)
+    if type(attempt) is not int or attempt < 0:
+        raise ValueError("cooperative GC requires a nonnegative attempt")
+    names = {"instance_id", "boot_id", "launch_pid", "launch_start_ticks",
+             "observer_pid", "observer_start_ticks", "scope_start_ns"}
+    if type(identity) is not dict or set(identity) != names:
+        raise ValueError("cooperative GC scope identity differs")
+    valid_id(identity["instance_id"])
+    if not valid_boot_id(identity["boot_id"]):
+        raise ValueError("cooperative GC requires the observed boot identity")
+    for name in ("launch_pid", "observer_pid"):
+        if type(identity[name]) is not int or not 0 < identity[name] <= (1 << 31) - 1:
+            raise ValueError("cooperative GC requires positive process IDs")
+    for name in ("launch_start_ticks", "observer_start_ticks", "scope_start_ns"):
+        if type(identity[name]) is not int or not 0 <= identity[name] <= (1 << 63) - 1:
+            raise ValueError("cooperative GC requires nonnegative process and interval observations")
+    return digest({"format": "rove4k-cooperative-gc-scope-v1", "campaign": campaign,
+                   "pair": pair, "game": game, "attempt": attempt, "identity": identity})
+
+
 def external(path):
     path = Path(path)
     if not path.is_absolute() or path.suffix != ".jsonl":

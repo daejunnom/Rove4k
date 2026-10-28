@@ -231,6 +231,121 @@ class SourceObservationTests(unittest.TestCase):
                            family='A', variant='control', get=fail, archive=lambda _: self.artifact_zip)
 
 
+class BAtomicSourceObservationTests(unittest.TestCase):
+    """Offline transport fixtures; static validation is separately unit-tested."""
+
+    def fixture(self, profile='test-p16'):
+        f = SourceObservationTests()
+        f.setUp()
+        self.addCleanup(f.tearDown)
+        f.req.profile = profile
+        f.req.artifact_id = 'B-' + profile
+        f.manifest['rove'][0].update(family='B', profile=profile)
+        f.candidate['profile'] = profile
+        f.candidate['candidates'][0]['artifact'].update(id=f.req.artifact_id, family='B', profile=profile)
+        f._write_candidate()
+        f.name = 'league-source-B-' + profile + '-league-atomic-' + 'a' * 40 + '-2'
+        f.metadata['name'] = f.artifact['name'] = f.name
+        f.job['name'] = 'source-B-' + profile + '-league-atomic'
+        f.job['steps'].append({'name':'Strictly readmit the actual generated candidate without runtime',
+                               'status':'completed', 'conclusion':'success'})
+        f.files.update({'build/build.json': b'{"family":"B"}',
+                        'build/b-static-tt.json': encode({'fixture': 'static'}),
+                        'build/compiler-sha256.txt': b'c' * 64 + b'\n',
+                        'build/linker-sha256.txt': b'd' * 64 + b'\n'})
+        self.refresh(f, f.files, f.files, f.files)
+        return f
+
+    def refresh(self, f, outer, nested, local, *, seal_members=None):
+        bundle = zipped(nested)
+        seal = encode({'format':'rove4k.source-bundle-seal.v1', 'ci_context':f.origin,
+            'bundle':p.cloud.pin(bundle),
+            'members':{name:p.cloud.pin(data) for name, data in
+                       (nested if seal_members is None else seal_members).items()},
+            'profiles':[{'family':'B', 'profile':f.req.profile, 'archive_prefix':'build'}]})
+        f.artifact_zip = zipped({**outer, 'source-bundle.zip':bundle, 'source-seal.json':seal})
+        digest = 'sha256:' + hashlib.sha256(f.artifact_zip).hexdigest()
+        f.metadata['digest'] = f.artifact['digest'] = digest
+        f.contents = {'origin/A/source-bundle.zip':bundle, 'origin/A/source-seal.json':seal,
+                      'metadata/A.json':encode(f.metadata)}
+        f.contents.update({'origin/A/' + name:data for name, data in local.items()})
+        f.manifest['members'] = {name:{**p.cloud.pin(data), 'mode':384}
+                                 for name, data in f.contents.items()}
+        for name, data in f.contents.items():
+            dest = f.root / name
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(data)
+        f._write_manifest()
+
+    def inspect(self, f):
+        with patch.object(p.cloud, 'validate_seed_manifest', return_value=None):
+            return p._inspect(f.req, seed_root=f.root, candidate_path=f.candidate_path,
+                              family='B', variant='league-atomic', get=f.get,
+                              archive=lambda _: f.artifact_zip)
+
+    def test_b_static_inputs_reach_validator_for_each_profile_without_go(self):
+        for profile in ('test-p16', 'test-p192'):
+            with self.subTest(profile=profile):
+                f = self.fixture(profile)
+                with patch.object(p.rove_b_static_tt, 'validate_report', return_value={}) as validate:
+                    result = self.inspect(f)
+                validate.assert_called_once_with({'fixture':'static'}, profile=profile,
+                    source=f.files['build/main.c'], native=f.files['build/native/x'],
+                    manifest={'family':'B'}, compiler_sha='c' * 64, linker_sha='d' * 64)
+                self.assertEqual(result['b_static_correlation']['report_sha256'],
+                                 hashlib.sha256(f.files['build/b-static-tt.json']).hexdigest())
+                self.assertTrue(result['b_static_correlation']['producer_artifact_observed'])
+                self.assertFalse(result['runtime_qualified'])
+                self.assertFalse(result['authorizes_go'])
+
+    def test_each_static_member_must_match_between_outer_nested_and_seed(self):
+        for name in ('build/b-static-tt.json', 'build/compiler-sha256.txt', 'build/linker-sha256.txt'):
+            for layer in ('outer', 'nested', 'seed', 'seal'):
+                with self.subTest(name=name, layer=layer):
+                    f = self.fixture()
+                    outer, nested, local, sealed = (dict(f.files) for _ in range(4))
+                    {'outer':outer, 'nested':nested, 'seed':local, 'seal':sealed}[layer][name] += b'changed'
+                    self.refresh(f, outer, nested, local, seal_members=sealed)
+                    with patch.object(p.rove_b_static_tt, 'validate_report', return_value={}):
+                        with self.assertRaises(ValueError):
+                            self.inspect(f)
+
+    def test_missing_static_members_fail_closed_in_each_transport_layer(self):
+        for name in ('build/b-static-tt.json', 'build/compiler-sha256.txt', 'build/linker-sha256.txt'):
+            for layer in ('outer', 'nested', 'seed'):
+                with self.subTest(name=name, layer=layer):
+                    f = self.fixture()
+                    outer, nested, local = (dict(f.files) for _ in range(3))
+                    del {'outer':outer, 'nested':nested, 'seed':local}[layer][name]
+                    self.refresh(f, outer, nested, local)
+                    with patch.object(p.rove_b_static_tt, 'validate_report', return_value={}):
+                        with self.assertRaises(ValueError):
+                            self.inspect(f)
+
+    def test_static_ci_step_must_be_uniquely_successful(self):
+        for case in ('missing', 'duplicate', 'skipped', 'failure', 'in_progress'):
+            with self.subTest(case=case):
+                f = self.fixture()
+                step = f.job['steps'][-1]
+                if case == 'missing':
+                    f.job['steps'].pop()
+                elif case == 'duplicate':
+                    f.job['steps'].append(dict(step))
+                elif case == 'in_progress':
+                    step['status'] = case
+                else:
+                    step['conclusion'] = case
+                with patch.object(p.rove_b_static_tt, 'validate_report', return_value={}):
+                    with self.assertRaises(ValueError):
+                        self.inspect(f)
+
+    def test_validator_rejection_is_not_converted_to_observation(self):
+        f = self.fixture()
+        with patch.object(p.rove_b_static_tt, 'validate_report', side_effect=ValueError('invalid static report')):
+            with self.assertRaisesRegex(ValueError, 'invalid static report'):
+                self.inspect(f)
+
+
 class ZipAndApiTests(unittest.TestCase):
     def test_directory_preflight_rejects_protected_and_escaping_names(self):
         for bad in ('.env', '.npmrc', '.netrc', 'x/id_dsa', 'x/signing.key', 'x/secret-data', '../x', 'x//y', '/x'):

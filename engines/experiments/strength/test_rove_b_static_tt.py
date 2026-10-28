@@ -86,6 +86,49 @@ int main(void){return 0;}
         with self.assertRaisesRegex(ValueError, "source compile failed"):
             self.inspect()
 
+    def test_report_correlates_actual_source_native_and_pins_without_claiming_provenance(self):
+        for bits in (29, 33):
+            with self.subTest(bits=bits):
+                self.make(bits)
+                report = self.inspect()
+                source = (self.root / "main.c").read_bytes()
+                native = (self.root / "native/x").read_bytes()
+                options = dict(profile=self.admitted.profile_id, source=source, native=native,
+                    manifest={"compiler": subject.COMMAND}, compiler_sha=self.compiler_sha,
+                    linker_sha=self.linker_sha)
+                result = subject.validate_report(report, **options)
+                self.assertEqual(result["elf_symbol_offset"], report["candidate_symbol_value"])
+                self.assertFalse(result["compiler_replay_independently_verified"])
+                self.assertFalse(result["producer_authenticated"])
+                self.assertFalse(result["tt_semantics_proven"])
+                for field, value in (("candidate_symbol_value", report["candidate_symbol_value"] + 8),
+                                     ("candidate_tt_bytes", 1), ("runtime_qualified", True),
+                                     ("compiler_sha256", "0" * 64)):
+                    changed = dict(report, **{field: value})
+                    with self.subTest(field=field), self.assertRaises(ValueError):
+                        subject.validate_report(changed, **options)
+                with self.assertRaises(ValueError):
+                    subject.validate_report(report, **dict(options, source=source + b"changed"))
+                with self.assertRaises(ValueError):
+                    subject.validate_report(report, **dict(options, native=native + b"changed"))
+
+    def test_strict_raw_report_rejects_duplicate_keys_and_boolean_integer_substitution(self):
+        import json
+        self.make(29)
+        report = self.inspect()
+        options = dict(profile=self.admitted.profile_id, source=(self.root / "main.c").read_bytes(),
+            native=(self.root / "native/x").read_bytes(), manifest={"compiler": subject.COMMAND},
+            compiler_sha=self.compiler_sha, linker_sha=self.linker_sha)
+        raw = json.dumps(report).encode()
+        self.assertEqual(subject.validate_report_bytes(raw, **options)["symbol"], "qq")
+        for field, value in (("engine_executed", 0), ("source_recompiled_native_identical", 1),
+                             ("candidate_symbol_value", True)):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                subject.validate_report_bytes(json.dumps(dict(report, **{field: value})).encode(), **options)
+        duplicated = raw[:-1] + b',"runtime_qualified":false}'
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            subject.validate_report_bytes(duplicated, **options)
+
 
 if __name__ == "__main__":
     unittest.main()

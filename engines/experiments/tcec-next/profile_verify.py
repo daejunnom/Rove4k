@@ -1389,9 +1389,18 @@ def native_dependencies(native):
 
 
 def effective_available_bytes(proc=Path("/proc"), cgroup_root=Path("/sys/fs/cgroup")):
+    """Best-effort memory observation, never an execution admission gate."""
+    try:
+        return _effective_available_bytes(proc, cgroup_root)
+    except (OSError, ValueError, IndexError, UnicodeError):
+        return None
+
+
+def _effective_available_bytes(proc, cgroup_root):
     fields = dict(line.split(":", 1) for line in (proc / "meminfo").read_text().splitlines() if ":" in line)
     require("MemAvailable" in fields, "host does not report available physical memory")
     available = int(fields["MemAvailable"].split()[0]) * 1024
+    require(0 <= available < 1 << 63, "available memory observation is outside its range")
     limits = []
     for line in (proc / "self/cgroup").read_text().splitlines():
         if line.startswith("0::"):
@@ -1513,9 +1522,20 @@ def execution_limits(admitted, available_bytes, *, wall_seconds=600):
     profile = profile_resource(admitted.profile_id, input_pins=admitted.input_pins)
     layout = profile.layout(admitted.resources["tt_entry_bytes"])
     other = max(768 * api.MiB, profile.workers * 16 * api.MiB)
+    require(available_bytes is None or type(available_bytes) is int and -(1 << 63) <= available_bytes < 1 << 63,
+            "available memory observation must be an integer or unknown")
     capacity = api.host_admission(profile, layout, available_bytes,
                                  other_peak_bytes=other, reserve_bytes=256 * api.MiB)
     capacity.require()
+    capacity_record = capacity.to_record()
+    # Neither the value nor an inability to observe it authorizes allocation,
+    # resource qualification, or a scored run.
+    capacity_record["availability_observed"] = available_bytes is not None
+    capacity_record["availability_complete"] = None
+    capacity_record["availability_scope"] = (
+        "provided snapshot; effective collector clamps cgroup headroom at zero; "
+        "some cgroup ancestors or controllers may be unobserved; "
+        "not a capacity reservation or allocation result")
     require(type(wall_seconds) is int and 60 <= wall_seconds <= 1200, "finite runtime wall bound required")
     cpus = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else (os.cpu_count() or 1)
     active_cpus = max(1, min(cpus, profile.os_threads))
@@ -1523,7 +1543,7 @@ def execution_limits(admitted, available_bytes, *, wall_seconds=600):
     # legitimate W256 GO long before its wall-clock budget on a large host.
     # Each owned session has its own 140s wall budget, within the outer alarm.
     cpu_seconds = max(180, min(140, wall_seconds - 10) * active_cpus)
-    return {"admission": capacity.to_record(), "address_space_bytes": max(2 * api.GiB, layout.bytes + other),
+    return {"admission": capacity_record, "address_space_bytes": max(2 * api.GiB, layout.bytes + other),
             "CPU_seconds": [cpu_seconds, cpu_seconds + max(5, active_cpus * 2)],
             "CPU_budget_effective_cpus": active_cpus, "per_session_wall_seconds": 140,
             "wall_seconds": wall_seconds,
@@ -2032,14 +2052,72 @@ def rules_receipt(admitted, build, rules_path):
         source_proof=source_proof, baseline_source=baseline, build=build)
 
 
+def submission_size_within_limit(whole_bytes):
+    require(type(whole_bytes) is int and whole_bytes > 0, "positive complete-file size required")
+    return whole_bytes <= 4096
+
+
+def require_qualification_scope(admitted, scope):
+    require(scope in ("general4k", "league-test"), "unknown qualification scope")
+    if scope == "league-test":
+        require(profile_resource(admitted.profile_id, input_pins=admitted.input_pins).purpose == "test",
+                "league-test scope requires a TEST profile")
+
+
+QUALIFICATION_CHECKS = ("reproduction", "size", "startup", "dependencies", "cleanup", "protocol",
+                        "legal_moves", "resources", "lifecycle", "placement")
+
+
+def qualification_policy(scope, purpose, checks):
+    """Keep legacy 4K qualification distinct from an explicit league TEST record.
+
+    Size is always an observed 4 KiB comparison; only a TEST-only record may
+    omit it from that record's required checks. Neither scope grants score or
+    submission approval by itself.
+    """
+    require(scope in ("general4k", "league-test"), "unknown qualification scope")
+    require(scope != "league-test" or purpose == "test", "league-test scope requires a TEST profile")
+    require(type(checks) is dict and type(checks.get("size")) is bool,
+            "qualification requires an actual submission-size observation")
+    require(set(checks) == set(QUALIFICATION_CHECKS)
+            and all(type(value) is bool for value in checks.values()),
+            "qualification checks must contain every explicit boolean condition")
+    return [name for name, passed in checks.items()
+            if passed is not True and (scope != "league-test" or name != "size")]
+
+
+def scoped_qualification_record(result, scope):
+    """Label a freshly assembled report without widening the v1 contract."""
+    require(scope in ("general4k", "league-test"), "unknown qualification scope")
+    if scope == "general4k":
+        return result
+    artifact, checks = result["artifact"], result["checks"]
+    require(artifact["purpose"] == "test", "league-test scope requires a TEST profile")
+    size = submission_size_within_limit(artifact["whole_bytes"])
+    require(type(checks.get("size")) is bool and checks["size"] is size,
+            "recorded submission size differs from the complete file")
+    failures = qualification_policy(scope, artifact["purpose"], checks)
+    require(result["failures"] == failures and result["complete"] is (not failures)
+            and result["test_qualified"] is (not failures)
+            and result["release_qualified"] is False and result["event_target_confirmed"] is False,
+            "league-test report status differs from bound checks")
+    result.update(format="rove4k-qualification-v2", division="league-test",
+                  qualification_scope="league-test",
+                  submission_size_within_4096=size, score_authorized=False)
+    result["scope"] = ("bound full runtime and actual generated rules for league TEST only; "
+                       "submission size is observed separately and score authorization remains separate")
+    return result
+
+
 def qualification_record(admitted, build, runtime_path, *, rules_path=None, artifact_id=None,
-                         target_reference=None):
+                         target_reference=None, qualification_scope="general4k"):
     """Bind measured evidence for registry intake; missing placement stays failed.
 
     This is an adapter for an already admitted artifact and an owned runtime
     receipt. It performs no engine execution and does not grant event approval.
     The immutable runtime support and raw pipe outputs are checked again.
     """
+    require_qualification_scope(admitted, qualification_scope)
     build, runtime_path = Path(build), Path(runtime_path)
     runtime_root = runtime_path.parent
     runtime_path = artifact_file(runtime_root, runtime_path.name)
@@ -2211,12 +2289,12 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
     needed = {"test-p4": 4, "test-p28": 28}.get(admitted.profile_id)
     placement = needed is not None and physical == needed and logical == needed and \
                 host.get("one_sibling_per_physical_core") is True and host.get("test_physical_envelope_observed") is True
-    checks = {"reproduction": True, "size": admitted.expected["whole_bytes"] <= 4096,
+    checks = {"reproduction": True, "size": submission_size_within_limit(admitted.expected["whole_bytes"]),
               "startup": True, "dependencies": dependencies, "cleanup": True, "protocol": True,
               "legal_moves": rules is not None and rules.get("nbrq_generation") is True,
               "resources": True, "lifecycle": True, "placement": placement}
-    failures = [name for name, passed in checks.items() if passed is not True]
     profile = profile_resource(admitted.profile_id, input_pins=admitted.input_pins)
+    failures = qualification_policy(qualification_scope, profile.purpose, checks)
     identity = {"id": artifact_id or ("rove-" + admitted.family.lower() + "-" + admitted.profile_id + "-" +
                  admitted.representation + "-" + admitted.expected["whole_sha256"][:12]),
                 "family": admitted.family, "purpose": profile.purpose, "profile": profile.id,
@@ -2227,7 +2305,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
     if target_reference is not None and artifact_id is None:
         identity["id"] += "-t11-" + image_pin["sha256"][:8]
     identity["whole_bytes"] = identity.pop("bytes")
-    return {"format": "rove4k-qualification-v1", "division": "general4k", "artifact": identity,
+    result = {"format": "rove4k-qualification-v1", "division": "general4k", "artifact": identity,
             "artifact_path": str(artifact_file(build, admitted.program)), "complete": not failures,
             "functional_runtime_complete": True, "test_qualified": not failures and profile.purpose == "test",
             "release_qualified": False, "event_target_confirmed": False,
@@ -2244,6 +2322,7 @@ def qualification_record(admitted, build, runtime_path, *, rules_path=None, arti
             "evidence": {"runtime": {"path": str(runtime_path), **pin(raw)},
                          "runtime_support": support, "rules": rules},
             "scope": "bound full runtime and actual generated rules; named physical TEST placement separately required"}
+    return scoped_qualification_record(result, qualification_scope)
 
 
 def main():
@@ -2252,6 +2331,8 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--candidate", help="explicit D candidate filename; omit for ABCEF")
     parser.add_argument("--rules", type=Path, help="actual source-bound rules.json; no replay-to-generation inference")
+    parser.add_argument("--qualification-scope", choices=("general4k", "league-test"), default="general4k",
+                        help="league-test omits the 4 KiB size gate only for TEST profiles; default retains v1")
     parser.add_argument("--runtime", type=Path,
                         help="revalidate an existing owned runtime.json without launching an engine")
     parser.add_argument("--target-compiler-receipt", type=Path,
@@ -2287,6 +2368,9 @@ def main():
     else:
         require(args.candidate is None, "C source-profile has one explicit selected artifact")
         admitted = admit_c_build(manifest, build)
+    # Refuse TEST-only semantics for a submission profile before any target
+    # compiler, resource scan, engine process, TT allocation, or output.
+    require_qualification_scope(admitted, args.qualification_scope)
     # Existing receipts may still be revalidated. A new launch must be
     # rejected before optional target-runtime checks can start subprocesses.
     if args.runtime is None:
@@ -2305,7 +2389,9 @@ def main():
         require(args.runtime.is_absolute() and args.runtime.name == "runtime.json",
                 "an existing absolute runtime.json is required for read-only revalidation")
         qualification = qualification_record(admitted, build, args.runtime, rules_path=args.rules,
-                                             target_reference=reference)
+                                             target_reference=reference,
+                                             **({"qualification_scope": "league-test"}
+                                                if args.qualification_scope == "league-test" else {}))
         out.mkdir()
         if reference is not None:
             (out / "target-runtime.json").write_text(json.dumps(reference.to_record(), indent=2) + "\n")
@@ -2320,7 +2406,9 @@ def main():
     limits = execution_limits(admitted, effective_available_bytes())
     report = run_runtime(admitted, build, out, limits, target_reference=reference)
     qualification = qualification_record(admitted, build, out / "runtime.json", rules_path=args.rules,
-                                         target_reference=reference)
+                                         target_reference=reference,
+                                         **({"qualification_scope": "league-test"}
+                                            if args.qualification_scope == "league-test" else {}))
     if reference is not None:
         (out / "target-runtime.json").write_text(json.dumps(reference.to_record(), indent=2) + "\n")
     (out / "qualification.json").write_text(json.dumps(qualification, indent=2) + "\n")

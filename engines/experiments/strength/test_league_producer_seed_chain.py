@@ -79,6 +79,10 @@ class LeagueProducerSeedChain(unittest.TestCase):
                 out = root / 'league-output' if available_runner else runner / 'league-output'
                 out.mkdir(parents=True)
                 shutil.copytree(source.build, out / 'build')
+                # Extra B evidence members use the same generic seal/restore
+                # mechanism. This is transport-only fixture data.
+                for name in ('b-static-tt.json', 'compiler-sha256.txt', 'linker-sha256.txt'):
+                    (out / 'build' / name).write_bytes(b'{}' if name.endswith('.json') else b'fixture-pin')
                 context = target.CIContext('fixture/Rove4k', head, '123', '1')
                 environment = {**source.environment(), 'GITHUB_REPOSITORY': context.repository,
                                'GITHUB_SHA': head, 'RUNNER_TEMP': str(runner)}
@@ -109,7 +113,8 @@ class LeagueProducerSeedChain(unittest.TestCase):
                 result_seed = fixture.prepare(root / 'seed-out')
                 manifest = json.loads(Path(result_seed['seed_manifest']['path']).read_bytes())
                 with zipfile.ZipFile(result_seed['archive']['path']) as archive:
-                    for name in ('build.json', 'main.c', 'native/x', 'x'):
+                    for name in ('build.json', 'main.c', 'native/x', 'x', 'b-static-tt.json',
+                                 'compiler-sha256.txt', 'linker-sha256.txt'):
                         self.assertEqual(archive.read('origin/A/build/' + name), (out / 'build' / name).read_bytes())
                 self.assertEqual(manifest['rove'][0]['profile'], profile)
                 self.assertFalse(result_seed['engine_executed'] or result_seed['native_qualified'])

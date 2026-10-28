@@ -11,6 +11,7 @@ import argparse
 from collections import Counter
 import copy
 from datetime import datetime, timezone
+import gc
 import hashlib
 import importlib.util
 import itertools
@@ -47,6 +48,98 @@ ID = ledger.valid_id
 SHA = re.compile(r"^[a-f0-9]{64}$")
 TEST_PROFILES = ("test-p4", "test-p28", "test-p16", "test-p192")
 BROAD_FOR_HIGH = {"test-p28": "test-p4", "test-p192": "test-p16"}
+
+
+class CooperativeGcTracker:
+    """Track only explicit, controller-owned cooperative GC interventions.
+
+    The counters are process-wide, so an intervention overlaps every active
+    game in this controller process. Automatic Python GC and activity in other
+    processes are outside this observation scope. A missing scope never proves
+    that a game was free of intervention.
+    """
+    def __init__(self, *, clock_ns=None, collector=None):
+        self._clock_ns = clock_ns or time.monotonic_ns
+        self._collector = collector or gc.collect
+        self._lock = threading.Lock()
+        self._requests = 0
+        self._performed = 0
+        self._inflight = 0
+        self._scopes = {}
+
+    def arm(self, key):
+        """Capture a baseline before the corresponding runner is spawned."""
+        with self._lock:
+            if key in self._scopes:
+                raise ValueError("cooperative GC scope is already armed")
+            now = self._clock_ns()
+            if type(now) is not int or now < 0:
+                raise ValueError("invalid cooperative GC monotonic clock")
+            # A request already in flight overlaps this game even when neither
+            # absolute counter changes before scope close.
+            self._scopes[key] = {"scope_start_ns": now,
+                                 "request_count": self._requests,
+                                 "performed_count": self._performed,
+                                 "active_count": self._inflight}
+
+    def collect(self):
+        """Request GC in this process only, without any memory threshold."""
+        with self._lock:
+            self._requests += 1
+            self._inflight += 1
+        try:
+            result = self._collector()
+        except BaseException:
+            with self._lock:
+                self._inflight -= 1
+            raise
+        with self._lock:
+            self._performed += 1
+            self._inflight -= 1
+        return result
+
+    def open_record(self, key, campaign, pair, game, attempt, identity):
+        with self._lock:
+            scope = self._scopes.get(key)
+            if scope is None or "identity" in scope:
+                raise ValueError("pre-spawn cooperative GC baseline required")
+            binding = dict(identity)
+            binding["scope_start_ns"] = scope["scope_start_ns"]
+            scope_id = ledger.cooperative_gc_scope_id(campaign, pair, game, attempt, binding)
+            scope["identity"] = binding
+            scope["scope_id"] = scope_id
+            return {"format": "rove4k-cooperative-gc-v1",
+                    "coverage_scope": "owned-controller-explicit-gc",
+                    "scope_id": scope_id, **binding,
+                    "request_count": scope["request_count"],
+                    "performed_count": scope["performed_count"],
+                    "active_count": scope["active_count"],
+                    "coverage_complete": True}
+
+    def close_record(self, key, result_data, *, identity_confirmed):
+        with self._lock:
+            scope = self._scopes.pop(key, None)
+            if scope is None or "identity" not in scope:
+                raise ValueError("original cooperative GC scope is unavailable")
+            now = self._clock_ns()
+            if type(now) is not int or now < scope["scope_start_ns"]:
+                raise ValueError("cooperative GC monotonic clock regressed")
+            return {"format": "rove4k-cooperative-gc-v1",
+                    "coverage_scope": "owned-controller-explicit-gc",
+                    "scope_id": scope["scope_id"], **scope["identity"],
+                    "request_count": self._requests, "performed_count": self._performed,
+                    "active_count": self._inflight,
+                    "coverage_complete": identity_confirmed is True,
+                    "scope_end_ns": now, "result_sha256": ledger.digest(result_data)}
+
+    def forget(self, key):
+        with self._lock:
+            self._scopes.pop(key, None)
+
+
+# Multiple controllers in this Python process must observe one another's
+# explicit requests; separate processes require separate host evidence.
+_COOPERATIVE_GC_TRACKER = CooperativeGcTracker()
 
 
 def attempt_identity(campaign, pair, game, attempt, launch_id):
@@ -502,14 +595,16 @@ def create_league_cgroups(manager, slots, players, profile, *, memory_preflight=
     if profile not in ("test-p16", "test-p192"):
         raise ValueError("unknown TEST profile cannot create a league cgroup")
     if type(memory_preflight) is not dict:
-        raise ValueError("P16/P192 require explicit observed memory and overhead preflight")
-    required = ("host_available_bytes", "node_available_bytes", "per_game_overhead_bytes",
-                "overhead_evidence_sha256", "controller_reserve_bytes", "page_bytes")
-    if set(memory_preflight) != set(required):
+        raise ValueError("P16/P192 require explicit observed memory budget and overhead preflight")
+    required = {"per_game_overhead_bytes", "overhead_evidence_sha256", "controller_reserve_bytes", "page_bytes"}
+    telemetry = {"host_available_bytes", "node_available_bytes"}
+    if not required <= set(memory_preflight) or set(memory_preflight) - required - telemetry:
         raise ValueError("P16/P192 memory preflight fields differ from the explicit contract")
+    supplied = {**memory_preflight, "host_available_bytes": memory_preflight.get("host_available_bytes"),
+                "node_available_bytes": memory_preflight.get("node_available_bytes")}
     admission = placement.league_memory_admission(
         [artifact.identity() for artifact in players], [slot.to_record() for slot in slots],
-        profile=profile, **memory_preflight)
+        profile=profile, **supplied)
     if admission.get("runtime_admission_complete") is not False:
         raise ValueError("arithmetic memory preflight must not assert runtime admission")
     by_id = {row["id"]: row["memory_max"] for row in admission["slots"]}
@@ -532,8 +627,8 @@ def capture_league_preflight(slots, cgroup_root, overhead, observe):
             capacity.get("test_inputs") is not False or
             capacity.get("runtime_admission_complete") is not False):
         raise ValueError("capacity observation is not the actual frozen-slot preflight")
-    return capacity, {**overhead, "host_available_bytes": capacity["host_available_bytes"],
-                      "node_available_bytes": capacity["node_available_bytes"], "page_bytes": capacity["page_bytes"]}
+    return capacity, {**overhead, "host_available_bytes": capacity.get("host_available_bytes"),
+                      "node_available_bytes": capacity.get("node_available_bytes"), "page_bytes": capacity["page_bytes"]}
 
 
 def verify_preexec_placement(receipt, *, pid, slot, cgroup):
@@ -1168,9 +1263,83 @@ class StageController:
         self.unsettled = {}
         self.uncertain_releases = {}
         self.intent_owner = None
+        self._gc_scope_prefix = uuid.uuid4().hex
+        self._gc_scope_bindings = {}
         # Filled only by a future authenticated live-memory evidence owner.
         # The arithmetic helper alone cannot open P16/P192 execution.
         self.memory_preflight = None
+
+    def cooperative_gc(self):
+        """Collect this controller's garbage and mark overlapping games.
+
+        This does not request GC in any engine or other process. A call that
+        fails is still a requested intervention and cannot be scored as clean.
+        """
+        return _COOPERATIVE_GC_TRACKER.collect()
+
+    def _gc_scope_key(self, job):
+        prefix = getattr(self, "_gc_scope_prefix", None)
+        return (prefix, job.identity) if prefix is not None else None
+
+    def _gc_scope_open(self, job, spec, observation):
+        key = self._gc_scope_key(job)
+        if key is None:
+            return
+        try:
+            observer = proc_identity(os.getpid())
+            boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            if observer is None:
+                raise ValueError("controller process identity unavailable")
+            identity = {"instance_id": self.instance_id, "boot_id": boot,
+                        "launch_pid": observation.get("pid"),
+                        "launch_start_ticks": observation.get("start_ticks"),
+                        "observer_pid": observer["pid"],
+                        "observer_start_ticks": observer["start_ticks"]}
+            record = _COOPERATIVE_GC_TRACKER.open_record(
+                key, self.plan["campaign"], spec["pair"], spec["game"], spec["attempt"], identity)
+        except (OSError, ValueError, KeyError, TypeError):
+            # Incomplete identity or a missing pre-spawn baseline cannot prove
+            # a clean performance interval; do not impede the game itself.
+            _COOPERATIVE_GC_TRACKER.forget(key)
+            return
+        self._gc_scope_bindings[job.identity] = identity
+        try:
+            self.append("game.cooperative_gc_open", record, pair=spec["pair"],
+                        game=spec["game"], attempt=spec["attempt"])
+        except Exception:
+            # A failed journal write can leave a partial durable record. Keep
+            # existing owner/quarantine error handling rather than continuing
+            # with a potentially corrupted authoritative journal.
+            self._gc_scope_bindings.pop(job.identity, None)
+            _COOPERATIVE_GC_TRACKER.forget(key)
+            raise
+
+    def _gc_scope_close(self, job, spec, observation, result_data):
+        key = self._gc_scope_key(job)
+        bindings = getattr(self, "_gc_scope_bindings", {})
+        identity = bindings.pop(job.identity, None)
+        if key is None or identity is None:
+            return
+        confirmed = False
+        try:
+            observer = proc_identity(os.getpid())
+            boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+            confirmed = (physically_settled(observation) and observer is not None
+                         and observer["pid"] == identity["observer_pid"]
+                         and observer["start_ticks"] == identity["observer_start_ticks"]
+                         and boot == identity["boot_id"]
+                         and observation.get("pid") == identity["launch_pid"]
+                         and observation.get("start_ticks") == identity["launch_start_ticks"])
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+        try:
+            record = _COOPERATIVE_GC_TRACKER.close_record(key, result_data, identity_confirmed=confirmed)
+        except (ValueError, TypeError):
+            return
+        # Durable journal failure is different from a missing observation: it
+        # must follow the controller's existing owner/quarantine error path.
+        self.append("game.cooperative_gc_close", record, pair=spec["pair"],
+                    game=spec["game"], attempt=spec["attempt"])
 
     def prepare_intent_owner(self):
         """Register a local sidecar before entering the Wave selector loop.
@@ -1387,6 +1556,7 @@ class StageController:
             self.append("game.started", spec["identity"], **keys)
             self.append("game.process", {**observation, "instance_id": self.instance_id,
                         "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()}, **keys)
+            self._gc_scope_open(job, spec, observation)
         elif event in ("ready", "released"):
             if event == "ready":
                 slot = self.slots[spec["identity"]["slot"]]
@@ -1507,6 +1677,7 @@ class StageController:
                         self.uncertain_releases[job.identity] = pending
                     else:
                         self.append("game.result", data, **keys)
+                        self._gc_scope_close(job, spec, observation, data)
                         self.queue_result(spec["game"], spec["attempt"], data)
             elif state.result is None and state.interrupted is None:
                 reason = "budget_termination" if time.time() >= self.budget.deadline(time.time()) else "protocol_harness_error"
@@ -1725,7 +1896,24 @@ class StageController:
                     return True
 
                 remaining = min(remaining, self.budget.admit(time.time(), 0).remaining_seconds)
-                observations = self.executor.run_wave(jobs, wall_seconds=remaining, release_callback=release, on_event=self.event)
+                # All jobs are armed before any Popen, including games waiting
+                # for their peer in a parallel wave. A missing/failed arm yields
+                # no completed performance scope and never a clean claim.
+                for job in jobs:
+                    key = self._gc_scope_key(job)
+                    if key is not None:
+                        try:
+                            _COOPERATIVE_GC_TRACKER.arm(key)
+                        except (ValueError, TypeError):
+                            _COOPERATIVE_GC_TRACKER.forget(key)
+                try:
+                    observations = self.executor.run_wave(jobs, wall_seconds=remaining, release_callback=release, on_event=self.event)
+                finally:
+                    for job in jobs:
+                        key = self._gc_scope_key(job)
+                        if key is not None:
+                            _COOPERATIVE_GC_TRACKER.forget(key)
+                        getattr(self, "_gc_scope_bindings", {}).pop(job.identity, None)
                 # Event callbacks may have failed and been disabled. Preserve
                 # returned live/unknown ownership before any fallible trace
                 # parsing can prevent this final admission check.

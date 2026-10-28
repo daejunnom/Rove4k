@@ -450,13 +450,15 @@ class PlacementTests(unittest.TestCase):
         self.assertEqual(p16["supplied_node_available_bytes"], 80 * gib)
         self.assertTrue(p16["node_bound_provided"])
         self.assertIn("not a concurrent admission", p16["capacity_scope"])
+        self.assertFalse(p16["availability_used_for_admission"])
+        self.assertFalse(p16["physical_capacity_verified"])
 
         p192 = placement.slot_memory_budget((192 * gib, 192 * gib), overhead_bytes=2 * gib,
                                             available_bytes=700 * gib, page_bytes=4096)
         self.assertEqual(p192["memory_max"], 386 * gib)
         self.assertIsNone(p192["supplied_node_available_bytes"])
         self.assertFalse(p192["node_bound_provided"])
-        self.assertIn("node capacity not checked", p192["capacity_scope"])
+        self.assertIn("node observation unavailable", p192["capacity_scope"])
 
     def test_slot_memory_budget_rejects_unbounded_invalid_or_overflow_inputs(self):
         good = {"overhead_bytes": 4, "available_bytes": 100, "page_bytes": 2}
@@ -464,23 +466,24 @@ class PlacementTests(unittest.TestCase):
             with self.subTest(extents=extents), self.assertRaisesRegex(ValueError, "two positive"):
                 placement.slot_memory_budget(extents, **good)
         for name, value in (("overhead_bytes", 0), ("overhead_bytes", True),
-                            ("available_bytes", None), ("available_bytes", -1),
-                            ("node_available_bytes", False), ("node_available_bytes", 0)):
+                            ("available_bytes", -(1 << 63)), ("available_bytes", True),
+                            ("node_available_bytes", False), ("node_available_bytes", -1)):
             with self.subTest(name=name, value=value), self.assertRaises(ValueError):
                 placement.slot_memory_budget((1, 2), **{**good, name: value})
         with self.assertRaisesRegex(ValueError, "supported range"):
             placement.slot_memory_budget(((1 << 63) - 1, 1), overhead_bytes=1,
                                          available_bytes=(1 << 63) - 1, page_bytes=4096)
 
-    def test_slot_memory_budget_rejects_actual_host_or_node_shortfall(self):
-        with self.assertRaisesRegex(ValueError, "host availability"):
-            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=89, page_bytes=2)
-        with self.assertRaisesRegex(ValueError, "node availability"):
-            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=100, page_bytes=2,
-                                         node_available_bytes=89)
-        equal = placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=90, page_bytes=2,
-                                             node_available_bytes=90)
-        self.assertEqual(equal["memory_max"], 90)
+    def test_slot_memory_budget_records_low_or_absent_availability_without_rejecting(self):
+        for host, node in ((89, None), (100, 89), (0, 0), (-1, 0), (None, None)):
+            with self.subTest(host=host, node=node):
+                result = placement.slot_memory_budget((40, 40), overhead_bytes=10,
+                    available_bytes=host, node_available_bytes=node, page_bytes=2)
+                self.assertEqual(result["memory_max"], 90)
+                self.assertEqual(result["supplied_available_bytes"], host)
+                self.assertEqual(result["supplied_node_available_bytes"], node)
+                self.assertFalse(result["availability_used_for_admission"])
+                self.assertFalse(result["physical_capacity_verified"])
 
     def test_slot_memory_budget_rounds_before_host_and_node_checks(self):
         result = placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=96,
@@ -489,11 +492,10 @@ class PlacementTests(unittest.TestCase):
         self.assertEqual(result["memory_max"], 96)
         self.assertEqual(result["page_rounding_bytes"], 6)
         self.assertEqual(result["page_bytes"], 16)
-        with self.assertRaisesRegex(ValueError, "host availability"):
-            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=95, page_bytes=16)
-        with self.assertRaisesRegex(ValueError, "node availability"):
-            placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=96,
-                                         node_available_bytes=95, page_bytes=16)
+        below = placement.slot_memory_budget((40, 40), overhead_bytes=10, available_bytes=95,
+                                             node_available_bytes=0, page_bytes=16)
+        self.assertEqual(below["memory_max"], 96)
+        self.assertFalse(below["availability_used_for_admission"])
         for page in (None, 0, -1, True, 3, "4096", 1 << 63):
             with self.subTest(page=page), self.assertRaisesRegex(ValueError, "power-of-two kernel page"):
                 placement.slot_memory_budget((1, 1), overhead_bytes=1, available_bytes=100, page_bytes=page)
@@ -517,9 +519,12 @@ class PlacementTests(unittest.TestCase):
         self.assertEqual(result["node_check"]["required_bytes"], {0: 180 * gib, 1: 150 * gib})
         self.assertFalse(result["node_check"]["controller_distribution_verified"])
         self.assertFalse(result["runtime_admission_complete"])
+        self.assertFalse(result["node_check"]["capacity_checked"])
+        self.assertFalse(result["availability_used_for_admission"])
+        self.assertFalse(result["physical_capacity_verified"])
         self.assertIn("no provenance, freshness, reservation", result["capacity_scope"])
 
-    def test_league_memory_admission_fails_closed_for_p16_aggregate_bounds(self):
+    def test_league_memory_admission_keeps_p16_shape_validation_without_availability_gate(self):
         players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 12},
                    {"id": "b", "sha256": "b" * 64, "tt_bytes": 12}]
         slots = [{"id": f"slot-{index:03}", "memory_nodes": [0]} for index in range(11)]
@@ -528,9 +533,24 @@ class PlacementTests(unittest.TestCase):
                 "overhead_evidence_sha256": "c" * 64, "controller_reserve_bytes": 4, "page_bytes": 2}
         equal = placement.league_memory_admission(players, slots, **args)
         self.assertEqual(equal["required_bytes"], 290)
-        for change, message in (({"host_available_bytes": 289}, "host availability"),
-                                ({"node_available_bytes": {0: 285}}, "node availability"),
-                                ({"node_available_bytes": {1: 500}}, "node bound is missing"),
+        for change in ({"host_available_bytes": 0}, {"host_available_bytes": -1},
+                       {"host_available_bytes": None},
+                       {"node_available_bytes": {0: 0}}, {"node_available_bytes": {1: 500}},
+                       {"node_available_bytes": None}):
+            with self.subTest(change=change):
+                result = placement.league_memory_admission(players, slots, **{**args, **change})
+                self.assertEqual(result["required_bytes"], 290)
+                self.assertEqual(result["supplied_host_available_bytes"],
+                                 change.get("host_available_bytes", args["host_available_bytes"]))
+                self.assertFalse(result["availability_used_for_admission"])
+                self.assertFalse(result["node_check"]["capacity_checked"])
+        unavailable = placement.league_memory_admission(players, slots, **{**args,
+            "node_available_bytes": {0: None, 1: 0}})
+        self.assertEqual(unavailable["supplied_node_available_bytes"], {0: None, 1: 0})
+        self.assertFalse(unavailable["node_check"]["observations_complete"])
+        self.assertFalse(unavailable["physical_capacity_verified"])
+        for change, message in (({"host_available_bytes": -(1 << 63)}, "bounded signed integer"),
+                                ({"node_available_bytes": {0: -1}}, "observation must be nonnegative"),
                                 ({"per_game_overhead_bytes": True}, "positive per-game"),
                                 ({"controller_reserve_bytes": 0}, "controller reserve"),
                                 ({"overhead_evidence_sha256": "unknown"}, "overhead evidence")):
@@ -561,12 +581,67 @@ class PlacementTests(unittest.TestCase):
         self.assertEqual(result["node_check"]["supplied_aggregate_bytes"], 390 * gib)
         self.assertFalse(result["node_check"]["per_node_distribution_verified"])
         self.assertFalse(result["runtime_admission_complete"])
-        with self.assertRaisesRegex(ValueError, "aggregate node availability"):
-            placement.league_memory_admission(players, slot, **{**args,
-                "node_available_bytes": {0: 130 * gib, 1: 130 * gib, 2: 129 * gib, 3: 500 * gib}})
-        with self.assertRaisesRegex(ValueError, "node bound is missing"):
-            placement.league_memory_admission(players, slot, **{**args,
-                "node_available_bytes": {0: 200 * gib, 1: 200 * gib}})
+        below = placement.league_memory_admission(players, slot, **{**args,
+            "node_available_bytes": {0: 130 * gib, 1: 130 * gib, 2: 129 * gib, 3: 500 * gib}})
+        self.assertEqual(below["node_check"]["supplied_aggregate_bytes"], 389 * gib)
+        self.assertFalse(below["node_check"]["capacity_checked"])
+        missing = placement.league_memory_admission(players, slot, **{**args,
+            "node_available_bytes": {0: 200 * gib, 1: 200 * gib}})
+        self.assertIsNone(missing["node_check"]["supplied_aggregate_bytes"])
+        self.assertFalse(missing["node_check"]["observations_complete"])
+        unavailable = placement.league_memory_admission(players, slot, **{**args,
+            "node_available_bytes": {0: None, 1: 0, 2: 200 * gib}})
+        self.assertEqual(unavailable["supplied_node_available_bytes"], {0: None, 1: 0, 2: 200 * gib})
+        self.assertIsNone(unavailable["node_check"]["supplied_aggregate_bytes"])
+        self.assertFalse(unavailable["node_check"]["observations_complete"])
+        self.assertFalse(unavailable["node_check"]["capacity_checked"])
+        large_observation = placement.league_memory_admission(players, slot, **{**args,
+            "node_available_bytes": {0: (1 << 63) - 1, 1: (1 << 63) - 1, 2: 0}})
+        self.assertEqual(large_observation["node_check"]["supplied_aggregate_bytes"], (1 << 64) - 2)
+        self.assertTrue(large_observation["node_check"]["observations_complete"])
+        self.assertFalse(large_observation["node_check"]["capacity_checked"])
+
+    def test_p192_rove_and_original_peer_tt_sizes_are_summed_without_free_ram_gate(self):
+        gib = 1 << 30
+        players = [{"id": "rove", "sha256": "a" * 64, "tt_bytes": 192 * gib},
+                   {"id": "peer", "sha256": "b" * 64, "tt_bytes": 256 * gib}]
+        slots = [{"id": "slot-000", "memory_nodes": [0, 1]}]
+        result = placement.league_memory_admission(players, slots, profile="test-p192",
+            host_available_bytes=0, node_available_bytes={0: 0, 1: 0},
+            per_game_overhead_bytes=2 * gib, overhead_evidence_sha256="c" * 64,
+            controller_reserve_bytes=4 * gib, page_bytes=4096)
+        self.assertEqual(result["slots"][0]["memory_max"], 450 * gib)
+        self.assertEqual(result["required_bytes"], 454 * gib)
+        self.assertFalse(result["node_check"]["capacity_checked"])
+        self.assertFalse(result["physical_capacity_verified"])
+        self.assertFalse(result["runtime_admission_complete"])
+
+    def test_mock_observation_flows_through_preflight_with_unavailable_node(self):
+        # Synthetic observation exercises only the preflight/arithmetic wiring;
+        # it does not authorize a run or establish live capacity.
+        import run
+        slot_record = {"id": "slot-000", "memory_nodes": [0, 1]}
+        slots = [SimpleNamespace(to_record=lambda: dict(slot_record))]
+        overhead = {"per_game_overhead_bytes": 2, "overhead_evidence_sha256": "c" * 64,
+                    "controller_reserve_bytes": 4}
+        players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 12},
+                   {"id": "b", "sha256": "b" * 64, "tt_bytes": 12}]
+        for host in (None, -1):
+            def observe(records, root):
+                return {"format": "rove4k-memory-capacity-observation-v1",
+                        "slot_sha256": run.ledger.digest(records), "test_inputs": False,
+                        "runtime_admission_complete": False, "host_available_bytes": host,
+                        "node_available_bytes": {0: None, 1: 0}, "page_bytes": 2}
+            with self.subTest(host=host):
+                capacity, preflight = run.capture_league_preflight(slots, "/synthetic", overhead, observe)
+                result = placement.league_memory_admission(players, [slot_record],
+                                                            profile="test-p192", **preflight)
+                self.assertEqual(capacity["node_available_bytes"], {0: None, 1: 0})
+                self.assertEqual(result["supplied_host_available_bytes"], host)
+                self.assertEqual(result["supplied_node_available_bytes"], {0: None, 1: 0})
+                self.assertFalse(result["node_check"]["observations_complete"])
+                self.assertFalse(result["runtime_admission_complete"])
+                self.assertFalse(result["physical_capacity_verified"])
 
     def test_league_memory_admission_rejects_integer_overflow_and_invalid_nodes(self):
         players = [{"id": "a", "sha256": "a" * 64, "tt_bytes": 1},
@@ -596,10 +671,10 @@ class PlacementTests(unittest.TestCase):
         self.assertEqual(result["per_slot_page_rounding_bytes"], 13)
         self.assertEqual(result["required_bytes"], 180)
         self.assertTrue(all(row["memory_max"] == 16 for row in result["slots"]))
-        with self.assertRaisesRegex(ValueError, "host availability"):
-            placement.league_memory_admission(players, slots, **{**args, "host_available_bytes": 179})
-        with self.assertRaisesRegex(ValueError, "node availability"):
-            placement.league_memory_admission(players, slots, **{**args, "node_available_bytes": {0: 175}})
+        below = placement.league_memory_admission(players, slots, **{**args,
+            "host_available_bytes": 0, "node_available_bytes": {0: 0}})
+        self.assertEqual(below["required_bytes"], 180)
+        self.assertFalse(below["availability_used_for_admission"])
         for page in (False, 0, 6, -2):
             with self.subTest(page=page), self.assertRaisesRegex(ValueError, "power-of-two kernel page"):
                 placement.league_memory_admission(players, slots, **{**args, "page_bytes": page})
