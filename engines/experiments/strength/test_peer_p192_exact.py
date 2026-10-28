@@ -63,6 +63,13 @@ def share_sources():
     return value
 
 
+def slot_ray_sources():
+    """Short synthetic inputs with the pinned transform marker shape."""
+    value = share_sources()
+    value["src/chess.cpp"] += exact._RAY_BEFORE
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -175,6 +182,101 @@ class TransformProperties(unittest.TestCase):
         for changed in cases:
             with self.subTest(case=changed), pin_synthetic("c4ke", changed), self.assertRaises(ValueError):
                 exact.transform("c4ke", changed, variant=exact.SHARE_VARIANT)
+
+    def test_slot_and_ray_variants_are_distinct_and_fully_invertible(self):
+        original = slot_ray_sources()
+        variants = (exact.SLOT_VARIANT, exact.RAY_VARIANT, exact.SLOT_RAY_VARIANT)
+        with pin_synthetic("c4ke", original):
+            for variant in variants:
+                with self.subTest(variant=variant):
+                    changed, receipt = exact.transform("c4ke", original, variant=variant)
+                    self.assertEqual(exact.restore("c4ke", changed, receipt, variant=variant), original)
+                    self.assertEqual(receipt["variant"], variant)
+                    if variant in (exact.SLOT_VARIANT, exact.SLOT_RAY_VARIANT):
+                        self.assertEqual(changed["src/board.cpp"].count(b"rove_slot(hash)"), 1)
+                        self.assertEqual(changed["src/search.cpp"].count(b"rove_slot(board.hash)"), 2)
+                        self.assertIn(b"return TTABLE[3*(h>>16)>>15];", changed["src/chess.cpp"])
+                    if variant in (exact.RAY_VARIANT, exact.SLOT_RAY_VARIANT):
+                        self.assertNotIn(exact._RAY_BEFORE, changed["src/chess.cpp"])
+                        self.assertIn(b"for(i32 rove_ray=6;rove_ray--;)", changed["src/chess.cpp"])
+                    for other in variants:
+                        if other != variant:
+                            with self.assertRaises(ValueError):
+                                exact.restore("c4ke", changed, receipt, variant=other)
+            for variant in variants:
+                with self.assertRaises(ValueError):
+                    exact.source_closure("ice4", variant=variant)
+
+    def test_slot_and_ray_variants_reject_unexpected_markers_and_collisions(self):
+        original = slot_ray_sources()
+        for field, replacement, variant in (
+                ("src/chess.cpp", b"rove_slot collision", exact.SLOT_VARIANT),
+                ("src/eval.cpp", b"rove_ray collision", exact.RAY_VARIANT),
+                ("src/chess.cpp", original["src/chess.cpp"].replace(exact._RAY_BEFORE, b"changed"), exact.RAY_VARIANT)):
+            altered = dict(original)
+            altered[field] = replacement
+            with self.subTest(field=field, variant=variant), pin_synthetic("c4ke", altered):
+                with self.assertRaises(ValueError):
+                    exact.transform("c4ke", altered, variant=variant)
+
+    @unittest.skipUnless(shutil.which("c++"), "a local C++ compiler is required")
+    def test_slot_and_ray_toy_differential(self):
+        # This independently exercises lvalue/prefetch and six ordered ray
+        # updates. The bounded array is a toy and never allocates the large TT.
+        program = r'''#include <cstdint>
+#include <climits>
+using u64=uint64_t;
+struct Entry { u64 key, value; };
+Entry first[64],second[64],*table=first;
+u64 index(u64 h){return 3*(h>>16)>>15;}
+Entry& slot(u64 h){return table[index(h)%64];}
+u64 east(u64 x){return x<<1&~0x0101010101010101ULL;}
+u64 west(u64 x){return x>>1&~0x8080808080808080ULL;}
+using Move=u64(*)(u64);
+u64 original_ray(u64 mask,u64 occupied,Move move){
+ mask=move(mask);
+ mask|=move(mask&~occupied);mask|=move(mask&~occupied);
+ mask|=move(mask&~occupied);mask|=move(mask&~occupied);
+ mask|=move(mask&~occupied);mask|=move(mask&~occupied);
+ return mask;
+}
+u64 loop_ray(u64 mask,u64 occupied,Move move){
+ mask=move(mask);for(int n=6;n--;)mask|=move(mask&~occupied);return mask;
+}
+int main(){
+ u64 h=0,occ=0;Move moves[]={east,west};
+ for(unsigned bit=0;bit<64;++bit){
+  u64 mask=1ULL<<bit, occupied[]={0,~0ULL,mask,~mask};
+  for(Move move:moves)for(u64 blockers:occupied)
+   if(original_ray(mask,blockers,move)!=loop_ray(mask,blockers,move))return 6;
+ }
+ for(unsigned k=0;k<50000;++k){
+  h=h*6364136223846793005ULL+1442695040888963407ULL;
+  occ=occ*2862933555777941757ULL+3037000493ULL;
+  u64 i=((h>>16)*3)>>15;
+  if(index(h)!=i||i>=3ULL<<33||index(h&~65535ULL)!=i)return 1;
+  table=(k&1)?first:second;
+  if(&slot(h)!=&table[i%64])return 2;
+  __builtin_prefetch(&slot(h));
+  Entry before=table[i%64],copy=slot(h);
+  if(before.key!=copy.key||before.value!=copy.value)return 3;
+  slot(h)={h,k};
+  if(table[i%64].key!=h||table[i%64].value!=k)return 4;
+  for(Move move:moves){u64 mask=1ULL<<(k%64);
+   if(original_ray(mask,occ,move)!=loop_ray(mask,occ,move))return 5;
+  }
+ }
+ return 0;
+}
+'''
+        with tempfile.TemporaryDirectory(prefix="rove4k-slot-ray-") as tmp:
+            source, binary = Path(tmp) / "slot.cpp", Path(tmp) / "slot-check"
+            source.write_text(program, encoding="ascii")
+            built = subprocess.run([shutil.which("c++"), "-std=c++17", "-O2", str(source), "-o", str(binary)],
+                                   capture_output=True, check=False, timeout=20)
+            self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+            tested = subprocess.run([str(binary)], capture_output=True, check=False, timeout=10)
+            self.assertEqual(tested.returncode, 0)
 
     @unittest.skipUnless(shutil.which("c++"), "a local C++ compiler is required")
     def test_shared_entry_preserves_value_copy_and_store_location(self):

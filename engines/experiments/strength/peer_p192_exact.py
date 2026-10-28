@@ -20,6 +20,9 @@ ENTRIES = 3 << 33
 TT_BYTES = ENTRIES * 8
 WORKERS = 192
 SHARE_VARIANT = "share-v1"
+SLOT_VARIANT = "slot-v1"
+RAY_VARIANT = "ray-v1"
+SLOT_RAY_VARIANT = "slot-ray-v1"
 
 # The first tuple names the role, the exact pinned input, replacement and the
 # required number of occurrences.  Both hot access and prefetch use exactly
@@ -67,12 +70,45 @@ _SHARE_EDITS = {
     "src/eval.cpp": (),
 }
 
+# These are independent experiments, not replacements for the measured
+# baseline or share-v1.  The reference helper computes the same slot on each
+# access; unlike share-v1 it does not cache a pointer across search.  The ray
+# candidate performs the original six updates in the same order.
+_SLOT_ALLOC = (
+    "allocation-and-slot-helper",
+    b"TTEntry* TTABLE = (TTEntry*)calloc(1ull << TT_BITS, 8);",
+    b"TTEntry* TTABLE=(TTEntry*)calloc(3ull<<33,8);"
+    b"TTEntry& rove_slot(u64 h){return TTABLE[3*(h>>16)>>15];}",
+    1,
+)
+_RAY_BEFORE = b"    mask |= func(mask & ~occupied);\r\n" * 6
+_RAY_EDIT = ("six-ray-updates", _RAY_BEFORE,
+             b"    for(i32 rove_ray=6;rove_ray--;)mask |= func(mask & ~occupied);\r\n", 1)
+_SLOT_EDITS = {
+    "src/chess.cpp": (_SLOT_ALLOC,),
+    "src/board.cpp": (("prefetch", b"TTABLE[hash >> TT_SHIFT]", b"rove_slot(hash)", 1),),
+    "src/search.cpp": (("probe-store", b"TTABLE[board.hash >> TT_SHIFT]", b"rove_slot(board.hash)", 2),),
+    "src/main.cpp": (),
+    "src/eval.cpp": (),
+}
+_RAY_EDITS = {
+    "src/chess.cpp": (*_EDITS["c4ke"]["src/chess.cpp"], _RAY_EDIT),
+    "src/board.cpp": _EDITS["c4ke"]["src/board.cpp"],
+    "src/search.cpp": _EDITS["c4ke"]["src/search.cpp"],
+    "src/main.cpp": (),
+    "src/eval.cpp": (),
+}
+_SLOT_RAY_EDITS = {**_SLOT_EDITS, "src/chess.cpp": (_SLOT_ALLOC, _RAY_EDIT)}
+
 
 def _variant_edits(name, variant):
     if variant == "baseline":
         return _EDITS.get(name)
     if variant == SHARE_VARIANT and name == "c4ke":
         return _SHARE_EDITS
+    if name == "c4ke" and variant in (SLOT_VARIANT, RAY_VARIANT, SLOT_RAY_VARIANT):
+        return {SLOT_VARIANT: _SLOT_EDITS, RAY_VARIANT: _RAY_EDITS,
+                SLOT_RAY_VARIANT: _SLOT_RAY_EDITS}[variant]
     raise ValueError("unsupported peer transform variant")
 
 
@@ -176,6 +212,10 @@ def transform(name, source_files, *, variant="baseline"):
         peers.verify_blob(name, path, data)
     if variant == SHARE_VARIANT:
         _check_share_context(source_files)
+    if variant in (SLOT_VARIANT, SLOT_RAY_VARIANT) and any(b"rove_slot" in data for data in source_files.values()):
+        raise ValueError("TT slot helper name already exists")
+    if variant in (RAY_VARIANT, SLOT_RAY_VARIANT) and any(b"rove_ray" in data for data in source_files.values()):
+        raise ValueError("ray loop variable name already exists")
     output, proofs = {}, {}
     for path in sorted(edits):
         output[path], proofs[path] = _edit(source_files[path], edits[path])
@@ -197,6 +237,9 @@ def transform(name, source_files, *, variant="baseline"):
     if variant == SHARE_VARIANT:
         receipt["variant"] = variant
         receipt["shared_slot_scope"] = "pinned TCEC source review; runtime and minifier behavior unverified"
+    elif variant in (SLOT_VARIANT, RAY_VARIANT, SLOT_RAY_VARIANT):
+        receipt["variant"] = variant
+        receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     return output, receipt
 
 

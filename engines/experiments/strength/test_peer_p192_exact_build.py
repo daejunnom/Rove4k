@@ -13,11 +13,11 @@ from unittest.mock import patch
 
 try:
     from . import peer_p192_exact as exact, peer_p192_exact_build as build
-    from .test_peer_p192_exact import sources, share_sources
+    from .test_peer_p192_exact import sources, share_sources, slot_ray_sources
 except ImportError:
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
-    from test_peer_p192_exact import sources, share_sources
+    from test_peer_p192_exact import sources, share_sources, slot_ray_sources
 
 
 class ExactProducerTests(unittest.TestCase):
@@ -26,8 +26,8 @@ class ExactProducerTests(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
-    def fixture(self, name, *, share=False):
-        original = {**(share_sources() if share else sources(name)),
+    def fixture(self, name, *, share=False, slot_ray=False):
+        original = {**(slot_ray_sources() if slot_ray else share_sources() if share else sources(name)),
                     "launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
                     "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"}
         root = self.root / (name + "-upstream")
@@ -83,6 +83,22 @@ class ExactProducerTests(unittest.TestCase):
         self.assertEqual(second["launcher_variant"], "gnu-tail-v1")
         self.assertEqual(second["whole"]["bytes"], first["whole"]["bytes"] - 3)
         self.assertFalse(second["qualification"]["runtime_qualified"])
+
+    def test_c4ke_structural_variants_run_through_producer(self):
+        name = "c4ke"
+        source, original = self.fixture(name, slot_ray=True)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}):
+            for variant in ("slot-v1", "ray-v1", "slot-ray-v1"):
+                with self.subTest(variant=variant):
+                    run, attempts = self.fake_runner(name, original, variant=variant)
+                    record = build.build(name, source, self.root / variant, run=run,
+                                         variant=variant, launcher_variant="gnu-tail-v1")["record"]
+                    self.assertEqual(len(attempts), 2)
+                    self.assertEqual(record["source_variant"], variant)
+                    self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
+                    self.assertFalse(record["qualification"]["runtime_qualified"])
+                    self.assertFalse(record["qualification"]["league_qualified"])
 
     def test_both_peers_produce_two_matching_full_streams_without_qualification(self):
         for name in ("ice4", "c4ke"):

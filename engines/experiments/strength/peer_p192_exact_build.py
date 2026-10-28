@@ -191,7 +191,7 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
     peer = peers.peer_spec(name)
     if codec_search not in peers.CODEC_SEARCHES:
         raise ValueError("unknown bounded peer codec search")
-    if variant not in ("baseline", "share-v1") or (variant != "baseline" and name != "c4ke"):
+    if variant not in ("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1") or (variant != "baseline" and name != "c4ke"):
         raise ValueError("unsupported peer source variant")
     if launcher_variant not in ("upstream", "gnu-tail-v1"):
         raise ValueError("unsupported launcher variant")
@@ -376,7 +376,7 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--codec-search", choices=tuple(peers.CODEC_SEARCHES), default="compact")
-    parser.add_argument("--source-variant", choices=("baseline", "share-v1"), default="baseline")
+    parser.add_argument("--source-variant", choices=("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1"), default="baseline")
     parser.add_argument("--launcher-variant", choices=("upstream", "gnu-tail-v1"), default="upstream")
     parser.add_argument("--cpu", type=int, default=None)
     parser.add_argument("--rustup-home", type=Path, default=None,
