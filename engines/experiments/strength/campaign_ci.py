@@ -385,12 +385,17 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
         cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
         cloud_declarations = [node for node in ast.parse(cloud_source).body if isinstance(node, ast.Assign)
                               and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                               and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES"]
+        observer_bound = False
         if cloud_declarations:
             require(len(cloud_declarations) == 1, "duplicate committed league host source declaration")
             cloud_names = ast.literal_eval(cloud_declarations[0].value)
@@ -406,9 +411,29 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             require(any(name.endswith("/peer_diagnostic_prepare.py") for name in cloud_names) ==
                     ("peer_diagnostic_prepare" in values["LEAGUE_HOST_MODULES"]),
                     "committed peer diagnostic source closure is incomplete")
+            observer_path = "engines/experiments/strength/" + "rove_b_tt_observe.py"
+            observer_entries = tuple(name for name in cloud_names
+                                     if name.replace("\\", "/").rsplit("/", 1)[-1] == "rove_b_tt_observe.py")
+            require(observer_entries in ((), (observer_path,)),
+                    "committed B observer source path is not canonical or is duplicated")
+            observer_bound = bool(observer_entries)
+            require(observer_bound == ("rove_b_tt_observe" in values["LEAGUE_HOST_MODULES"]),
+                    "committed B observer source closure is incomplete")
         else:
             require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
                     "committed peer diagnostic source closure is incomplete")
+            require("rove_b_tt_observe" not in values["LEAGUE_HOST_MODULES"],
+                    "committed B observer source closure is incomplete")
+        if "functional_uci_probe" in values["LEAGUE_HOST_MODULES"] and not observer_bound:
+            functional_name = "engines/experiments/strength/" + "functional_uci_probe.py"
+            functional_source = git(origin, "show", expected_head + ":" + functional_name, limit=32 << 20)
+            observer_imported = any(
+                (isinstance(node, ast.ImportFrom) and node.module is not None
+                 and node.module.split(".")[-1] == "rove_b_tt_observe")
+                or (isinstance(node, (ast.Import, ast.ImportFrom)) and
+                    any(alias.name.split(".")[-1] == "rove_b_tt_observe" for alias in node.names))
+                for node in ast.walk(ast.parse(functional_source)))
+            require(not observer_imported, "committed B observer source closure is incomplete")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
         names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")

@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 import unittest
 from contextlib import ExitStack
 from contextlib import redirect_stdout
@@ -178,14 +179,14 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             self.assertFalse((root / "out").exists())
 
     def run_fixture(self, root, *, oom=False, group_path="/sys/fs/cgroup/rove-functional-fixture", available=80 << 30,
-                    fail_after_registration=False, saved_nodes=None):
+                    fail_after_registration=False, saved_nodes=None, family="A", symbol_error=None, symbol_delay=0):
         whole = root / "toy"
         write_toy(whole)
         source = root / "source.c"
         source.write_text("/* fixture source only */\n", encoding="utf-8")
         source_bytes = source.read_bytes()
         native = Path(sys.executable).resolve()
-        artifact = SimpleNamespace(id="toy-a-p16", family="A", sha256=hashlib.sha256(whole.read_bytes()).hexdigest(),
+        artifact = SimpleNamespace(id="toy-a-p16", family=family, sha256=hashlib.sha256(whole.read_bytes()).hexdigest(),
                                    whole_bytes=whole.stat().st_size, native_sha256=self.native_sha,
                                    tt_bytes=12 << 30, workers=16)
         candidate = {"artifact": artifact, "whole": whole,
@@ -252,6 +253,15 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             patches.enter_context(mock.patch.object(probe.memory_observation, "_file", side_effect=fixture_cgroup_file))
             patches.enter_context(mock.patch.object(probe, "_events", side_effect=[events_before, events_after]))
             patches.enter_context(mock.patch.object(probe, "_launcher", side_effect=fixture_launcher))
+            def candidate_symbol(owned, **kwargs):
+                self.symbol_call = {"pid": owned.process.pid, "alive": not owned.exited(),
+                                    "registered": owned in self.owner.OWNED, **kwargs}
+                if symbol_delay:
+                    time.sleep(symbol_delay)
+                if symbol_error:
+                    raise symbol_error
+                return {"format": "fixture-symbol", "claims": {"symbol_represents_tt": False}}
+            patches.enter_context(mock.patch.object(probe.rove_b_tt_observe, "observe_owned_b", side_effect=candidate_symbol))
             if fail_after_registration:
                 def interrupted_constructor(owner, launcher, directory, budget):
                     registered = owner.Owned(launcher, directory, budget)
@@ -284,6 +294,48 @@ class FunctionalCandidateFixtureTests(unittest.TestCase):
             self.assertFalse(report["cleanup"]["forced_cleanup"])
             self.assertTrue((Path(tmp) / "out" / "functional-runtime.json").is_file())
             self.assertFalse(self.owner.OWNED)
+
+    def test_b_symbol_observation_uses_live_owned_process_without_claiming_qualification(self):
+        with tempfile.TemporaryDirectory(prefix="rove-functional-b-symbol-") as tmp:
+            report = self.run_fixture(Path(tmp), family="B")
+            candidate = report["uci"]["b_symbol_candidate"]
+            self.assertTrue(report["complete"])
+            self.assertEqual(candidate["state"], "observed")
+            self.assertFalse(candidate["observation"]["claims"]["symbol_represents_tt"])
+            self.assertTrue(self.symbol_call["alive"])
+            self.assertTrue(self.symbol_call["registered"])
+            self.assertEqual(self.symbol_call["pid"], report["owner_identity"]["pid"])
+            self.assertEqual(self.symbol_call["expected_identity"], report["owner_identity"])
+            self.assertEqual(self.symbol_call["native_sha256"], self.native_sha)
+            self.assertEqual(self.symbol_call["profile"], "test-p16")
+            self.assertEqual(self.symbol_call["allowed_nodes"], [0])
+            self.assertFalse(report["scored_game_admitted"])
+
+    def test_b_symbol_observation_unavailable_keeps_uci_result_unqualified(self):
+        with tempfile.TemporaryDirectory(prefix="rove-functional-b-unavailable-") as tmp:
+            report = self.run_fixture(Path(tmp), family="B",
+                                      symbol_error=probe.rove_b_tt_observe.ObservationUnavailable("fixture proc denial"))
+            candidate = report["uci"]["b_symbol_candidate"]
+            self.assertTrue(report["complete"])
+            self.assertEqual(candidate["state"], "unavailable")
+            self.assertEqual(candidate["error_type"], "ObservationUnavailable")
+            self.assertFalse(report["scored_game_admitted"])
+            self.assertTrue(all(value is False for value in report["uci"]["claims"].values()))
+
+    def test_b_symbol_integrity_failure_fails_and_cleans_up(self):
+        with tempfile.TemporaryDirectory(prefix="rove-functional-b-integrity-") as tmp:
+            with self.assertRaises(probe.FunctionalProbeFailure) as caught:
+                self.run_fixture(Path(tmp), family="B", symbol_error=ValueError("owned process identity changed"))
+            self.assertFalse(caught.exception.report["complete"])
+            self.assertIn("owned process identity changed", caught.exception.report["failure"]["message"])
+            self.assertTrue(caught.exception.report["cleanup"]["owned_group_absent"])
+            self.assertFalse(self.owner.OWNED)
+
+    def test_b_symbol_observation_is_not_counted_as_search_time(self):
+        with tempfile.TemporaryDirectory(prefix="rove-functional-b-timing-") as tmp:
+            started = time.monotonic()
+            report = self.run_fixture(Path(tmp), family="B", symbol_delay=.35)
+            self.assertGreaterEqual(time.monotonic() - started - report["uci"]["clocked_search_seconds"], .30)
 
     def test_partial_constructor_recovers_registered_child(self):
         with tempfile.TemporaryDirectory(prefix="rove-functional-constructor-") as tmp:

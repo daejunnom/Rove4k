@@ -941,6 +941,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                          "engines/experiments/strength/functional_probe_session.py",
                          "engines/experiments/strength/league_functional_host.py",
                          "engines/experiments/strength/peer_diagnostic_prepare.py",
+                         "engines/experiments/strength/rove_b_tt_observe.py",
                          "engines/scripts/league_resource_profiles.py",
                          "engines/experiments/tcec-scope/verify.py",
                          "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
@@ -1064,6 +1065,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/functional_probe_session.py",
                      "engines/experiments/strength/league_functional_host.py",
                      "engines/experiments/strength/peer_diagnostic_prepare.py",
+                     "engines/experiments/strength/rove_b_tt_observe.py",
                      "engines/scripts/league_resource_profiles.py",
                      "engines/experiments/tcec-scope/verify.py",
                      "engines/compact/tiny-entry-d/verify.py",
@@ -1087,10 +1089,10 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and isinstance(node.targets[0], ast.Name)}
             modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)
             core = ast.literal_eval(declarations["LEAGUE_CORE_R"].value)
-            self.assertEqual(modules[-4:], ("functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare"))
+            self.assertEqual(modules[-5:], ("functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe"))
             self.assertEqual(len(core), 4)
             lines = raw.splitlines(keepends=True)
-            for name, value in sorted((("LEAGUE_HOST_MODULES", modules[:-4]),
+            for name, value in sorted((("LEAGUE_HOST_MODULES", modules[:-5]),
                                        ("LEAGUE_CORE_R", core[:1])),
                                       key=lambda item: declarations[item[0]].lineno, reverse=True):
                 node = declarations[name]
@@ -1156,23 +1158,26 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
                 modules = ast.literal_eval(node.value)
-                self.assertEqual(modules[-2:], ("league_functional_host", "peer_diagnostic_prepare"))
+                self.assertEqual(modules[-3:], ("league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe"))
                 lines = raw.splitlines(keepends=True)
-                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-2]) + "\n"]
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-3]) + "\n"]
                 seed_path.write_text("".join(lines), encoding="utf-8")
                 changed = ["engines/experiments/strength/seed.py"]
-                if not cloud_has_host:
-                    cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
-                    cloud = cloud_path.read_text(encoding="utf-8")
-                    node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
-                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
-                                and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
-                    names = ast.literal_eval(node.value)
-                    names = tuple(name for name in names if not name.endswith(("/league_functional_host.py", "/peer_diagnostic_prepare.py")))
-                    lines = cloud.splitlines(keepends=True)
-                    lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
-                    cloud_path.write_text("".join(lines), encoding="utf-8")
-                    changed.append("engines/experiments/strength/cloud_runtime.py")
+                # This tests historical static closure binding, not functionality.
+                (origin / "engines/experiments/strength/functional_uci_probe.py").write_text("# historical functional fixture\n")
+                changed.append("engines/experiments/strength/functional_uci_probe.py")
+                cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
+                cloud = cloud_path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                names = ast.literal_eval(node.value)
+                names = tuple(name for name in names if not name.endswith("/rove_b_tt_observe.py") and
+                              (cloud_has_host or not name.endswith(("/league_functional_host.py", "/peer_diagnostic_prepare.py"))))
+                lines = cloud.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
+                cloud_path.write_text("".join(lines), encoding="utf-8")
+                changed.append("engines/experiments/strength/cloud_runtime.py")
                 self.git(origin, "add", "--", *changed)
                 self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "host closure version fixture")
                 head = self.git(origin, "rev-parse", "HEAD").decode().strip()
@@ -1195,23 +1200,25 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
                             and node.targets[0].id == "LEAGUE_HOST_MODULES")
                 modules = ast.literal_eval(node.value)
-                self.assertEqual(modules[-1], "peer_diagnostic_prepare")
+                self.assertEqual(modules[-2:], ("peer_diagnostic_prepare", "rove_b_tt_observe"))
                 lines = raw.splitlines(keepends=True)
-                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-1]) + "\n"]
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-2]) + "\n"]
                 seed_path.write_text("".join(lines), encoding="utf-8")
                 changed = ["engines/experiments/strength/seed.py"]
-                if not cloud_has_peer:
-                    cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
-                    cloud = cloud_path.read_text(encoding="utf-8")
-                    node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
-                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
-                                and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
-                    names = ast.literal_eval(node.value)
-                    names = tuple(name for name in names if not name.endswith("/peer_diagnostic_prepare.py"))
-                    lines = cloud.splitlines(keepends=True)
-                    lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
-                    cloud_path.write_text("".join(lines), encoding="utf-8")
-                    changed.append("engines/experiments/strength/cloud_runtime.py")
+                (origin / "engines/experiments/strength/functional_uci_probe.py").write_text("# historical functional fixture\n")
+                changed.append("engines/experiments/strength/functional_uci_probe.py")
+                cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
+                cloud = cloud_path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                names = ast.literal_eval(node.value)
+                names = tuple(name for name in names if not name.endswith("/rove_b_tt_observe.py") and
+                              (cloud_has_peer or not name.endswith("/peer_diagnostic_prepare.py")))
+                lines = cloud.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
+                cloud_path.write_text("".join(lines), encoding="utf-8")
+                changed.append("engines/experiments/strength/cloud_runtime.py")
                 self.git(origin, "add", "--", *changed)
                 self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "peer closure version fixture")
                 head = self.git(origin, "rev-parse", "HEAD").decode().strip()
@@ -1222,6 +1229,85 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                     proof = ci.bind_materializer_source(origin, head, out=Path(directory) / "materializer")
                     self.assertNotIn("engines/experiments/strength/peer_diagnostic_prepare.py", proof["members"])
                     self.assertIn("engines/experiments/strength/league_functional_host.py", proof["members"])
+
+    def test_b_observer_import_rejects_incomplete_or_downgraded_inventory(self):
+        for seed_has_observer, cloud_has_observer in ((False, True), (True, False), (False, False)):
+            with self.subTest(seed=seed_has_observer, cloud=cloud_has_observer), tempfile.TemporaryDirectory(prefix="rove-ci-b-closure-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                for filename, assignment, keep in (
+                    ("seed.py", "LEAGUE_HOST_MODULES", seed_has_observer),
+                    ("cloud_runtime.py", "LEAGUE_HOST_SOURCE_FILES", cloud_has_observer),
+                ):
+                    if keep:
+                        continue
+                    path = origin / "engines/experiments/strength" / filename
+                    raw = path.read_text(encoding="utf-8")
+                    node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                and node.targets[0].id == assignment)
+                    values = tuple(value for value in ast.literal_eval(node.value) if "rove_b_tt_observe" not in value)
+                    lines = raw.splitlines(keepends=True)
+                    lines[node.lineno - 1:node.end_lineno] = [assignment + " = " + repr(values) + "\n"]
+                    path.write_text("".join(lines), encoding="utf-8")
+                    self.git(origin, "add", "--", str(path.relative_to(origin)))
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "incomplete B closure fixture")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                with self.assertRaisesRegex(ValueError, "B observer source closure is incomplete"):
+                    ci.bind_materializer_source(origin, head)
+
+    def test_b_observer_cloud_path_must_be_canonical_and_unique(self):
+        canonical = "engines/experiments/strength/rove_b_tt_observe.py"
+        for replacement in (
+            ("other/rove_b_tt_observe.py",),
+            ("engines/experiments/strength/../strength/rove_b_tt_observe.py",),
+            ("engines\\experiments\\strength\\rove_b_tt_observe.py",),
+            (canonical, canonical),
+            (canonical, "other/rove_b_tt_observe.py"),
+        ):
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory(prefix="rove-ci-b-path-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                path = origin / "engines/experiments/strength/cloud_runtime.py"
+                raw = path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                names = ast.literal_eval(node.value)
+                self.assertEqual(names.count(canonical), 1)
+                pos = names.index(canonical)
+                names = names[:pos] + replacement + names[pos + 1:]
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
+                path.write_text("".join(lines), encoding="utf-8")
+                self.git(origin, "add", "--", "engines/experiments/strength/cloud_runtime.py")
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "invalid B observer source path fixture")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                with self.assertRaisesRegex(ValueError, "B observer source path is not canonical or is duplicated"):
+                    ci.bind_materializer_source(origin, head)
+
+    def test_b_observer_import_rejects_missing_cloud_declaration(self):
+        with tempfile.TemporaryDirectory(prefix="rove-ci-b-undeclared-") as directory:
+            origin = Path(directory) / "original-git"
+            self.make_materializer_origin(origin)
+            seed_path = origin / "engines/experiments/strength/seed.py"
+            raw = seed_path.read_text(encoding="utf-8")
+            node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                        and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                        and node.targets[0].id == "LEAGUE_HOST_MODULES")
+            modules = ast.literal_eval(node.value)
+            self.assertEqual(modules[-2:], ("peer_diagnostic_prepare", "rove_b_tt_observe"))
+            lines = raw.splitlines(keepends=True)
+            lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-2]) + "\n"]
+            seed_path.write_text("".join(lines), encoding="utf-8")
+            cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
+            cloud = cloud_path.read_text(encoding="utf-8")
+            cloud_path.write_text(cloud.replace("LEAGUE_HOST_SOURCE_FILES =", "OLD_LEAGUE_HOST_SOURCE_FILES =", 1), encoding="utf-8")
+            self.git(origin, "add", "--", "engines/experiments/strength/seed.py", "engines/experiments/strength/cloud_runtime.py")
+            self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "missing B cloud declaration fixture")
+            head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+            with self.assertRaisesRegex(ValueError, "B observer source closure is incomplete"):
+                ci.bind_materializer_source(origin, head)
 
     def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):
         def omit_league(body):

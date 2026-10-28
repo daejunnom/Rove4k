@@ -43,7 +43,8 @@ SOURCE_FILES = (
 LEAGUE_SOURCE_FILES = ("engines/scripts/league_resource_profiles.py",)
 CONTROLLED_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for name in (
     "functional_probe_session", "functional_uci_probe", "diagnostic_candidates",
-    "peak_capacity", "peak_probe_session", "memory_observation", "run"))
+    "peak_capacity", "peak_probe_session", "memory_observation", "run",
+    "rove_b_tt_observe", "rove_vma_observer"))
 HELPER_PINS = {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",

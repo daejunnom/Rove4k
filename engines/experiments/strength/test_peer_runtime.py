@@ -218,6 +218,8 @@ class PeerRuntimeTests(unittest.TestCase):
             base = Path(tmp).resolve()
             source, frozen = base / "source", base / "frozen"
             paths = runtime.SOURCE_FILES + runtime.LEAGUE_SOURCE_FILES + runtime.CONTROLLED_SOURCE_FILES
+            for module in ("rove_b_tt_observe.py", "rove_vma_observer.py"):
+                self.assertIn("engines/experiments/strength/" + module, paths)
             pins = {}
             for relative in paths:
                 raw = (runtime.ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
@@ -234,6 +236,15 @@ class PeerRuntimeTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "source closure changed"):
                     runtime._check_controlled_sources(context)
                 shutil.copyfile(frozen / runtime.CONTROLLED_SOURCE_FILES[0], changed)
+                runtime._check_controlled_sources(context)
+                for module in ("rove_b_tt_observe.py", "rove_vma_observer.py"):
+                    relative = "engines/experiments/strength/" + module
+                    changed = frozen / relative
+                    changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
+                    with self.subTest(module=module), self.assertRaisesRegex(ValueError, "source closure changed"):
+                        runtime._check_controlled_sources(context)
+                    shutil.copyfile(source / relative, changed)
+                    runtime._check_controlled_sources(context)
                 changed = frozen / runtime.CONTROLLED_SOURCE_FILES[1]
                 changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
                 with self.assertRaisesRegex(ValueError, "source closure changed"):

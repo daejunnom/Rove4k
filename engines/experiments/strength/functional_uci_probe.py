@@ -22,7 +22,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
-    from . import diagnostic_candidates, memory_observation, peak_capacity, peak_probe_session, peer_runtime, placement, topology
+    from . import diagnostic_candidates, memory_observation, peak_capacity, peak_probe_session, peer_runtime, placement, rove_b_tt_observe, topology
 except ImportError:
     import diagnostic_candidates
     import memory_observation
@@ -30,6 +30,7 @@ except ImportError:
     import peak_probe_session
     import peer_runtime
     import placement
+    import rove_b_tt_observe
     import topology
 
 
@@ -278,8 +279,17 @@ def run_candidate(*, candidate_path, candidate_sha256, artifact_id, profile,
             report["pre_exec"], pid=identity["pid"], slot=slot_view, cgroup=cgroup)
         if str(identity["pid"]) not in memory_observation._file(group_path / "cgroup.procs").splitlines():
             raise ValueError("original diagnostic leader is absent from its cgroup")
+        symbol_observer = None
+        if artifact.family == "B":
+            def symbol_observer():
+                if owned not in owner.OWNED:
+                    raise ValueError("B diagnostic process is no longer in the original owner registry")
+                return rove_b_tt_observe.observe_owned_b(
+                    owned, native_sha256=artifact.native_sha256, expected_identity=identity,
+                    cgroup=cgroup, profile=profile, allowed_nodes=slot["memory_nodes"])
         result = exercise_protocol(owned, oracle=oracle, scope=scope, native_sha256=artifact.native_sha256,
-                                   cpus=slot["cpus"], launched_at=launch_started)
+                                   cpus=slot["cpus"], launched_at=launch_started,
+                                   symbol_observer=symbol_observer)
         if placement._process_identity(owned.process.pid) != identity:
             raise ValueError("original process identity changed during diagnostic")
         if str(identity["pid"]) not in memory_observation._file(group_path / "cgroup.procs").splitlines():
@@ -374,7 +384,7 @@ def _numa_summary(pid):
 
 
 def exercise_protocol(owned, *, oracle, scope, native_sha256, cpus,
-                      startup_seconds=60, search_seconds=20, launched_at=None):
+                      startup_seconds=60, search_seconds=20, launched_at=None, symbol_observer=None):
     """Exercise the original process, returning a diagnostic-only observation.
 
     ``owned`` must retain the original process group and bounded output readers.
@@ -392,6 +402,8 @@ def exercise_protocol(owned, *, oracle, scope, native_sha256, cpus,
     if (type(startup_seconds) not in (int, float) or not 0 < startup_seconds <= 60 or
             type(search_seconds) not in (int, float) or not 0 < search_seconds <= 30):
         raise ValueError("bounded startup and search deadlines required")
+    if symbol_observer is not None and not callable(symbol_observer):
+        raise ValueError("symbol observer must be callable")
     pid = owned.process.pid
     started = time.monotonic() if launched_at is None else launched_at
     if type(started) not in (int, float) or started > time.monotonic():
@@ -462,6 +474,7 @@ def exercise_protocol(owned, *, oracle, scope, native_sha256, cpus,
     lines = _best_lines(owned.stdout.bytes())
     if len(lines) != 1:
         raise ValueError("clocked search did not emit exactly one bestmove")
+    search_elapsed = time.monotonic() - started_search
     move = peer_runtime.checked_best(lines[0], board)
     ready = _ready_count(owned.stdout.bytes())
     owned.send(b"stop\nisready\n")
@@ -470,12 +483,22 @@ def exercise_protocol(owned, *, oracle, scope, native_sha256, cpus,
         raise ValueError("idle ready acknowledgement was duplicated")
     if len(_best_lines(owned.stdout.bytes())) != 1:
         raise ValueError("idle stop or ready produced an extra bestmove")
+    symbol_candidate = None
+    if symbol_observer is not None:
+        try:
+            symbol_candidate = {"state": "observed", "observation": symbol_observer()}
+        except rove_b_tt_observe.ObservationUnavailable as error:
+            # Missing permission for the memory or NUMA observation is reported
+            # separately; identity and image failures still fail the smoke.
+            symbol_candidate = {"state": "unavailable", "error_type": type(error).__name__,
+                                "detail": str(error)}
     image_after = scope.image_snapshot(pid, native_sha256)
     numa = _numa_summary(pid)
     return {"format": "rove4k-functional-uci-smoke-v1", "startup_seconds": startup,
-            "clocked_search_seconds": time.monotonic() - started_search,
+            "clocked_search_seconds": search_elapsed,
             "bestmove": move, "position": "startpos", "legal_bestmove": True,
             "startup_image": image_before, "post_search_image": image_after, "numa_mappings": numa,
+            "b_symbol_candidate": symbol_candidate,
             "observed_threads": [identities[key] for key in sorted(identities)],
             "positive_cpu_tids": sorted(positive), "search_samples": samples,
             "any_observed_cpu_progress": bool(positive),

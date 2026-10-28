@@ -96,6 +96,7 @@ LEAGUE_HOST_SOURCE_FILES = ("engines/experiments/strength/memory_observation.py"
                             "engines/experiments/strength/functional_probe_session.py",
                             "engines/experiments/strength/league_functional_host.py",
                             "engines/experiments/strength/peer_diagnostic_prepare.py",
+                            "engines/experiments/strength/rove_b_tt_observe.py",
                             "engines/scripts/league_resource_profiles.py",
                             "engines/experiments/tcec-scope/verify.py",
                             "engines/compact/tiny-entry-d/verify.py",
