@@ -13,11 +13,11 @@ from unittest.mock import patch
 
 try:
     from . import peer_p192_exact as exact, peer_p192_exact_build as build
-    from .test_peer_p192_exact import sources
+    from .test_peer_p192_exact import sources, share_sources
 except ImportError:
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
-    from test_peer_p192_exact import sources
+    from test_peer_p192_exact import sources, share_sources
 
 
 class ExactProducerTests(unittest.TestCase):
@@ -26,8 +26,9 @@ class ExactProducerTests(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.addCleanup(self.temp.cleanup)
 
-    def fixture(self, name):
-        original = {**sources(name), "launcher.sh": b"#!/bin/sh\n# synthetic wrapper\n",
+    def fixture(self, name, *, share=False):
+        original = {**(share_sources() if share else sources(name)),
+                    "launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
                     "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"}
         root = self.root / (name + "-upstream")
         root.mkdir()
@@ -47,17 +48,16 @@ class ExactProducerTests(unittest.TestCase):
         self.assertEqual(absent["explicit_192gib_calloc_literals"], 0)
         self.assertEqual(absent["explicit_upper48_index_suffixes"], 0)
 
-    def fake_runner(self, name, original, *, mutate=None, changed_output=False):
+    def fake_runner(self, name, original, *, mutate=None, changed_output=False, variant="baseline"):
         outputs = []
         def run(command, snapshot, *, sandbox_home):
             command = list(command)
             self.assertTrue(Path(sandbox_home).is_dir())
             self.assertEqual(Path(sandbox_home).parent, Path(snapshot).parent)
             if command[-1] == "tcec":
-                selected = {path: original[path] for path in set(exact._EDITS[name]) |
-                            {exact.peers.peer_spec(name).resource_path}}
-                transformed, proof = exact.transform(name, selected)
-                self.assertEqual(exact.restore(name, transformed, proof), selected)
+                selected = {path: original[path] for path in exact.source_closure(name, variant=variant)}
+                transformed, proof = exact.transform(name, selected, variant=variant)
+                self.assertEqual(exact.restore(name, transformed, proof, variant=variant), selected)
                 for relative, data in original.items():
                     self.assertEqual((Path(snapshot) / relative).read_bytes(), transformed.get(relative, data))
                 outputs.append(1)
@@ -67,6 +67,22 @@ class ExactProducerTests(unittest.TestCase):
                 return b"#include <stdint.h>\n/* synthetic " + suffix + b" */\n", b"", {"fixture": "emit"}
             return b"fixture version\n", b"", {"fixture": "tool"}
         return run, outputs
+
+    def test_c4ke_shared_source_and_trimmed_launcher_are_independent_variants(self):
+        name = "c4ke"
+        source, original = self.fixture(name, share=True)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}):
+            run, _ = self.fake_runner(name, original, variant="share-v1")
+            result = build.build(name, source, self.root / "share-original", run=run, variant="share-v1")
+            run, _ = self.fake_runner(name, original, variant="share-v1")
+            trimmed = build.build(name, source, self.root / "share-trimmed", run=run,
+                                  variant="share-v1", launcher_variant="gnu-tail-v1")
+        first, second = result["record"], trimmed["record"]
+        self.assertEqual(first["source_variant"], "share-v1")
+        self.assertEqual(second["launcher_variant"], "gnu-tail-v1")
+        self.assertEqual(second["whole"]["bytes"], first["whole"]["bytes"] - 3)
+        self.assertFalse(second["qualification"]["runtime_qualified"])
 
     def test_both_peers_produce_two_matching_full_streams_without_qualification(self):
         for name in ("ice4", "c4ke"):

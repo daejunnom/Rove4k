@@ -8,6 +8,8 @@ registry until their independent source/runtime contracts support it.
 """
 from __future__ import annotations
 
+import re
+
 try:
     from . import peers
 except ImportError:
@@ -17,6 +19,7 @@ PROFILE = "test-p192-exact-v1"
 ENTRIES = 3 << 33
 TT_BYTES = ENTRIES * 8
 WORKERS = 192
+SHARE_VARIANT = "share-v1"
 
 # The first tuple names the role, the exact pinned input, replacement and the
 # required number of occurrences.  Both hot access and prefetch use exactly
@@ -44,6 +47,77 @@ _EDITS = {
         ),
     },
 }
+
+# This distinct c4ke experiment caches the same TT lvalue across search.
+# The referenced entry is stable only for the pinned TCEC build: search does
+# not change its own board hash, and the OB-only hash-resize branch is removed.
+# The additional untouched source blobs pin the reviewed dependency context;
+# this is not proof of a minifier output or of concurrent runtime behavior.
+_SHARE_EDITS = {
+    "src/chess.cpp": _EDITS["c4ke"]["src/chess.cpp"],
+    "src/board.cpp": (
+        ("prefetch", b"TTABLE[hash >> TT_SHIFT]", b"TTABLE[3*(hash >> 16)>>15]", 1),
+    ),
+    "src/search.cpp": (
+        ("probe-and-slot", b"TTEntry tt = TTABLE[board.hash >> TT_SHIFT];",
+         b"TTEntry &rove_entry=TTABLE[3*(board.hash>>16)>>15],tt=rove_entry;", 1),
+        ("store-to-slot", b"TTABLE[board.hash >> TT_SHIFT] = {", b"rove_entry = {", 1),
+    ),
+    "src/main.cpp": (),
+    "src/eval.cpp": (),
+}
+
+
+def _variant_edits(name, variant):
+    if variant == "baseline":
+        return _EDITS.get(name)
+    if variant == SHARE_VARIANT and name == "c4ke":
+        return _SHARE_EDITS
+    raise ValueError("unsupported peer transform variant")
+
+
+def source_closure(name, *, variant="baseline"):
+    edits = _variant_edits(name, variant)
+    if edits is None:
+        raise ValueError("pinned ice4 or c4ke sources are required")
+    return frozenset(edits) | {peers.peer_spec(name).resource_path}
+
+
+def _check_share_context(source_files):
+    # Known-pinned sources are additionally checked for the precise structural
+    # assumptions reviewed for this experiment. Reproduction of those bytes is
+    # still not an independent proof of compiler or engine behavior.
+    search = source_files["src/search.cpp"]
+    board = source_files["src/board.cpp"]
+    main = source_files["src/main.cpp"].replace(b"\r\n", b"\n")
+    chess = source_files["src/chess.cpp"]
+    if any(b"rove_entry" in data for data in source_files.values()):
+        raise ValueError("cached TT reference name already exists")
+    required = (
+        (search, b"TTEntry tt = TTABLE[board.hash >> TT_SHIFT];", 1),
+        (search, b"TTABLE[board.hash >> TT_SHIFT] = {", 1),
+        (search, b"Board child = board;", 2),
+        (search, b"score = search(board,", 2),
+        (board, b"__builtin_prefetch(&TTABLE[hash >> TT_SHIFT]);", 1),
+        (chess, b"TTEntry* TTABLE = (TTEntry*)calloc(1ull << TT_BITS, 8);", 1),
+        (main, b"#ifdef OB\n        // Uci ucinewgame", 1),
+        (main, b"TTABLE = (TTEntry*)calloc(1ull << TT_BITS, sizeof(TTEntry));", 1),
+        (main, b"jthread threads[THREADS];", 1),
+        (main, b"free(TTABLE);", 2),
+    )
+    if any(data.count(marker) != count for data, marker, count in required):
+        raise ValueError("pinned c4ke TCEC reference assumptions differ")
+    if (search.count(b"board.hash") != 13 or search.count(b"board.make(") or
+            search.count(b"TTABLE[") != 2 or board.count(b"TTABLE[") != 1):
+        raise ValueError("pinned c4ke hash/TT access shape differs")
+    if (re.search(rb"\bboard\.hash\b\s*(?:\+\+|--|[+*/%&|^\-]=|=(?!=))", search) or
+            re.search(rb"(?:\+\+|--)\s*board\.hash\b", search)):
+        raise ValueError("search writes the source board hash")
+    begin = main.index(b"#ifdef OB\n        // Uci ucinewgame")
+    end = main.index(b"#endif\n        // Uci position", begin)
+    reallocation = main.index(b"TTABLE = (TTEntry*)calloc(1ull << TT_BITS, sizeof(TTEntry));")
+    if not begin < reallocation < end:
+        raise ValueError("TT reallocation is not inside the removed OB block")
 
 
 def index(hash_value):
@@ -81,17 +155,18 @@ def _edit(source, specifications):
     return result, proof
 
 
-def transform(name, source_files):
+def transform(name, source_files, *, variant="baseline"):
     """Transform exactly the needed verified upstream blobs in memory.
 
     Return changed bytes and a complete inverse receipt.  The minifier's
     existing 192-worker numeric substitutions are retained, but its TT_BITS
     value is no longer the emitted TT extent for this distinct profile.
     """
-    if name not in _EDITS or type(source_files) is not dict:
+    edits = _variant_edits(name, variant)
+    if edits is None or type(source_files) is not dict:
         raise ValueError("pinned ice4 or c4ke sources are required")
     peer = peers.peer_spec(name)
-    expected = set(_EDITS[name]) | {peer.resource_path}
+    expected = source_closure(name, variant=variant)
     if set(source_files) != expected:
         raise ValueError("exact source transform closure required")
     for path in sorted(expected):
@@ -99,9 +174,11 @@ def transform(name, source_files):
         if type(data) is not bytes:
             raise ValueError("source must be immutable bytes")
         peers.verify_blob(name, path, data)
+    if variant == SHARE_VARIANT:
+        _check_share_context(source_files)
     output, proofs = {}, {}
-    for path in sorted(_EDITS[name]):
-        output[path], proofs[path] = _edit(source_files[path], _EDITS[name][path])
+    for path in sorted(edits):
+        output[path], proofs[path] = _edit(source_files[path], edits[path])
     output[peer.resource_path], numeric_proof = peers.resource_patch(
         name, source_files[peer.resource_path], "test-p192")
     # The upstream minifier still substitutes TT_BITS=34, but the transformed
@@ -117,15 +194,19 @@ def transform(name, source_files):
                                                   "tt_bits_describes_runtime_extent": False},
                "scope": "TCEC minifier input only; not runtime qualification or score admission",
                "files": proofs}
+    if variant == SHARE_VARIANT:
+        receipt["variant"] = variant
+        receipt["shared_slot_scope"] = "pinned TCEC source review; runtime and minifier behavior unverified"
     return output, receipt
 
 
-def restore(name, changed, receipt):
+def restore(name, changed, receipt, *, variant="baseline"):
     """Verify the frozen transform, reconstruct every original and replay it."""
-    if name not in _EDITS or type(changed) is not dict or type(receipt) is not dict:
+    edits = _variant_edits(name, variant)
+    if edits is None or type(changed) is not dict or type(receipt) is not dict:
         raise ValueError("invalid transform receipt")
     peer = peers.peer_spec(name)
-    expected = set(_EDITS[name]) | {peer.resource_path}
+    expected = source_closure(name, variant=variant)
     if set(changed) != expected or type(receipt.get("files")) is not dict or set(receipt["files"]) != expected:
         raise ValueError("transform receipt closure differs")
     original = {}
@@ -135,7 +216,7 @@ def restore(name, changed, receipt):
                 raise ValueError("transformed source must be bytes")
             original[path] = peers.restore_resources(changed[path], receipt["files"][path])
             peers.verify_blob(name, path, original[path])
-        replay, expected_receipt = transform(name, original)
+        replay, expected_receipt = transform(name, original, variant=variant)
     except (KeyError, TypeError, UnicodeError, IndexError) as error:
         raise ValueError("invalid transform receipt") from error
     if replay != changed or peers.canonical(receipt) != peers.canonical(expected_receipt):

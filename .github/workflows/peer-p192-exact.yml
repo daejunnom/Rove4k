@@ -8,6 +8,8 @@ on:
       - 'engines/experiments/strength/test_peer_p192_exact*.py'
       - 'engines/experiments/strength/peer_exact_runner.py'
       - 'engines/experiments/strength/test_peer_exact_runner.py'
+      - 'engines/experiments/strength/peer_launcher_trim.py'
+      - 'engines/experiments/strength/test_peer_launcher_trim.py'
       - 'engines/experiments/strength/peers.py'
       - '.github/workflows/peer-p192-exact.yml'
   workflow_dispatch:
@@ -21,15 +23,25 @@ concurrency:
 
 jobs:
   produce:
-    name: exact-P192-${{ matrix.peer }}
+    name: exact-P192-${{ matrix.peer }}-${{ matrix.variant }}-${{ matrix.launcher }}-${{ matrix.codec }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        peer: [ice4, c4ke]
+        include:
+          - {peer: ice4, variant: baseline, launcher: upstream, codec: compact}
+          - {peer: ice4, variant: baseline, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: baseline, launcher: upstream, codec: compact}
+          - {peer: c4ke, variant: baseline, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: share-v1, launcher: upstream, codec: compact}
+          - {peer: c4ke, variant: share-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: share-v1, launcher: gnu-tail-v1, codec: extended}
     env:
       PEER: ${{ matrix.peer }}
+      SOURCE_VARIANT: ${{ matrix.variant }}
+      LAUNCHER_VARIANT: ${{ matrix.launcher }}
+      CODEC_SEARCH: ${{ matrix.codec }}
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -42,6 +54,7 @@ jobs:
         run: |
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_p192_exact*.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_exact_runner.py'
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_launcher_trim.py'
       - name: Fetch only pinned upstream source into temporary storage
         run: |
           python -I -B engines/experiments/strength/peers.py source \
@@ -58,7 +71,17 @@ jobs:
             python -I -B engines/experiments/strength/peer_p192_exact_build.py \
             --peer "$PEER" --source "$RUNNER_TEMP/peer-p192-source-$PEER" \
             --out "$RUNNER_TEMP/peer-p192-result-$PEER" \
-            --codec-search compact --wall-seconds 600 "${rove_rust_args[@]}"
+            --source-variant "$SOURCE_VARIANT" --launcher-variant "$LAUNCHER_VARIANT" \
+            --codec-search "$CODEC_SEARCH" --wall-seconds 600 "${rove_rust_args[@]}"
+      - name: Check emitted C++ syntax with the peer launcher options
+        run: |
+          if [ "$PEER" = c4ke ]; then
+            g++ -O3 -std=c++23 -pthread -march=native -xc++ -fsyntax-only \
+              "$RUNNER_TEMP/peer-p192-result-$PEER/attempt-1/main.cpp"
+          else
+            c++ -O3 -pthread -xc++ -fsyntax-only \
+              "$RUNNER_TEMP/peer-p192-result-$PEER/attempt-1/main.cpp"
+          fi
       - name: Report actual whole-file size and admission scope
         run: |
           python - "$RUNNER_TEMP/peer-p192-result-$PEER/peer-exact.json" <<'PY'
@@ -69,6 +92,9 @@ jobs:
           assert not report['qualification']['runtime_qualified']
           assert not report['qualification']['league_qualified']
           print(json.dumps({'peer': report['peer'], 'profile': report['profile'],
+                            'source_variant': report.get('source_variant', 'baseline'),
+                            'launcher_variant': report.get('launcher_variant', 'upstream'),
+                            'codec_search': report['codec_search']['name'],
                             'whole_bytes': report['whole']['bytes'],
                             'within_4096': report['qualification']['size_within_4096'],
                             'candidate_status': report['candidate_status']}, sort_keys=True))
@@ -79,7 +105,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: peer-exact-p192-${{ matrix.peer }}-${{ github.sha }}
+          name: peer-exact-p192-${{ matrix.peer }}-${{ matrix.variant }}-${{ matrix.launcher }}-${{ matrix.codec }}-${{ github.sha }}
           path: ${{ runner.temp }}/peer-p192-result-${{ matrix.peer }}/peer-exact.json
           if-no-files-found: warn
           retention-days: 7

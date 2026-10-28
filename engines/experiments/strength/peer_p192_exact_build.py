@@ -179,7 +179,8 @@ def _mkdir_new(path):
         os.close(root)
 
 
-def build(name, source, out, *, run=runner.run, codec_search="compact"):
+def build(name, source, out, *, run=runner.run, codec_search="compact", variant="baseline",
+          launcher_variant="upstream"):
     """Build two independent exact-profile snapshots and compare whole bytes.
 
     ``run`` accepts the structured command, source cwd, and private home. It
@@ -190,6 +191,10 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
     peer = peers.peer_spec(name)
     if codec_search not in peers.CODEC_SEARCHES:
         raise ValueError("unknown bounded peer codec search")
+    if variant not in ("baseline", "share-v1") or (variant != "baseline" and name != "c4ke"):
+        raise ValueError("unsupported peer source variant")
+    if launcher_variant not in ("upstream", "gnu-tail-v1"):
+        raise ValueError("unsupported launcher variant")
     original = _source_snapshot(name, source)
     source = Path(source)
     if out is None or not Path(out).is_absolute() or ".." in Path(out).parts:
@@ -204,6 +209,17 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
     tool_paths = {"producer": own, "transform": Path(exact.__file__).resolve(strict=True).read_bytes(),
                   "peer_base": Path(peers.__file__).resolve(strict=True).read_bytes(),
                   "command_runner": Path(runner.__file__).resolve(strict=True).read_bytes()}
+    if launcher_variant == "gnu-tail-v1":
+        try:
+            from . import peer_launcher_trim as trim
+        except ImportError:
+            import peer_launcher_trim as trim
+        tool_paths["launcher_transform"] = Path(trim.__file__).resolve(strict=True).read_bytes()
+        launcher, launcher_proof = trim.transform_launcher(name, original["launcher.sh"])
+        if trim.restore_launcher(name, launcher, launcher_proof) != original["launcher.sh"]:
+            raise ValueError("launcher inverse differs")
+    else:
+        launcher, launcher_proof = original["launcher.sh"], None
     for key, value in tool_paths.items():
         _write_new(out / (key + ".py"), value)
     tools = {key: {"bytes": len(value), "sha256": peers.sha(value)} for key, value in tool_paths.items()}
@@ -230,8 +246,13 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
         "executing_code_identity_verified": False,
         "scope": "experimental source and package reproduction; no engine execution or score admission",
     }
+    if variant != "baseline":
+        record["source_variant"] = variant
+    if launcher_variant != "upstream":
+        record["launcher_variant"] = launcher_variant
+        record["launcher_transform"] = launcher_proof
     try:
-        closure = set(exact._EDITS[name]) | {peer.resource_path}
+        closure = exact.source_closure(name, variant=variant)
         selected_original = {path: original[path] for path in closure}
         for number in (1, 2):
             # Re-check all source identities before each snapshot.  Source is
@@ -239,8 +260,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
             current = _source_snapshot(name, source)
             if current != original:
                 raise ValueError("pinned upstream source changed between attempts")
-            transformed, proof = exact.transform(name, selected_original)
-            if exact.restore(name, transformed, proof) != selected_original:
+            transformed, proof = exact.transform(name, selected_original, variant=variant)
+            if exact.restore(name, transformed, proof, variant=variant) != selected_original:
                 raise ValueError("exact transform did not fully restore pinned upstream")
             attempt = out / ("attempt-" + str(number))
             snapshot = attempt / "source"
@@ -290,7 +311,7 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
                     raise ValueError("minifier modified a protected peer input: " + relative)
                 if relative in transformed:
                     changed_after[relative] = expected
-            if exact.restore(name, changed_after, proof) != selected_original:
+            if exact.restore(name, changed_after, proof, variant=variant) != selected_original:
                 raise ValueError("post-minifier exact transform inverse differs")
             if _read_proof(attempt / "transform-proof.json") != proof_bytes:
                 raise ValueError("minifier modified the retained transform proof")
@@ -298,12 +319,14 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
             selected = grid[0]
             if lzma.decompress(selected["payload"], format=lzma.FORMAT_ALONE) != minified:
                 raise ValueError("selected compressed stream differs from emitted source")
-            whole = original["launcher.sh"] + selected["payload"]
+            if launcher_proof is not None and trim.restore_launcher(name, launcher, launcher_proof) != original["launcher.sh"]:
+                raise ValueError("launcher inverse changed during production")
+            whole = launcher + selected["payload"]
             target = attempt / peer.tiny_name
             _write_new(target, whole)
             row = {"source": {"bytes": len(minified), "sha256": peers.sha(minified)},
                    "whole": {"path": str(target), "bytes": len(whole), "sha256": peers.sha(whole)},
-                   "header": {"bytes": len(original["launcher.sh"]), "sha256": peers.sha(original["launcher.sh"])},
+                   "header": {"bytes": len(launcher), "sha256": peers.sha(launcher)},
                    "transform_proof_sha256": proof_sha, "source_inverse_verified": True,
                    "selected_codec": {key: value for key, value in selected.items() if key != "payload"},
                    "codec_trials": len(grid), "compiler_version_sha256": peers.sha(version),
@@ -320,7 +343,7 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
             retained = _source_snapshot(name, base / "source", pinned=False)
             if any(retained[path] != transformed.get(path, data) for path, data in original.items()):
                 raise ValueError("retained attempt input changed after minifier")
-            if exact.restore(name, {path: retained[path] for path in transformed}, proof) != selected_original:
+            if exact.restore(name, {path: retained[path] for path in transformed}, proof, variant=variant) != selected_original:
                 raise ValueError("retained attempt inverse differs")
         for key, value in tool_paths.items():
             if _read_proof(out / (key + ".py")) != value:
@@ -353,6 +376,8 @@ def main():
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--codec-search", choices=tuple(peers.CODEC_SEARCHES), default="compact")
+    parser.add_argument("--source-variant", choices=("baseline", "share-v1"), default="baseline")
+    parser.add_argument("--launcher-variant", choices=("upstream", "gnu-tail-v1"), default="upstream")
     parser.add_argument("--cpu", type=int, default=None)
     parser.add_argument("--rustup-home", type=Path, default=None,
                         help="absolute existing Rustup toolchain directory for the ice4 minifier")
@@ -366,7 +391,8 @@ def main():
         parser.error("an allowed CPU is required")
     result = build(args.peer, args.source, args.out,
                    run=partial(runner.run, cpu=cpu, timeout=args.wall_seconds, rustup_home=args.rustup_home),
-                   codec_search=args.codec_search)
+                   codec_search=args.codec_search, variant=args.source_variant,
+                   launcher_variant=args.launcher_variant)
     print(json.dumps({key: value for key, value in result.items() if key != "record"}, sort_keys=True))
     return 0
 

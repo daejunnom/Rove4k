@@ -45,6 +45,24 @@ def pin_synthetic(name, values):
                       {name: {path: exact.peers.git_blob(data) for path, data in values.items()}})
 
 
+def share_sources():
+    """Synthetic shape exercising the reviewed TCEC sharing assumptions."""
+    value = sources("c4ke")
+    value["src/chess.cpp"] = b"TTEntry* TTABLE = (TTEntry*)calloc(1ull << TT_BITS, 8);\n"
+    value["src/board.cpp"] = b"__builtin_prefetch(&TTABLE[hash >> TT_SHIFT]);\n"
+    value["src/search.cpp"] = (
+        b"TTEntry tt = TTABLE[board.hash >> TT_SHIFT];\n"
+        b"Board child = board;\nBoard child = board;\n"
+        b"score = search(board,1);\nscore = search(board,2);\n" +
+        b"// board.hash\n" * 11 +
+        b"TTABLE[board.hash >> TT_SHIFT] = {0};\n")
+    value["src/main.cpp"] = (b"#ifdef OB\n        // Uci ucinewgame\n"
+        b"free(TTABLE);\nTTABLE = (TTEntry*)calloc(1ull << TT_BITS, sizeof(TTEntry));\n"
+        b"#endif\n        // Uci position\njthread threads[THREADS];\nfree(TTABLE);\n")
+    value["src/eval.cpp"] = b"synthetic eval dependency\n"
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -112,6 +130,85 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_baseline_receipt_and_closure_are_unchanged(self):
+        for name in ("ice4", "c4ke"):
+            original = sources(name)
+            with self.subTest(peer=name), pin_synthetic(name, original):
+                default = exact.transform(name, original)
+                self.assertEqual(default, exact.transform(name, original, variant="baseline"))
+                self.assertNotIn("variant", default[1])
+                self.assertEqual(exact.source_closure(name), set(original))
+
+    def test_share_variant_pins_context_and_roundtrips(self):
+        original = share_sources()
+        with pin_synthetic("c4ke", original):
+            self.assertEqual(exact.source_closure("c4ke", variant=exact.SHARE_VARIANT), set(original))
+            changed, receipt = exact.transform("c4ke", original, variant=exact.SHARE_VARIANT)
+            self.assertEqual(exact.restore("c4ke", changed, receipt, variant=exact.SHARE_VARIANT), original)
+            self.assertEqual(receipt["variant"], "share-v1")
+            self.assertIn(b"TTEntry &rove_entry=TTABLE[3*(board.hash>>16)>>15],tt=rove_entry;",
+                          changed["src/search.cpp"])
+            self.assertIn(b"rove_entry = {", changed["src/search.cpp"])
+            self.assertIn(b"TTABLE[3*(hash >> 16)>>15]", changed["src/board.cpp"])
+            self.assertEqual(changed["src/main.cpp"], original["src/main.cpp"])
+            self.assertEqual(changed["src/eval.cpp"], original["src/eval.cpp"])
+            with self.assertRaises(ValueError):
+                exact.restore("c4ke", changed, receipt)
+            altered = copy.deepcopy(receipt)
+            altered["variant"] = "baseline"
+            with self.assertRaises(ValueError):
+                exact.restore("c4ke", changed, altered, variant=exact.SHARE_VARIANT)
+        with self.assertRaises(ValueError):
+            exact.source_closure("ice4", variant=exact.SHARE_VARIANT)
+
+    def test_share_variant_rejects_mutated_guard_context(self):
+        original = share_sources()
+        cases = [
+            {**original, "src/search.cpp": original["src/search.cpp"].replace(
+                b"// board.hash\n", b"board.hash += 1;\n", 1)},
+            {**original, "src/search.cpp": original["src/search.cpp"].replace(
+                b"// board.hash\n", b"++board.hash;\n", 1)},
+            {**original, "src/main.cpp": original["src/main.cpp"].replace(
+                b"#ifdef OB\n", b"#ifdef OTHER\n", 1)},
+            {**original, "src/eval.cpp": b"rove_entry collision"},
+        ]
+        for changed in cases:
+            with self.subTest(case=changed), pin_synthetic("c4ke", changed), self.assertRaises(ValueError):
+                exact.transform("c4ke", changed, variant=exact.SHARE_VARIANT)
+
+    @unittest.skipUnless(shutil.which("c++"), "a local C++ compiler is required")
+    def test_shared_entry_preserves_value_copy_and_store_location(self):
+        program = r'''#include <stdint.h>
+struct Entry { uint64_t key, move; };
+static Entry original[64], shared[64];
+int main() {
+  uint64_t h = 0;
+  for (unsigned k = 0; k != 50000; ++k) {
+    h = h * 6364136223846793005ULL + 1442695040888963407ULL;
+    uint64_t a = ((h >> 16) * 3) >> 15;
+    uint64_t b = 3 * (h >> 16) >> 15;
+    if (a != b) return 1;
+    unsigned slot = a % 64;
+    Entry before = original[slot];
+    Entry &entry = shared[slot], copy = entry;
+    if (before.key != copy.key || before.move != copy.move) return 2;
+    before.move ^= k; copy.move ^= k;
+    original[slot] = {h, before.move};
+    entry = {h, copy.move};
+    if (original[slot].key != shared[slot].key || original[slot].move != shared[slot].move) return 3;
+  }
+  return 0;
+}
+'''
+        with tempfile.TemporaryDirectory(prefix="rove4k-shared-index-") as tmp:
+            source, binary = Path(tmp) / "check.cpp", Path(tmp) / "check"
+            source.write_text(program, encoding="ascii")
+            built = subprocess.run([shutil.which("c++"), "-std=c++20", "-O0", str(source), "-o", str(binary)],
+                                   capture_output=True, check=False, timeout=20)
+            self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+            tested = subprocess.run([str(binary)], capture_output=True, check=False, timeout=5)
+            self.assertEqual(tested.returncode, 0)
+
     def test_both_peers_roundtrip_complete_and_all_sites_use_mapping(self):
         for name in ("ice4", "c4ke"):
             original = sources(name)
