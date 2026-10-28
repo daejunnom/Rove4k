@@ -1109,6 +1109,11 @@ NUMA 정책의 소유자는 **엔진 실행기**다. P16은 실제 허용 CPU·�
 만들고, 각 슬롯이 하나의 NUMA 노드 안에 있는지 검사한다. 실행 전 CPU affinity와
 메모리 정책을 지정하고 초기화 전 자식 프로세스에 상속시킨다. 실제 배치가 11개
 슬롯과 양측 상주 메모리를 수용하지 못하면 11게임 가능으로 표시하지 않는다.
+한 NUMA 노드에는 서로 다른 CPU 슬롯을 여러 개 둘 수 있다. 예를 들어 노드별
+허용 CPU가 각각 48개인 4노드가 실제로 관측되면 3+3+3+2 슬롯으로 11게임을
+배치할 수 있다. [Vantage의 실측 기반 자료](https://instances.vantage.sh/aws/ec2/m6a.48xlarge)는
+m6a.48xlarge의 4노드와 노드당 평균 48스레드를 보고하지만 개별 호스트의 보장은
+아니다. 실제 affinity·SMT·노드별 메모리와 cgroup을 확인해 슬롯을 결정한다.
 P192는 양 엔진과 controller가 같은 192 vCPU를 사용하므로 controller 간섭을
 기록한다. 메모리 정책의 requested/effective 값과 실제 worker affinity, TT
 `numa_maps` 또는 동등한 페이지 관측을 기록해 설정과 실측을 구분한다.
