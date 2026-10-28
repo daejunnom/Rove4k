@@ -192,7 +192,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
     if codec_search not in peers.CODEC_SEARCHES:
         raise ValueError("unknown bounded peer codec search")
     c4ke_variants = ("share-v1", "slot-v1", "ray-v1", "slot-ray-v1", "castle-or-v1", "ray-castle-or-v1",
-                     "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1")
+                     "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
+                     "edit-castle-slider-v1", "edit-castle-startpos-v1")
     ice_variants = ("castle-v1", "zobrist-v1", "castle-zobrist-v1")
     if not (variant == "baseline" or (name == "c4ke" and variant in c4ke_variants) or
             (name == "ice4" and variant in ice_variants)):
@@ -219,18 +220,28 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
         except ImportError:
             import peer_ice_structural as ice
         tool_paths["ice_structural_transform"] = Path(ice.__file__).resolve(strict=True).read_bytes()
-    if variant in ("castle-or-v1", "ray-castle-or-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
+    if variant in ("castle-or-v1", "ray-castle-or-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
+                   "edit-castle-slider-v1", "edit-castle-startpos-v1"):
         try:
             from . import peer_c4ke_structural as c4ke
         except ImportError:
             import peer_c4ke_structural as c4ke
         tool_paths["c4ke_structural_transform"] = Path(c4ke.__file__).resolve(strict=True).read_bytes()
-    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
+    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
+                   "edit-castle-slider-v1", "edit-castle-startpos-v1"):
         try:
             from . import peer_c4ke_edit_structural as edit
         except ImportError:
             import peer_c4ke_edit_structural as edit
         tool_paths["c4ke_edit_structural_transform"] = Path(edit.__file__).resolve(strict=True).read_bytes()
+    if variant in ("edit-castle-slider-v1", "edit-castle-startpos-v1"):
+        try:
+            from . import peer_c4ke_slider_loop as slider, peer_c4ke_startpos_loop as startpos
+        except ImportError:
+            import peer_c4ke_slider_loop as slider
+            import peer_c4ke_startpos_loop as startpos
+        module = slider if variant == "edit-castle-slider-v1" else startpos
+        tool_paths["c4ke_loop_transform"] = Path(module.__file__).resolve(strict=True).read_bytes()
     if launcher_variant == "gnu-tail-v1":
         try:
             from . import peer_launcher_trim as trim
@@ -402,6 +413,7 @@ def main():
     parser.add_argument("--codec-search", choices=tuple(peers.CODEC_SEARCHES), default="compact")
     parser.add_argument("--source-variant", choices=("baseline", "share-v1", "slot-v1", "ray-v1", "slot-ray-v1",
                                                      "castle-or-v1", "ray-castle-or-v1", "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
+                                                     "edit-castle-slider-v1", "edit-castle-startpos-v1",
                                                      "castle-v1", "zobrist-v1", "castle-zobrist-v1"), default="baseline")
     parser.add_argument("--launcher-variant", choices=("upstream", "gnu-tail-v1"), default="upstream")
     parser.add_argument("--cpu", type=int, default=None)

@@ -90,6 +90,16 @@ def c4ke_edit_sources():
     return value
 
 
+def c4ke_extra_sources():
+    value = c4ke_edit_sources()
+    slider, start = exact.peer_c4ke_slider_loop, exact.peer_c4ke_startpos_loop
+    value["src/chess.cpp"] += (b"\r\n#define BISHOP 2\r\n#define ROOK 3\r\n#define QUEEN 4\r\n"
+                             + b"\r\n".join(start.CONSTANTS) + b"\r\n")
+    value["src/eval.cpp"] += start.LAYOUT + b"\r\n"
+    value["src/board.cpp"] += slider.BEFORE + b"\r\n" + start.PRECONDITION + start.BEFORE
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -160,6 +170,98 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("c++"), "a local C++ compiler is required")
+    def test_startpos_and_edit_loops_together(self):
+        start, edit = exact.peer_c4ke_startpos_loop, exact.peer_c4ke_edit_structural
+        text = lambda b: b.decode("ascii").replace("\r\n", "\n")
+        program = r'''#include <cstdint>
+#include <cstring>
+#include <random>
+using u64=uint64_t; using u8=uint8_t; using i32=int;
+enum { A1=0,A2=8,A7=48,A8=56,WHITE=0,BLACK=1,WHITE_PAWN=0,BLACK_PAWN=1,
+       WHITE_KNIGHT=2,PIECE_NONE=12 };
+i32 LAYOUT[]={3,1,2,4,5,2,1,3};u64 KEYS[13][65];
+struct Board {
+ u64 hash=0,hash_pawn=0,hash_non_pawn[2]{},colors[2]{},pieces[6]{};
+ u8 board[64]{};
+ void old_edit(i32 square,i32 piece){ OLD_EDIT board[square]=piece; }
+ void new_edit(i32 square,i32 piece){ NEW_EDIT board[square]=piece; }
+ void old_start(){ OLD_START }
+ void new_start(){ NEW_START }
+};
+bool same(const Board&a,const Board&b){
+ return a.hash==b.hash&&a.hash_pawn==b.hash_pawn&&
+  !std::memcmp(a.hash_non_pawn,b.hash_non_pawn,sizeof a.hash_non_pawn)&&
+  !std::memcmp(a.colors,b.colors,sizeof a.colors)&&
+  !std::memcmp(a.pieces,b.pieces,sizeof a.pieces)&&!std::memcmp(a.board,b.board,sizeof a.board);
+}
+int main(){ std::mt19937_64 r(192);
+ for(int k=0;k<256;k++){
+  for(auto &row:KEYS)for(auto &v:row)v=r();
+  Board a{},b{};a.old_start();b.new_start();if(!same(a,b))return 1;
+  a.old_start();b.new_start();if(!same(a,b))return 2;
+ }return 0;
+}
+'''
+        old_start = text(start.PRECONDITION + start.BEFORE).replace("edit(", "old_edit(")
+        new_start = text(start.PRECONDITION + start.AFTER).replace("edit(", "new_edit(")
+        for marker, replacement in (("OLD_EDIT", text(edit._EDIT_BEFORE)),
+                                    ("NEW_EDIT", text(edit._EDIT_AFTER)),
+                                    ("OLD_START", old_start), ("NEW_START", new_start)):
+            program = program.replace(marker, replacement)
+        with tempfile.TemporaryDirectory(prefix="rove4k-start-edit-") as tmp:
+            source, binary = Path(tmp) / "start.cpp", Path(tmp) / "check"
+            source.write_text(program, encoding="ascii")
+            built = subprocess.run([shutil.which("c++"), "-std=c++17", "-O2", str(source), "-o", str(binary)],
+                                   capture_output=True, check=False, timeout=20)
+            self.assertEqual(built.returncode, 0, built.stderr.decode(errors="replace"))
+            tested = subprocess.run([str(binary)], capture_output=True, check=False, timeout=10)
+            self.assertEqual(tested.returncode, 0)
+
+    def test_extra_candidates_compose_and_reject_cross_variant(self):
+        original = c4ke_extra_sources()
+        candidates = (("edit-castle-slider-v1", exact.peer_c4ke_slider_loop),
+                      ("edit-castle-startpos-v1", exact.peer_c4ke_startpos_loop))
+        with pin_synthetic("c4ke", original):
+            baseline, _ = exact.transform("c4ke", original, variant="edit-castle-or-v1")
+            for variant, candidate in candidates:
+                with self.subTest(variant=variant):
+                    changed, proof = exact.transform("c4ke", original, variant=variant)
+                    self.assertEqual(exact.restore("c4ke", changed, proof, variant=variant), original)
+                    self.assertEqual(changed["src/board.cpp"],
+                                     baseline["src/board.cpp"].replace(candidate.BEFORE, candidate.AFTER))
+                    for path in set(original) - {"src/board.cpp"}:
+                        self.assertEqual(changed[path], baseline[path])
+                    self.assertEqual(proof["tt_bytes"], 192 << 30)
+                    for other in ("baseline", "edit-castle-or-v1", *(v for v, _ in candidates if v != variant)):
+                        with self.assertRaises(ValueError):
+                            exact.restore("c4ke", changed, proof, variant=other)
+                    forged = copy.deepcopy(proof)
+                    forged["variant"] = "edit-castle-or-v1"
+                    with self.assertRaises(ValueError):
+                        exact.restore("c4ke", changed, forged, variant=variant)
+                    with self.assertRaises(ValueError):
+                        exact.source_closure("ice4", variant=variant)
+
+    def test_extra_candidates_preserve_all_preconditions_and_collision_checks(self):
+        original = c4ke_extra_sources()
+        slider, start = exact.peer_c4ke_slider_loop, exact.peer_c4ke_startpos_loop
+        for variant, candidate in (("edit-castle-slider-v1", slider), ("edit-castle-startpos-v1", start)):
+            for path in original:
+                altered = dict(original)
+                altered[path] += candidate.LOOP_NAME
+                with self.subTest(variant=variant, path=path), pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                    exact.transform("c4ke", altered, variant=variant)
+        for variant, path, marker in (
+                ("edit-castle-slider-v1", "src/chess.cpp", b"#define BISHOP 2"),
+                ("edit-castle-startpos-v1", "src/board.cpp", start.PRECONDITION),
+                ("edit-castle-startpos-v1", "src/chess.cpp", start.CONSTANTS[0]),
+                ("edit-castle-startpos-v1", "src/eval.cpp", start.LAYOUT)):
+            altered = dict(original)
+            altered[path] = altered[path].replace(marker, b"altered", 1)
+            with self.subTest(variant=variant, path=path), pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                exact.transform("c4ke", altered, variant=variant)
+
     def test_c4ke_edit_variants_are_single_proof_and_distinct(self):
         original = c4ke_edit_sources()
         variants = ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1")

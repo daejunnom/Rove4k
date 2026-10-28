@@ -15,11 +15,15 @@ try:
     from . import peer_ice_structural
     from . import peer_c4ke_structural
     from . import peer_c4ke_edit_structural
+    from . import peer_c4ke_slider_loop
+    from . import peer_c4ke_startpos_loop
 except ImportError:
     import peers
     import peer_ice_structural
     import peer_c4ke_structural
     import peer_c4ke_edit_structural
+    import peer_c4ke_slider_loop
+    import peer_c4ke_startpos_loop
 
 PROFILE = "test-p192-exact-v1"
 ENTRIES = 3 << 33
@@ -125,7 +129,7 @@ def _variant_edits(name, variant):
         baseline = _RAY_EDITS if variant == "ray-castle-or-v1" else _EDITS["c4ke"]
         return {path: (*baseline.get(path, ()), *structural.get(path, ()))
                 for path in baseline.keys() | structural.keys()}
-    if name == "c4ke" and variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
+    if name == "c4ke" and variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1"):
         structural = peer_c4ke_edit_structural.edit_specs("edit-loop-v1")
         castle = (peer_c4ke_structural.edit_specs("castle-or-v1")
                   if variant != "edit-loop-v1" else {})
@@ -133,8 +137,14 @@ def _variant_edits(name, variant):
         if variant == "edit-castle-alloc24-v1":
             baseline = {**baseline, "src/chess.cpp": (
                 ("allocation", b"calloc(1ull << TT_BITS, 8)", b"calloc(1ull << 33, 24)", 1),)}
-        return {path: (*baseline.get(path, ()), *structural.get(path, ()), *castle.get(path, ()))
-                for path in baseline.keys() | structural.keys() | castle.keys()}
+        extra = {}
+        if variant in ("edit-castle-slider-v1", "edit-castle-startpos-v1"):
+            candidate = (peer_c4ke_slider_loop if variant == "edit-castle-slider-v1"
+                         else peer_c4ke_startpos_loop)
+            extra = {path: () for path in candidate.SOURCE_FILES}
+            extra["src/board.cpp"] = ((candidate.VARIANT, candidate.BEFORE, candidate.AFTER, 1),)
+        return {path: (*baseline.get(path, ()), *structural.get(path, ()), *castle.get(path, ()), *extra.get(path, ()))
+                for path in baseline.keys() | structural.keys() | castle.keys() | extra.keys()}
     raise ValueError("unsupported peer transform variant")
 
 
@@ -244,9 +254,16 @@ def transform(name, source_files, *, variant="baseline"):
         raise ValueError("ray loop variable name already exists")
     if variant == "ray-castle-or-v1" and any(b"rove_ray" in data for data in source_files.values()):
         raise ValueError("ray loop variable name already exists")
-    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1") and any(
+    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1") and any(
             b"rove_p" in data or b"rove_i" in data for data in source_files.values()):
         raise ValueError("edit loop variable name already exists")
+    if variant in ("edit-castle-slider-v1", "edit-castle-startpos-v1"):
+        candidate = (peer_c4ke_slider_loop if variant == "edit-castle-slider-v1"
+                     else peer_c4ke_startpos_loop)
+        if any(candidate.LOOP_NAME in data for data in source_files.values()):
+            raise ValueError("candidate loop name already exists")
+        # Keep each standalone candidate's source, name and semantic guards.
+        candidate.transform({path: source_files[path] for path in candidate.SOURCE_FILES})
     output, proofs = {}, {}
     for path in sorted(edits):
         output[path], proofs[path] = _edit(source_files[path], edits[path])
@@ -275,7 +292,8 @@ def transform(name, source_files, *, variant="baseline"):
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     elif name == "c4ke" and variant in ("castle-or-v1", "ray-castle-or-v1",
-                                         "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
+                                         "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
+                                         "edit-castle-slider-v1", "edit-castle-startpos-v1"):
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     return output, receipt
