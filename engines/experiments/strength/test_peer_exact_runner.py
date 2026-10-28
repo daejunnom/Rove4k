@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -73,6 +74,319 @@ class OwnedRunnerTests(unittest.TestCase):
         self.assertEqual(list(self.home.iterdir()), [])
         self.assertEqual(list(rustup.iterdir()), [])
 
+    def test_anchored_child_uses_own_dup_after_caller_closes_original(self):
+        path = self.cwd / "payload.bin"
+        original = os.open(path, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+        os.write(original, b"known-bytes")
+        os.lseek(original, 0, os.SEEK_SET)
+        real_popen = subprocess.Popen
+        closed = False
+        def launch_and_close(*args, **kwargs):
+            nonlocal closed
+            process = real_popen(*args, **kwargs)
+            os.close(original)
+            closed = True
+            return process
+        try:
+            code = ("import os,sys,time;time.sleep(.1);"
+                    "fd=os.open(sys.argv[1],os.O_RDONLY);"
+                    "os.write(1,os.read(fd,128));os.close(fd)")
+            with patch.object(runner.subprocess, "Popen", side_effect=launch_and_close):
+                stdout, _, record = runner.run(
+                    [sys.executable, "-I", "-B", "-c", code, "/proc/self/fd/{fd:input}"],
+                    self.cwd, sandbox_home=self.home, cpu=self.cpu, timeout=5,
+                    memory_bytes=512 << 20, output_bytes=4096,
+                    fd_anchors={"input": (original, path)})
+            self.assertTrue(closed)
+            self.assertEqual(stdout, b"known-bytes")
+            self.assertFalse(record["physical_group_settlement_proven"])
+        finally:
+            if not closed:
+                os.close(original)
+
+    def test_anchor_validation_rejects_untrusted_paths_links_and_aliases(self):
+        path = self.cwd / "ordinary.bin"
+        other = self.cwd / "other.bin"
+        path.write_bytes(b"payload")
+        other.write_bytes(b"other")
+        fd = os.open(path, os.O_RDONLY)
+        try:
+            invalid = (
+                {"input": (fd, self.cwd / ".env")},
+                {"input": (fd, other)},
+                {"input": (0, path)},
+                {"input": (True, path)},
+                {"a": (fd, path), "b": (fd, path)},
+                {"bad-name": (fd, path)},
+            )
+            for binding in invalid:
+                with self.subTest(binding=binding), self.assertRaises((ValueError, OSError)):
+                    runner._duplicate_anchors(binding)
+            same_object = os.open(path, os.O_RDONLY)
+            try:
+                with self.assertRaisesRegex(ValueError, "same filesystem object"):
+                    runner._duplicate_anchors({"a": (fd, path), "b": (same_object, path)})
+            finally:
+                os.close(same_object)
+            alias = self.cwd / "alias.bin"
+            os.link(path, alias)
+            with self.assertRaisesRegex(ValueError, "multiply linked"):
+                runner._duplicate_anchors({"input": (fd, path)})
+            alias.unlink()
+            symlink = self.cwd / "alias.bin"
+            symlink.symlink_to(path)
+            with self.assertRaises(OSError):
+                runner._duplicate_anchors({"input": (fd, symlink)})
+        finally:
+            os.close(fd)
+
+    def test_unknown_anchor_token_and_unreferenced_anchor_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unknown"):
+            runner._bind_anchor_command(["/proc/self/fd/{fd:other}"], {"actual": 42})
+        with self.assertRaisesRegex(ValueError, "referenced"):
+            runner._bind_anchor_command(["compiler"], {"actual": 42})
+
+    def test_closed_caller_fd_is_not_reused_as_internal_cwd(self):
+        closed = os.open(self.cwd, os.O_RDONLY | os.O_DIRECTORY)
+        os.close(closed)
+        with patch.object(runner.subprocess, "Popen", side_effect=AssertionError("must not spawn")):
+            with self.assertRaises(ValueError):
+                runner.run([sys.executable, "{fd:directory}"], self.cwd, sandbox_home=self.home,
+                           cpu=self.cpu, timeout=5, memory_bytes=512 << 20, output_bytes=4096,
+                           fd_anchors={"directory": (closed, self.cwd)})
+
+    def test_anchored_grandchild_cannot_reuse_fd_as_home(self):
+        path = self.cwd / "input.bin"
+        target = self.cwd / "unrelated"
+        target.mkdir(mode=0o700)
+        path.write_bytes(b"payload")
+        original = os.open(path, os.O_RDONLY)
+        try:
+            grandchild = (
+                "import os,sys;"
+                "fd=os.open(sys.argv[2],os.O_RDONLY|os.O_DIRECTORY);"
+                "os.dup2(fd,int(sys.argv[1]));"
+                "print(os.environ['HOME']);"
+                "assert not os.path.isdir(os.environ['HOME'])")
+            child = ("import subprocess,sys;"
+                     "r=subprocess.run([sys.executable,'-I','-B','-c'," + repr(grandchild) +
+                     ",sys.argv[1],sys.argv[2]],capture_output=True,check=True,close_fds=True);"
+                     "sys.stdout.buffer.write(r.stdout)")
+            stdout, _, _ = runner.run(
+                [sys.executable, "-I", "-B", "-c", child, "{fd:input}", str(target)],
+                self.cwd, sandbox_home=self.home, cpu=self.cpu, timeout=5,
+                memory_bytes=512 << 20, output_bytes=4096,
+                fd_anchors={"input": (original, path)})
+            self.assertEqual(stdout.strip(), b"/dev/null")
+            self.assertEqual(list(target.iterdir()), [])
+        finally:
+            os.close(original)
+
+    def test_cwd_anchor_survives_directory_name_replacement(self):
+        work = self.cwd / "work"
+        moved = self.cwd / "moved"
+        work.mkdir(mode=0o700)
+        original = os.open(work, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        expected = os.fstat(original).st_ino
+        real_popen = subprocess.Popen
+        def replace_then_launch(*args, **kwargs):
+            work.rename(moved)
+            work.mkdir(mode=0o700)
+            return real_popen(*args, **kwargs)
+        try:
+            with patch.object(runner.subprocess, "Popen", side_effect=replace_then_launch):
+                stdout, _, _ = runner.run(
+                    [sys.executable, "-I", "-B", "-c", "import os;print(os.stat('.').st_ino)"],
+                    work, sandbox_home=self.home, cpu=self.cpu, timeout=5,
+                    memory_bytes=512 << 20, output_bytes=4096,
+                    fd_anchors={"work": (original, work)}, cwd_anchor="work")
+            self.assertEqual(int(stdout.strip()), expected)
+            self.assertNotEqual(work.stat().st_ino, expected)
+            self.assertEqual(moved.stat().st_ino, expected)
+        finally:
+            os.close(original)
+
+    def test_cwd_anchor_requires_the_validated_requested_directory(self):
+        work = self.cwd / "work"
+        other = self.cwd / "other"
+        work.mkdir(mode=0o700)
+        other.mkdir(mode=0o700)
+        original = os.open(work, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            with patch.object(runner.subprocess, "Popen", side_effect=AssertionError("must not spawn")):
+                with self.assertRaises(ValueError):
+                    runner.run([sys.executable], other, sandbox_home=self.home, cpu=self.cpu,
+                               timeout=5, memory_bytes=512 << 20, output_bytes=4096,
+                               fd_anchors={"work": (original, work)}, cwd_anchor="work")
+        finally:
+            os.close(original)
+
+    @unittest.skipUnless(shutil.which("c++"), "C++ compiler required")
+    def test_tiny_cpp_compiler_writes_inherited_output_fd(self):
+        source = self.cwd / "tiny.cpp"
+        output = self.cwd / "tiny-native"
+        source.write_bytes(b"int main(){return 0;}\n")
+        original = os.open(output, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+        try:
+            _, _, record = runner.run(
+                ["c++", "-O0", str(source), "-o", "/proc/self/fd/{fd:output}"],
+                self.cwd, sandbox_home=self.home, cpu=self.cpu, timeout=30,
+                memory_bytes=512 << 20, output_bytes=4096,
+                fd_anchors={"output": (original, output)})
+            self.assertEqual(record["exit_code"], 0)
+            self.assertFalse(record["physical_group_settlement_proven"])
+            self.assertEqual(os.pread(original, 4, 0), b"\x7fELF")
+        finally:
+            os.close(original)
+
+    def test_anchor_spawn_uncertainty_quarantines_every_owned_fd(self):
+        path = self.cwd / "input.bin"
+        path.write_bytes(b"payload")
+        original = os.open(path, os.O_RDONLY)
+        previous = set(runner._UNSETTLED)
+        try:
+            # This stub launches no process; real Popen errors are intentionally
+            # treated as ambiguous and never trigger speculative signals.
+            with patch.object(runner.subprocess, "Popen", side_effect=OSError("synthetic")), \
+                    patch.object(runner.os, "killpg", side_effect=AssertionError("must not signal")):
+                with self.assertRaises(runner.GroupUnsettled) as failure:
+                    runner.run([sys.executable, "{fd:input}"], self.cwd, sandbox_home=self.home,
+                               cpu=self.cpu, timeout=5, memory_bytes=512 << 20,
+                               output_bytes=4096, fd_anchors={"input": (original, path)})
+            self.assertIsNone(failure.exception.process)
+            retained_keys = set(runner._UNSETTLED) - previous
+            self.assertEqual(len(retained_keys), 1)
+            holder = runner._UNSETTLED[next(iter(retained_keys))]
+            self.assertTrue(holder["spawn_uncertain"])
+            for held in holder["directory_fds"] + holder["anchor_fds"]:
+                os.fstat(held)
+            with self.assertRaises(runner.GroupUnsettled):
+                self.run_code("raise SystemExit(0)")
+        finally:
+            os.close(original)
+            # The stub is known not to have started a child.  Do not apply
+            # this cleanup to an actual unresolved Popen result.
+            for key in set(runner._UNSETTLED) - previous:
+                holder = runner._UNSETTLED.pop(key)
+                for held in holder["directory_fds"] + holder["anchor_fds"]:
+                    os.close(held)
+
+    def test_signal_during_ambiguous_spawn_never_releases_reserved_fds(self):
+        path = self.cwd / "input.bin"
+        path.write_bytes(b"payload")
+        original = os.open(path, os.O_RDONLY)
+        class SignalOnReservation(dict):
+            def __init__(self, phase):
+                super().__init__()
+                self.phase = phase
+                self.fired = False
+            def __contains__(self, key):
+                present = super().__contains__(key)
+                if self.phase == "before-mask" and present and not self.fired:
+                    self.fired = True
+                    os.kill(os.getpid(), signal.SIGINT)
+                return present
+            def __getitem__(self, key):
+                item = super().__getitem__(key)
+                if self.phase == "during-transfer" and not self.fired:
+                    self.fired = True
+                    os.kill(os.getpid(), signal.SIGINT)
+                    if signal.SIGINT not in signal.sigpending():
+                        raise AssertionError("SIGINT was not held during FD transfer")
+                return item
+        try:
+            for phase in ("before-mask", "during-transfer"):
+                retained = SignalOnReservation(phase)
+                with self.subTest(phase=phase), patch.object(runner, "_UNSETTLED", retained), \
+                        patch.object(runner.subprocess, "Popen", side_effect=OSError("synthetic")), \
+                        patch.object(runner.os, "killpg", side_effect=AssertionError("must not signal")):
+                    try:
+                        with self.assertRaises(KeyboardInterrupt):
+                            runner.run([sys.executable, "{fd:input}"], self.cwd, sandbox_home=self.home,
+                                       cpu=self.cpu, timeout=5, memory_bytes=512 << 20,
+                                       output_bytes=4096, fd_anchors={"input": (original, path)})
+                        self.assertTrue(retained.fired)
+                        self.assertEqual(len(retained), 1)
+                        holder = next(iter(retained.values()))
+                        self.assertIsNone(holder["process"])
+                        for held in holder["directory_fds"] + holder["anchor_fds"]:
+                            os.fstat(held)
+                    finally:
+                        # Popen was stubbed and definitely started no process.
+                        for holder in retained.values():
+                            for held in holder["directory_fds"] + holder["anchor_fds"]:
+                                os.close(held)
+                        retained.clear()
+        finally:
+            os.close(original)
+
+    def test_identity_loss_quarantines_original_process_without_signalling(self):
+        path = self.cwd / "input.bin"
+        path.write_bytes(b"payload")
+        original = os.open(path, os.O_RDONLY)
+        previous = set(runner._UNSETTLED)
+        try:
+            with patch.object(runner, "_identity", side_effect=runner.OwnershipLost("synthetic")), \
+                    patch.object(runner.os, "killpg", side_effect=AssertionError("must not signal")):
+                with self.assertRaises(runner.GroupUnsettled) as failure:
+                    runner.run([sys.executable, "-I", "-B", "-c", "import time;time.sleep(20)",
+                                "/proc/self/fd/{fd:input}"], self.cwd, sandbox_home=self.home,
+                               cpu=self.cpu, timeout=5, memory_bytes=512 << 20,
+                               output_bytes=4096, fd_anchors={"input": (original, path)})
+            self.assertIsNotNone(failure.exception.process)
+            self.assertIsNone(failure.exception.identity)
+            retained_keys = set(runner._UNSETTLED) - previous
+            self.assertEqual(len(retained_keys), 1)
+            holder = runner._UNSETTLED[next(iter(retained_keys))]
+            self.assertIs(holder["process"], failure.exception.process)
+            self.assertIsNone(holder["identity"])
+            for held in holder["directory_fds"] + holder["anchor_fds"]:
+                os.fstat(held)
+        finally:
+            os.close(original)
+            # The test owns this exact Popen child and re-establishes its
+            # start-time identity before settling; production cannot infer it.
+            for key in set(runner._UNSETTLED) - previous:
+                holder = runner._UNSETTLED[key]
+                process = holder["process"]
+                identity = runner._identity(process.pid)
+                runner._settle(process, identity, stop=True)
+                runner._UNSETTLED.pop(key)
+                process.stdout.close()
+                process.stderr.close()
+                for held in holder["directory_fds"] + holder["anchor_fds"]:
+                    os.close(held)
+
+    def test_anchored_unsettled_group_retains_dup_and_directories(self):
+        path = self.cwd / "input.bin"
+        path.write_bytes(b"payload")
+        original = os.open(path, os.O_RDONLY)
+        previous = set(runner._UNSETTLED)
+        settle = runner._settle
+        try:
+            with patch.object(runner, "_settle", side_effect=runner.GroupUnsettled("synthetic")):
+                with self.assertRaises(runner.GroupUnsettled) as failure:
+                    runner.run([sys.executable, "-I", "-B", "-c", "import time;time.sleep(20)",
+                                "/proc/self/fd/{fd:input}"], self.cwd, sandbox_home=self.home,
+                               cpu=self.cpu, timeout=1, memory_bytes=512 << 20,
+                               output_bytes=4096, fd_anchors={"input": (original, path)})
+            retained = runner._UNSETTLED[failure.exception.process.pid]
+            self.assertEqual(len(retained["anchor_fds"]), 1)
+            self.assertEqual(retained["anchor_fds"], failure.exception.anchor_fds)
+            for held in retained["directory_fds"] + retained["anchor_fds"]:
+                os.fstat(held)
+        finally:
+            os.close(original)
+            # Settle only the original process created by this test and only
+            # through the runner's WNOWAIT/start-time identity contract.
+            for pid in set(runner._UNSETTLED) - previous:
+                retained = runner._UNSETTLED[pid]
+                settle(retained["process"], retained["identity"], stop=True)
+                runner._UNSETTLED.pop(pid)
+                retained["process"].stdout.close()
+                retained["process"].stderr.close()
+                for held in retained["directory_fds"] + retained["anchor_fds"]:
+                    os.close(held)
     def test_output_limit_is_enforced_for_stdout_and_stderr(self):
         for fd in (1, 2):
             with self.subTest(fd=fd):
