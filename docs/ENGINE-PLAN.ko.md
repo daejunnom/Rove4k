@@ -37,6 +37,13 @@ Rust 엔진 경로는 폐기 상태다. 이 범위에서 목표는 A/B/C/E/F 각
   가정하지 않고 원본 설정과 실측을 대조한다. 충족하지 못하면 출전 불가 또는
   사용자 결정이 필요한 충돌로 보고한다.
 
+[원본 peer build-only CI](https://github.com/daejunnom/Rove4k/actions/runs/40720698945)는
+ice4·c4ke의 P16/P192 네 조합에서 고정 원본 blob과 같은 runner 내 2회 native
+빌드 일치를 확인했다. P16의 16 workers/Hash 16384 MiB와 P192의 192 workers/
+Hash 262144 MiB는 요청 계획만 기록했으며 실제 UCI 설정·TT 할당·ABI·NUMA·
+대국 자격은 검증하지 않았다. c4ke 프로필은 서로 다른 runner에서 `-march=native`로
+빌드돼 native 간 동등성을 주장하지 않는다. CI artifact에는 JSON 영수증만 남긴다.
+
 ### 가용 RAM과 협력적 GC (2026-10-29 사용자 결정)
 
 소스와 실행 경로에서 **현재 가용 RAM 수치를 기준으로 작업을 선행 중단·대기·
