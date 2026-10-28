@@ -78,6 +78,12 @@ def ice_structural_sources():
     return value
 
 
+def c4ke_structural_sources():
+    value = slot_ray_sources()
+    value["src/board.cpp"] += exact.peer_c4ke_structural._CASTLE_BEFORE
+    return value
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -145,6 +151,21 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_c4ke_castle_variants_compose_with_exact_tt(self):
+        all_sources = c4ke_structural_sources()
+        variants = ("castle-or-v1", "ray-castle-or-v1")
+        for variant in variants:
+            original = {path: all_sources[path] for path in exact.source_closure("c4ke", variant=variant)}
+            with self.subTest(variant=variant), pin_synthetic("c4ke", original):
+                changed, receipt = exact.transform("c4ke", original, variant=variant)
+                self.assertEqual(exact.restore("c4ke", changed, receipt, variant=variant), original)
+                self.assertIn(b"calloc(3ull << 33, 8)", changed["src/chess.cpp"])
+                self.assertIn(exact.peer_c4ke_structural._CASTLE_AFTER, changed["src/board.cpp"])
+                with self.assertRaises(ValueError):
+                    exact.restore("c4ke", changed, receipt, variant="baseline")
+                with self.assertRaises(ValueError):
+                    exact.source_closure("ice4", variant=variant)
+
     def test_ice_structural_variants_compose_with_exact_tt_and_reject_cross_variant(self):
         all_sources = ice_structural_sources()
         variants = exact.peer_ice_structural.VARIANTS

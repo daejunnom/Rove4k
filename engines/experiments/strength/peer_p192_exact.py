@@ -13,9 +13,11 @@ import re
 try:
     from . import peers
     from . import peer_ice_structural
+    from . import peer_c4ke_structural
 except ImportError:
     import peers
     import peer_ice_structural
+    import peer_c4ke_structural
 
 PROFILE = "test-p192-exact-v1"
 ENTRIES = 3 << 33
@@ -114,6 +116,11 @@ def _variant_edits(name, variant):
     if name == "ice4" and variant in peer_ice_structural.VARIANTS:
         structural = peer_ice_structural.edit_specs(variant)
         baseline = _EDITS["ice4"]
+        return {path: (*baseline.get(path, ()), *structural.get(path, ()))
+                for path in baseline.keys() | structural.keys()}
+    if name == "c4ke" and variant in ("castle-or-v1", "ray-castle-or-v1"):
+        structural = peer_c4ke_structural.edit_specs("castle-or-v1")
+        baseline = _RAY_EDITS if variant == "ray-castle-or-v1" else _EDITS["c4ke"]
         return {path: (*baseline.get(path, ()), *structural.get(path, ()))
                 for path in baseline.keys() | structural.keys()}
     raise ValueError("unsupported peer transform variant")
@@ -223,6 +230,8 @@ def transform(name, source_files, *, variant="baseline"):
         raise ValueError("TT slot helper name already exists")
     if variant in (RAY_VARIANT, SLOT_RAY_VARIANT) and any(b"rove_ray" in data for data in source_files.values()):
         raise ValueError("ray loop variable name already exists")
+    if variant == "ray-castle-or-v1" and any(b"rove_ray" in data for data in source_files.values()):
+        raise ValueError("ray loop variable name already exists")
     output, proofs = {}, {}
     for path in sorted(edits):
         output[path], proofs[path] = _edit(source_files[path], edits[path])
@@ -248,6 +257,9 @@ def transform(name, source_files, *, variant="baseline"):
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     elif name == "ice4" and variant in peer_ice_structural.VARIANTS:
+        receipt["variant"] = variant
+        receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
+    elif name == "c4ke" and variant in ("castle-or-v1", "ray-castle-or-v1"):
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     return output, receipt

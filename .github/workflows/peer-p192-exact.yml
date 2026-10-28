@@ -12,6 +12,8 @@ on:
       - 'engines/experiments/strength/test_peer_launcher_trim.py'
       - 'engines/experiments/strength/peer_ice_structural.py'
       - 'engines/experiments/strength/test_peer_ice_structural.py'
+      - 'engines/experiments/strength/peer_c4ke_structural.py'
+      - 'engines/experiments/strength/test_peer_c4ke_structural.py'
       - 'engines/experiments/strength/peers.py'
       - '.github/workflows/peer-p192-exact.yml'
   workflow_dispatch:
@@ -45,6 +47,8 @@ jobs:
           - {peer: ice4, variant: castle-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: ice4, variant: zobrist-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: ice4, variant: castle-zobrist-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: castle-or-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: ray-castle-or-v1, launcher: gnu-tail-v1, codec: compact}
     env:
       PEER: ${{ matrix.peer }}
       SOURCE_VARIANT: ${{ matrix.variant }}
@@ -64,6 +68,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_exact_runner.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_launcher_trim.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_ice_structural.py'
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_structural.py'
       - name: Fetch only pinned upstream source into temporary storage
         run: |
           python -I -B engines/experiments/strength/peers.py source \
