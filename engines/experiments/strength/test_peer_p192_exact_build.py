@@ -18,7 +18,8 @@ try:
     from . import peer_c4ke_slider_loop as slider, peer_c4ke_startpos_loop as startpos
     from . import peer_c4ke_quiet_history as quiet
     from . import peer_c4ke_move_emission as emission, peer_c4ke_phalanx as phalanx
-    from .test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources
+    from . import peer_c4ke_ep_hash as ep
+    from .test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources, c4ke_phalanx_extra_sources
 except ImportError:
     import peer_p192_exact as exact
     import peer_p192_exact_build as build
@@ -29,7 +30,8 @@ except ImportError:
     import peer_c4ke_quiet_history as quiet
     import peer_c4ke_move_emission as emission
     import peer_c4ke_phalanx as phalanx
-    from test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources
+    import peer_c4ke_ep_hash as ep
+    from test_peer_p192_exact import sources, share_sources, slot_ray_sources, c4ke_structural_sources, c4ke_phalanx_extra_sources
 
 
 class ExactProducerTests(unittest.TestCase):
@@ -297,6 +299,35 @@ class ExactProducerTests(unittest.TestCase):
                     self.assertEqual(record["source_variant"], variant)
                     self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
                     for key in ("c4ke_candidate_transform", "c4ke_edit_structural_transform", "c4ke_structural_transform"):
+                        self.assertIn(key, record["producer_inputs"])
+                    self.assertFalse(record["qualification"]["runtime_qualified"])
+                    self.assertFalse(record["qualification"]["league_qualified"])
+
+    def test_c4ke_phalanx_extra_compositions_run_through_producer(self):
+        name = "c4ke"
+        structural, hashes = c4ke_phalanx_extra_sources()
+        original = {**structural,
+                    "launcher.sh": b'#!/bin/sh\ntail -n +5 "$0"\n# synthetic\n# end\n',
+                    "LICENSE": b"synthetic license\n", "other.txt": b"unchanged fixture\n"}
+        source = self.root / "c4ke-phalanx-extra-upstream"
+        source.mkdir()
+        for relative, data in original.items():
+            path = source / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        blobs = {path: exact.peers.git_blob(data) for path, data in original.items()}
+        with patch.dict(exact.peers.SOURCE_BLOBS, {name: blobs}), \
+             patch.object(phalanx, "_CONTEXT_SHA256", hashes["phalanx_context"]), \
+             patch.object(ep, "_EDIT_SHA", hashes["ep_edit"]), patch.object(ep, "_MAKE_SHA", hashes["ep_make"]):
+            for variant in ("edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1"):
+                with self.subTest(variant=variant):
+                    run, attempts = self.fake_runner(name, original, variant=variant)
+                    record = build.build(name, source, self.root / variant, run=run,
+                                         variant=variant, launcher_variant="gnu-tail-v1")["record"]
+                    self.assertEqual(len(attempts), 2)
+                    self.assertEqual(record["source_variant"], variant)
+                    self.assertEqual(record["resources"]["tt_bytes"], 192 << 30)
+                    for key in ("c4ke_candidate_transform", "c4ke_extra_transform", "c4ke_edit_structural_transform", "c4ke_structural_transform"):
                         self.assertIn(key, record["producer_inputs"])
                     self.assertFalse(record["qualification"]["runtime_qualified"])
                     self.assertFalse(record["qualification"]["league_qualified"])

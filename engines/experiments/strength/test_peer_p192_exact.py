@@ -100,6 +100,26 @@ def c4ke_extra_sources():
     return value
 
 
+def c4ke_phalanx_extra_sources():
+    """Synthetic closure and SHA overrides for the three separate candidates."""
+    value = c4ke_edit_sources()
+    phalanx, ep = exact.peer_c4ke_phalanx, exact.peer_c4ke_ep_hash
+    attack, pop = exact.peer_c4ke_attack_pawns, exact.peer_c4ke_pop_lsb
+    edit = exact.peer_c4ke_edit_structural._EDIT_BEFORE
+    value["src/board.cpp"] = value["src/board.cpp"].replace(edit, b"", 1)
+    edit_context = ep._EDIT_START + b"\r\n" + edit + b"synthetic end\r\n"
+    make_context = ep._MAKE_START + b"\r\n" + ep._BEFORE + b"\r\n"
+    phalanx_context = phalanx._START + b" synthetic context " + phalanx._BEFORE
+    value["src/board.cpp"] += (b"\r\n" + edit_context + ep._EDIT_END + b"\r\n" + make_context + ep._MAKE_END + b"\r\n"
+                                 + phalanx_context + b"\r\n" + attack.BEFORE + b"\r\n" + pop.ANCHOR + b"\r\n"
+                                 + b"\r\n".join(site[1] for site in pop.SITES))
+    definitions = dict.fromkeys(item.rstrip(b"\r\n") for item in
+                                (*attack.DIRECTIONS, *attack.CONSTANTS, *pop.DEFINITIONS, *phalanx._DEFINITIONS))
+    value["src/chess.cpp"] += b"\r\n" + b"\r\n".join(definitions) + b"\r\n"
+    return value, {"phalanx_context": exact.peers.sha(phalanx_context),
+                   "ep_edit": exact.peers.sha(edit_context), "ep_make": exact.peers.sha(make_context)}
+
+
 class IndexProperties(unittest.TestCase):
     def test_exact_192gib_boundaries_and_no_64bit_overflow(self):
         count = 3 * (1 << 33)
@@ -170,6 +190,57 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_phalanx_extra_variants_compose_and_reject_tampering(self):
+        original, shas = c4ke_phalanx_extra_sources()
+        phalanx, ep = exact.peer_c4ke_phalanx, exact.peer_c4ke_ep_hash
+        variants = tuple(exact._PHALANX_EXTRAS)
+        with pin_synthetic("c4ke", original), patch.object(phalanx, "_CONTEXT_SHA256", shas["phalanx_context"]), \
+                patch.object(ep, "_EDIT_SHA", shas["ep_edit"]), patch.object(ep, "_MAKE_SHA", shas["ep_make"]):
+            baseline, _ = exact.transform("c4ke", original, variant="edit-castle-phalanx-v1")
+            for variant in variants:
+                with self.subTest(variant=variant):
+                    changed, proof = exact.transform("c4ke", original, variant=variant)
+                    self.assertEqual(exact.restore("c4ke", changed, proof, variant=variant), original)
+                    self.assertEqual(proof["tt_bytes"], 192 << 30)
+                    for path in set(original) - {"src/board.cpp"}:
+                        self.assertEqual(changed[path], baseline[path])
+                    baseline_roles = {row[0] for row in
+                                      exact._variant_edits("c4ke", "edit-castle-phalanx-v1")["src/board.cpp"]}
+                    expected = baseline["src/board.cpp"]
+                    for role, before, after, count in exact._variant_edits("c4ke", variant)["src/board.cpp"]:
+                        if role not in baseline_roles:
+                            self.assertEqual(expected.count(before), count)
+                            expected = expected.replace(before, after)
+                    self.assertEqual(changed["src/board.cpp"], expected)
+                    for other in ("baseline", "edit-castle-phalanx-v1", *(v for v in variants if v != variant)):
+                        with self.assertRaises(ValueError):
+                            exact.restore("c4ke", changed, proof, variant=other)
+                    forged = copy.deepcopy(proof)
+                    forged["variant"] = "edit-castle-phalanx-v1"
+                    with self.assertRaises(ValueError):
+                        exact.restore("c4ke", changed, forged, variant=variant)
+                    with self.assertRaises(ValueError):
+                        exact.source_closure("ice4", variant=variant)
+        for variant, candidate, names in ((variants[0], exact.peer_c4ke_attack_pawns, (exact.peer_c4ke_attack_pawns.NAME,)),
+                                          (variants[2], exact.peer_c4ke_pop_lsb, exact.peer_c4ke_pop_lsb.NAMES)):
+            for path in original:
+                for name in names:
+                    altered = dict(original)
+                    altered[path] += b" " + name + b" "
+                    with self.subTest(variant=variant, path=path, name=name), pin_synthetic("c4ke", altered), \
+                            patch.object(phalanx, "_CONTEXT_SHA256", shas["phalanx_context"]), self.assertRaises(ValueError):
+                        exact.transform("c4ke", altered, variant=variant)
+        for variant, path, marker in ((variants[0], "src/chess.cpp", exact.peer_c4ke_attack_pawns.DIRECTIONS[0]),
+                                       (variants[1], "src/board.cpp", ep._EDIT_START),
+                                       (variants[1], "src/board.cpp", ep._MAKE_START),
+                                       (variants[2], "src/board.cpp", exact.peer_c4ke_pop_lsb.ANCHOR)):
+            altered = dict(original)
+            altered[path] = altered[path].replace(marker, b"altered", 1)
+            with self.subTest(variant=variant, marker=marker), pin_synthetic("c4ke", altered), \
+                    patch.object(phalanx, "_CONTEXT_SHA256", shas["phalanx_context"]), \
+                    patch.object(ep, "_EDIT_SHA", shas["ep_edit"]), patch.object(ep, "_MAKE_SHA", shas["ep_make"]), self.assertRaises(ValueError):
+                exact.transform("c4ke", altered, variant=variant)
+
     def test_emission_and_phalanx_composition_and_guards(self):
         emission, phalanx = exact.peer_c4ke_move_emission, exact.peer_c4ke_phalanx
         original = c4ke_edit_sources()

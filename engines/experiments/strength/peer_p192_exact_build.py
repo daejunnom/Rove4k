@@ -194,7 +194,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
     c4ke_variants = ("share-v1", "slot-v1", "ray-v1", "slot-ray-v1", "castle-or-v1", "ray-castle-or-v1",
                      "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
                      "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
-                     "edit-castle-emission-v1", "edit-castle-phalanx-v1")
+                     "edit-castle-emission-v1", "edit-castle-phalanx-v1",
+                     "edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1")
     ice_variants = ("castle-v1", "zobrist-v1", "castle-zobrist-v1")
     if not (variant == "baseline" or (name == "c4ke" and variant in c4ke_variants) or
             (name == "ice4" and variant in ice_variants)):
@@ -223,7 +224,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
         tool_paths["ice_structural_transform"] = Path(ice.__file__).resolve(strict=True).read_bytes()
     if variant in ("castle-or-v1", "ray-castle-or-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
                    "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
-                   "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
+                   "edit-castle-emission-v1", "edit-castle-phalanx-v1",
+                   "edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1"):
         try:
             from . import peer_c4ke_structural as c4ke
         except ImportError:
@@ -231,7 +233,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
         tool_paths["c4ke_structural_transform"] = Path(c4ke.__file__).resolve(strict=True).read_bytes()
     if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
                    "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
-                   "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
+                   "edit-castle-emission-v1", "edit-castle-phalanx-v1",
+                   "edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1"):
         try:
             from . import peer_c4ke_edit_structural as edit
         except ImportError:
@@ -251,7 +254,8 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
         except ImportError:
             import peer_c4ke_quiet_history as quiet
         tool_paths["c4ke_quiet_transform"] = Path(quiet.__file__).resolve(strict=True).read_bytes()
-    if variant in ("edit-castle-emission-v1", "edit-castle-phalanx-v1"):
+    if variant in ("edit-castle-emission-v1", "edit-castle-phalanx-v1",
+                   "edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1"):
         try:
             from . import peer_c4ke_move_emission as emission, peer_c4ke_phalanx as phalanx
         except ImportError:
@@ -259,6 +263,17 @@ def build(name, source, out, *, run=runner.run, codec_search="compact", variant=
             import peer_c4ke_phalanx as phalanx
         module = emission if variant == "edit-castle-emission-v1" else phalanx
         tool_paths["c4ke_candidate_transform"] = Path(module.__file__).resolve(strict=True).read_bytes()
+    if variant in ("edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1"):
+        try:
+            from . import peer_c4ke_attack_pawns as attack, peer_c4ke_ep_hash as ep, peer_c4ke_pop_lsb as pop
+        except ImportError:
+            import peer_c4ke_attack_pawns as attack
+            import peer_c4ke_ep_hash as ep
+            import peer_c4ke_pop_lsb as pop
+        module = {"edit-castle-phalanx-attack-pawns-v1": attack,
+                  "edit-castle-phalanx-ep-hash-v1": ep,
+                  "edit-castle-phalanx-pop-lsb-v1": pop}[variant]
+        tool_paths["c4ke_extra_transform"] = Path(module.__file__).resolve(strict=True).read_bytes()
     if launcher_variant == "gnu-tail-v1":
         try:
             from . import peer_launcher_trim as trim
@@ -432,6 +447,7 @@ def main():
                                                      "castle-or-v1", "ray-castle-or-v1", "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
                                                      "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
                                                      "edit-castle-emission-v1", "edit-castle-phalanx-v1",
+                                                     "edit-castle-phalanx-attack-pawns-v1", "edit-castle-phalanx-ep-hash-v1", "edit-castle-phalanx-pop-lsb-v1",
                                                      "castle-v1", "zobrist-v1", "castle-zobrist-v1"), default="baseline")
     parser.add_argument("--launcher-variant", choices=("upstream", "gnu-tail-v1"), default="upstream")
     parser.add_argument("--cpu", type=int, default=None)
