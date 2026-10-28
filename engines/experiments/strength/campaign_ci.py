@@ -377,6 +377,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
         cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
@@ -392,6 +396,9 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 require({"functional_uci_probe", "functional_probe_session"} <= set(values["LEAGUE_HOST_MODULES"])
                         and len(values["LEAGUE_CORE_R"]) == 4,
                         "committed functional diagnostic source closure is incomplete")
+            if any(name.endswith("/league_functional_host.py") for name in cloud_names):
+                require("league_functional_host" in values["LEAGUE_HOST_MODULES"],
+                        "committed functional host source closure is incomplete")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
         names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")

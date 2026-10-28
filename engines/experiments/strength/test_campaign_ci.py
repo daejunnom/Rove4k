@@ -939,6 +939,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                          "engines/experiments/strength/memory_observation.py",
                          "engines/experiments/strength/functional_uci_probe.py",
                          "engines/experiments/strength/functional_probe_session.py",
+                         "engines/experiments/strength/league_functional_host.py",
                          "engines/scripts/league_resource_profiles.py",
                          "engines/experiments/tcec-scope/verify.py",
                          "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"):
@@ -1060,6 +1061,7 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                      "engines/experiments/strength/rove_vma_observer.py",
                      "engines/experiments/strength/functional_uci_probe.py",
                      "engines/experiments/strength/functional_probe_session.py",
+                     "engines/experiments/strength/league_functional_host.py",
                      "engines/scripts/league_resource_profiles.py",
                      "engines/experiments/tcec-scope/verify.py",
                      "engines/compact/tiny-entry-d/verify.py",
@@ -1083,10 +1085,10 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
                             and isinstance(node.targets[0], ast.Name)}
             modules = ast.literal_eval(declarations["LEAGUE_HOST_MODULES"].value)
             core = ast.literal_eval(declarations["LEAGUE_CORE_R"].value)
-            self.assertEqual(modules[-2:], ("functional_uci_probe", "functional_probe_session"))
+            self.assertEqual(modules[-3:], ("functional_uci_probe", "functional_probe_session", "league_functional_host"))
             self.assertEqual(len(core), 4)
             lines = raw.splitlines(keepends=True)
-            for name, value in sorted((("LEAGUE_HOST_MODULES", modules[:-2]),
+            for name, value in sorted((("LEAGUE_HOST_MODULES", modules[:-3]),
                                        ("LEAGUE_CORE_R", core[:1])),
                                       key=lambda item: declarations[item[0]].lineno, reverse=True):
                 node = declarations[name]
@@ -1124,6 +1126,53 @@ print('frozen-import-rejected' if sys.argv[6] else 'frozen-import-bound')
             self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
             self.assertIn(b"--candidates-sha256", result.stdout)
             self.assertIn(b"--root", result.stdout)
+            host = "engines/experiments/strength/league_functional_host.py"
+            self.assertIn(host, proof["members"])
+            result = subprocess.run([sys.executable, "-I", "-B", str(out / host), "--help"],
+                                    capture_output=True, timeout=30,
+                                    env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"})
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            self.assertIn(b"--state-dir", result.stdout)
+            self.assertIn(b"--candidates-sha256", result.stdout)
+
+    def test_prior_functional_seed_is_bindable_but_current_host_cannot_downgrade(self):
+        for cloud_has_host in (False, True):
+            with self.subTest(cloud_has_host=cloud_has_host), tempfile.TemporaryDirectory(prefix="rove-ci-functional-host-") as directory:
+                origin = Path(directory) / "original-git"
+                self.make_materializer_origin(origin)
+                seed_path = origin / "engines/experiments/strength/seed.py"
+                raw = seed_path.read_text(encoding="utf-8")
+                node = next(node for node in ast.parse(raw).body if isinstance(node, ast.Assign)
+                            and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                            and node.targets[0].id == "LEAGUE_HOST_MODULES")
+                modules = ast.literal_eval(node.value)
+                self.assertEqual(modules[-1], "league_functional_host")
+                lines = raw.splitlines(keepends=True)
+                lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_MODULES = " + repr(modules[:-1]) + "\n"]
+                seed_path.write_text("".join(lines), encoding="utf-8")
+                changed = ["engines/experiments/strength/seed.py"]
+                if not cloud_has_host:
+                    cloud_path = origin / "engines/experiments/strength/cloud_runtime.py"
+                    cloud = cloud_path.read_text(encoding="utf-8")
+                    node = next(node for node in ast.parse(cloud).body if isinstance(node, ast.Assign)
+                                and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                                and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES")
+                    names = ast.literal_eval(node.value)
+                    names = tuple(name for name in names if not name.endswith("/league_functional_host.py"))
+                    lines = cloud.splitlines(keepends=True)
+                    lines[node.lineno - 1:node.end_lineno] = ["LEAGUE_HOST_SOURCE_FILES = " + repr(names) + "\n"]
+                    cloud_path.write_text("".join(lines), encoding="utf-8")
+                    changed.append("engines/experiments/strength/cloud_runtime.py")
+                self.git(origin, "add", "--", *changed)
+                self.git(origin, "commit", "--quiet", "--no-gpg-sign", "-m", "host closure version fixture")
+                head = self.git(origin, "rev-parse", "HEAD").decode().strip()
+                if cloud_has_host:
+                    with self.assertRaisesRegex(ValueError, "functional host source closure is incomplete"):
+                        ci.bind_materializer_source(origin, head)
+                else:
+                    proof = ci.bind_materializer_source(origin, head, out=Path(directory) / "materializer")
+                    self.assertNotIn("engines/experiments/strength/league_functional_host.py", proof["members"])
+                    self.assertIn("engines/experiments/strength/functional_probe_session.py", proof["members"])
 
     def test_dotted_league_import_requires_static_closure_even_without_verifier_marker(self):
         def omit_league(body):
