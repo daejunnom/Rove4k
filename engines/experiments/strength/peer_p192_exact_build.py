@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+"""Produce the experimental exact-192-GiB peer variant without running it.
+
+Inputs and outputs are external to Git.  This producer validates the pinned
+upstream closure and the complete inverse transform on each independent
+attempt, then runs the upstream TCEC minifier and packages its output.  The
+result is an experimental changed-index algorithm, not an official peer or
+an admitted league player.  Input-transform and byte-reproduction evidence
+does not prove that emitted code allocates or uses the claimed TT; native
+source semantics, actual 192-GiB execution, and playing strength are separate.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import lzma
+import os
+from functools import partial
+from pathlib import Path
+import re
+import signal
+import stat
+import sys
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+try:
+    from . import peer_exact_runner as runner, peer_p192_exact as exact, peers
+except ImportError:
+    import peer_exact_runner as runner
+    import peer_p192_exact as exact
+    import peers
+
+
+_BLOCKED = frozenset((".ssh", ".aws", ".npmrc", "node_modules", "dist", "dist-server", "build",
+                      "coverage", "models", "checkpoints", ".cache", "package-lock.json",
+                      "id_rsa", "id_ed25519", "id_dsa", "id_ecdsa", "inventory.json"))
+
+
+def _emitted_clues(source):
+    """Report narrow literal clues only; never infer TT execution semantics."""
+    compact = re.sub(rb"\s+", b"", source.lower())
+    allocation = re.findall(rb"calloc\((?:3(?:ull|ul|ll|l)?<<33|25769803776(?:ull|ul|ll|l)?),8\)", compact)
+    index = re.findall(rb">>16\)\*3\)>>15", compact)
+    return {"explicit_192gib_calloc_literals": len(allocation),
+            "explicit_upper48_index_suffixes": len(index),
+            "scope": "literal clues only; renamed, folded, or dead expressions are not resolved"}
+
+
+def _safe_parts(path):
+    for part in path.parts:
+        lower = part.lower()
+        if (lower.startswith(".env") or lower in _BLOCKED or lower == "token" or
+                lower.endswith(("-token", "_token")) or lower.startswith("token.") or
+                any(term in lower for term in ("credential", "service-account", "service_account",
+                                                "api-key", "api_key", "ssh-key", "ssh_key", "private-key",
+                                                "private_key", "password"))):
+            raise ValueError("protected path is not a peer source input")
+
+
+def _source_snapshot(name, source, *, pinned=True):
+    """Read only pinned source members through non-symlink directory FDs."""
+    source = Path(source)
+    if sys.platform != "linux" or not source.is_absolute() or ".." in source.parts:
+        raise ValueError("Linux and an absolute peer source directory are required")
+    _safe_parts(source)
+    if any((parent / ".git").exists() for parent in (source, *source.parents)):
+        raise ValueError("pinned peer source must stay outside any Git checkout")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    root = os.open("/", flags)
+    try:
+        for part in source.parts[1:]:
+            child = os.open(part, flags, dir_fd=root)
+            os.close(root)
+            root = child
+        result = {}
+        for relative in sorted(peers.SOURCE_BLOBS[name]):
+            path = Path(relative)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError("unsafe pinned peer source member")
+            _safe_parts(path)
+            current = os.dup(root)
+            try:
+                for part in path.parts[:-1]:
+                    child = os.open(part, flags, dir_fd=current)
+                    os.close(current)
+                    current = child
+                fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=current)
+                try:
+                    info = os.fstat(fd)
+                    if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > peers.MiB:
+                        raise ValueError("peer source member is not a bounded regular file")
+                    with os.fdopen(fd, "rb", closefd=False) as stream:
+                        data = stream.read(peers.MiB + 1)
+                    if len(data) != info.st_size or len(data) > peers.MiB:
+                        raise ValueError("peer source member changed or exceeded its size bound")
+                    if pinned:
+                        peers.verify_blob(name, relative, data)
+                    result[relative] = data
+                finally:
+                    os.close(fd)
+            finally:
+                os.close(current)
+        return result
+    finally:
+        os.close(root)
+
+
+def _read_proof(path):
+    """Read the retained proof through non-symlink directories and file."""
+    path = Path(path)
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("absolute retained proof required")
+    _safe_parts(path)
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    root = os.open("/", flags)
+    try:
+        for part in path.parts[1:-1]:
+            child = os.open(part, flags, dir_fd=root)
+            os.close(root)
+            root = child
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=root)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_size > peers.MiB:
+                raise ValueError("retained transform proof is not a bounded regular file")
+            with os.fdopen(fd, "rb", closefd=False) as stream:
+                data = stream.read(peers.MiB + 1)
+            if len(data) != info.st_size or len(data) > peers.MiB:
+                raise ValueError("retained transform proof changed or exceeded its size bound")
+            return data
+        finally:
+            os.close(fd)
+    finally:
+        os.close(root)
+
+
+def _write_new(path, data):
+    """Create a new output without traversing or overwriting a symlink."""
+    path = Path(path)
+    if not path.is_absolute() or ".." in path.parts or type(data) is not bytes:
+        raise ValueError("absolute owned output and immutable bytes required")
+    _safe_parts(path)
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    root = os.open("/", flags)
+    try:
+        for part in path.parts[1:-1]:
+            child = os.open(part, flags, dir_fd=root)
+            os.close(root)
+            root = child
+        fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=root)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+    finally:
+        os.close(root)
+
+
+def _mkdir_new(path):
+    """Create exactly one new directory under non-symlink parents."""
+    path = Path(path)
+    if not path.is_absolute() or ".." in path.parts:
+        raise ValueError("absolute owned directory required")
+    _safe_parts(path)
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    root = os.open("/", flags)
+    try:
+        for part in path.parts[1:-1]:
+            child = os.open(part, flags, dir_fd=root)
+            os.close(root)
+            root = child
+        os.mkdir(path.name, mode=0o700, dir_fd=root)
+    finally:
+        os.close(root)
+
+
+def build(name, source, out, *, run=runner.run, codec_search="compact"):
+    """Build two independent exact-profile snapshots and compare whole bytes.
+
+    ``run`` accepts the structured command, source cwd, and private home. It
+    permits a simulated producer in tests but does not change receipt claims.
+    The default bounded runner does not inherit credentials or write logs.
+    No engine program is executed by this function.
+    """
+    peer = peers.peer_spec(name)
+    if codec_search not in peers.CODEC_SEARCHES:
+        raise ValueError("unknown bounded peer codec search")
+    original = _source_snapshot(name, source)
+    source = Path(source)
+    if out is None or not Path(out).is_absolute() or ".." in Path(out).parts:
+        raise ValueError("new absolute external output directory required")
+    _safe_parts(Path(out))
+    out = peers.external_new(out)
+    _safe_parts(out)
+    if out == source or out.is_relative_to(source) or source.is_relative_to(out):
+        raise ValueError("output and pinned peer source must be separate directories")
+    _mkdir_new(out)
+    own = Path(__file__).resolve(strict=True).read_bytes()
+    tool_paths = {"producer": own, "transform": Path(exact.__file__).resolve(strict=True).read_bytes(),
+                  "peer_base": Path(peers.__file__).resolve(strict=True).read_bytes(),
+                  "command_runner": Path(runner.__file__).resolve(strict=True).read_bytes()}
+    for key, value in tool_paths.items():
+        _write_new(out / (key + ".py"), value)
+    tools = {key: {"bytes": len(value), "sha256": peers.sha(value)} for key, value in tool_paths.items()}
+    record = {
+        "format": "rove4k-peer-p192-exact-producer-v1", "profile": exact.PROFILE,
+        "artifact_kind": "experimental-p192-exact", "peer": name, "family": name,
+        "version": peer.version, "repository": peer.repository, "revision": peer.revision,
+        "source_url": peer.source_url,
+        "license": {"spdx": peer.license, "source_url": peer.raw_url("LICENSE"),
+                    "git_blob": peers.git_blob(original["LICENSE"]),
+                    "sha256": peers.sha(original["LICENSE"])},
+        "resources": {"workers": exact.WORKERS, "entry_bytes": 8,
+                      "tt_entries": exact.ENTRIES, "tt_bytes": exact.TT_BYTES,
+                      "index": "upper48-times3-shift15"},
+        "algorithm_changed": True, "producer_inputs": tools,
+        "upstream_blob_manifest_sha256": peers.sha(peers.canonical(peers.SOURCE_BLOBS[name])),
+        "codec_search": {"name": codec_search, "nice_lengths": peers.CODEC_SEARCHES[codec_search]},
+        "attempts": [], "complete": False, "reproducible": False,
+        "qualification": {"emitted_tt_semantics_verified": False, "runtime_qualified": False,
+                          "league_qualified": False},
+        "candidate_status": "not-admitted; emitted TT semantics and runtime remain unverified",
+        "executing_code_identity_verified": False,
+        "scope": "experimental source and package reproduction; no engine execution or score admission",
+    }
+    try:
+        closure = set(exact._EDITS[name]) | {peer.resource_path}
+        selected_original = {path: original[path] for path in closure}
+        for number in (1, 2):
+            # Re-check all source identities before each snapshot.  Source is
+            # untrusted input and can change after initial collection.
+            current = _source_snapshot(name, source)
+            if current != original:
+                raise ValueError("pinned upstream source changed between attempts")
+            transformed, proof = exact.transform(name, selected_original)
+            if exact.restore(name, transformed, proof) != selected_original:
+                raise ValueError("exact transform did not fully restore pinned upstream")
+            attempt = out / ("attempt-" + str(number))
+            snapshot = attempt / "source"
+            _mkdir_new(attempt)
+            _mkdir_new(snapshot)
+            sandbox_home = attempt / "home"
+            _mkdir_new(sandbox_home)
+            directories = set()
+            for relative in original:
+                parent = Path(relative).parent
+                while parent != Path("."):
+                    directories.add(parent)
+                    parent = parent.parent
+            for directory in sorted(directories, key=lambda path: (len(path.parts), str(path))):
+                _mkdir_new(snapshot / directory)
+            for relative, data in original.items():
+                path = snapshot / relative
+                _write_new(path, transformed.get(relative, data))
+            proof_bytes = json.dumps(proof, sort_keys=True, indent=2, ensure_ascii=False).encode() + b"\n"
+            _write_new(attempt / "transform-proof.json", proof_bytes)
+            proof_sha = peers.sha(proof_bytes)
+            proof_bytes = _read_proof(attempt / "transform-proof.json")
+            if peers.sha(proof_bytes) != proof_sha:
+                raise ValueError("retained transform proof differs before minifier")
+            compile_commands, emit_command = peers.minifier_commands(name, snapshot, attempt)
+            version, version_errors, version_record = run([compile_commands[0][0], "--version"], snapshot,
+                                                           sandbox_home=sandbox_home)
+            _write_new(attempt / "compiler.version", version)
+            _write_new(attempt / "compiler-version.stderr", version_errors)
+            commands = [version_record]
+            for index, command in enumerate(compile_commands):
+                stdout, stderr, command_record = run(command, snapshot, sandbox_home=sandbox_home)
+                commands.append(command_record)
+                _write_new(attempt / ("compile-" + str(index) + ".stdout"), stdout)
+                _write_new(attempt / ("compile-" + str(index) + ".stderr"), stderr)
+            minified, stderr, command_record = run(emit_command, snapshot, sandbox_home=sandbox_home)
+            commands.append(command_record)
+            if not isinstance(minified, bytes) or not minified.startswith(b"#include") or len(minified) > peers.MiB:
+                raise ValueError("minifier did not emit a bounded source stream")
+            _write_new(attempt / "main.cpp", minified)
+            _write_new(attempt / "minifier.stderr", stderr)
+            actual_snapshot = _source_snapshot(name, snapshot, pinned=False)
+            changed_after = {}
+            for relative, data in original.items():
+                expected = transformed.get(relative, data)
+                if actual_snapshot[relative] != expected:
+                    raise ValueError("minifier modified a protected peer input: " + relative)
+                if relative in transformed:
+                    changed_after[relative] = expected
+            if exact.restore(name, changed_after, proof) != selected_original:
+                raise ValueError("post-minifier exact transform inverse differs")
+            if _read_proof(attempt / "transform-proof.json") != proof_bytes:
+                raise ValueError("minifier modified the retained transform proof")
+            grid = peers.codec_grid(minified, search=codec_search)
+            selected = grid[0]
+            if lzma.decompress(selected["payload"], format=lzma.FORMAT_ALONE) != minified:
+                raise ValueError("selected compressed stream differs from emitted source")
+            whole = original["launcher.sh"] + selected["payload"]
+            target = attempt / peer.tiny_name
+            _write_new(target, whole)
+            row = {"source": {"bytes": len(minified), "sha256": peers.sha(minified)},
+                   "whole": {"path": str(target), "bytes": len(whole), "sha256": peers.sha(whole)},
+                   "header": {"bytes": len(original["launcher.sh"]), "sha256": peers.sha(original["launcher.sh"])},
+                   "transform_proof_sha256": proof_sha, "source_inverse_verified": True,
+                   "selected_codec": {key: value for key, value in selected.items() if key != "payload"},
+                   "codec_trials": len(grid), "compiler_version_sha256": peers.sha(version),
+                   "emitted_literal_clues": _emitted_clues(minified),
+                   "commands": commands}
+            record["attempts"].append(row)
+        first, second = record["attempts"]
+        for number, row in enumerate(record["attempts"], 1):
+            base = out / ("attempt-" + str(number))
+            if (peers.sha(_read_proof(base / "transform-proof.json")) != row["transform_proof_sha256"] or
+                    peers.sha(_read_proof(base / "main.cpp")) != row["source"]["sha256"] or
+                    peers.sha(_read_proof(Path(row["whole"]["path"]))) != row["whole"]["sha256"]):
+                raise ValueError("retained attempt evidence changed after minifier")
+            retained = _source_snapshot(name, base / "source", pinned=False)
+            if any(retained[path] != transformed.get(path, data) for path, data in original.items()):
+                raise ValueError("retained attempt input changed after minifier")
+            if exact.restore(name, {path: retained[path] for path in transformed}, proof) != selected_original:
+                raise ValueError("retained attempt inverse differs")
+        for key, value in tool_paths.items():
+            if _read_proof(out / (key + ".py")) != value:
+                raise ValueError("retained producer source snapshot changed after minifier")
+        if (_read_proof(out / "attempt-1" / "main.cpp") != _read_proof(out / "attempt-2" / "main.cpp") or
+                _read_proof(Path(first["whole"]["path"])) != _read_proof(Path(second["whole"]["path"])) or
+                first["source"] != second["source"] or first["whole"]["bytes"] != second["whole"]["bytes"] or
+                first["whole"]["sha256"] != second["whole"]["sha256"] or
+                first["transform_proof_sha256"] != second["transform_proof_sha256"] or
+                first["compiler_version_sha256"] != second["compiler_version_sha256"]):
+            raise ValueError("independent peer output or transform reproduction differs")
+        record.update(complete=True, reproducible=True, whole=first["whole"])
+        record["qualification"].update(size_within_4096=first["whole"]["bytes"] <= 4096,
+                                       input_transform_inverse_verified=True)
+    except BaseException as error:
+        record["failure"] = {"type": type(error).__name__, "message": str(error)}
+        if isinstance(error, runner.BuildCommandFailure):
+            record["failure"]["command"] = error.record
+        raise
+    finally:
+        record_bytes = json.dumps(record, sort_keys=True, indent=2, ensure_ascii=False).encode() + b"\n"
+        _write_new(out / "peer-exact.json", record_bytes)
+        digest = peers.sha(record_bytes)
+    return {"path": str(out / "peer-exact.json"), "sha256": digest, "record": record}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--peer", choices=("ice4", "c4ke"), required=True)
+    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--codec-search", choices=tuple(peers.CODEC_SEARCHES), default="compact")
+    parser.add_argument("--cpu", type=int, default=None)
+    parser.add_argument("--rustup-home", type=Path, default=None,
+                        help="absolute existing Rustup toolchain directory for the ice4 minifier")
+    parser.add_argument("--wall-seconds", type=int, default=600)
+    args = parser.parse_args()
+    if args.wall_seconds <= 0:
+        parser.error("positive wall bound required")
+    available = sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else []
+    cpu = args.cpu if args.cpu is not None else (available[0] if available else None)
+    if cpu is None or cpu < 0 or (available and cpu not in available):
+        parser.error("an allowed CPU is required")
+    result = build(args.peer, args.source, args.out,
+                   run=partial(runner.run, cpu=cpu, timeout=args.wall_seconds, rustup_home=args.rustup_home),
+                   codec_search=args.codec_search)
+    print(json.dumps({key: value for key, value in result.items() if key != "record"}, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    def _interrupted(signum, frame):
+        raise KeyboardInterrupt("peer exact producer cancelled")
+    signal.signal(signal.SIGTERM, _interrupted)
+    sys.exit(main())
