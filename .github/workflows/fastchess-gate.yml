@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
     paths:
       - 'engines/experiments/strength/fastchess.py'
+      - 'engines/experiments/strength/original_peer_uci.py'
       - 'engines/experiments/strength/test_fastchess.py'
       - 'engines/experiments/strength/wave.py'
       - 'engines/experiments/strength/test_wave.py'
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - 'engines/experiments/strength/fastchess.py'
+      - 'engines/experiments/strength/original_peer_uci.py'
       - 'engines/experiments/strength/test_fastchess.py'
       - 'engines/experiments/strength/wave.py'
       - 'engines/experiments/strength/test_wave.py'

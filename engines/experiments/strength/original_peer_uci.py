@@ -23,6 +23,19 @@ _EXPECTED = {b"Hash": (8, 1, 67108864), b"Threads": (1, 1, 2048)}
 _MAX_OUTPUT = 1 << 20
 
 
+def fastchess_resources(profile):
+    """Return EngineCommand keyword arguments for an original TEST peer.
+
+    The request is only a UCI command configuration, not proof of resource
+    allocation, peer identity, eligibility, or permission to start a game.
+    This module must itself belong to any deployment's verified source closure.
+    """
+    if type(profile) is not str or profile not in _PROFILES:
+        raise ValueError("unsupported original peer TEST profile")
+    values = _PROFILES[profile]
+    return {"hash_mib": values["hash_mib"], "threads": values["workers"]}
+
+
 def _complete_lines(raw):
     if not isinstance(raw, bytes) or len(raw) > _MAX_OUTPUT or b"\x00" in raw:
         raise ValueError("invalid or oversized UCI output")

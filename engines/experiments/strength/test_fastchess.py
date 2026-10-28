@@ -27,6 +27,9 @@ spec = importlib.util.spec_from_file_location("rove_fastchess", HERE / "fastches
 fastchess = importlib.util.module_from_spec(spec)
 sys.modules[spec.name] = fastchess
 spec.loader.exec_module(fastchess)
+peer_spec = importlib.util.spec_from_file_location("rove_original_peer_uci", HERE / "original_peer_uci.py")
+original_peer_uci = importlib.util.module_from_spec(peer_spec)
+peer_spec.loader.exec_module(original_peer_uci)
 
 
 class Adapter(unittest.TestCase):
@@ -70,6 +73,29 @@ class Adapter(unittest.TestCase):
         reverse = fastchess.single_game_argv(Path("/tmp/fc"), black, white,
             opening_pgn=Path("/tmp/book.pgn"), opening_start=2, out=Path("/tmp/reverse"))
         self.assertLess(reverse.index("name=black"), reverse.index("name=white"))
+
+    def test_peer_resources_are_per_engine_and_follow_colour(self):
+        for profile, hash_mib, threads in (("test-p16", 16384, 16), ("test-p192", 262144, 192)):
+            peer = fastchess.EngineCommand("ice4", ("/tmp/ice4",), **original_peer_uci.fastchess_resources(profile))
+            rove = fastchess.EngineCommand("rove", ("/tmp/rove",))
+            for left, right in ((peer, rove), (rove, peer)):
+                argv = fastchess.single_game_argv(Path("/tmp/fc"), left, right,
+                    opening_pgn=Path("/tmp/book"), opening_start=1, out=Path("/tmp/out"))
+                segments = {}
+                for index, value in enumerate(argv):
+                    if value == "-engine":
+                        end = next(i for i in range(index + 1, len(argv)) if argv[i] in ("-engine", "-each"))
+                        segments[argv[index + 1]] = argv[index + 2:end]
+                self.assertIn(f"option.Hash={hash_mib}", segments["name=ice4"])
+                self.assertIn(f"option.Threads={threads}", segments["name=ice4"])
+                self.assertFalse(any(arg.startswith(("option.Hash=", "option.Threads="))
+                                     for arg in segments["name=rove"]))
+        for kwargs in ({"hash_mib": 16}, {"threads": 16}, {"hash_mib": True, "threads": 16},
+                       {"hash_mib": 1, "threads": 0}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                fastchess.EngineCommand("ice4", ("/tmp/ice4",), **kwargs)
+        with self.assertRaises(ValueError):
+            original_peer_uci.fastchess_resources("submission")
 
     def test_ponder_command_evidence_preserves_unknown_behavior(self):
         observed = fastchess.ponder_uci_evidence([
@@ -146,8 +172,11 @@ for raw in sys.stdin:
                 print('info string still initializing', flush=True)
                 print('initializing', file=sys.stderr, flush=True)
                 time.sleep(.005)
-        if mode == 'ponder-option':
+        if mode in ('ponder-option', 'resource-options'):
             print('option name Ponder type check default true', flush=True)
+        if mode == 'resource-options':
+            print('option name Hash type spin default 8 min 1 max 67108864', flush=True)
+            print('option name Threads type spin default 1 min 1 max 2048', flush=True)
         print('uciok', flush=True)
     elif line == 'isready':
         print('readyok', flush=True)
@@ -233,6 +262,7 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         (out / "runtime.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     save()
     for case, response in (("normal", b"GO\n"), ("reverse", b"GO\n"),
+                           ("peer-resources-p16", b"GO\n"), ("peer-resources-p192", b"GO\n"),
                            ("abort", b"ABORT\n"), ("disconnect", None), ("noise", b"GO\n"),
                            ("go2", b""), ("go2-wrong-attempt", b""), ("go2-bad-digest", b""),
                            ("go2-legacy-go", b"GO\n"), ("go2-abort", b"ABORT\n"),
@@ -240,8 +270,12 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
         directory = out / case
         directory.mkdir()
         ta, tb = directory / "a.jsonl", directory / "b.jsonl"
-        a = fastchess.EngineCommand("mock-a", (sys.executable, str(mock), str(ta),
-            "noise" if case == "noise" else "ponder-option"))
+        peer_resources = case.startswith("peer-resources-")
+        a_args = (sys.executable, str(mock), str(ta),
+                  "noise" if case == "noise" else "resource-options" if peer_resources else "ponder-option")
+        a = (fastchess.EngineCommand("mock-a", a_args, **original_peer_uci.fastchess_resources(
+                    "test-p16" if case.endswith("p16") else "test-p192")) if peer_resources
+             else fastchess.EngineCommand("mock-a", a_args))
         b = fastchess.EngineCommand("mock-b", (sys.executable, str(mock), str(tb), "normal"))
         white, black = (b, a) if case == "reverse" else (a, b)
         argv = fastchess.single_game_argv(binary, white, black, opening_pgn=book,
@@ -304,7 +338,7 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             pg = directory / "game.pgn"
             pgn = pg.read_text(encoding="utf-8") if pg.exists() else ""
             stdout = command_log.read_text(encoding="utf-8")
-            if case in ("normal", "reverse", "go2", "go2-long-attempt"):
+            if case in ("normal", "reverse", "peer-resources-p16", "peer-resources-p192", "go2", "go2-long-attempt"):
                 if code or f'[White "{white.identity}"]' not in pgn or f'[Black "{black.identity}"]' not in pgn:
                     raise AssertionError("normal/reversed game or player colour failed: " + stdout[-2500:])
                 if '[Result "0-1"]' not in pgn:
@@ -322,6 +356,12 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
                         any(row["go_ponder_received"] for row in ponder_evidence.values())):
                     raise AssertionError("advertised/unsupported Ponder command behavior differed: "
                                          + repr(ponder_evidence))
+                if peer_resources:
+                    first = [row.get("line") for row in _rows(ta) if row.get("event") == "input"]
+                    second = [row.get("line") for row in _rows(tb) if row.get("event") == "input"]
+                    expected = [f"setoption name Hash value {a.hash_mib}", f"setoption name Threads value {a.threads}"]
+                    if any(first.count(line) != 1 for line in expected) or any(line in second for line in expected):
+                        raise AssertionError("peer resource commands were not engine-specific: " + repr((first, second)))
             elif case == "noise":
                 if code == 0 or "Engine didn't respond to uciok after startup" not in stdout:
                     raise AssertionError("chatter extended the absolute startup deadline")

@@ -455,6 +455,10 @@ def build(source: Path, out: Path, *, cpu: int) -> dict:
 class EngineCommand:
     identity: str
     argv: tuple[str, ...]
+    # These are requests sent by Fastchess after UCI discovery, not proof
+    # that an engine allocated the requested TT or started these workers.
+    hash_mib: int | None = None
+    threads: int | None = None
 
     def __post_init__(self):
         if not self.identity or not self.argv or not Path(self.argv[0]).is_absolute():
@@ -463,6 +467,11 @@ class EngineCommand:
             raise ValueError("invalid engine identity")
         if any("\x00" in part or "\n" in part for part in self.argv):
             raise ValueError("invalid command component")
+        if (self.hash_mib is None) != (self.threads is None):
+            raise ValueError("Hash and Threads must be supplied together")
+        if self.hash_mib is not None and (type(self.hash_mib) is not int or not 1 <= self.hash_mib <= 67108864
+                or type(self.threads) is not int or not 1 <= self.threads <= 2048):
+            raise ValueError("bounded integer UCI resource options required")
 
 
 def single_game_argv(binary: Path, white: EngineCommand, black: EngineCommand, *,
@@ -479,6 +488,8 @@ def single_game_argv(binary: Path, white: EngineCommand, black: EngineCommand, *
         argv += ["-engine", "name=" + engine.identity, "cmd=" + shlex.quote(engine.argv[0])]
         if len(engine.argv) > 1:
             argv += ["args=" + shlex.join(engine.argv[1:])]
+        if engine.hash_mib is not None:
+            argv += ["option.Hash=" + str(engine.hash_mib), "option.Threads=" + str(engine.threads)]
     # Fastchess applies advertised UCI options after uciok; an unknown or
     # invalid Ponder option produces a warning and does not stop the game.
     # This request alone cannot prove what the engine does off turn.
