@@ -89,7 +89,7 @@ class PeerPreparationTests(unittest.TestCase):
         self.assertEqual(value["candidates"][0]["artifact"]["tt_bytes"], 16 << 30)
         self.assertIn("no engine execution", result["scope"])
 
-    def test_c4ke_p192_preserves_128gib_upstream_profile(self):
+    def test_c4ke_p192_rejects_128gib_upstream_profile(self):
         self.spec = prepare.peers.peer_spec("c4ke")
         self.source_root = self.seed_root / "external" / "c4ke"
         self.source_root.mkdir()
@@ -97,8 +97,19 @@ class PeerPreparationTests(unittest.TestCase):
                                 "repository": self.spec.repository, "revision": self.spec.revision,
                                 "license": "external/c4ke/LICENSE"}],
                      "members": {"external/c4ke/" + name: {} for name in prepare.peers.SOURCE_BLOBS["c4ke"]}}
-        result, _ = self.run_with_fixture(family="c4ke", profile="test-p192")
-        value = json.loads(Path(result["candidate"]["path"]).read_text())
+        # The preparer currently writes an intermediate candidate after its
+        # producer/reference steps; replay must reject it before file evidence
+        # or an execution owner can admit it to a P192 diagnostic.
+        with patch.object(prepare.diagnostic_candidates, "_pinned_file") as pinned_file, \
+             patch("subprocess.Popen") as process:
+            with self.assertRaisesRegex(ValueError, "P192 diagnostics require 192 GiB TT per engine"):
+                self.run_with_fixture(family="c4ke", profile="test-p192")
+            pinned_file.assert_not_called()
+            process.assert_not_called()
+        self.assertTrue((self.root / "result" / "peer-build" / "peer.json").is_file())
+        self.assertTrue((self.root / "result" / "peer-reference" / "reference.json").is_file())
+        value = json.loads((self.root / "result" / "candidate.json").read_text())
+        self.assertEqual(value["profile"], "test-p192")
         artifact = value["candidates"][0]["artifact"]
         self.assertEqual((artifact["family"], artifact["workers"], artifact["tt_bytes"]),
                          ("c4ke", 192, 128 << 30))

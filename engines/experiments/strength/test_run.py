@@ -746,18 +746,27 @@ class PlanAndControllerTests(unittest.TestCase):
 
     def test_p16_rejects_bad_smt_observations_before_freezing(self):
         with tempfile.TemporaryDirectory() as folder:
-            *_, snapshot = self.inputs(Path(folder))
-        changed = list(snapshot.cpus)
-        # CPU 0 is reserved in this synthetic layout; corrupt the first sibling
-        # in a scored slot so the topology still meets simple self-membership.
-        slots = run.league_placement(snapshot, "test-p16")[0]
-        chosen = slots[0].cpus[0]
-        row = next(cpu for cpu in changed if cpu.id == chosen)
-        changed[changed.index(row)] = topology.Cpu(row.id, row.socket, row.core, row.node, (row.id,))
-        broken = topology.Topology(tuple(changed), snapshot.allowed_cpus, snapshot.allowed_nodes,
-                                   snapshot.distances, snapshot.kernel)
-        with self.assertRaisesRegex(ValueError, "mutually observed SMT siblings"):
-            run.league_placement(broken, "test-p16")
+            root = Path(folder)
+            reg, bank, bank_sha, binary, build, snapshot = self.inputs(root)
+            # Corrupt one CPU in a scored slot while preserving self-membership.
+            chosen = run.league_placement(snapshot, "test-p16")[0][0].cpus[0]
+            qualified = run.qualified_players
+            for siblings in ((chosen,), (chosen, chosen)):
+                with self.subTest(siblings=siblings):
+                    changed = list(snapshot.cpus)
+                    row = next(cpu for cpu in changed if cpu.id == chosen)
+                    changed[changed.index(row)] = topology.Cpu(row.id, row.socket, row.core, row.node, siblings)
+                    broken = topology.Topology(tuple(changed), snapshot.allowed_cpus, snapshot.allowed_nodes,
+                                               snapshot.distances, snapshot.kernel)
+                    out = root / ("broken-" + str(len(siblings)))
+                    # The small synthetic players are P4-only; bypass only that
+                    # profile selection to exercise the real P16 freeze path.
+                    with patch.object(run, "qualified_players", side_effect=lambda source, profile:
+                                      qualified(source, "test-p4")):
+                        with self.assertRaisesRegex(ValueError, "SMT slots require two mutually observed siblings per core"):
+                            run.freeze_plan("fixture", "test-p16", reg, bank, bank_sha, binary, build,
+                                            out, snapshot=broken)
+                    self.assertFalse(out.exists())
 
     def test_p16_p192_scored_execution_is_held_before_host_or_cloud_access(self):
         for profile in ("test-p16", "test-p192"):
