@@ -778,14 +778,23 @@ def materialize_seed_archive(path, out, *, expected_manifest_sha256):
     return manifest
 
 
-def revalidate_seed(manifest, root):
+def _revalidate_seed_reader(manifest, reader, *, workflow_reader=None):
+    """Shared byte validation; a caller-supplied reader confers no authority."""
     validate_seed_manifest(manifest)
-    require(ordinary(Path(root) / "seed.json", limit=MAX_SEED_MANIFEST) == ledger.canonical(manifest) + b"\n",
+    require(reader("seed.json") == ledger.canonical(manifest) + b"\n",
             "materialized seed manifest changed")
     for name, expected in manifest["members"].items():
-        require(pin(ordinary(Path(root) / name)) == {k: expected[k] for k in ("bytes", "sha256")},
+        require(pin(reader(name)) == {k: expected[k] for k in ("bytes", "sha256")},
                 "materialized seed changed: " + name)
-    return validate_workflow_provenance(manifest, lambda name: ordinary(Path(root) / name, limit=MAX_SEED_MANIFEST))
+    return validate_workflow_provenance(manifest, workflow_reader or reader)
+
+
+def revalidate_seed(manifest, root):
+    """Revalidate the legacy literal layout; behavior and authority are unchanged."""
+    def reader(name):
+        return ordinary(Path(root) / name, limit=MAX_SEED_MANIFEST if name == "seed.json" else MAX_MEMBER)
+    return _revalidate_seed_reader(manifest, reader,
+        workflow_reader=lambda name: ordinary(Path(root) / name, limit=MAX_SEED_MANIFEST))
 
 
 def validate_host_source(manifest, source_root=ROOT):
@@ -1439,25 +1448,31 @@ def delegate_controller(cgroup_root):
             "controller_leaf": str(leaf), "controller_pid": os.getpid()}
 
 
-def rebase_bank(seed, root, out):
-    """Preserve original bank bytes and derive a checked logical-path consumer."""
-    source_path = Path(root) / seed["bank"]
-    original = checked_json(source_path)
+def _rebase_bank_reader(seed, reader, physical_path, out, *, writer=None):
+    """Shared bank transformation; reader/path provenance belongs to caller."""
+    source_bytes = reader(seed["bank"])
+    original = json.loads(source_bytes)
     value = json.loads(json.dumps(original))
     mapping = {}
     for stage, expected in original.get("files", {}).items():
         logical = seed["bank_pgns"].get(stage)
         require(logical is not None, "bank omitted explicit PGN member for " + stage)
-        path = Path(root) / logical
-        require(pin(ordinary(path)) == {key: expected[key] for key in ("bytes", "sha256")},
+        path = physical_path(logical)
+        require(pin(reader(logical)) == {key: expected[key] for key in ("bytes", "sha256")},
                 "transported PGN differs from frozen original bank")
         mapping[stage] = {"original_path": expected["path"], "logical_member": logical, "path": str(path)}
         value["files"][stage]["path"] = str(path)
     require({"broad", "high"} <= set(mapping), "actual broad and high opening bank required")
-    value["transport"] = {"original_bank": {"logical_member": seed["bank"], **pin(ordinary(source_path))},
+    value["transport"] = {"original_bank": {"logical_member": seed["bank"], **pin(source_bytes)},
                           "pgn_member_map": mapping, "moves_changed": False}
-    json_new(out, value)
+    (json_new if writer is None else writer)(out, value)
     return Path(out)
+
+
+def rebase_bank(seed, root, out):
+    """Preserve original bank bytes and derive a checked logical-path consumer."""
+    return _rebase_bank_reader(seed, lambda name: ordinary(Path(root) / name),
+                               lambda name: Path(root) / name, out)
 
 
 def local_build_command(argv, cwd, cpu):

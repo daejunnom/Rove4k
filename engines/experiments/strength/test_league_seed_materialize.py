@@ -1,9 +1,11 @@
 """Offline transfer-to-materialization tests; no AWS or engine execution."""
 from dataclasses import replace
+import json
 import os
 from pathlib import Path
 import stat
 import tempfile
+import types
 import unittest
 from unittest import mock
 
@@ -52,6 +54,178 @@ class MaterializeTests(unittest.TestCase):
         handle = self.snapshot.materialize(spec or self.spec, root or self.target_root)
         self.handles.append(handle)
         return handle
+
+    def cloud_fixture(self):
+        """Make a real cloud bank whose pinned logical files include build aliases."""
+        cloud = layout.cloud
+        original_broad = self.fixture.seed['bank_pgns']['broad']
+        alias_broad = 'origin/A/build/broad.pgn'
+        self.fixture.files[alias_broad] = self.fixture.files[original_broad]
+        self.fixture.seed['bank_pgns']['broad'] = alias_broad
+        bank = {'bank_id': 'diagnostic-bank', 'moves': ['e2e4'], 'files': {
+            stage: {'path': '/original/' + stage + '.pgn', **cloud.pin(self.fixture.files[logical])}
+            for stage, logical in self.fixture.seed['bank_pgns'].items()}}
+        self.fixture.files[self.fixture.seed['bank']] = cloud.ledger.canonical(bank)
+        self.fixture.reseal()
+        raw, manifest_sha = archive_bytes(self.fixture.seed, self.fixture.files)
+        spec = transfer_spec_for(raw, manifest_sha, self.fixture.seed['source_origin'])
+        snapshot = stage_and_inspect(spec, Client(data=raw), self.stage_root)
+        handle = snapshot.materialize(spec, self.target_root)
+        return spec, snapshot, handle, bank
+
+    def test_existing_cloud_consumers_read_pinned_physical_aliases(self):
+        spec, snapshot, handle, bank = self.cloud_fixture()
+        try:
+            seen = []
+            real_read = handle._read_bound_member
+            def audited(logical, mapping):
+                seen.append(logical)
+                return real_read(logical, mapping)
+            output = self.target_root / 'consumer-bank.json'
+            with mock.patch.object(handle, '_read_bound_member', side_effect=audited):
+                receipt = handle.consume_cloud_diagnostic(spec, output)
+            self.assertIn('origin/A/build/main.c', seen)
+            self.assertFalse((handle.root_path / 'origin/A/build/main.c').exists())
+            value = json.loads(output.read_bytes())
+            self.assertEqual(value['bank_id'], bank['bank_id'])
+            self.assertEqual(value['moves'], bank['moves'])
+            self.assertEqual(value['files']['broad']['path'],
+                             str(handle.root_path / 'origin/A/__rove_seed_build_v1__/broad.pgn'))
+            self.assertTrue(receipt['workflow_revalidated'])
+            self.assertTrue(receipt['logical_alias_consumed'])
+            self.assertEqual(receipt['bank'], {'path': str(output), **layout.cloud.pin(output.read_bytes())})
+            for name in ('host_authenticated', 'producer_authenticated', 'runtime_qualified',
+                         'score_qualified', 'go_authorized', 'later_file_immutability_proven'):
+                self.assertIs(receipt[name], False)
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_cloud_consumer_rejects_wrong_spec_and_pinned_file_exchange(self):
+        spec, snapshot, handle, _ = self.cloud_fixture()
+        try:
+            other = replace(spec, request=replace(spec.request, seed_version_id='other-version'))
+            output = self.target_root / 'wrong-request-bank.json'
+            with self.assertRaises(ValueError):
+                handle.consume_cloud_diagnostic(other, output)
+            self.assertFalse(output.exists())
+            # Reject a protected output path before attempting to open it.
+            with self.assertRaises(ValueError):
+                handle.consume_cloud_diagnostic(spec, self.target_root / '.env' / 'bank.json')
+            output.symlink_to('unrelated-missing-target')
+            with self.assertRaises(ValueError):
+                handle.consume_cloud_diagnostic(spec, output)
+            output.unlink()
+            chosen = handle.root_path / handle.physical_for('origin/A/build/main.c', spec)
+            chosen.write_bytes(b'X' * chosen.stat().st_size)
+            with self.assertRaises(ValueError):
+                handle.consume_cloud_diagnostic(spec, output)
+            self.assertFalse(output.exists())
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_cloud_consumer_rejects_an_internally_replaced_layout(self):
+        spec, snapshot, handle, _ = self.cloud_fixture()
+        try:
+            other, _, _ = pinned_fixture()
+            other.files['origin/A/build/main.c'] = b'/* altered source */\n'
+            other.reseal()
+            raw, sha = archive_bytes(other.seed, other.files)
+            import hashlib
+            handle._layout = layout.build_layout(raw, expected_archive_sha256=hashlib.sha256(raw).hexdigest(),
+                expected_archive_bytes=len(raw), expected_manifest_sha256=sha,
+                expected_origin=other.seed['source_origin'])
+            output = self.target_root / 'replaced-layout-bank.json'
+            with self.assertRaises(ValueError):
+                handle.consume_cloud_diagnostic(spec, output)
+            self.assertFalse(output.exists())
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_cloud_consumer_rechecks_after_bank_was_written(self):
+        spec, snapshot, handle, _ = self.cloud_fixture()
+        try:
+            output = self.target_root / 'untrusted-partial-bank.json'
+            chosen = handle.root_path / handle.physical_for('origin/A/build/main.c', spec)
+            original = layout.cloud._rebase_bank_reader
+            def exchange(*args, **kwargs):
+                result = original(*args, **kwargs)
+                chosen.write_bytes(b'X' * chosen.stat().st_size)
+                return result
+            with mock.patch.object(layout.cloud, '_rebase_bank_reader', side_effect=exchange):
+                with self.assertRaises(ValueError):
+                    handle.consume_cloud_diagnostic(spec, output)
+            self.assertTrue(output.exists(), 'partial results are retained but untrusted')
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_cloud_consumer_detects_bank_output_change_before_return(self):
+        spec, snapshot, handle, _ = self.cloud_fixture()
+        try:
+            output = self.target_root / 'tampered-bank.json'
+            original = layout.cloud._rebase_bank_reader
+            def exchange(*args, **kwargs):
+                result = original(*args, **kwargs)
+                output.write_bytes(b'X' * output.stat().st_size)
+                return result
+            with mock.patch.object(layout.cloud, '_rebase_bank_reader', side_effect=exchange):
+                with self.assertRaisesRegex(ValueError, 'bank output changed'):
+                    handle.consume_cloud_diagnostic(spec, output)
+            self.assertTrue(output.exists())
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_bank_writer_uses_held_parent_when_path_is_temporarily_exchanged(self):
+        spec, snapshot, handle, _ = self.cloud_fixture()
+        moved = self.target_root.with_name('target-held-parent')
+        output = self.target_root / 'bank-result.json'
+        original = layout.cloud._rebase_bank_reader
+        observations = []
+        def exchange(*args, **kwargs):
+            writer = kwargs['writer']
+            def exchanged_writer(path, value):
+                self.target_root.rename(moved)
+                self.target_root.mkdir(mode=0o700)
+                try:
+                    writer(path, value)
+                    observations.append(((self.target_root / output.name).exists(),
+                                         (moved / output.name).is_file()))
+                finally:
+                    self.target_root.rmdir()
+                    moved.rename(self.target_root)
+            kwargs['writer'] = exchanged_writer
+            return original(*args, **kwargs)
+        try:
+            with mock.patch.object(layout.cloud, '_rebase_bank_reader', side_effect=exchange):
+                handle.consume_cloud_diagnostic(spec, output)
+            self.assertEqual(observations, [(False, True)])
+            self.assertTrue(output.is_file())
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_bound_member_lookup_scales_logarithmically(self):
+        handle = self.materialize()
+        entry = next(row for row in handle._layout.entries if row.logical == 'origin/A/build/main.c')
+        rows = [replace(entry, logical=f'a-{index:05d}') for index in range(4096)]
+        rows.append(replace(entry, logical='z-target'))
+        class Counted:
+            def __init__(self, values):
+                self.values, self.accesses = values, 0
+            def __len__(self):
+                return len(self.values)
+            def __getitem__(self, index):
+                self.accesses += 1
+                return self.values[index]
+        entries = Counted(rows)
+        mapping = types.SimpleNamespace(entries=entries)
+        self.assertEqual(handle._read_bound_member('z-target', mapping),
+                         self.fixture.files['origin/A/build/main.c'])
+        self.assertLess(entries.accesses, 20)
 
     def test_original_logical_name_resolves_to_sealed_alias_bytes(self):
         handle = self.materialize()

@@ -7,6 +7,7 @@ authentication, cloud-runtime integration and scored GO remain unproven.
 """
 from __future__ import annotations
 
+from bisect import bisect_left
 import hashlib
 import io
 import os
@@ -170,10 +171,14 @@ class MaterializedSeed:
 
     def _read_bound_member(self, logical, mapping):
         self._check_root()
-        matches = [entry for entry in mapping.entries if entry.logical == logical]
-        if len(matches) != 1:
+        # Layout validates an exact, uniquely sorted entry tuple.  A binary
+        # search keeps full-tree verification subquadratic for large seeds.
+        if type(logical) is not str:
             raise ValueError('logical member is not an exact sealed file')
-        entry = matches[0]
+        index = bisect_left(mapping.entries, logical, key=lambda row: row.logical)
+        if index == len(mapping.entries) or mapping.entries[index].logical != logical:
+            raise ValueError('logical member is not an exact sealed file')
+        entry = mapping.entries[index]
         parts = entry.physical.split('/')
         parent = _walk(self._root_fd, parts[:-1])
         owned = [parent]
@@ -248,6 +253,101 @@ class MaterializedSeed:
                 'crash_durability_proven': False, 'atomic_tree_snapshot_proven': False,
                 'host_authenticated': False, 'producer_authenticated': False,
                 'cloud_consumer_integrated': False, 'runtime_qualified': False, 'go_authorized': False}
+
+    def consume_cloud_diagnostic(self, spec, bank_out):
+        """Run cloud's seed and bank consumers through this pinned alias tree.
+
+        The independently supplied request, entire tree and immutable archive
+        are checked before and after the consumer.  Each member read checks its
+        original manifest pin through retained dirfds; archive verification is
+        not repeated once per member.  The resulting bank contains physical
+        paths, which are not frozen for a later executable.  This diagnostic
+        confers neither host/source authority nor permission to start a game.
+        On failure an output already written is untrusted and is not removed.
+        """
+        self.verify_for(spec)
+        mapping = self._bind(spec)
+        seed = mapping.manifest
+        cloud = layout.cloud
+        target = Path(bank_out)
+        if not target.is_absolute() or '..' in target.parts:
+            raise ValueError('absolute protected-safe bank output required')
+        layout._parts(target.name)
+        parent, parent_fd = _safe_stage_root(target.parent)
+        with _closing([parent_fd]):
+            try:
+                os.stat(target.name, dir_fd=parent_fd, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                raise ValueError('bank output must be a new file')
+            output_pin = {}
+
+            def reader(logical):
+                return self._read_bound_member(logical, mapping)
+
+            def physical(logical):
+                # Re-pin at lookup time, too; the returned pathname alone is not a
+                # durable capability and must be revalidated before later use.
+                reader(logical)
+                return self.root_path / mapping.physical_for(logical)
+
+            def owned_json(path, value):
+                if Path(path) != target:
+                    raise ValueError('unexpected bank output path')
+                data = cloud.ledger.canonical(value) + b'\n'
+                flags = (os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW |
+                         getattr(os, 'O_CLOEXEC', 0))
+                fd = os.open(target.name, flags, 0o600, dir_fd=parent_fd)
+                with _closing([fd]):
+                    written = 0
+                    payload = memoryview(data)
+                    while written < len(data):
+                        count = os.write(fd, payload[written:])
+                        if count <= 0:
+                            raise OSError('short bank output write')
+                        written += count
+                    os.fsync(fd)
+                    st = _file_stat(fd, 0o600, len(data))
+                    entry = os.stat(target.name, dir_fd=parent_fd, follow_symlinks=False)
+                    if _identity(st) != _identity(entry) or entry.st_size != len(data):
+                        raise ValueError('bank output inode changed during write')
+                    output_pin.update({'identity': _identity(st), **cloud.pin(data)})
+
+            workflow = cloud._revalidate_seed_reader(seed, reader)
+            bank = cloud._rebase_bank_reader(seed, reader, physical, target, writer=owned_json)
+            _, current = _safe_stage_root(parent)
+            with _closing([current]):
+                if _identity(os.fstat(current)) != _identity(os.fstat(parent_fd)):
+                    raise ValueError('bank output directory changed during cloud consumption')
+            self.verify_for(spec)
+            fd = os.open(target.name, _READ_FLAGS, dir_fd=parent_fd)
+            with _closing([fd]):
+                before = _file_stat(fd, 0o600, output_pin['bytes'])
+                data = bytearray()
+                while len(data) <= output_pin['bytes']:
+                    chunk = os.read(fd, min(65536, output_pin['bytes'] + 1 - len(data)))
+                    if not chunk:
+                        break
+                    data.extend(chunk)
+                after = _file_stat(fd, 0o600, output_pin['bytes'])
+                entry = os.stat(target.name, dir_fd=parent_fd, follow_symlinks=False)
+                if (_identity(before) != output_pin['identity'] or _identity(after) != output_pin['identity']
+                        or _identity(entry) != output_pin['identity'] or cloud.pin(bytes(data)) !=
+                        {key: output_pin[key] for key in ('bytes', 'sha256')}):
+                    raise ValueError('bank output changed before diagnostic completion')
+            _, current = _safe_stage_root(parent)
+            with _closing([current]):
+                if _identity(os.fstat(current)) != _identity(os.fstat(parent_fd)):
+                    raise ValueError('bank output directory changed before diagnostic completion')
+        return {'format': 'rove4k-materialized-cloud-consumer-diagnostic-v1',
+                'seed_manifest_sha256': mapping.manifest_sha256,
+                'workflow_revalidated': workflow is not None,
+                'bank': {'path': str(bank), 'bytes': output_pin['bytes'], 'sha256': output_pin['sha256']},
+                'logical_alias_consumed': True,
+                'later_file_immutability_proven': False, 'host_authenticated': False,
+                'producer_authenticated': False, 'runtime_qualified': False,
+                'score_qualified': False, 'go_authorized': False}
 
     def close(self):
         if not self._closed:
