@@ -79,8 +79,8 @@ class ProbeSessionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
-            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 1000},
-                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 2000}]
+            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 192 << 30}]
             manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
                         "opening_start": 1, "out": str(root / "out")}], "saved_ancestor_cpus": [0, 1],
                         "topology": {"fixture": [1, 2]}, "runner": str(root / "runner"), "runner_sha256": "e" * 64,
@@ -126,8 +126,8 @@ class ProbeSessionTests(unittest.TestCase):
                 owner = session.OwnedProbeCohort.create(root=root, campaign="fixture", manifest_path=root / "m.json",
                     manifest_sha256="f" * 64, per_game_headroom_bytes=2000, controller_headroom_bytes=1000)
                 self.assertEqual(owner.manager.calls[:2], [("controller", [0, 1], [0], 4096),
-                                                          ("slot-000", [0, 1], [0], 8192)])
-                self.assertEqual(owner.artifacts["slot-000"][1]["tt_bytes"], 2000)
+                                                          ("slot-000", [0, 1], [0], (384 << 30) + 4096)])
+                self.assertEqual(owner.artifacts["slot-000"][1]["tt_bytes"], 192 << 30)
                 with patch.object(session.placement, "verify_cgroup_live", side_effect=lambda row: row), \
                      patch.object(session.overhead, "_sha_file", return_value="e" * 64), \
                      patch.object(Path, "read_text", return_value="12345678-1234-1234-1234-123456789abc"), \
@@ -167,12 +167,72 @@ class ProbeSessionTests(unittest.TestCase):
                         manifest_sha256="f" * 64, per_game_headroom_bytes=1, controller_headroom_bytes=1)
                 manager.assert_not_called()
 
+    def test_p192_requires_exact_192_gib_for_each_engine_before_cgroup_creation(self):
+        # These are extent declarations only; no memory is allocated.
+        for which in (0, 1):
+            for extent in (128 << 30, (192 << 30) - 1, (192 << 30) + 1):
+                with self.subTest(engine=which, extent=extent), tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp).resolve()
+                    slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
+                    engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64,
+                                "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
+                               {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64,
+                                "native_sha256": "d" * 64, "tt_bytes": 192 << 30}]
+                    engines[which]["tt_bytes"] = extent
+                    manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
+                                "opening_start": 1, "out": str(root / "out")}],
+                                "saved_ancestor_cpus": [0, 1], "topology": {"fixture": [1, 2]},
+                                "runner": str(root / "runner"), "runner_sha256": "e" * 64,
+                                "opening": str(root / "opening"), "opening_sha256": "f" * 64}
+                    snapshot = SimpleNamespace(allowed_nodes=(0,), allowed_cpus=(0, 1),
+                                               to_record=lambda: {"fixture": (1, 2)})
+                    with patch.object(session.peak_ready_probe, "load_controller_manifest", return_value=manifest), \
+                         patch.object(session.peak_ready_probe, "_file_sha", side_effect=lambda path: {
+                             "runner": "e" * 64, "opening": "f" * 64, "a": "a" * 64, "b": "c" * 64}[path.name]), \
+                         patch.object(session, "_require_delegated_root", return_value=root.stat()), \
+                         patch.object(session.topology.Topology, "snapshot_target", return_value=snapshot), \
+                         patch.object(session.run, "league_placement", return_value=([slot], [0, 1])), \
+                         patch.object(session.placement, "CgroupSlots") as manager, \
+                         patch.object(session.os, "sysconf", return_value=4096, create=True):
+                        with self.assertRaisesRegex(ValueError, "P192 requires exactly|exceeds the profile limit"):
+                            session.OwnedProbeCohort.create(root=root, campaign="fixture", manifest_path=root / "m.json",
+                                manifest_sha256="f" * 64, per_game_headroom_bytes=1, controller_headroom_bytes=1)
+                        manager.assert_not_called()
+
+    def test_p16_rejects_an_engine_over_16_gib_before_cgroup_creation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
+            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64,
+                        "native_sha256": "b" * 64, "tt_bytes": 12 << 30},
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64,
+                        "native_sha256": "d" * 64, "tt_bytes": (16 << 30) + 1}]
+            manifest = {"profile": "test-p16", "entries": [{"slot": slot, "engines": engines,
+                        "opening_start": 1, "out": str(root / "out")}],
+                        "saved_ancestor_cpus": [0, 1], "topology": {"fixture": [1, 2]},
+                        "runner": str(root / "runner"), "runner_sha256": "e" * 64,
+                        "opening": str(root / "opening"), "opening_sha256": "f" * 64}
+            snapshot = SimpleNamespace(allowed_nodes=(0,), allowed_cpus=(0, 1),
+                                       to_record=lambda: {"fixture": (1, 2)})
+            with patch.object(session.peak_ready_probe, "load_controller_manifest", return_value=manifest), \
+                 patch.object(session.peak_ready_probe, "_file_sha", side_effect=lambda path: {
+                     "runner": "e" * 64, "opening": "f" * 64, "a": "a" * 64, "b": "c" * 64}[path.name]), \
+                 patch.object(session, "_require_delegated_root", return_value=root.stat()), \
+                 patch.object(session.topology.Topology, "snapshot_target", return_value=snapshot), \
+                 patch.object(session.run, "league_placement", return_value=([slot], [0, 1])), \
+                 patch.object(session.placement, "CgroupSlots") as manager, \
+                 patch.object(session.os, "sysconf", return_value=4096, create=True):
+                with self.assertRaisesRegex(ValueError, "engine TT exceeds the profile limit"):
+                    session.OwnedProbeCohort.create(root=root, campaign="fixture", manifest_path=root / "m.json",
+                        manifest_sha256="f" * 64, per_game_headroom_bytes=1, controller_headroom_bytes=1)
+                manager.assert_not_called()
+
     def test_owned_cohort_preserves_failed_constructor_identity(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
-            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 1},
-                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 1}]
+            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 192 << 30}]
             manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
                         "opening_start": 1, "out": str(root / "out")}], "saved_ancestor_cpus": [0, 1],
                         "topology": {"fixture": [1, 2]}, "runner": str(root / "runner"), "runner_sha256": "e" * 64,
@@ -198,8 +258,8 @@ class ProbeSessionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
-            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 1},
-                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 1}]
+            engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 192 << 30}]
             manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
                         "opening_start": 1, "out": str(root / "out")}], "saved_ancestor_cpus": [0, 1],
                         "topology": {"fixture": [1, 2]}, "runner": str(root / "runner"), "runner_sha256": "e" * 64,

@@ -280,6 +280,29 @@ class DiagnosticCandidatesTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
 
+    def test_p192_rejects_legacy_128g_peer_before_inspecting_candidate_files(self):
+        self.profile = "test-p192"
+        self.rows = self.rows[:1]
+        artifact = self.rows[0]["artifact"]
+        artifact.update(family="ice4", profile=self.profile, workers=192, entry_bytes=8,
+                        tt_bytes=registry.resource_profile(self.profile).layout(8).bytes)
+        self.assertEqual(artifact["tt_bytes"], 128 << 30)
+        self.write_candidates()
+        with patch.object(candidate, "_pinned_file", side_effect=AssertionError("unexpected candidate read")):
+            with self.assertRaisesRegex(ValueError, "P192 diagnostics require 192 GiB"):
+                candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile, allow_single=True)
+
+    def test_p16_legacy_peer_16g_still_obeys_the_approved_cap(self):
+        self.rows = self.rows[:1]
+        artifact = self.rows[0]["artifact"]
+        artifact.update(family="ice4", entry_bytes=8,
+                        tt_bytes=registry.resource_profile(self.profile).layout(8).bytes)
+        self.assertEqual(artifact["tt_bytes"], 16 << 30)
+        self.write_candidates()
+        rows, _ = candidate.read_candidates(self.candidate_path, self.candidate_sha, self.profile,
+                                            allow_single=True)
+        self.assertEqual(rows[0]["artifact"].tt_bytes, 16 << 30)
+
     def test_registry_digest_and_profile_or_resource_mismatch_rejected(self):
         with self.assertRaisesRegex(ValueError, "identity differs"):
             candidate.read_candidates(self.candidate_path, "0" * 64, self.profile)

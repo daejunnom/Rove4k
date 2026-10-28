@@ -203,6 +203,11 @@ def read_candidates(path, expected_sha256, profile, *, allow_single=False):
                 artifact.family not in ("A", "B", "C", "E", "F", "ice4", "c4ke") or
                 artifact.representation not in ("source-jit", "packed-native") or artifact.id in ids):
             raise ValueError("distinct full non-D general 4K TEST candidates are required")
+        # The approved P192 experiment specifies 192 GiB for each engine.
+        # A legacy 8-byte peer layout rounds down to 128 GiB: it remains a
+        # valid legacy artifact but must not enter this diagnostic cohort.
+        if profile == "test-p192" and artifact.tt_bytes != 192 << 30:
+            raise ValueError("P192 diagnostics require 192 GiB TT per engine")
         whole = _pinned_file({"path": str(artifact.path), "sha256": artifact.sha256,
                               "bytes": artifact.whole_bytes}, expected=artifact.sha256)
         source = _pinned_file(row["source"])

@@ -138,7 +138,8 @@ def inspect_capacity(*, profile, root, games, groups, controller, frozen_topolog
         if any(not isinstance(row, dict) for row in artifacts):
             raise ValueError("engine TT extent differs from the named profile")
         extents = [_positive(row.get("tt_bytes"), "engine TT") for row in artifacts]
-        if any(value > (192 << 30 if profile == "test-p192" else 16 << 30) for value in extents):
+        if (profile == "test-p192" and any(value != 192 << 30 for value in extents) or
+                profile == "test-p16" and any(value > 16 << 30 for value in extents)):
             raise ValueError("engine TT extent differs from the named profile")
         tt = sum(extents)
         declared = tt + per_game

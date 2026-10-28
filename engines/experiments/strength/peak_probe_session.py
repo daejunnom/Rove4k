@@ -145,6 +145,8 @@ class OwnedProbeCohort:
             values = [peak_capacity._positive(engine.get("tt_bytes"), "engine TT") for engine in engines]
             if any(value > cap for value in values):
                 raise ValueError("engine TT exceeds the profile limit")
+            if manifest["profile"] == "test-p192" and any(value != cap for value in values):
+                raise ValueError("P192 requires exactly 192 GiB TT per engine")
             limits[slot.id] = placement._align_memory_extent(sum(values) + per_game, page)
             artifacts[slot.id] = [{key: engine[key] for key in ("id", "whole_sha256", "native_sha256", "tt_bytes")}
                                   for engine in engines]

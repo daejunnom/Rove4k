@@ -84,6 +84,29 @@ class TopologyTests(unittest.TestCase):
         self.assertTrue(all(missing not in slot.cpus for slot in slots))
         self.assertTrue(all(topology.cpus[0].physical not in slot.physical_cores for slot in slots))
 
+    def test_p16_four_nodes_keep_eleven_slots_and_validate_siblings(self):
+        topology = guest(4, 24)
+        slots = plan_slots(topology, 8, 16, reserve_physical=8)
+        self.assertEqual(len(slots), 11)
+        self.assertEqual(sorted(sum(slot.memory_nodes == (node,) for slot in slots)
+                                for node in topology.allowed_nodes), [2, 3, 3, 3])
+        used = {cpu for slot in slots for cpu in slot.cpus}
+        self.assertEqual(len(used), 176)
+        self.assertEqual(len(set(topology.allowed_cpus) - used), 16)
+
+        rows = list(topology.cpus)
+        rows[0] = replace(rows[0], siblings=(rows[0].id, rows[2].id))
+        with self.assertRaisesRegex(ValueError, "mutually observed siblings"):
+            plan_slots(replace(topology, cpus=tuple(rows)), 8, 16, reserve_physical=8)
+
+    def test_non_smt_slot_accepts_a_partially_allowed_sibling_pair(self):
+        topology = guest(1, 16)
+        missing = topology.cpus[0].siblings[1]
+        restricted = replace(topology, allowed_cpus=tuple(cpu for cpu in topology.allowed_cpus if cpu != missing))
+        slots = plan_slots(restricted, 4, 4, reserve_physical=0)
+        self.assertEqual(len(slots), 4)
+        self.assertTrue(any(topology.cpus[0].id in slot.cpus for slot in slots))
+
     def test_p192_full_slot_preserves_uneven_nodes_and_all_smt_siblings(self):
         original = guest(1, 96)
         # Deliberately uneven: 72 cores in node 0, 24 in node 1.

@@ -36,6 +36,8 @@ class Fixture:
         self.profile = profile
         self.workers = 16 if profile == "test-p16" else 192
         self.count = 11 if self.workers == 16 else 1
+        first_tt, second_tt = ((12 << 30, 16 << 30) if self.workers == 16
+                               else (192 << 30, 192 << 30))
         self.cpu_masks = {}
         self.games = []
         self.members = {}
@@ -46,9 +48,9 @@ class Fixture:
             self.group(directory, cpus, nodes)
             self.games.append({"slot": directory.name, "path": directory, "cpus": cpus, "nodes": nodes,
                                "artifacts": [{"id": "A", "whole_sha256": "a" * 64,
-                                              "native_sha256": sha(ENGINE1), "tt_bytes": 12 << 30},
+                                              "native_sha256": sha(ENGINE1), "tt_bytes": first_tt},
                                              {"id": "B", "whole_sha256": "b" * 64,
-                                              "native_sha256": sha(ENGINE2), "tt_bytes": 16 << 30}]})
+                                              "native_sha256": sha(ENGINE2), "tt_bytes": second_tt}]})
         self.control = self.root / "controller"
         control_cpus = tuple(range(176, 192)) if self.workers == 16 else tuple(range(192))
         self.group(self.control, control_cpus, (0, 1, 2, 3) if self.workers == 16 else (0, 1))
@@ -241,6 +243,25 @@ class CohortPeakObservationTests(unittest.TestCase):
                 overhead.CohortPeakObserver(profile="test-p16", root=fixture.root, games=fixture.games,
                                              controller=fixture.control, runner_sha256=sha(RUNNER),
                                              proc_root=fixture.proc, affinity=lambda _: {0})
+
+    def test_profile_tt_extent_contracts_apply_to_each_engine(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = Fixture(tmp, "test-p16")
+            self.assertEqual([row["tt_bytes"] for row in fixture.observer.games[0]["artifacts"]],
+                             [12 << 30, 16 << 30])
+        for engine_index in (0, 1):
+            for value in (128 << 30, (192 << 30) - 1, (192 << 30) + 1):
+                with self.subTest(engine=engine_index, tt_bytes=value), tempfile.TemporaryDirectory() as tmp:
+                    fixture = Fixture(tmp, "test-p192")
+                    fixture.games[0]["artifacts"][engine_index]["tt_bytes"] = value
+                    with self.assertRaisesRegex(ValueError, "exactly 192 GiB"):
+                        overhead.CohortPeakObserver(profile="test-p192", root=fixture.root, games=fixture.games,
+                                                     controller=fixture.control, runner_sha256=sha(RUNNER),
+                                                     proc_root=fixture.proc, affinity=lambda _: {0})
+        with tempfile.TemporaryDirectory() as tmp:
+            fixture = Fixture(tmp, "test-p192")
+            self.assertEqual([row["tt_bytes"] for row in fixture.observer.games[0]["artifacts"]],
+                             [192 << 30, 192 << 30])
 
     def test_wrong_native_and_wrong_worker_affinity_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

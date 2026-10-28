@@ -235,6 +235,11 @@ def plan_slots(topology, physical, workers, *, reserve_physical=8, max_slots=Non
             raise ValueError("siblings disagree about their memory node")
         if len(siblings) < (2 if smt else 1):
             continue
+        if smt:
+            ids = {cpu.id for cpu in siblings}
+            if (len(siblings) != 2 or
+                    any(len(cpu.siblings) != 2 or set(cpu.siblings) != ids for cpu in siblings)):
+                raise ValueError("SMT slots require two mutually observed siblings per core")
         by_node[siblings[0].node].append((key, tuple(cpu.id for cpu in siblings[:2 if smt else 1])))
     if sum(map(len, by_node.values())) < physical + reserve_physical:
         raise ValueError("insufficient physical cores after controller reserve")

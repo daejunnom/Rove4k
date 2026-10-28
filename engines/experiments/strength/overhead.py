@@ -181,8 +181,10 @@ class CohortPeakObserver:
                 frozen.append({"id": artifact["id"], "whole_sha256": _digest(artifact["whole_sha256"]),
                                "native_sha256": _digest(artifact["native_sha256"]),
                                "tt_bytes": _positive(artifact["tt_bytes"], "TT extent")})
-                if frozen[-1]["tt_bytes"] > (16 << 30 if self.workers == 16 else 192 << 30):
-                    raise ValueError("engine TT extent exceeds the profile cap")
+                if self.workers == 16 and frozen[-1]["tt_bytes"] > 16 << 30:
+                    raise ValueError("engine TT extent exceeds the P16 profile cap")
+                if self.workers == 192 and frozen[-1]["tt_bytes"] != 192 << 30:
+                    raise ValueError("P192 requires exactly 192 GiB per engine TT")
             path = self._path(game["path"])
             ids.add(slot)
             paths.append(path)
