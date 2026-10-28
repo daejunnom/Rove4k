@@ -20,6 +20,8 @@ on:
       - 'engines/experiments/strength/test_peer_c4ke_slider_loop.py'
       - 'engines/experiments/strength/peer_c4ke_startpos_loop.py'
       - 'engines/experiments/strength/test_peer_c4ke_startpos_loop.py'
+      - 'engines/experiments/strength/peer_c4ke_quiet_history.py'
+      - 'engines/experiments/strength/test_peer_c4ke_quiet_history.py'
       - 'engines/experiments/strength/peers.py'
       - 'engines/experiments/strength/test_peers.py'
       - '.github/workflows/peer-p192-exact.yml'
@@ -63,6 +65,7 @@ jobs:
           - {peer: c4ke, variant: edit-castle-or-v1, launcher: gnu-tail-v1, codec: literal-v1}
           - {peer: c4ke, variant: edit-castle-slider-v1, launcher: gnu-tail-v1, codec: compact}
           - {peer: c4ke, variant: edit-castle-startpos-v1, launcher: gnu-tail-v1, codec: compact}
+          - {peer: c4ke, variant: edit-castle-quiet-v1, launcher: gnu-tail-v1, codec: compact}
     env:
       PEER: ${{ matrix.peer }}
       SOURCE_VARIANT: ${{ matrix.variant }}
@@ -86,6 +89,7 @@ jobs:
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_edit_structural.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_slider_loop.py'
           python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_startpos_loop.py'
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_c4ke_quiet_history.py'
           python -B -m unittest -v \
             engines.experiments.strength.test_peers.PeerInputs.test_literal_search_roundtrips_repeats_and_orders_ties \
             engines.experiments.strength.test_peers.PeerInputs.test_existing_codec_profiles_retain_previous_rows

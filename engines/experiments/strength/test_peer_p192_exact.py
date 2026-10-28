@@ -170,6 +170,46 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_quiet_candidate_composition_and_guards(self):
+        quiet = exact.peer_c4ke_quiet_history
+        variant = "edit-castle-quiet-v1"
+        original = c4ke_edit_sources()
+        original["src/search.cpp"] += b"\r\n".join(
+            (quiet._SEARCH, quiet._BONUS_BEFORE, quiet._PENALTY_BEFORE))
+        with pin_synthetic("c4ke", original):
+            baseline, _ = exact.transform("c4ke", original, variant="edit-castle-or-v1")
+            changed, proof = exact.transform("c4ke", original, variant=variant)
+            self.assertEqual(exact.restore("c4ke", changed, proof, variant=variant), original)
+            self.assertEqual(proof["tt_bytes"], 192 << 30)
+            for path in set(original) - {"src/search.cpp"}:
+                self.assertEqual(changed[path], baseline[path])
+            expected = baseline["src/search.cpp"]
+            for role, before, after, count in quiet.edit_specs(quiet.VARIANT)["src/search.cpp"]:
+                self.assertEqual(expected.count(before), count)
+                expected = expected.replace(before, after.replace(b"rove_p", b"rove_qp"))
+            self.assertEqual(changed["src/search.cpp"], expected)
+            self.assertIn(b"i32 rove_qp", changed["src/search.cpp"])
+            for other in ("baseline", "edit-castle-or-v1", "edit-castle-alloc24-v1"):
+                with self.assertRaises(ValueError):
+                    exact.restore("c4ke", changed, proof, variant=other)
+            forged = copy.deepcopy(proof)
+            forged["variant"] = "edit-castle-or-v1"
+            with self.assertRaises(ValueError):
+                exact.restore("c4ke", changed, forged, variant=variant)
+            with self.assertRaises(ValueError):
+                exact.source_closure("ice4", variant=variant)
+        for path in original:
+            for identifier in (*quiet.IDENTIFIERS, b"rove_qp"):
+                altered = dict(original)
+                altered[path] += b" " + identifier + b" "
+                with self.subTest(path=path, identifier=identifier), pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                    exact.transform("c4ke", altered, variant=variant)
+        for marker in (quiet._SEARCH, quiet._BONUS_BEFORE, quiet._PENALTY_BEFORE):
+            altered = dict(original)
+            altered["src/search.cpp"] = altered["src/search.cpp"].replace(marker, b"altered", 1)
+            with self.subTest(marker=marker), pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                exact.transform("c4ke", altered, variant=variant)
+
     @unittest.skipUnless(shutil.which("c++"), "a local C++ compiler is required")
     def test_startpos_and_edit_loops_together(self):
         start, edit = exact.peer_c4ke_startpos_loop, exact.peer_c4ke_edit_structural
