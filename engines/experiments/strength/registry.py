@@ -28,6 +28,8 @@ ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$")
 CHECKS = ("reproduction", "size", "startup", "dependencies", "cleanup", "protocol", "legal_moves", "resources", "lifecycle", "placement")
 LEAGUE_PROFILE_OWNER = "engines/scripts/league_resource_profiles.py"
 PEER_EXACT_P192_LAYOUT = "peer-p192-exact-3x2p33-v1"
+# Requested UCI Hash with assumed 8-byte entry; not an ABI or allocation proof.
+PEER_ORIGINAL_UCI_LAYOUT = "peer-original-uci-assumed-entry8-v1"
 
 
 def resource_profile(profile_id):
@@ -348,13 +350,19 @@ class Artifact:
         if self.layout_id is None:
             if self.tt_bytes != profile.layout(self.entry_bytes).bytes:
                 raise ValueError("artifact TT extent differs from actual profile layout")
-        elif (type(self.layout_id) is not str or self.layout_id != PEER_EXACT_P192_LAYOUT or
-              self.family not in ("ice4", "c4ke") or self.profile != "test-p192" or
-              self.purpose != "test" or type(self.workers) is not int or self.workers != 192 or
-              type(self.entry_bytes) is not int or self.entry_bytes != 8 or
-              type(self.tt_bytes) is not int or self.tt_bytes != 192 << 30 or
-              self.representation != "source-jit" or self.full is not True):
-            raise ValueError("explicit peer P192 TT layout contract differs")
+        elif self.layout_id == PEER_EXACT_P192_LAYOUT:
+            if (self.family not in ("ice4", "c4ke") or self.profile != "test-p192" or
+                    self.purpose != "test" or self.workers != 192 or self.entry_bytes != 8 or
+                    self.tt_bytes != 192 << 30 or self.representation != "source-jit" or self.full is not True):
+                raise ValueError("explicit peer P192 TT layout contract differs")
+        elif self.layout_id == PEER_ORIGINAL_UCI_LAYOUT:
+            expected = {"test-p16": (16, 16 << 30), "test-p192": (192, 256 << 30)}
+            if (self.family not in ("ice4", "c4ke") or self.purpose != "test" or
+                    (self.workers, self.tt_bytes) != expected.get(self.profile) or self.entry_bytes != 8 or
+                    self.representation != "configurable-native" or self.full is not True):
+                raise ValueError("original peer UCI request contract differs")
+        else:
+            raise ValueError("unknown explicit peer TT layout")
         if self.representation not in ("source-jit", "packed-native", "self-contained-elf", "configurable-native"):
             raise ValueError("unknown artifact representation")
         if type(self.full) is not bool or type(self.whole_bytes) is not int or self.whole_bytes <= 0:

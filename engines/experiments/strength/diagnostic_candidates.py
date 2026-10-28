@@ -10,7 +10,7 @@ The candidate-set JSON has format ``rove4k-diagnostic-candidate-set-v1``, a
 ``profile`` and ``candidates``. Each candidate has a registry Artifact record,
 ``source`` and ``native`` records (absolute path, bytes, sha256), and an
 ``evidence`` record. Evidence can be ``file-pins-only`` (no source-contract
-claim), ``rove-profile-build-v1`` with a pinned ``build`` report, or
+claim), ``original-peer-build-v1`` (original source/native pin replay only), ``rove-profile-build-v1`` with a pinned ``build`` report, or
 ``peer-reference-v1`` with pinned ``build`` and ``reference`` reports. The
 registry JSON and opening bank each require their own externally supplied SHA.
 Output uses a distinct lock format; it is never a scored league plan.
@@ -218,6 +218,61 @@ def _source_evidence(evidence, artifact, whole, source, native):
                 _b_producer_matches(_strict_json(producer_raw), artifact.profile, correlation)
                 result["b_static_correlation"] = correlation
         return result
+    if kind == "original-peer-build-v1" and set(evidence) == {"kind", "build"}:
+        # This is a pin replay only. A JSON receipt and a matching second
+        # executable cannot authenticate the compiler or establish allocation.
+        if (artifact.family not in ("ice4", "c4ke") or
+                artifact.layout_id != registry.PEER_ORIGINAL_UCI_LAYOUT or
+                artifact.representation != "configurable-native"):
+            raise ValueError("original build evidence requires an original peer candidate")
+        try:
+            from . import original_peer_build as original
+        except ImportError:
+            import original_peer_build as original
+        report_path = _pinned_file(evidence["build"])
+        report, _ = run.json_input(report_path, evidence["build"]["sha256"])
+        base = report_path.parent
+        original._outside_checkout(base / "reserved-original-output")
+        if type(report) is not dict:
+            raise ValueError("original peer build report must be an object")
+        files = {}
+        for name in original.source_names(artifact.family):
+            path = _safe_input_path(base / name)
+            if not path.is_file() or not 0 < path.stat().st_size <= original.MAX_SOURCE_BYTES:
+                raise ValueError("original peer source is not a bounded file")
+            files[name] = path.read_bytes()
+        snapshot = original.source_record(artifact.family, artifact.profile, files)
+        expected_uci = snapshot["requested_uci"]
+        attempts = report.get("attempts") if type(report) is dict else None
+        if (report.get("format") != "rove4k-original-peer-build-v1" or
+                report.get("purpose") != "test-only" or
+                (report.get("peer"), report.get("profile"), report.get("revision")) !=
+                (artifact.family, artifact.profile, snapshot["revision"]) or
+                report.get("source") != snapshot["source"] or
+                report.get("source_closure_sha256") != snapshot["source_closure_sha256"] or
+                report.get("requested_uci") != expected_uci or
+                type(report.get("compiler")) is not dict or
+                report["compiler"].get("flags") != list(original._FLAGS[artifact.family]) or
+                report.get("source_modified_by_builder") is not False or
+                report.get("uci_setup_performed") is not False or
+                report.get("complete") is not True or report.get("same_host_native_reproduced") is not True or
+                report.get("engines_executed") != 0 or type(attempts) is not list or len(attempts) != 2 or
+                source != base / "src/main.cpp" or whole != native or native != base / "peer-native-1"):
+            raise ValueError("original peer build identity differs")
+        for index, attempt in enumerate(attempts, 1):
+            path = _safe_input_path(base / ("peer-native-" + str(index)))
+            if (type(attempt) is not dict or attempt.get("name") != path.name or
+                    type(attempt.get("bytes")) is not int or not 0 < attempt["bytes"] <= original.MAX_NATIVE_BYTES or
+                    path.stat().st_size != attempt["bytes"] or registry.file_sha(path) != attempt.get("sha256") or
+                    (attempt["bytes"], attempt["sha256"]) != (artifact.whole_bytes, artifact.native_sha256)):
+                raise ValueError("original peer native attempts differ")
+        if artifact.sha256 != artifact.native_sha256:
+            raise ValueError("original whole and native pins differ")
+        return {"kind": kind, "build_sha256": evidence["build"]["sha256"],
+                "source_contract_verified": True, "native_reference_files_replay_verified": True,
+                "source_to_native_proven": False, "tt_abi_verified": False,
+                "allocation_observed": False, "runtime_qualified": False, "scored_game_admitted": False,
+                "requested_uci": {"threads": artifact.workers, "hash_mib": expected_uci["hash_mib"]}}
     if kind == "peer-reference-v1" and set(evidence) == {"kind", "build", "reference"}:
         if artifact.family not in ("ice4", "c4ke"):
             raise ValueError("peer evidence is for pinned comparison peers only")
@@ -295,18 +350,24 @@ def read_candidates(path, expected_sha256, profile, *, allow_single=False):
         artifact = registry.Artifact.from_record(row["artifact"])
         if (artifact.profile != profile or artifact.purpose != "test" or not artifact.full or
                 artifact.family not in ("A", "B", "C", "E", "F", "ice4", "c4ke") or
-                artifact.representation not in ("source-jit", "packed-native") or artifact.id in ids):
+                artifact.representation not in ("source-jit", "packed-native", "configurable-native") or artifact.id in ids):
             raise ValueError("distinct full non-D general 4K TEST candidates are required")
         # The approved P192 experiment specifies 192 GiB for each engine.
         # A legacy 8-byte peer layout rounds down to 128 GiB: it remains a
         # valid legacy artifact but must not enter this diagnostic cohort.
-        if profile == "test-p192" and artifact.tt_bytes != 192 << 30:
+        original_peer = artifact.layout_id == registry.PEER_ORIGINAL_UCI_LAYOUT
+        if artifact.representation == "configurable-native" and not original_peer:
+            raise ValueError("configurable native requires the original peer UCI request contract")
+        if original_peer and (type(row["evidence"]) is not dict or
+                              row["evidence"].get("kind") != "original-peer-build-v1"):
+            raise ValueError("original peer candidates require pinned original build evidence")
+        if profile == "test-p192" and not original_peer and artifact.tt_bytes != 192 << 30:
             raise ValueError("P192 diagnostics require 192 GiB TT per engine")
         # A peer layout identifies geometry only.  Until exact-P192 peer source
         # and native reference have a dedicated proof, reject the entire peer
         # family here: a fabricated 24-byte legacy layout must not bypass the
         # exact-layout gate via file-pins-only evidence either.
-        if profile == "test-p192" and artifact.family in ("ice4", "c4ke"):
+        if profile == "test-p192" and artifact.family in ("ice4", "c4ke") and not original_peer:
             raise ValueError("P192 peer diagnostic awaits source and native reference verification")
         whole = _pinned_file({"path": str(artifact.path), "sha256": artifact.sha256,
                               "bytes": artifact.whole_bytes}, expected=artifact.sha256)
@@ -335,6 +396,8 @@ def build_inputs(*, candidate_path, candidate_sha256, profile, bank_path, bank_s
     if not run.stage_profile_allowed(stage, profile):
         raise ValueError("diagnostic stage and profile differ")
     rows, input_sha = read_candidates(candidate_path, candidate_sha256, profile)
+    if any(row["artifact"].representation == "configurable-native" for row in rows):
+        raise ValueError("pre-GO controller does not yet bind original peer UCI options")
     runner_binary, runner_receipt = _safe_input_path(runner_binary), _safe_input_path(runner_receipt)
     bank_path = _safe_input_path(bank_path)
     runner = run.runner_identity(runner_binary, runner_receipt)
