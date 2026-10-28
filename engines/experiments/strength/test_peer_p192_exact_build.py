@@ -85,6 +85,8 @@ class ExactProducerTests(unittest.TestCase):
                 self.assertTrue(record["algorithm_changed"])
                 self.assertEqual(record["license"]["spdx"], "GPL-3.0" if name == "ice4" else "MIT")
                 self.assertEqual(record["license"]["sha256"], exact.peers.sha(original["LICENSE"]))
+                self.assertTrue(record["license"]["distribution_conditions_summary"])
+                self.assertIn("upstream license text controls", record["license"]["scope"])
                 self.assertFalse(record["qualification"]["emitted_tt_semantics_verified"])
                 self.assertFalse(record["qualification"]["runtime_qualified"])
                 self.assertFalse(record["qualification"]["league_qualified"])

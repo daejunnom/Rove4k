@@ -36,6 +36,11 @@ except ImportError:
 _BLOCKED = frozenset((".ssh", ".aws", ".npmrc", "node_modules", "dist", "dist-server", "build",
                       "coverage", "models", "checkpoints", ".cache", "package-lock.json",
                       "id_rsa", "id_ed25519", "id_dsa", "id_ecdsa", "inventory.json"))
+_LICENSE_DISTRIBUTION = {
+    "ice4": ["When conveying modified versions, retain the required notices and license and identify changes.",
+             "Convey modified works under GPL-3.0; object-code conveyance requires corresponding source under its permitted terms."],
+    "c4ke": ["When distributing copies or substantial portions, include the copyright and permission notices."],
+}
 
 
 def _emitted_clues(source):
@@ -209,7 +214,9 @@ def build(name, source, out, *, run=runner.run, codec_search="compact"):
         "source_url": peer.source_url,
         "license": {"spdx": peer.license, "source_url": peer.raw_url("LICENSE"),
                     "git_blob": peers.git_blob(original["LICENSE"]),
-                    "sha256": peers.sha(original["LICENSE"])},
+                    "sha256": peers.sha(original["LICENSE"]),
+                    "distribution_conditions_summary": _LICENSE_DISTRIBUTION[name],
+                    "scope": "brief distribution summary; the pinned upstream license text controls"},
         "resources": {"workers": exact.WORKERS, "entry_bytes": 8,
                       "tt_entries": exact.ENTRIES, "tt_bytes": exact.TT_BYTES,
                       "index": "upper48-times3-shift15"},
