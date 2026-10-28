@@ -6,6 +6,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import tempfile
 import time
@@ -125,6 +127,140 @@ class LifecycleTests(unittest.TestCase):
         self.assertNotIn(b"quit\n", owned.sent)
         self.assertFalse(owned.input_closed)
 
+    def test_active_callback_runs_before_terminal_and_completion_race_is_rejected(self):
+        for label in ("active-quit", "active-eof"):
+            owned = Owned()
+            scope = SimpleNamespace(task_snapshot=lambda _pid: {123: {"cpu_ticks": 0}, 124: {"cpu_ticks": 0}},
+                                    image_snapshot=lambda pid, sha: {"pid": pid, "sha256": sha})
+            worker = {"tid": 124, "start_ticks": 45, "cpus": [0, 1], "cpu_ticks_first": 0, "cpu_ticks_last": 1}
+            def finish_during_observation():
+                self.assertFalse(owned.input_closed)
+                self.assertNotIn(b"quit\n", owned.sent)
+                owned.stdout.data += b"bestmove e2e4\n"
+                return {"state": "observed"}
+            with self.subTest(label=label), \
+                 mock.patch.object(subject.peer, "_worker_evidence", return_value=worker), \
+                 mock.patch.object(subject.placement, "_process_identity", return_value=IDENTITY), \
+                 mock.patch.object(subject.memory, "_file", return_value="123\n"):
+                with self.assertRaisesRegex(ValueError, "completed before active termination"):
+                    subject._active_termination(owned, scope, [0, 1], label, expected_identity=IDENTITY,
+                        group_path=Path("/unused"), native_sha256="a" * 64, maximum=.1,
+                        before_terminal=finish_during_observation)
+            self.assertFalse(owned.input_closed)
+            self.assertNotIn(b"quit\n", owned.sent)
+
+    def test_incomplete_thread_census_and_tid_reuse_do_not_become_proof(self):
+        scope = SimpleNamespace(task_snapshot=lambda _pid: {123: {"cpu_ticks": 0}, 124: {"cpu_ticks": 0}},
+                                image_snapshot=lambda pid, sha: {"pid": pid, "sha256": sha})
+        calls = []
+        def worker(_pid, tid):
+            calls.append(tid)
+            return {"tid": tid, "start_ticks": 45, "cpus": [0, 1],
+                    "cpu_ticks_first": len(calls), "cpu_ticks_last": len(calls)}
+        with mock.patch.object(subject.peer, "_worker_evidence", side_effect=worker), \
+             mock.patch.object(subject.placement, "_process_identity", return_value=IDENTITY), \
+             mock.patch.object(subject.memory, "_file", return_value="123\n"):
+            result = subject._active_termination(Owned(), scope, [0, 1], "active-quit",
+                expected_identity=IDENTITY, group_path=Path("/unused"), native_sha256="a" * 64,
+                maximum=.04, expected_workers=2)
+            self.assertEqual(result["thread_activity_status"], "incomplete")
+            self.assertIsNotNone(result["thread_activity_incomplete_reason"])
+            self.assertFalse(result["all_declared_thread_activity_observed"])
+            self.assertFalse(result["complete_worker_set_proven"])
+        calls.clear()
+        def reused(_pid, tid):
+            sample = worker(_pid, tid)
+            if len(calls) > 1:
+                sample["start_ticks"] += 1
+            return sample
+        with mock.patch.object(subject.peer, "_worker_evidence", side_effect=reused), \
+             mock.patch.object(subject.placement, "_process_identity", return_value=IDENTITY), \
+             mock.patch.object(subject.memory, "_file", return_value="123\n"):
+            with self.assertRaisesRegex(ValueError, "TID was reused"):
+                subject._active_termination(Owned(), scope, [0, 1], "active-quit",
+                    expected_identity=IDENTITY, group_path=Path("/unused"), native_sha256="a" * 64,
+                    maximum=.1, expected_workers=1)
+
+    def test_b_observation_cross_binds_owner_static_and_never_grants_claims(self):
+        owned = Owned()
+        owner = SimpleNamespace(OWNED=[owned])
+        artifact = SimpleNamespace(native_sha256="a" * 64)
+        group = {"device": 1, "inode": 2, "cpus": [0, 1], "memory_nodes": [0], "memory_max": 20}
+        candidate = {"source": {"sha256": "b" * 64}, "evidence": {"b_static_correlation": {
+            "symbol": "qq", "elf_symbol_offset": 17, "tt_bytes": 24, "native_sha256": "a" * 64,
+            "source_sha256": "b" * 64}}}
+        observed = {"owner": IDENTITY, "boot_id": "boot", "cgroup": group, "native_sha256": "a" * 64,
+                    "symbol_candidate": "qq", "elf_symbol_offset": 17, "declared_range_bytes": 24,
+                    "claims": {"symbol_represents_tt": False, "score_go_authority": False}}
+        with mock.patch.object(subject.functional.rove_b_tt_observe, "observe_owned_b", return_value=observed) as live:
+            result = subject._observe_b(owned, owner, candidate, artifact, IDENTITY, {"path": "cg"},
+                                        "test-p16", {"memory_nodes": [0]}, "boot", group)
+            self.assertEqual(result["state"], "observed")
+            self.assertEqual(result["observation"]["static_correlation"], candidate["evidence"]["b_static_correlation"])
+            live.assert_called_once_with(owned, native_sha256="a" * 64, expected_identity=IDENTITY,
+                cgroup={"path": "cg"}, profile="test-p16", allowed_nodes=[0])
+            observed["claims"]["symbol_represents_tt"] = True
+            with self.assertRaisesRegex(ValueError, "unproven claims"):
+                subject._observe_b(owned, owner, candidate, artifact, IDENTITY, {}, "test-p16",
+                                   {"memory_nodes": [0]}, "boot", group)
+            observed["claims"]["symbol_represents_tt"] = False
+            candidate["evidence"]["b_static_correlation"]["source_sha256"] = "c" * 64
+            with self.assertRaisesRegex(ValueError, "static correlation"):
+                subject._observe_b(owned, owner, candidate, artifact, IDENTITY, {}, "test-p16",
+                                   {"memory_nodes": [0]}, "boot", group)
+        with mock.patch.object(subject.functional.rove_b_tt_observe, "observe_owned_b",
+                side_effect=subject.functional.rove_b_tt_observe.ObservationUnavailable("denied")):
+            result = subject._observe_b(owned, owner, candidate, artifact, IDENTITY, {}, "test-p16",
+                                        {"memory_nodes": [0]}, "boot", group)
+            self.assertEqual(result["state"], "unavailable")
+        with self.assertRaisesRegex(ValueError, "registered owner"):
+            subject._observe_b(owned, SimpleNamespace(OWNED=[]), candidate, artifact, IDENTITY, {},
+                               "test-p16", {"memory_nodes": [0]}, "boot", group)
+
+    @unittest.skipUnless(sys.platform == "linux" and shutil.which("cc") and shutil.which("strip"),
+                         "requires small local ELF compiler and strip")
+    def test_stripped_elf_is_unavailable_but_symbol_ambiguity_and_corruption_fail(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, native, stripped = root / "toy.c", root / "toy", root / "toy-stripped"
+            source.write_text("int main(void){return 0;}\n", encoding="ascii")
+            subprocess.run(["cc", str(source), "-o", str(native)], check=True, capture_output=True)
+            shutil.copyfile(native, stripped)
+            subprocess.run(["strip", "--strip-all", str(stripped)], check=True, capture_output=True)
+            raw, raw_stripped = native.read_bytes(), stripped.read_bytes()
+            self.assertTrue(any(section[1] == 2 for section in subject.peer.Elf64(raw).sections))
+            self.assertFalse(any(section[1] == 2 for section in subject.peer.Elf64(raw_stripped).sections))
+            owned = Owned()
+            owner = SimpleNamespace(OWNED=[owned])
+            artifact = SimpleNamespace(native_sha256=hashlib.sha256(raw_stripped).hexdigest())
+            group = {"device": 1, "inode": 2, "cpus": [0, 1], "memory_nodes": [0], "memory_max": 20}
+            candidate = {"source": {"sha256": "b" * 64}, "evidence": {}}
+            observer = subject.functional.rove_b_tt_observe
+            ambiguity = ValueError("actual TT pointer has no unique ELF object symbol")
+            with mock.patch.object(observer, "observe_owned_b", side_effect=ambiguity), \
+                 mock.patch.object(observer, "_group", return_value=group), \
+                 mock.patch.object(observer, "_boot", return_value="boot"), \
+                 mock.patch.object(subject, "_current_owner"), \
+                 mock.patch.object(observer, "_image", return_value=(raw_stripped, (1, 2, len(raw_stripped)))) as image:
+                args = (owned, owner, candidate, artifact, IDENTITY, {"path": "/unused"},
+                        "test-p16", {"memory_nodes": [0]}, "boot", group)
+                result = subject._observe_b(*args)
+                self.assertEqual(result["state"], "unavailable")
+                self.assertEqual(result["error_type"], "StaticSymbolTableAbsent")
+                image.return_value = (raw, (1, 2, len(raw)))
+                with self.assertRaisesRegex(ValueError, "no unique ELF object"):
+                    subject._observe_b(*args)
+                image.return_value = (b"not an ELF", (1, 2, 10))
+                with self.assertRaisesRegex(ValueError, "ELF64"):
+                    subject._observe_b(*args)
+                image.side_effect = [(raw_stripped, (1, 2, len(raw_stripped))),
+                                     (raw_stripped, (1, 3, len(raw_stripped)))]
+                with self.assertRaisesRegex(ValueError, "owner, image, boot or cgroup changed"):
+                    subject._observe_b(*args)
+            with mock.patch.object(observer, "observe_owned_b", side_effect=ValueError("native pin changed")):
+                with self.assertRaisesRegex(ValueError, "native pin changed"):
+                    subject._observe_b(*args)
+
     def test_original_cgroup_membership_is_checked_before_terminal_request(self):
         with mock.patch.object(subject.placement, "_process_identity", return_value=IDENTITY), \
              mock.patch.object(subject.memory, "_file", return_value="999\n"):
@@ -153,7 +289,7 @@ class LifecycleTests(unittest.TestCase):
                  "memory_nodes": [0], "memory_max": 20 << 30, "observed_at_utc": "first"}
         owner = SimpleNamespace(OWNED=[], Budget=Budget)
         scope = SimpleNamespace(image_snapshot=lambda pid, sha: {"pid": pid, "sha256": sha},
-            task_snapshot=lambda pid: {pid: {"cpu_ticks": 0}, pid + 1: {"cpu_ticks": 0}})
+            task_snapshot=lambda pid: {tid: {"cpu_ticks": 0} for tid in range(pid, pid + 17)})
         oracle = SimpleNamespace(Board=SimpleNamespace(from_fen=lambda: object()))
         reader = SimpleNamespace(read_regular=lambda path, limit: path.read_bytes())
         verifier = SimpleNamespace(support_modules=lambda: (scope, owner, oracle), input_reader=lambda: reader)
@@ -173,9 +309,11 @@ class LifecycleTests(unittest.TestCase):
         def cgroup_file(path):
             return "populated 0\n" if path.name == "cgroup.events" else "123\n223\n323\n423\n"
 
+        ticks = {}
         def worker(_pid, tid):
-            return {"tid": tid, "start_ticks": tid + 1, "cpus": [0, 1],
-                    "cpu_ticks_first": 0, "cpu_ticks_last": 1}
+            ticks[tid] = ticks.get(tid, 0) + 1
+            return {"tid": tid, "start_ticks": tid + 1, "cpus": slot["cpus"],
+                    "cpu_ticks_first": ticks[tid], "cpu_ticks_last": ticks[tid]}
 
         def identity(pid):
             return {"pid": pid, "pgid": pid, "session": pid, "start_ticks": pid + 10, "alive": True}
@@ -206,7 +344,29 @@ class LifecycleTests(unittest.TestCase):
             self.assertFalse(any(report["claims"].values()))
             self.assertEqual(owners[2].sent[-1], b"quit\n")
             self.assertTrue(owners[3].input_closed)
+            for row in report["sessions"][2:]:
+                active = row["active_termination"]
+                self.assertEqual(active["thread_activity_status"], "observed")
+                self.assertEqual(len(active["active_thread_samples"]), 16)
+                self.assertFalse(active["complete_worker_set_proven"])
             self.assertEqual(json.loads((out / "lifecycle.json").read_text())["candidate_set_sha256"], "d" * 64)
+            owners.clear()
+            artifact.family = "B"
+            seen = []
+            def observe_live(owned, *_args):
+                self.assertNotIn(b"quit\n", owned.sent)
+                self.assertFalse(owned.input_closed)
+                seen.append(owned.process.pid)
+                return {"state": "observed", "observation": {"claims": {"symbol_represents_tt": False}}}
+            with mock.patch.object(subject, "_observe_b", side_effect=observe_live):
+                b_report = subject.collect(candidate_path=Path("/unused"), candidate_sha256="d" * 64,
+                    artifact_id="a-p16", profile="test-p16", slot=slot, cgroup={},
+                    saved_ancestor_cpus=slot["cpus"], out=Path(tmp) / "b-lifecycle")
+            self.assertEqual(seen, [123, 223, 323, 423])
+            self.assertEqual([row["b_symbol_candidate"]["state"] for row in b_report["sessions"]],
+                             ["observed"] * 4)
+            self.assertFalse(any(b_report["claims"].values()))
+            artifact.family = "A"
             owners.clear()
             subject.peer._search.side_effect = ValueError("synthetic search failure")
             failed_out = Path(tmp) / "failed"

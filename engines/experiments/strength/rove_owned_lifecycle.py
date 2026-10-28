@@ -136,40 +136,150 @@ def _startup(owned, started):
     return elapsed
 
 
+def _b_has_no_static_symtab(owned, identity, cgroup, native_sha256, boot, group):
+    """Prove only SHT_SYMTAB absence in this pinned, still-owned image."""
+    observer = functional.rove_b_tt_observe
+    pid = identity["pid"]
+    _current_owner(identity, Path(cgroup["path"]))
+    group_keys = ("device", "inode", "cpus", "memory_nodes", "memory_max")
+    before_group = observer._group(pid, cgroup)
+    if observer._boot() != boot or before_group != {key: group[key] for key in group_keys}:
+        raise ValueError("B stripped-image boot or cgroup changed")
+    image, image_identity = observer._image(pid, native_sha256)
+    elf = peer.Elf64(image)
+    for section in elf.sections:
+        if section[1] not in (0, 8):  # SHT_NULL and SHT_NOBITS have no file payload.
+            elf.segment(section[4], section[5])
+    if any(section[1] == 2 for section in elf.sections):  # SHT_SYMTAB
+        return False
+    image_after, identity_after = observer._image(pid, native_sha256)
+    _current_owner(identity, Path(cgroup["path"]))
+    if (owned.exited() or image != image_after or image_identity != identity_after or
+            observer._group(pid, cgroup) != before_group or observer._boot() != boot):
+        raise ValueError("B stripped-image owner, image, boot or cgroup changed")
+    return True
+
+
+def _observe_b(owned, owner, candidate, artifact, identity, cgroup, profile, slot, boot, group):
+    """Observe a B pointer candidate while this exact owned process is alive."""
+    if owned not in owner.OWNED:
+        raise ValueError("B observation requires the original registered owner")
+    try:
+        observed = functional.rove_b_tt_observe.observe_owned_b(
+            owned, native_sha256=artifact.native_sha256, expected_identity=identity,
+            cgroup=cgroup, profile=profile, allowed_nodes=slot["memory_nodes"])
+    except functional.rove_b_tt_observe.ObservationUnavailable as error:
+        return {"state": "unavailable", "error_type": type(error).__name__, "detail": str(error)}
+    except ValueError as error:
+        if (str(error) != "actual TT pointer has no unique ELF object symbol" or
+                not _b_has_no_static_symtab(owned, identity, cgroup, artifact.native_sha256, boot, group)):
+            raise
+        return {"state": "unavailable", "error_type": "StaticSymbolTableAbsent",
+                "detail": "pinned live ELF has no SHT_SYMTAB; B symbol candidate cannot be observed"}
+    group_keys = ("device", "inode", "cpus", "memory_nodes", "memory_max")
+    if (observed["owner"] != identity or observed["boot_id"] != boot or
+            observed["cgroup"] != {key: group[key] for key in group_keys} or
+            observed["native_sha256"] != artifact.native_sha256):
+        raise ValueError("B observation differs from this session's owner, boot, cgroup or native pin")
+    if not observed.get("claims") or any(value is not False for value in observed["claims"].values()):
+        raise ValueError("B candidate observation must not assert unproven claims")
+    static = candidate["evidence"].get("b_static_correlation")
+    if static is not None:
+        functional._bind_b_static_live(observed, static, candidate["source"]["sha256"])
+    return {"state": "observed", "observation": observed}
+
+
 def _active_termination(owned, scope, cpus, label, *, expected_identity, group_path,
-                        native_sha256, maximum=15):
-    """Observe actual nonleader CPU progress before requesting quit or EOF."""
+                        native_sha256, maximum=15, before_terminal=None, expected_workers=None):
+    """Sample task identity and CPU activity in the original active search."""
     if label not in ("active-quit", "active-eof"):
         raise ValueError("active termination label required")
     pid = owned.process.pid
     before = scope.task_snapshot(pid)
+    baseline = {}
+    for tid in before:
+        if tid == pid:
+            continue
+        try:
+            baseline[tid] = peer._worker_evidence(pid, tid)
+        except (FileNotFoundError, ProcessLookupError):
+            continue
     prior_best = len(peer._best_lines(owned))
     owned.send(b"position startpos\ngo wtime 60000 btime 60000 winc 0 binc 0\n")
     deadline = time.monotonic() + owned.budget.left(maximum)
-    evidence = None
-    while evidence is None:
+    evidence, samples, current_ids = None, {}, set()
+    while True:
         if owned.exited() or len(peer._best_lines(owned)) != prior_best:
             raise ValueError("search completed before active termination")
-        for tid in scope.task_snapshot(pid):
+        current_ids = set(scope.task_snapshot(pid)) - {pid}
+        if expected_workers is not None and (len(current_ids) > expected_workers or
+                len(set(samples) | current_ids) > expected_workers):
+            raise ValueError("more observed search threads than declared workers")
+        for tid in sorted(current_ids):
             if tid == pid:
                 continue
             try:
                 sample = peer._worker_evidence(pid, tid)
             except (FileNotFoundError, ProcessLookupError):
                 continue
-            if not sample["cpus"] or not set(sample["cpus"]) <= set(cpus):
+            if sample["cpus"] != sorted(cpus):
                 raise ValueError("observed search thread escaped CPU slot")
             initial = before.get(tid, {}).get("cpu_ticks", 0)
-            if sample["cpu_ticks_last"] > initial:
+            previous = samples.get(tid)
+            base = baseline.get(tid)
+            if base is not None and base["start_ticks"] != sample["start_ticks"]:
+                raise ValueError("thread TID was reused after pre-search observation")
+            if previous is not None:
+                if (previous["start_ticks"] != sample["start_ticks"] or
+                        sample["cpu_ticks_first"] < previous["cpu_ticks_last"]):
+                    raise ValueError("thread identity changed or CPU ticks regressed")
+                previous["cpu_ticks_last"] = sample["cpu_ticks_last"]
+                previous["samples"] += 1
+            else:
+                samples[tid] = {**sample, "samples": 1,
+                                "pre_go": base, "cpu_ticks_before_go": initial}
+            if evidence is None and sample["cpu_ticks_last"] > initial:
                 evidence = {**sample, "cpu_ticks_before_go": initial}
-                break
-        if evidence is None:
-            if time.monotonic() >= deadline:
+        all_active = (expected_workers is not None and len(current_ids) == expected_workers and
+                      set(samples) == current_ids and all(
+                          item["samples"] >= 2 and item["cpu_ticks_last"] > item["cpu_ticks_first"]
+                          for item in samples.values()))
+        if evidence is not None and (expected_workers is None or all_active or time.monotonic() >= deadline):
+            break
+        if time.monotonic() >= deadline:
+            if evidence is None:
                 raise TimeoutError("no nonleader CPU progress before active termination")
-            time.sleep(.01)
+            break
+        time.sleep(.01)
     if owned.exited() or len(peer._best_lines(owned)) != prior_best:
         raise ValueError("search completed before active termination")
     _current_owner(expected_identity, group_path)
+    image = scope.image_snapshot(pid, native_sha256)
+    _current_owner(expected_identity, group_path)
+    if owned.exited() or len(peer._best_lines(owned)) != prior_best:
+        raise ValueError("search completed before active termination")
+    observation = before_terminal() if before_terminal is not None else None
+    _current_owner(expected_identity, group_path)
+    if owned.exited() or len(peer._best_lines(owned)) != prior_best:
+        raise ValueError("search completed before active termination")
+    if all_active:
+        final_ids = set(scope.task_snapshot(pid)) - {pid}
+        if final_ids != current_ids:
+            all_active = False
+        else:
+            for tid in sorted(final_ids):
+                try:
+                    final = peer._worker_evidence(pid, tid)
+                except (FileNotFoundError, ProcessLookupError):
+                    all_active = False
+                    break
+                previous = samples[tid]
+                if (final["start_ticks"] != previous["start_ticks"] or
+                        final["cpu_ticks_first"] < previous["cpu_ticks_last"] or
+                        final["cpus"] != sorted(cpus)):
+                    raise ValueError("thread identity, affinity or CPU ticks changed before termination")
+                previous["cpu_ticks_last"] = final["cpu_ticks_last"]
+                previous["samples"] += 1
     image = scope.image_snapshot(pid, native_sha256)
     _current_owner(expected_identity, group_path)
     if owned.exited() or len(peer._best_lines(owned)) != prior_best:
@@ -180,7 +290,14 @@ def _active_termination(owned, scope, cpus, label, *, expected_identity, group_p
         owned.send(b"quit\n")
     return {"requested": "eof" if label == "active-eof" else "quit",
             "observed_progress_before_request": evidence,
+            "active_thread_samples": [samples[tid] for tid in sorted(samples)],
+            "all_declared_thread_activity_observed": bool(all_active),
+            "thread_activity_status": ("not-requested" if expected_workers is None else
+                "observed" if all_active else "incomplete"),
+            "thread_activity_incomplete_reason": (None if all_active or expected_workers is None else
+                "declared count, repeated positive activity, or final live membership not observed"),
             "pre_terminal_image": image,
+            "b_symbol_candidate": observation,
             "complete_worker_set_proven": False}
 
 
@@ -279,10 +396,15 @@ def collect(*, candidate_path, candidate_sha256, artifact_id, profile, slot, cgr
                 _current_owner(identity, group_path)
                 row["startup_image"] = scope.image_snapshot(identity["pid"], artifact.native_sha256)
                 _current_owner(identity, group_path)
+                observe_b = (lambda: _observe_b(owned, owner, candidate, artifact, identity,
+                    cgroup, profile, slot, boot, original_group)) if artifact.family == "B" else None
                 if label in ("cold", "warm"):
                     row["search"] = peer._search(owned, scope, oracle, [], label,
                         workers=artifact.workers, cpus=slot["cpus"], capture_smt=True)
                     _current_owner(identity, group_path)
+                    if observe_b is not None:
+                        row["b_symbol_candidate"] = observe_b()
+                        _current_owner(identity, group_path)
                     row["pre_terminal_image"] = scope.image_snapshot(identity["pid"], artifact.native_sha256)
                     _current_owner(identity, group_path)
                     owned.send(b"quit\n")
@@ -290,7 +412,10 @@ def collect(*, candidate_path, candidate_sha256, artifact_id, profile, slot, cgr
                 else:
                     row["active_termination"] = _active_termination(
                         owned, scope, slot["cpus"], label, expected_identity=identity, group_path=group_path,
-                        native_sha256=artifact.native_sha256)
+                        native_sha256=artifact.native_sha256, before_terminal=observe_b,
+                        expected_workers=artifact.workers)
+                    if observe_b is not None:
+                        row["b_symbol_candidate"] = row["active_termination"].pop("b_symbol_candidate")
                 row["finish"] = peer._finish_peer(owned, seconds=20)
                 if label.startswith("active-"):
                     closing = peer._best_lines(owned)
