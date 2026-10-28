@@ -27,6 +27,8 @@ import time
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[3]
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
 SOURCE_FILES = (
     "engines/experiments/strength/peer_runtime.py",
     "engines/experiments/strength/peers.py",
@@ -39,6 +41,9 @@ SOURCE_FILES = (
     "engines/tests/chess_oracle.py",
 )
 LEAGUE_SOURCE_FILES = ("engines/scripts/league_resource_profiles.py",)
+CONTROLLED_SOURCE_FILES = tuple("engines/experiments/strength/" + name + ".py" for name in (
+    "functional_probe_session", "functional_uci_probe", "diagnostic_candidates",
+    "peak_capacity", "peak_probe_session", "memory_observation", "run"))
 HELPER_PINS = {
     "engines/compact/tiny-entry-d/verify.py": "18faa69aed5cb5dd85a054ef2e6830463f3d819f5f635d74d55550a877c81eae",
     "engines/tests/chess_oracle.py": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8",
@@ -150,9 +155,9 @@ def process_identity(pid):
     return {"pid": pid, "pgid": int(fields[2]), "session": int(fields[3]), "start_ticks": int(fields[19])}
 
 
-def _freeze(out, *, league_required=False):
+def _freeze(out, *, league_required=False, controlled_required=False):
     pins = {}
-    for relative in SOURCE_FILES + (LEAGUE_SOURCE_FILES if league_required else ()):
+    for relative in SOURCE_FILES + (LEAGUE_SOURCE_FILES if league_required else ()) + (CONTROLLED_SOURCE_FILES if controlled_required else ()):
         data = (ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
         require(relative not in HELPER_PINS or sha(data) == HELPER_PINS[relative], "owned helper changed: " + relative)
         destination = out / "source-closure" / relative
@@ -572,7 +577,82 @@ def checked_child_limit(resource, kind, soft, hard):
     return list(before)
 
 
-def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release, *, runtime_budget=None):
+def _write_controlled_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release,
+                               runtime_budget, controlled):
+    """Load pinned placement bytes and execute a sealed peer snapshot."""
+    require(runtime_budget is not None, "controlled peer needs preflight resource limits")
+    pins = controlled["source_pins"]
+    modules = [(name, str(frozen_root / ("engines/experiments/strength/" + name + ".py")),
+                pins["engines/experiments/strength/" + name + ".py"]["sha256"])
+               for name in ("topology", "placement")]
+    source = "#!/usr/bin/python3 -I\n" + "\n".join((
+        "import fcntl,hashlib,json,os,resource,stat,sys,time,types", "from pathlib import Path",
+        "sys.dont_write_bytecode=True",
+        "def read_safe(path,limit):",
+        " p=Path(path)",
+        " if not p.is_absolute() or '..' in p.parts: raise RuntimeError('unsafe controlled input')",
+        " d=os.open(p.anchor,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)",
+        " try:",
+        "  for part in p.parts[1:-1]:",
+        "   n=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=d);os.close(d);d=n",
+        "  f=os.open(p.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=d)",
+        "  try:",
+        "   s=os.fstat(f)",
+        "   if not stat.S_ISREG(s.st_mode) or s.st_nlink!=1 or s.st_size<0 or s.st_size>limit: raise RuntimeError('controlled input extent differs')",
+        "   chunks=[];left=s.st_size",
+        "   while left:",
+        "    chunk=os.read(f,min(left,65536))",
+        "    if not chunk: raise RuntimeError('short controlled input')",
+        "    chunks.append(chunk);left-=len(chunk)",
+        "   t=os.fstat(f);current=os.stat(p.name,dir_fd=d,follow_symlinks=False)",
+        "   if (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)!=(t.st_dev,t.st_ino,t.st_size,t.st_mtime_ns,t.st_ctime_ns) or (s.st_dev,s.st_ino)!=(current.st_dev,current.st_ino): raise RuntimeError('controlled input changed')",
+        "   return b''.join(chunks)",
+        "  finally: os.close(f)", " finally: os.close(d)",
+        "for name,path,digest in " + repr(modules) + ":",
+        " raw=read_safe(path,1<<20)",
+        " if hashlib.sha256(raw).hexdigest()!=digest: raise RuntimeError('controlled placement source changed')",
+        " mod=types.ModuleType(name);mod.__file__=path;sys.modules[name]=mod;exec(compile(raw,path,'exec'),mod.__dict__)",
+        "placement=sys.modules['placement']",
+        "release=Path(" + repr(str(release)) + ")", "deadline=time.monotonic()+30",
+        "while not release.exists():",
+        " if os.getppid()!=" + str(os.getpid()) + " or time.monotonic()>deadline: raise RuntimeError('owner gate not released')",
+        " time.sleep(.01)",
+        "owner_bytes=read_safe(" + repr(str(owner_record)) + ",65536);owner=json.loads(owner_bytes)",
+        "if hashlib.sha256(owner_bytes).hexdigest()!=read_safe(release,128).decode('ascii').strip() or owner['pid']!=os.getpid(): raise RuntimeError('owner gate identity differs')",
+        "fields=Path('/proc/self/stat').read_text().rsplit(')',1)[1].split()",
+        "if [owner['pgid'],owner['session'],owner['start_ticks']]!=[int(fields[2]),int(fields[3]),int(fields[19])]: raise RuntimeError('original owner process differs')",
+        "def lower(kind,soft,hard):",
+        " before=resource.getrlimit(kind)",
+        " if not 0<soft<=hard or any(v!=resource.RLIM_INFINITY and v<hard for v in before): raise RuntimeError('inherited limit below admitted budget')",
+        " resource.setrlimit(kind,(soft,hard));return list(before)",
+        "as_before=lower(resource.RLIMIT_AS," + str(runtime_budget["address_space_bytes"]) + "," + str(runtime_budget["address_space_bytes"]) + ")",
+        "cpu_before=lower(resource.RLIMIT_CPU," + str(runtime_budget["cpu_seconds"][0]) + "," + str(runtime_budget["cpu_seconds"][1]) + ")",
+        "before=resource.getrlimit(resource.RLIMIT_FSIZE);value=min([64<<20]+[v for v in before if v!=resource.RLIM_INFINITY]);resource.setrlimit(resource.RLIMIT_FSIZE,(value,value))",
+        "target=Path(" + repr(str(whole)) + ");data=read_safe(target,256<<20)",
+        "if hashlib.sha256(data).hexdigest()!=" + repr(controlled["whole_sha256"]) + ": raise RuntimeError('peer candidate changed')",
+        "image=os.memfd_create('rove4k-peer-whole',os.MFD_ALLOW_SEALING);os.fchmod(image,0o700);view=memoryview(data)",
+        "while view:", " written=os.write(image,view)", " if written<=0: raise RuntimeError('short peer snapshot')", " view=view[written:]",
+        "seals=fcntl.F_SEAL_WRITE|fcntl.F_SEAL_GROW|fcntl.F_SEAL_SHRINK|fcntl.F_SEAL_SEAL;fcntl.fcntl(image,fcntl.F_ADD_SEALS,seals)",
+        "if fcntl.fcntl(image,fcntl.F_GET_SEALS)&seals!=seals: raise RuntimeError('peer snapshot not sealed')",
+        "os.set_inheritable(image,True)",
+        "slot=json.loads(read_safe(" + repr(str(slot)) + ",65536))",
+        "if slot!=" + repr(controlled["slot"]) + ": raise RuntimeError('controlled slot changed')",
+        "record=placement.apply_slot(slot,cgroup=" + repr(controlled["cgroup"]) +
+            ",saved_ancestor_cpus=" + repr(controlled["saved_cpus"]) +
+            ",saved_ancestor_nodes=" + repr(controlled["saved_nodes"]) + ")",
+        "record['runtime_limits']={'address_space':list(resource.getrlimit(resource.RLIMIT_AS)),'cpu':list(resource.getrlimit(resource.RLIMIT_CPU))};record['child_inherited_limits']={'address_space':as_before,'cpu':cpu_before}",
+        "p=Path(" + repr(str(placement_record)) + ")",
+        "with p.open('x') as stream:", " stream.write(json.dumps(record,sort_keys=True)+'\\n');stream.flush();os.fsync(stream.fileno())",
+        "os.environ['TMPDIR']=" + repr(str(temporary)), "os.execve(image,[" + repr(str(whole)) + "],os.environ)", "",
+    ))
+    path.write_text(source)
+    path.chmod(0o700)
+
+
+def _write_launcher(path, whole, temporary, slot, placement_record, frozen_root, owner_record, release, *, runtime_budget=None, controlled=None):
+    if controlled is not None:
+        return _write_controlled_launcher(path, whole, temporary, slot, placement_record, frozen_root,
+                                          owner_record, release, runtime_budget, controlled)
     source = "#!/usr/bin/python3 -I\n" + "\n".join((
         "import hashlib,json,os,resource,sys,time", "from pathlib import Path",
         "release=Path(" + repr(str(release)) + ")", "deadline=time.monotonic()+30",
@@ -792,8 +872,178 @@ def _dependencies_live(pid, needed):
     return rows
 
 
+_CONTROLLED_PEER_TOKEN = object()
+
+
+class _ControlledPeer:
+    """One manager-owned diagnostic group, never scored authority."""
+
+    def __init__(self, owner, artifact, reference_sha, candidate_sha256):
+        try:
+            from . import functional_probe_session
+        except ImportError:
+            import functional_probe_session
+        require(type(owner) is functional_probe_session.OwnedFunctionalProbe,
+                "the original owned functional probe is required")
+        self.token = _CONTROLLED_PEER_TOKEN
+        self.owner, self.artifact = owner, artifact
+        self.reference_sha, self.candidate_sha256 = reference_sha, candidate_sha256
+        self.slot = json.loads(json.dumps(owner.slot.to_record()))
+        self.cgroup = json.loads(json.dumps(owner.cgroup))
+        self.launch_record = {"cgroup": self.cgroup,
+                              "slot": self.slot,
+                              "saved_cpus": list(owner.saved_ancestor_cpus),
+                              "saved_nodes": list(owner.saved_ancestor_nodes),
+                              "whole_sha256": artifact.sha256}
+        self.fresh_checked = False
+
+
+def _controlled_peer_events(context):
+    try:
+        from . import functional_uci_probe
+    except ImportError:
+        import functional_uci_probe
+    return functional_uci_probe._events(Path(context.cgroup["path"]))
+
+
+def _check_controlled_sources(context):
+    """Detect changed source bytes, without claiming loaded code attestation."""
+    require(isinstance(getattr(context, "source_pins", None), dict) and
+            set(context.source_pins) == set(SOURCE_FILES + LEAGUE_SOURCE_FILES + CONTROLLED_SOURCE_FILES),
+            "controlled peer source closure is incomplete")
+    for relative, pin in context.source_pins.items():
+        current = ordinary(ROOT / relative).replace(b"\r\n", b"\n")
+        frozen = ordinary(context.frozen / relative).replace(b"\r\n", b"\n")
+        require(len(current) == len(frozen) == pin["bytes"] and
+                sha(current) == sha(frozen) == pin["sha256"],
+                "controlled peer source closure changed: " + relative)
+
+
+def _controlled_peer_quiescent(context):
+    """An owned leaf may retain accounting, but must contain no live tasks."""
+    try:
+        from . import placement, memory_observation
+    except ImportError:
+        import placement, memory_observation
+    placement.verify_cgroup_live(context.cgroup)
+    path = Path(context.cgroup["path"])
+    events = memory_observation._file(path / "cgroup.events")
+    procs = memory_observation._file(path / "cgroup.procs")
+    current = memory_observation._file(path / "memory.current").strip()
+    require(events.splitlines().count("populated 0") == 1 and not procs.strip() and current.isdecimal(),
+            "controlled peer original cgroup is not quiescent")
+    return int(current)
+
+
+def _controlled_peer_preflight(context, layout):
+    """Re-read the actual owned leaf before each peer launch; no reservation."""
+    try:
+        from . import placement, peak_capacity, peak_probe_session, memory_observation
+    except ImportError:
+        import placement, peak_capacity, peak_probe_session, memory_observation
+    group_path = Path(context.cgroup["path"])
+    require(group_path.is_absolute() and group_path.is_relative_to(Path("/sys/fs/cgroup")) and
+            group_path != Path("/sys/fs/cgroup"), "controlled peer requires a visible cgroup2 leaf")
+    manager = context.owner.manager
+    require(type(manager) is placement.CgroupSlots and manager._root_fd is not None and
+            manager._parent_fd is not None and not manager._closed and
+            (group_path, context.cgroup["device"], context.cgroup["inode"]) in manager.created and
+            group_path.parent == manager.parent,
+            "controlled peer lost its original anchored cgroup owner")
+    manager._check_anchored_parent()
+    peak_probe_session._require_delegated_root(group_path)
+    group = placement.verify_cgroup_live(context.cgroup)
+    require(group["cpus"] == context.slot["cpus"] and group["memory_nodes"] == context.slot["memory_nodes"],
+            "controlled peer cgroup masks changed")
+    if not context.fresh_checked:
+        peak_capacity._require_empty(group_path)
+        context.fresh_checked = True
+    current = _controlled_peer_quiescent(context)
+    workers = layout["workers"]
+    required = layout["tt_bytes"] + max(768 << 20, workers * (16 << 20)) + (256 << 20)
+    require(group["memory_max"] >= required, "controlled peer cgroup memory limit is insufficient")
+    capacity = memory_observation.observe_capacity([context.slot], group_path, mask_scope="delegated-only")
+    remaining = peak_capacity._finite_remaining(capacity["delegated_cgroup"])
+    require(min([capacity["host_memavailable_bytes"], *remaining]) >= required and
+            sum(capacity["node_available_bytes"].values()) >= required,
+            "controlled peer current host or visible node/cgroup capacity is insufficient")
+    return {"required_bytes": required, "retained_cgroup_bytes": current, "capacity": capacity,
+            "scope": "point-in-time visible capacity, not a physical reservation or score admission"}
+
+
 @owned_signals
-def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=False, wall_seconds=180):
+def qualify_peer_controlled(*, root, campaign, candidate_path, candidate_sha256, profile,
+                            artifact_id, reference, reference_sha, out, wall_seconds=180):
+    """Run the full peer lifecycle under a fresh owned group, without league admission.
+
+    The existing diagnostic manager owns and removes its original cgroup. Its
+    point-in-time checks do not reserve RAM, authenticate the host, exclude
+    hidden ancestors or establish recovery after supervisor failure.
+    """
+    try:
+        from . import diagnostic_candidates, functional_probe_session
+    except ImportError:
+        import diagnostic_candidates, functional_probe_session
+    rows, digest = diagnostic_candidates.read_candidates(candidate_path, candidate_sha256, profile,
+                                                           allow_single=True)
+    selected = [row for row in rows if row["artifact"].id == artifact_id]
+    require(len(selected) == 1 and digest == candidate_sha256 and
+            selected[0]["artifact"].family in ("ice4", "c4ke") and
+            selected[0]["evidence"].get("kind") == "peer-reference-v1" and
+            selected[0]["evidence"].get("reference_sha256") == reference_sha,
+            "controlled peer requires one matching source-bound peer reference")
+    require(profile != "test-p192" or selected[0]["artifact"].tt_bytes == 192 << 30,
+            "P192 peer diagnostic requires the requested 192 GiB TT, not the current 128 GiB peer layout")
+    global CONSTRUCTING_OWNED, DEFERRED_SIGNAL
+    CONSTRUCTING_OWNED = True
+    try:
+        owner = functional_probe_session.OwnedFunctionalProbe.create(
+            root=root, campaign=campaign, candidate_path=candidate_path, candidate_sha256=candidate_sha256,
+            profile=profile, artifact_id=artifact_id, out=out, wall_seconds=wall_seconds)
+        result, original = None, None
+        try:
+            CONSTRUCTING_OWNED = False
+            if DEFERRED_SIGNAL is not None:
+                pending, DEFERRED_SIGNAL = DEFERRED_SIGNAL, None
+                raise KeyboardInterrupt("controlled peer owner signal " + str(pending))
+            context = _ControlledPeer(owner, selected[0]["artifact"], reference_sha, candidate_sha256)
+            owner._attempted = owner._running = True
+            result = qualify_peer(reference, out, context.slot, reference_sha=reference_sha,
+                                  allow_functional=True, wall_seconds=wall_seconds, _controlled=context)
+            require(isinstance(result, dict) and result.get("qualified") is False and
+                    result.get("admission") is None and isinstance(result.get("record"), dict) and
+                    result["record"].get("complete") is False and
+                    result["record"].get("controlled_diagnostic", {}).get("authorizes_go") is False,
+                    "controlled diagnostic cannot grant league admission")
+        except BaseException as error:
+            original = error
+        finally:
+            CONSTRUCTING_OWNED = True
+            try:
+                owner._running = False
+                try:
+                    errors = owner.close()
+                except BaseException as cleanup:
+                    errors = [{"error": str(cleanup)}]
+            finally:
+                CONSTRUCTING_OWNED = False
+    finally:
+        CONSTRUCTING_OWNED = False
+    if DEFERRED_SIGNAL is not None and original is None:
+        pending, DEFERRED_SIGNAL = DEFERRED_SIGNAL, None
+        original = KeyboardInterrupt("controlled peer cleanup signal " + str(pending))
+    if errors:
+        raise functional_probe_session.FunctionalCleanupFailure(
+            "controlled peer cgroup cleanup requires attention", errors=errors, owner=owner,
+            original=original) from original
+    if original is not None:
+        raise original
+    return result
+
+
+@owned_signals
+def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=False, wall_seconds=180,
+                 _controlled=None):
     require(sys.platform == "linux", "peer execution requires Linux")
     require(not any(os.environ.get(name) for name in ("LD_PRELOAD", "LD_AUDIT", "LD_LIBRARY_PATH")),
             "qualification requires the declared system loader without external interposition")
@@ -812,11 +1062,23 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
     # proof that a namespace has not hidden constrained ancestors. Until the
     # owned supervisor can supply those guarantees, even functional opt-in may
     # not launch a P16/P192 peer through this independent legacy path.
-    require(not large_profile,
+    require(not large_profile or (isinstance(_controlled, _ControlledPeer) and
+                                   _controlled.token is _CONTROLLED_PEER_TOKEN),
             "SMT peer launch awaits controlled cgroup ancestry and memory reservation")
     _verify_frozen(reference_frozen, ref["source_inputs"], league_required=large_profile)
     admitted = validate_build(ref["build"]["path"], ref["build"]["sha256"])
     require(admitted["peer"] == ref["peer"] and admitted["layout"] == ref["resources"], "reference resource identity differs")
+    if large_profile:
+        require(ref["resources"]["id"] != "test-p192" or ref["resources"]["tt_bytes"] == 192 << 30,
+                "P192 peer diagnostic requires the requested 192 GiB TT")
+        require(_controlled.reference_sha == ref_sha and
+                _controlled.artifact.family == admitted["peer"] and
+                _controlled.artifact.profile == ref["resources"]["id"] and
+                _controlled.artifact.tt_bytes == ref["resources"]["tt_bytes"] and
+                _controlled.artifact.sha256 == admitted["record"]["whole"]["sha256"] and
+                _controlled.artifact.native_sha256 == ref["native"]["sha256"] and
+                json.loads(json.dumps(slot)) == _controlled.slot,
+                "controlled peer source, resource or slot differs from the owned candidate")
     require(ref["native"]["path"] == str(reference.parent / "reference-1"), "native reference path is outside bound output")
     native = bound(ref["native"]["path"], ref["native"])
     require(ref["entry_size_compile_assertion"] is True and len(ref["native_attempts"]) == 3,
@@ -837,8 +1099,12 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
         runtime_budget = observed_peer_runtime_budget(ref["resources"], cpus=slot["cpus"], wall_seconds=wall_seconds)
     out = peers.external_new(out)
     out.mkdir(parents=True)
-    runtime_inputs = _freeze(out, league_required=large_profile)
+    runtime_inputs = _freeze(out, league_required=large_profile, controlled_required=large_profile)
     frozen = out / "source-closure"
+    if large_profile:
+        _controlled.source_pins, _controlled.frozen = runtime_inputs, frozen
+        _controlled.launch_record["source_pins"] = runtime_inputs
+        _check_controlled_sources(_controlled)
     registry = sibling("registry", frozen)
     record = admitted["record"]
     artifact = registry.Artifact(id=f'{ref["peer"]}-{ref["resources"]["id"]}-{record["whole"]["sha256"][:8]}-{ref["native"]["sha256"][:8]}',
@@ -860,6 +1126,11 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
               "scope": "host-bound full TEST peer functional/resource qualification; no controller reserve, scored envelope, W256/256GiB, strength or scaling claim"}
     if large_profile:
         report["slot"] = slot
+        report["controlled_diagnostic"] = {"cgroup": _controlled.cgroup,
+            "candidate_set_sha256": _controlled.candidate_sha256,
+            "physical_memory_reserved": False, "hidden_ancestors_excluded": False,
+            "restart_ownership_proven": False, "loaded_code_identity_proven": False,
+            "authorizes_go": False}
     report["checks"].update(reproduction=True, size=True)
     owned_helper = load("peer_owned_helper", frozen / "engines/compact/tiny-entry-d/verify.py")
     scope = load("peer_scope_helper", frozen / "engines/experiments/tcec-scope/verify.py")
@@ -875,6 +1146,9 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
             session_budget = (observed_peer_runtime_budget(ref["resources"], cpus=slot["cpus"], wall_seconds=wall_seconds)
                               if large_profile else None)
             if large_profile:
+                _check_controlled_sources(_controlled)
+                session["controlled_preflight"] = _controlled_peer_preflight(_controlled, ref["resources"])
+                session["memory_events_before"] = _controlled_peer_events(_controlled)
                 session["runtime_budget"] = session_budget
             directory = out / label
             directory.mkdir()
@@ -890,7 +1164,8 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
             placement_record = directory / "placement.json"
             owner_record, release = directory / "owner.json", directory / "owner-release"
             _write_launcher(launcher, whole, tmpdir, slot_path, placement_record, frozen, owner_record, release,
-                            runtime_budget=session_budget)
+                            runtime_budget=session_budget,
+                            controlled=_controlled.launch_record if large_profile else None)
             owned = None
             try:
                 started = time.monotonic()
@@ -915,6 +1190,10 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
                 require(session["startup_ms"] <= 60000, "aggregate complete startup exceeds 60 seconds")
                 preexec, _ = read_record(placement_record)
                 require(preexec["effective_cpus"] == sorted(slot["cpus"]), "pre-exec placement did not take effect")
+                if large_profile:
+                    require(preexec.get("requested_policy") == slot["policy"] and
+                            preexec.get("requested_nodes") == sorted(slot["memory_nodes"]),
+                            "pre-exec slot policy or nodes changed")
                 if session_budget is not None:
                     expected_limits = {"address_space": [session_budget["address_space_bytes"]] * 2,
                                        "cpu": session_budget["cpu_seconds"]}
@@ -973,6 +1252,13 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
                     session["cleanup"] = owned.cleanup()
                     require(session["cleanup"]["owned_group_absent"] and session["cleanup"]["readers_joined"]
                             and not session["cleanup"]["errors"], "peer cleanup did not physically settle")
+                if large_profile:
+                    after = _controlled_peer_events(_controlled)
+                    session["memory_events_after"] = after
+                    require(all(after[name] == session["memory_events_before"][name]
+                                for name in ("oom", "oom_kill")), "peer cgroup observed an OOM event")
+                    _controlled_peer_quiescent(_controlled)
+                    _check_controlled_sources(_controlled)
         observations = report["observations"]
         observations.update(startup_ms=max(row["startup_ms"] for row in report["sessions"]), workers=artifact.workers,
             positive_cpu_workers=len(report["sessions"][0]["searches"][0]["positive_cpu_worker_ids"]),
@@ -1020,7 +1306,7 @@ def qualify_peer(reference, out, slot, *, reference_sha=None, allow_functional=F
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("prepare", "qualify"))
+    parser.add_argument("action", choices=("prepare", "qualify", "qualify-controlled"))
     parser.add_argument("--build", type=Path)
     parser.add_argument("--reference", type=Path)
     parser.add_argument("--manifest-sha")
@@ -1029,16 +1315,31 @@ def main():
     parser.add_argument("--cpu", type=int, default=5)
     parser.add_argument("--wall-seconds", type=int, default=180)
     parser.add_argument("--allow-functional", action="store_true")
+    parser.add_argument("--root", type=Path, help="original delegated cgroup2 root for a controlled diagnostic")
+    parser.add_argument("--campaign")
+    parser.add_argument("--candidates", type=Path)
+    parser.add_argument("--candidates-sha256")
+    parser.add_argument("--profile", choices=("test-p16", "test-p192"))
+    parser.add_argument("--artifact-id")
     args = parser.parse_args()
     require(0 <= args.cpu and 0 < args.wall_seconds <= 600, "bounded CPU/wall configuration required")
     if args.action == "prepare":
         require(args.build is not None, "prepare requires --build")
         result = prepare_reference(args.build, args.out, manifest_sha=args.manifest_sha, cpu=args.cpu, timeout=args.wall_seconds)
-    else:
+    elif args.action == "qualify":
         require(args.reference is not None and args.slot is not None, "qualify requires --reference and --slot")
         slot, _ = read_record(args.slot)
         result = qualify_peer(args.reference, args.out, slot, reference_sha=args.manifest_sha,
                               allow_functional=args.allow_functional, wall_seconds=args.wall_seconds)
+    else:
+        require(args.reference is not None and args.manifest_sha is not None and args.root is not None and
+                args.campaign is not None and args.candidates is not None and args.candidates_sha256 is not None and
+                args.profile is not None and args.artifact_id is not None,
+                "controlled peer qualification requires pinned candidate and reference plus an owned cgroup root")
+        result = qualify_peer_controlled(root=args.root, campaign=args.campaign,
+            candidate_path=args.candidates, candidate_sha256=args.candidates_sha256,
+            profile=args.profile, artifact_id=args.artifact_id, reference=args.reference,
+            reference_sha=args.manifest_sha, out=args.out, wall_seconds=args.wall_seconds)
     print(json.dumps({key: value for key, value in result.items() if key != "record"}, sort_keys=True))
 
 

@@ -5,7 +5,9 @@ import json
 import os
 from pathlib import Path
 import signal
+import shutil
 import struct
+import subprocess
 import sys
 import tempfile
 import time
@@ -52,6 +54,379 @@ def elf_fixture(*, symbol_size=8, dependency=b"libc.so.6", symbol_name=b"table")
 
 
 class PeerRuntimeTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == "linux", "isolated Linux peer diagnostic CLI")
+    def test_controlled_cli_can_import_owner_in_isolated_mode(self):
+        with tempfile.TemporaryDirectory(prefix="peer-cli-") as tmp:
+            root = Path(tmp).resolve()
+            command = [sys.executable, "-I", "-B", str(HERE / "peer_runtime.py"), "qualify-controlled",
+                "--root", str(root / "cgroup"), "--campaign", "test", "--candidates", str(root / "missing.json"),
+                "--candidates-sha256", "a" * 64, "--profile", "test-p16", "--artifact-id", "peer-one",
+                "--reference", str(root / "reference.json"), "--manifest-sha", "b" * 64, "--out", str(root / "out")]
+            result = subprocess.run(command, stdin=subprocess.DEVNULL, capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn(b"ModuleNotFoundError", result.stderr)
+            self.assertIn(b"missing.json", result.stderr)
+
+    def test_controlled_peer_binds_reference_and_never_grants_score(self):
+        import diagnostic_candidates
+        import functional_probe_session
+
+        artifact = SimpleNamespace(id="peer-one", family="ice4", profile="test-p16", tt_bytes=16 << 30,
+                                   sha256="a" * 64, native_sha256="b" * 64)
+        slot = {"id": "slot-000", "cpus": [0, 1], "memory_nodes": [0], "workers": 16, "policy": "default"}
+        owner = object.__new__(functional_probe_session.OwnedFunctionalProbe)
+        owner.slot = SimpleNamespace(to_record=lambda: slot)
+        owner.cgroup = {"path": "/sys/fs/cgroup/test/slot-000"}
+        owner.saved_ancestor_cpus, owner.saved_ancestor_nodes = [0, 1], [0]
+        owner.close, owner._attempted, owner._running = Mock(return_value=[]), False, False
+        evidence = {"kind": "peer-reference-v1", "reference_sha256": "c" * 64}
+        result = {"qualified": False, "admission": None,
+                  "record": {"complete": False, "controlled_diagnostic": {"authorizes_go": False}}}
+        arguments = dict(root=Path("/sys/fs/cgroup/test"), campaign="test-campaign",
+            candidate_path=Path("/tmp/candidates.json"), candidate_sha256="d" * 64, profile="test-p16",
+            artifact_id="peer-one", reference=Path("/tmp/reference.json"), reference_sha="c" * 64,
+            out=Path("/tmp/peer-result"), wall_seconds=180)
+        with patch.object(diagnostic_candidates, "read_candidates", return_value=([{"artifact": artifact, "evidence": evidence}], "d" * 64)), \
+             patch.object(functional_probe_session.OwnedFunctionalProbe, "create", return_value=owner) as create, \
+             patch.object(runtime, "qualify_peer", return_value=result) as qualify:
+            self.assertEqual(runtime.qualify_peer_controlled(**arguments), result)
+            create.assert_called_once()
+            self.assertEqual(qualify.call_args.kwargs["reference_sha"], "c" * 64)
+            self.assertIs(qualify.call_args.kwargs["_controlled"].owner, owner)
+            self.assertTrue(owner._attempted)
+            self.assertFalse(owner._running)
+            owner.close.assert_called_once()
+
+        with patch.object(diagnostic_candidates, "read_candidates", return_value=([{"artifact": artifact, "evidence": evidence}], "d" * 64)), \
+             patch.object(functional_probe_session.OwnedFunctionalProbe, "create") as create:
+            with self.assertRaisesRegex(ValueError, "matching source-bound"):
+                runtime.qualify_peer_controlled(**{**arguments, "reference_sha": "e" * 64})
+            create.assert_not_called()
+
+        artifact.profile, artifact.tt_bytes = "test-p192", 128 << 30
+        with patch.object(diagnostic_candidates, "read_candidates", return_value=([{"artifact": artifact, "evidence": evidence}], "d" * 64)), \
+             patch.object(functional_probe_session.OwnedFunctionalProbe, "create") as create:
+            with self.assertRaisesRegex(ValueError, "192 GiB TT"):
+                runtime.qualify_peer_controlled(**{**arguments, "profile": "test-p192"})
+            create.assert_not_called()
+
+    def test_controlled_peer_failure_retains_cleanup_context(self):
+        import diagnostic_candidates
+        import functional_probe_session
+        artifact = SimpleNamespace(id="peer-one", family="c4ke", profile="test-p16", tt_bytes=16 << 30,
+                                   sha256="a" * 64, native_sha256="b" * 64)
+        owner = object.__new__(functional_probe_session.OwnedFunctionalProbe)
+        owner.slot = SimpleNamespace(to_record=lambda: {"cpus": [0], "memory_nodes": [0]})
+        owner.cgroup = {"path": "/sys/fs/cgroup/test/slot-000"}
+        owner.saved_ancestor_cpus, owner.saved_ancestor_nodes = [0], [0]
+        owner.manager = SimpleNamespace(created=[])
+        owner.close, owner._attempted, owner._running = Mock(return_value=[{"error": "group populated"}]), False, False
+        evidence = {"kind": "peer-reference-v1", "reference_sha256": "c" * 64}
+        with patch.object(diagnostic_candidates, "read_candidates", return_value=([{"artifact": artifact, "evidence": evidence}], "d" * 64)), \
+             patch.object(functional_probe_session.OwnedFunctionalProbe, "create", return_value=owner), \
+             patch.object(runtime, "qualify_peer", side_effect=ValueError("qualification failed")):
+            with self.assertRaises(functional_probe_session.FunctionalCleanupFailure) as caught:
+                runtime.qualify_peer_controlled(root=Path("/sys/fs/cgroup/test"), campaign="test",
+                    candidate_path=Path("/tmp/candidates.json"), candidate_sha256="d" * 64,
+                    profile="test-p16", artifact_id="peer-one", reference=Path("/tmp/reference.json"),
+                    reference_sha="c" * 64, out=Path("/tmp/peer-result"))
+            self.assertIs(caught.exception.owner, owner)
+            self.assertIsInstance(caught.exception.original, ValueError)
+            self.assertFalse(owner._running)
+
+    def test_controlled_owner_signal_waits_for_cleanup(self):
+        import diagnostic_candidates
+        import functional_probe_session
+        artifact = SimpleNamespace(id="peer-one", family="ice4", profile="test-p16", tt_bytes=16 << 30,
+                                   sha256="a" * 64, native_sha256="b" * 64)
+        evidence = {"kind": "peer-reference-v1", "reference_sha256": "c" * 64}
+        arguments = dict(root=Path("/sys/fs/cgroup/test"), campaign="test",
+            candidate_path=Path("/tmp/candidates.json"), candidate_sha256="d" * 64,
+            profile="test-p16", artifact_id="peer-one", reference=Path("/tmp/reference.json"),
+            reference_sha="c" * 64, out=Path("/tmp/peer-result"))
+        for phase in ("create", "cleanup"):
+            owner = object.__new__(functional_probe_session.OwnedFunctionalProbe)
+            owner.slot = SimpleNamespace(to_record=lambda: {"cpus": [0], "memory_nodes": [0]})
+            owner.cgroup = {"path": "/sys/fs/cgroup/test/slot-000"}
+            owner.saved_ancestor_cpus, owner.saved_ancestor_nodes = [0], [0]
+            owner._attempted, owner._running = False, False
+            def create(**kwargs):
+                if phase == "create":
+                    runtime.bounded_signal(signal.SIGTERM, None)
+                return owner
+            def close():
+                if phase == "cleanup":
+                    runtime.bounded_signal(signal.SIGTERM, None)
+                return []
+            owner.close = Mock(side_effect=close)
+            result = {"qualified": False, "admission": None,
+                      "record": {"complete": False, "controlled_diagnostic": {"authorizes_go": False}}}
+            with self.subTest(phase=phase), \
+                 patch.object(diagnostic_candidates, "read_candidates", return_value=([{"artifact": artifact, "evidence": evidence}], "d" * 64)), \
+                 patch.object(functional_probe_session.OwnedFunctionalProbe, "create", side_effect=create), \
+                 patch.object(runtime, "qualify_peer", return_value=result) as qualify:
+                with self.assertRaises(KeyboardInterrupt):
+                    runtime.qualify_peer_controlled(**arguments)
+                owner.close.assert_called_once()
+                self.assertFalse(owner._running)
+                if phase == "create":
+                    qualify.assert_not_called()
+
+    def test_controlled_peer_preflight_requires_original_group_and_live_capacity(self):
+        import functional_probe_session
+        import memory_observation
+        import peak_capacity
+        import peak_probe_session
+        import placement
+        group_path = Path("/sys/fs/cgroup/owned/campaign/slot-000")
+        group = {"path": str(group_path), "device": 7, "inode": 42, "memory_max": 20 << 30,
+                 "cpus": [0, 1], "memory_nodes": [0]}
+        manager = object.__new__(placement.CgroupSlots)
+        manager._root_fd, manager._parent_fd, manager._closed = 10, 11, False
+        manager.parent, manager.created = group_path.parent, [(group_path, 7, 42)]
+        manager._check_anchored_parent = Mock()
+        owner = object.__new__(functional_probe_session.OwnedFunctionalProbe)
+        owner.slot = SimpleNamespace(to_record=lambda: {"id": "slot-000", "cpus": [0, 1], "memory_nodes": [0]})
+        owner.cgroup, owner.manager = group, manager
+        owner.saved_ancestor_cpus, owner.saved_ancestor_nodes = [0, 1], [0]
+        artifact = SimpleNamespace(sha256="a" * 64)
+        context = runtime._ControlledPeer(owner, artifact, "b" * 64, "c" * 64)
+        capacity = {"host_memavailable_bytes": 20 << 30, "delegated_cgroup": {},
+                    "node_available_bytes": {0: 20 << 30}}
+        with patch.object(peak_probe_session, "_require_delegated_root"), \
+             patch.object(placement, "verify_cgroup_live", return_value=group), \
+             patch.object(peak_capacity, "_require_empty") as fresh, \
+             patch.object(runtime, "_controlled_peer_quiescent", return_value=0), \
+             patch.object(peak_capacity, "_finite_remaining", return_value=[20 << 30]), \
+             patch.object(memory_observation, "observe_capacity", return_value=capacity):
+            observed = runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
+            self.assertGreater(observed["required_bytes"], 16 << 30)
+            self.assertIn("not a physical reservation", observed["scope"])
+            manager._check_anchored_parent.assert_called_once()
+            runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
+            fresh.assert_called_once()
+            manager.created = [(group_path, 7, 43)]
+            with self.assertRaisesRegex(ValueError, "original anchored"):
+                runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
+            manager.created = [(group_path, 7, 42)]
+            capacity["node_available_bytes"] = {0: 1}
+            with self.assertRaisesRegex(ValueError, "capacity is insufficient"):
+                runtime._controlled_peer_preflight(context, {"workers": 16, "tt_bytes": 16 << 30})
+
+    def test_controlled_peer_source_closure_detects_live_and_snapshot_changes(self):
+        with tempfile.TemporaryDirectory(prefix="peer-source-") as tmp:
+            base = Path(tmp).resolve()
+            source, frozen = base / "source", base / "frozen"
+            paths = runtime.SOURCE_FILES + runtime.LEAGUE_SOURCE_FILES + runtime.CONTROLLED_SOURCE_FILES
+            pins = {}
+            for relative in paths:
+                raw = (runtime.ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
+                for root in (source, frozen):
+                    destination = root / relative
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(raw)
+                pins[relative] = {"bytes": len(raw), "sha256": runtime.sha(raw)}
+            context = SimpleNamespace(source_pins=pins, frozen=frozen)
+            with patch.object(runtime, "ROOT", source):
+                runtime._check_controlled_sources(context)
+                changed = source / runtime.CONTROLLED_SOURCE_FILES[0]
+                changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
+                with self.assertRaisesRegex(ValueError, "source closure changed"):
+                    runtime._check_controlled_sources(context)
+                shutil.copyfile(frozen / runtime.CONTROLLED_SOURCE_FILES[0], changed)
+                changed = frozen / runtime.CONTROLLED_SOURCE_FILES[1]
+                changed.write_bytes(changed.read_bytes() + b"\n# changed\n")
+                with self.assertRaisesRegex(ValueError, "source closure changed"):
+                    runtime._check_controlled_sources(context)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux controlled memfd execution")
+    def test_controlled_launcher_executes_verified_bytes_after_replacement(self):
+        helper = runtime.load("controlled_peer_fixture_owner", runtime.ROOT / "engines/compact/tiny-entry-d/verify.py")
+        with tempfile.TemporaryDirectory(prefix="controlled-peer-") as tmp:
+            root = Path(tmp).resolve()
+            work = root / "work"
+            work.mkdir()
+            frozen = root / "frozen"
+            source_dir = frozen / "engines/experiments/strength"
+            source_dir.mkdir(parents=True)
+            whole = root / "fixture"
+            original = (b'#!/bin/sh\n[ "$(head -n 1 "$0")" = "#!/bin/sh" ] || exit 33\n'
+                        b'printf "original-ready\\n"\nread answer\n')
+            whole.write_bytes(original)
+            whole.chmod(0o700)
+            replacement = b"#!/usr/bin/python3\nprint('wrong-image',flush=True)\n"
+            (source_dir / "placement.py").write_text(
+                "from pathlib import Path\n"
+                "def apply_slot(slot, **kwargs):\n"
+                " assert kwargs['saved_ancestor_nodes']==[2]\n"
+                " Path(" + repr(str(whole)) + ").write_bytes(" + repr(replacement) + ")\n"
+                " return {'effective_cpus':[0], 'observed_policy': {'mode':0}}\n")
+            (source_dir / "topology.py").write_text("value = 1\n")
+            slot = root / "slot.json"
+            slot.write_text(json.dumps({"cpus": [0], "memory_nodes": [2]}))
+            owner_file, release = root / "owner.json", root / "release"
+            launcher, receipt = root / "launch", root / "placement.json"
+            controlled = {"cgroup": {"path": "/sys/fs/cgroup/fake/slot-000"},
+                          "slot": {"cpus": [0], "memory_nodes": [2]},
+                          "saved_cpus": [0], "saved_nodes": [2], "whole_sha256": runtime.sha(original),
+                          "source_pins": {"engines/experiments/strength/" + name + ".py":
+                              {"sha256": runtime.sha((source_dir / (name + ".py")).read_bytes())}
+                              for name in ("topology", "placement")}}
+            runtime._write_launcher(launcher, whole, work, slot, receipt, frozen, owner_file, release,
+                                    runtime_budget={"address_space_bytes": 4 << 30, "cpu_seconds": [180, 185]},
+                                    controlled=controlled)
+            compile(launcher.read_bytes(), str(launcher), "exec")
+            owned = None
+            try:
+                owned = helper.Owned(launcher, root / "raw", helper.Budget(8))
+                owner_bytes = (json.dumps(runtime.process_identity(owned.process.pid)) + "\n").encode()
+                runtime.durable_new(owner_file, owner_bytes)
+                runtime.durable_new(release, (runtime.sha(owner_bytes) + "\n").encode())
+                owned.wait_line(b"original-ready")
+                self.assertEqual(whole.read_bytes(), replacement)
+                self.assertNotIn(b"wrong-image", owned.stdout.bytes())
+                owned.send(b"quit\n")
+                runtime._finish_peer(owned)
+            finally:
+                if owned is not None:
+                    cleanup = owned.cleanup()
+                    self.assertTrue(cleanup["owned_group_absent"] and cleanup["readers_joined"])
+                self.assertFalse(helper.OWNED)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux controlled source verification")
+    def test_controlled_launcher_rejects_placement_source_change_before_exec(self):
+        helper = runtime.load("controlled_changed_source_owner", runtime.ROOT / "engines/compact/tiny-entry-d/verify.py")
+        with tempfile.TemporaryDirectory(prefix="controlled-peer-source-") as tmp:
+            root = Path(tmp).resolve()
+            work, frozen = root / "work", root / "frozen"
+            work.mkdir()
+            source_dir = frozen / "engines/experiments/strength"
+            source_dir.mkdir(parents=True)
+            for name in ("topology", "placement"):
+                (source_dir / (name + ".py")).write_text("value = 1\n")
+            pins = {"engines/experiments/strength/" + name + ".py":
+                    {"sha256": runtime.sha((source_dir / (name + ".py")).read_bytes())}
+                    for name in ("topology", "placement")}
+            whole, marker = root / "fixture", root / "executed"
+            whole.write_text("#!/usr/bin/python3\nfrom pathlib import Path\nPath(" + repr(str(marker)) + ").touch()\n")
+            whole.chmod(0o700)
+            slot, owner_file, release = root / "slot.json", root / "owner.json", root / "release"
+            slot.write_text("{}")
+            launcher = root / "launch"
+            runtime._write_launcher(launcher, whole, work, slot, root / "placement.json", frozen, owner_file, release,
+                runtime_budget={"address_space_bytes": 4 << 30, "cpu_seconds": [180, 185]},
+                controlled={"cgroup": {"path": "/sys/fs/cgroup/fake/slot-000"}, "saved_cpus": [0],
+                            "saved_nodes": [0], "slot": {}, "whole_sha256": runtime.sha(whole.read_bytes()), "source_pins": pins})
+            (source_dir / "placement.py").write_text("raise RuntimeError('changed')\n")
+            owned = None
+            try:
+                owned = helper.Owned(launcher, root / "raw", helper.Budget(8))
+                deadline = time.monotonic() + 6
+                while not owned.exited() and time.monotonic() < deadline:
+                    time.sleep(.01)
+                self.assertTrue(owned.exited())
+                self.assertFalse(marker.exists())
+                self.assertFalse((root / "placement.json").exists())
+            finally:
+                if owned is not None:
+                    cleanup = owned.cleanup()
+                    self.assertTrue(cleanup["owned_group_absent"] and cleanup["readers_joined"])
+                    self.assertIn(b"controlled placement source changed", owned.stderr.bytes())
+                self.assertFalse(helper.OWNED)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux controlled slot binding")
+    def test_controlled_launcher_rejects_slot_policy_change_before_exec(self):
+        helper = runtime.load("controlled_changed_slot_owner", runtime.ROOT / "engines/compact/tiny-entry-d/verify.py")
+        with tempfile.TemporaryDirectory(prefix="controlled-peer-slot-") as tmp:
+            root = Path(tmp).resolve()
+            work, frozen = root / "work", root / "frozen"
+            work.mkdir()
+            source_dir = frozen / "engines/experiments/strength"
+            source_dir.mkdir(parents=True)
+            (source_dir / "topology.py").write_text("value=1\n")
+            (source_dir / "placement.py").write_text("def apply_slot(slot,**kwargs): return {}\n")
+            pins = {"engines/experiments/strength/" + name + ".py":
+                    {"sha256": runtime.sha((source_dir / (name + ".py")).read_bytes())}
+                    for name in ("topology", "placement")}
+            whole, marker = root / "fixture", root / "executed"
+            whole.write_text("#!/usr/bin/python3\nfrom pathlib import Path\nPath(" + repr(str(marker)) + ").touch()\n")
+            whole.chmod(0o700)
+            slot, owner_file, release = root / "slot.json", root / "owner.json", root / "release"
+            expected = {"cpus": [0], "memory_nodes": [0], "policy": "default"}
+            slot.write_text(json.dumps({**expected, "policy": "inherit"}))
+            launcher = root / "launch"
+            runtime._write_launcher(launcher, whole, work, slot, root / "placement.json", frozen, owner_file, release,
+                runtime_budget={"address_space_bytes": 4 << 30, "cpu_seconds": [180, 185]},
+                controlled={"cgroup": {"path": "/sys/fs/cgroup/fake/slot-000"}, "saved_cpus": [0],
+                            "saved_nodes": [0], "slot": expected, "whole_sha256": runtime.sha(whole.read_bytes()),
+                            "source_pins": pins})
+            owned = None
+            try:
+                owned = helper.Owned(launcher, root / "raw", helper.Budget(8))
+                owner_bytes = (json.dumps(runtime.process_identity(owned.process.pid)) + "\n").encode()
+                runtime.durable_new(owner_file, owner_bytes)
+                runtime.durable_new(release, (runtime.sha(owner_bytes) + "\n").encode())
+                deadline = time.monotonic() + 6
+                while not owned.exited() and time.monotonic() < deadline:
+                    time.sleep(.01)
+                self.assertTrue(owned.exited())
+                self.assertFalse(marker.exists())
+                self.assertFalse((root / "placement.json").exists())
+            finally:
+                if owned is not None:
+                    cleanup = owned.cleanup()
+                    self.assertTrue(cleanup["owned_group_absent"] and cleanup["readers_joined"])
+                    self.assertIn(b"controlled slot changed", owned.stderr.bytes())
+                self.assertFalse(helper.OWNED)
+
+    @unittest.skipUnless(sys.platform == "linux" and shutil.which("xz") and shutil.which("cc"),
+                         "Linux, xz and C compiler required")
+    def test_controlled_launcher_runs_self_reading_compiled_source_stream(self):
+        pack = runtime.load("peer_controlled_stream_fixture", runtime.ROOT / "engines/compact/tiny-a/pack_stream.py")
+        source = b'#include <stdio.h>\nint main(void){puts("peer-source-stream-ok");return 0;}\n'
+        whole, _ = pack.make_stream(source, ["cc", "-x", "c", "-o", "x", "-"],
+                                    compiler_group=lambda script: (script, {"fixture": True}))
+        helper = runtime.load("controlled_stream_owner", runtime.ROOT / "engines/compact/tiny-entry-d/verify.py")
+        with tempfile.TemporaryDirectory(prefix="controlled-peer-stream-") as tmp:
+            root = Path(tmp).resolve()
+            work, frozen = root / "work", root / "frozen"
+            work.mkdir()
+            source_dir = frozen / "engines/experiments/strength"
+            source_dir.mkdir(parents=True)
+            target = root / "fixture"
+            target.write_bytes(whole)
+            target.chmod(0o700)
+            (source_dir / "topology.py").write_text("value = 1\n")
+            (source_dir / "placement.py").write_text(
+                "from pathlib import Path\ndef apply_slot(slot, **kwargs):\n"
+                " Path(" + repr(str(target)) + ").write_text('#!/bin/sh\\nexit 97\\n')\n"
+                " return {'effective_cpus':[0]}\n")
+            pins = {"engines/experiments/strength/" + name + ".py":
+                    {"sha256": runtime.sha((source_dir / (name + ".py")).read_bytes())}
+                    for name in ("topology", "placement")}
+            slot, owner_file, release = root / "slot.json", root / "owner.json", root / "release"
+            slot.write_text("{}")
+            launcher = root / "launch"
+            runtime._write_launcher(launcher, target, work, slot, root / "placement.json", frozen, owner_file, release,
+                runtime_budget={"address_space_bytes": 4 << 30, "cpu_seconds": [180, 185]},
+                controlled={"cgroup": {"path": "/sys/fs/cgroup/fake/slot-000"}, "saved_cpus": [0],
+                            "saved_nodes": [0], "slot": {}, "whole_sha256": runtime.sha(whole), "source_pins": pins})
+            owned = None
+            try:
+                owned = helper.Owned(launcher, root / "raw", helper.Budget(20))
+                owner_bytes = (json.dumps(runtime.process_identity(owned.process.pid)) + "\n").encode()
+                runtime.durable_new(owner_file, owner_bytes)
+                runtime.durable_new(release, (runtime.sha(owner_bytes) + "\n").encode())
+                owned.wait_line(b"peer-source-stream-ok")
+                observed = runtime._finish_peer(owned)
+                self.assertEqual(observed["returncode"], 0)
+                self.assertNotEqual(runtime.sha(target.read_bytes()), runtime.sha(whole))
+            finally:
+                if owned is not None:
+                    cleanup = owned.cleanup()
+                    self.assertTrue(cleanup["owned_group_absent"] and cleanup["readers_joined"])
+                self.assertFalse(helper.OWNED)
+
     def test_frozen_source_closure_lazily_binds_league_profile_owner(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp).resolve()
