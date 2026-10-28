@@ -151,8 +151,7 @@ class OwnedProbeCohort:
                 raise ValueError("distinct new external diagnostic output directories are required")
             outputs.add(resolved)
             for engine in engines:
-                if type(engine) is not dict or set(engine) != {"id", "path", "whole_sha256", "native_sha256", "tt_bytes"}:
-                    raise ValueError("invalid pinned engine identity")
+                peak_ready_probe.engine_command(engine, manifest["profile"])
                 run.ID(engine["id"])
                 path = engine["path"]
                 if (not isinstance(path, str) or not Path(path).is_absolute() or
@@ -275,10 +274,12 @@ def observe_ready(*, manifest_path, manifest_sha256, root, games, controller,
         if not set(slot.memory_nodes) <= set(controller_live["memory_nodes"]):
             raise ValueError("controller memory nodes must include every game node before placement")
         pair, commands = artifacts[slot.id], entry["engines"]
-        if (type(pair) is not list or len(pair) != 2 or type(commands) is not list or len(commands) != 2 or
-                any(type(a) is not dict or type(c) is not dict or
+        if type(pair) is not list or len(pair) != 2 or type(commands) is not list or len(commands) != 2:
+            raise ValueError("artifact identity or colour order differs from controller manifest")
+        for command in commands:
+            peak_ready_probe.engine_command(command, manifest["profile"])
+        if (any(type(a) is not dict or type(c) is not dict or
                     set(a) != {"id", "whole_sha256", "native_sha256", "tt_bytes"} or
-                    set(c) != {"id", "path", "whole_sha256", "native_sha256", "tt_bytes"} or
                     (a["id"], a["whole_sha256"], a["native_sha256"], a["tt_bytes"]) !=
                     (c["id"], c["whole_sha256"], c["native_sha256"], c["tt_bytes"])
                     for a, c in zip(pair, commands))):

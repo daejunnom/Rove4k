@@ -250,11 +250,12 @@ class CohortPeakObservationTests(unittest.TestCase):
             self.assertEqual([row["tt_bytes"] for row in fixture.observer.games[0]["artifacts"]],
                              [12 << 30, 16 << 30])
         for engine_index in (0, 1):
-            for value in (128 << 30, (192 << 30) - 1, (192 << 30) + 1):
+            for value in (128 << 30, (192 << 30) - 1, (192 << 30) + 1,
+                          (256 << 30) - 1, (256 << 30) + 1):
                 with self.subTest(engine=engine_index, tt_bytes=value), tempfile.TemporaryDirectory() as tmp:
                     fixture = Fixture(tmp, "test-p192")
                     fixture.games[0]["artifacts"][engine_index]["tt_bytes"] = value
-                    with self.assertRaisesRegex(ValueError, "exactly 192 GiB"):
+                    with self.assertRaisesRegex(ValueError, "192 or 256 GiB"):
                         overhead.CohortPeakObserver(profile="test-p192", root=fixture.root, games=fixture.games,
                                                      controller=fixture.control, runner_sha256=sha(RUNNER),
                                                      proc_root=fixture.proc, affinity=lambda _: {0})
@@ -262,6 +263,27 @@ class CohortPeakObservationTests(unittest.TestCase):
             fixture = Fixture(tmp, "test-p192")
             self.assertEqual([row["tt_bytes"] for row in fixture.observer.games[0]["artifacts"]],
                              [192 << 30, 192 << 30])
+
+    def test_p192_mixed_and_peer_pair_declarations_remain_diagnostic(self):
+        for extents in ((192 << 30, 256 << 30), (256 << 30, 192 << 30), (256 << 30, 256 << 30)):
+            with self.subTest(extents=extents), tempfile.TemporaryDirectory() as tmp:
+                fixture = Fixture(tmp, "test-p192")
+                for artifact, tt_bytes in zip(fixture.games[0]["artifacts"], extents):
+                    artifact["tt_bytes"] = tt_bytes
+                fixture.observer = overhead.CohortPeakObserver(
+                    profile="test-p192", root=fixture.root, games=fixture.games,
+                    controller=fixture.control, runner_sha256=sha(RUNNER),
+                    proc_root=fixture.proc, affinity=lambda pid: fixture.cpu_masks[pid])
+                fixture.observer.begin()
+                fixture.active(engine_threads=1)
+                fixture.end_games()
+                report = fixture.observer.finish(per_game_headroom_bytes=50, controller_headroom_bytes=20)
+                self.assertEqual([item["tt_bytes"] for item in report["plan"][0]["artifacts"]], list(extents))
+                self.assertEqual(report["arithmetic"]["all_in_per_game_envelope_bytes"], 1250)
+                self.assertFalse(report["artifact_source_provenance_verified"])
+                self.assertFalse(report["all_tt_resident_verified"])
+                self.assertFalse(report["runtime_admission"])
+                self.assertFalse(report["scored_qualification"])
 
     def test_wrong_native_and_wrong_worker_affinity_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

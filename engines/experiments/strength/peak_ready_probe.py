@@ -18,9 +18,10 @@ import stat
 import sys
 
 try:
-    from . import fastchess, placement, topology, wave, run, peak_supervisor, peak_receipt
+    from . import fastchess, original_peer_uci, placement, topology, wave, run, peak_supervisor, peak_receipt
 except ImportError:
     import fastchess, placement, topology, wave, run, peak_supervisor, peak_receipt
+    import original_peer_uci
 
 
 class ProbeFailure(RuntimeError):
@@ -28,6 +29,34 @@ class ProbeFailure(RuntimeError):
     def __init__(self, message, observations):
         super().__init__(message)
         self.observations = observations
+
+
+def engine_command(engine, profile):
+    """Validate a frozen command and its optional original-peer UCI request.
+
+    A manifest is still caller-supplied diagnostic data. The family tag is not
+    provenance, and sending setoption does not prove workers or allocation.
+    """
+    base = {"id", "path", "whole_sha256", "native_sha256", "tt_bytes"}
+    if type(engine) is not dict or set(engine) not in (base, base | {"uci"}):
+        raise ValueError("invalid pinned engine command")
+    run.ID(engine["id"])
+    if not isinstance(engine["path"], (str, Path)) or not Path(engine["path"]).is_absolute():
+        raise ValueError("absolute engine executable required")
+    options = {}
+    if "uci" in engine:
+        uci = engine["uci"]
+        if (type(uci) is not dict or set(uci) != {"kind", "family", "hash_mib", "threads"}
+                or uci["kind"] != "original-peer-uci-v1" or uci["family"] not in ("ice4", "c4ke")):
+            raise ValueError("invalid original-peer UCI command binding")
+        options = original_peer_uci.fastchess_resources(profile)
+        if ({key: uci[key] for key in ("hash_mib", "threads")} != options
+                or type(uci["hash_mib"]) is not int or type(uci["threads"]) is not int
+                or type(engine["tt_bytes"]) is not int or engine["tt_bytes"] != options["hash_mib"] << 20):
+            raise ValueError("original-peer UCI request differs from profile or declared TT")
+    elif profile == "test-p192" and engine["tt_bytes"] == 256 << 30:
+        raise ValueError("256 GiB diagnostic declaration requires original-peer UCI options")
+    return fastchess.EngineCommand(engine["id"], (str(engine["path"]),), **options)
 
 
 def _require_unreleased(observations, expected_ids):
@@ -146,8 +175,8 @@ def ready_probe(*, profile, entries, runner, runner_sha256, opening, opening_sha
         if not isinstance(engines, list) or len(engines) != 2 or engines[0]["id"] == engines[1]["id"]:
             raise ValueError("two distinct frozen engine images are required")
         for engine in engines:
-            if (set(engine) != {"id", "path", "whole_sha256", "native_sha256", "tt_bytes"} or
-                    _file_sha(Path(engine["path"])) != engine["whole_sha256"]):
+            engine_command(engine, profile)
+            if _file_sha(Path(engine["path"])) != engine["whole_sha256"]:
                 raise ValueError("engine image differs from the frozen digest")
         out = run.protected_input(Path(entry["out"]))
         resolved = run.protected_input(out.resolve())
@@ -159,7 +188,7 @@ def ready_probe(*, profile, entries, runner, runner_sha256, opening, opening_sha
         slot_file.write_text(json.dumps({"slot": slot.to_record(), "cgroup": group,
                                          "saved_ancestor_cpus": list(saved_ancestor_cpus),
                                          "saved_ancestor_nodes": saved_ancestor_nodes}, sort_keys=True), encoding="utf-8")
-        commands = [fastchess.EngineCommand(engine["id"], (str(Path(engine["path"])),)) for engine in engines]
+        commands = [engine_command(engine, profile) for engine in engines]
         argv = fastchess.single_game_argv(Path(runner), *commands, opening_pgn=opening,
                                          opening_start=entry["opening_start"], out=out)
         placement_path = Path(placement.__file__).resolve()

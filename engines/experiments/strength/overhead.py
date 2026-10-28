@@ -133,7 +133,9 @@ class CohortPeakObserver:
     masks and two already-admitted artifact identities.  Artifact fields are
     ``id``, ``whole_sha256``, ``native_sha256`` and ``tt_bytes``.  The caller
     must establish their provenance separately; this observer compares only the
-    actual live native image with the supplied native digest.
+    actual live native image with the supplied native digest. P192 accepts 192
+    or 256 GiB as declared extents for either engine; it does not establish
+    which engine is an original peer or whether the declared TT is allocated.
 
     ``proc_root`` and ``affinity`` injection are for test fixtures.  Reports
     record their presence and never become runtime or scored-run admission.
@@ -183,8 +185,8 @@ class CohortPeakObserver:
                                "tt_bytes": _positive(artifact["tt_bytes"], "TT extent")})
                 if self.workers == 16 and frozen[-1]["tt_bytes"] > 16 << 30:
                     raise ValueError("engine TT extent exceeds the P16 profile cap")
-                if self.workers == 192 and frozen[-1]["tt_bytes"] != 192 << 30:
-                    raise ValueError("P192 requires exactly 192 GiB per engine TT")
+                if self.workers == 192 and frozen[-1]["tt_bytes"] not in (192 << 30, 256 << 30):
+                    raise ValueError("P192 requires a declared 192 or 256 GiB per engine TT")
             path = self._path(game["path"])
             ids.add(slot)
             paths.append(path)

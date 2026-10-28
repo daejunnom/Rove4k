@@ -80,7 +80,8 @@ class ProbeSessionTests(unittest.TestCase):
             root = Path(tmp).resolve()
             slot = topology.Slot("slot-000", (0, 1), ((0, 0),), (0,), 2, True, "default")
             engines = [{"id": "a", "path": str(root / "a"), "whole_sha256": "a" * 64, "native_sha256": "b" * 64, "tt_bytes": 192 << 30},
-                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 256 << 30}]
+                       {"id": "b", "path": str(root / "b"), "whole_sha256": "c" * 64, "native_sha256": "d" * 64, "tt_bytes": 256 << 30,
+                        "uci": {"kind": "original-peer-uci-v1", "family": "ice4", "hash_mib": 262144, "threads": 192}}]
             manifest = {"profile": "test-p192", "entries": [{"slot": slot, "engines": engines,
                         "opening_start": 1, "out": str(root / "out")}], "saved_ancestor_cpus": [0, 1],
                         "topology": {"fixture": [1, 2]}, "runner": str(root / "runner"), "runner_sha256": "e" * 64,

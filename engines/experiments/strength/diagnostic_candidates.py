@@ -31,9 +31,10 @@ from pathlib import Path
 import sys
 
 try:
-    from . import ledger, registry, run, topology
+    from . import ledger, original_peer_uci, registry, run, topology
 except ImportError:
     import ledger
+    import original_peer_uci
     import registry
     import run
     import topology
@@ -396,8 +397,6 @@ def build_inputs(*, candidate_path, candidate_sha256, profile, bank_path, bank_s
     if not run.stage_profile_allowed(stage, profile):
         raise ValueError("diagnostic stage and profile differ")
     rows, input_sha = read_candidates(candidate_path, candidate_sha256, profile)
-    if any(row["artifact"].representation == "configurable-native" for row in rows):
-        raise ValueError("pre-GO controller does not yet bind original peer UCI options")
     runner_binary, runner_receipt = _safe_input_path(runner_binary), _safe_input_path(runner_receipt)
     bank_path = _safe_input_path(bank_path)
     runner = run.runner_identity(runner_binary, runner_receipt)
@@ -431,8 +430,17 @@ def build_inputs(*, candidate_path, candidate_sha256, profile, bank_path, bank_s
         engines = []
         for row in chosen:
             artifact = row["artifact"]
-            engines.append({"id": artifact.id, "path": str(row["whole"]), "whole_sha256": artifact.sha256,
-                            "native_sha256": artifact.native_sha256, "tt_bytes": artifact.tt_bytes})
+            engine = {"id": artifact.id, "path": str(row["whole"]), "whole_sha256": artifact.sha256,
+                      "native_sha256": artifact.native_sha256, "tt_bytes": artifact.tt_bytes}
+            if artifact.representation == "configurable-native":
+                options = original_peer_uci.fastchess_resources(profile)
+                if (artifact.layout_id != registry.PEER_ORIGINAL_UCI_LAYOUT or
+                        row["evidence"].get("kind") != "original-peer-build-v1" or
+                        row["evidence"].get("requested_uci") != options or
+                        artifact.workers != options["threads"] or artifact.tt_bytes != options["hash_mib"] << 20):
+                    raise ValueError("original peer UCI source/profile binding differs")
+                engine["uci"] = {"kind": "original-peer-uci-v1", "family": artifact.family, **options}
+            engines.append(engine)
         entries.append({"slot": slot.to_record(), "engines": engines,
                         "opening_start": index % len(openings) + 1,
                         "out": str(output_root / "jobs" / slot.id)})

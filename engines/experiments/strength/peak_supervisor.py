@@ -222,9 +222,10 @@ def _validate_probe_command(argv, *, profile, games, runner_sha256, frozen_topol
     for entry in entries:
         slot, commands = entry.get("slot"), entry.get("engines")
         if (slot is None or not isinstance(commands, list) or len(commands) != 2 or
-                slot.id not in by_slot or any(not isinstance(row, dict) or
-                set(row) != {"id", "path", "whole_sha256", "native_sha256", "tt_bytes"} for row in commands)):
+                slot.id not in by_slot):
             raise ValueError("diagnostic manifest has an invalid engine cohort")
+        for row in commands:
+            peak_ready_probe.engine_command(row, profile)
         game = by_slot[slot.id]
         expected = [{key: row[key] for key in ("id", "whole_sha256", "native_sha256", "tt_bytes")}
                     for row in commands]

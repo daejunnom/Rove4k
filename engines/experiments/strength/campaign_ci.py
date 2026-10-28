@@ -393,6 +393,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
                   "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"),
                  ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
                   "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
                 "committed league materializer source closure differs")
         cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
@@ -429,6 +433,13 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             require(static_entries in ((), (static_path,)) and
                     bool(static_entries) == ("rove_b_static_tt" in values["LEAGUE_HOST_MODULES"]),
                     "committed B static source closure is incomplete")
+            for original in ("original_peer_build", "peer_exact_runner", "original_peer_uci"):
+                canonical = "engines/experiments/strength/" + original + ".py"
+                matching = tuple(name for name in cloud_names
+                                 if name.replace("\\", "/").rsplit("/", 1)[-1] == original + ".py")
+                require(matching in ((), (canonical,)) and
+                        bool(matching) == (original in values["LEAGUE_HOST_MODULES"]),
+                        "committed original peer source closure is incomplete")
         else:
             require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
                     "committed peer diagnostic source closure is incomplete")
@@ -436,6 +447,8 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                     "committed B observer source closure is incomplete")
             require("rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"],
                     "committed B static source closure is incomplete")
+            require(not {"original_peer_build", "peer_exact_runner", "original_peer_uci"}.intersection(values["LEAGUE_HOST_MODULES"]),
+                    "committed original peer source closure is incomplete")
         if "diagnostic_candidates" in values["LEAGUE_HOST_MODULES"] and "rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"]:
             diagnostic_name = "engines/experiments/strength/" + "diagnostic_candidates.py"
             diagnostic_source = git(origin, "show", expected_head + ":" + diagnostic_name, limit=32 << 20)
@@ -455,6 +468,10 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                     any(alias.name.split(".")[-1] == "rove_b_tt_observe" for alias in node.names))
                 for node in ast.walk(ast.parse(functional_source)))
             require(not observer_imported, "committed B observer source closure is incomplete")
+        original_modules = {"original_peer_build", "peer_exact_runner", "original_peer_uci"}
+        declared_original = original_modules.intersection(values["LEAGUE_HOST_MODULES"])
+        require(not declared_original or declared_original == original_modules,
+                "committed original peer source closure is incomplete")
         names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
         names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")
@@ -468,6 +485,19 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 "materializer closure must contain regular committed source blobs")
         tracked[name] = (blob, mode)
     require(set(tracked) == set(names), "committed materializer source closure is missing")
+    if league <= set(values):
+        for consumer in ("diagnostic_candidates", "peak_ready_probe", "original_peer_build"):
+            if consumer not in values["LEAGUE_HOST_MODULES"]:
+                continue
+            source_name = "engines/experiments/strength/" + consumer + ".py"
+            source = git(origin, "show", expected_head + ":" + source_name, limit=32 << 20)
+            tree = ast.parse(source)
+            imports = {alias.name.split(".")[-1] for node in ast.walk(tree)
+                       if isinstance(node, (ast.Import, ast.ImportFrom)) for alias in node.names}
+            imports.update(node.module.split(".")[-1] for node in ast.walk(tree)
+                           if isinstance(node, ast.ImportFrom) and node.module is not None)
+            require(not (imports & original_modules) or declared_original == original_modules,
+                    "committed original peer source closure is incomplete")
     sources = {}
     for name, (blob, mode) in tracked.items():
         size = git(origin, "cat-file", "-s", blob).decode().strip()

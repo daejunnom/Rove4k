@@ -152,6 +152,47 @@ class DiagnosticCandidatesTests(unittest.TestCase):
         self.assertEqual(data["manifest"]["entries"][0]["slot"]["workers"], 192)
         self.assertFalse(data["scored_qualification"])
 
+    def test_original_peer_options_are_frozen_in_diagnostic_manifest(self):
+        for profile, hash_mib, threads in (("test-p16", 16384, 16), ("test-p192", 262144, 192)):
+            with self.subTest(profile=profile):
+                self.profile = profile
+                for row in self.rows:
+                    row["artifact"].update(profile=profile, workers=threads,
+                        tt_bytes=registry.resource_profile(profile).layout(24).bytes)
+                peer = self.rows[0]
+                peer["artifact"].update(family="ice4", representation="configurable-native", entry_bytes=8,
+                    tt_bytes=hash_mib << 20, layout_id=registry.PEER_ORIGINAL_UCI_LAYOUT)
+                peer["evidence"] = {"kind": "original-peer-build-v1"}
+                self.write_candidates()
+                def replay(evidence, artifact, *args):
+                    if artifact.family == "ice4":
+                        return {"kind": "original-peer-build-v1",
+                                "requested_uci": {"hash_mib": hash_mib, "threads": threads}}
+                    return {"kind": "file-pins-only"}
+                with patch.object(candidate, "_source_evidence", side_effect=replay):
+                    data = self.build()
+                engine = data["manifest"]["entries"][0]["engines"][0]
+                self.assertEqual(engine["uci"], {"kind": "original-peer-uci-v1", "family": "ice4",
+                                                  "hash_mib": hash_mib, "threads": threads})
+                self.assertNotIn("uci", data["manifest"]["entries"][0]["engines"][1])
+                self.assertEqual(data["lock"]["manifest_sha256"], hashlib.sha256(
+                    candidate.ledger.canonical(data["manifest"])).hexdigest())
+                command = peak_ready_probe.engine_command(engine, profile)
+                self.assertEqual((command.hash_mib, command.threads), (hash_mib, threads))
+                self.assertFalse(data["runtime_admission"])
+                self.assertFalse(data["scored_qualification"])
+                engine["uci"]["hash_mib"] -= 1
+                with self.assertRaisesRegex(ValueError, "differs"):
+                    peak_ready_probe.engine_command(engine, profile)
+                engine["uci"]["hash_mib"] += 1
+                engine["uci"]["family"] = "A"
+                with self.assertRaisesRegex(ValueError, "original-peer"):
+                    peak_ready_probe.engine_command(engine, profile)
+                if profile == "test-p192":
+                    del engine["uci"]
+                    with self.assertRaisesRegex(ValueError, "256 GiB"):
+                        peak_ready_probe.engine_command(engine, profile)
+
     def test_target_cgroup_topology_is_independent_of_observer_affinity(self):
         path = self.root / "target-cgroup"
         path.mkdir()

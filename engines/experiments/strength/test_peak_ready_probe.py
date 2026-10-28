@@ -73,7 +73,8 @@ class PeakReadyTests(unittest.TestCase):
             (root / "controller").mkdir()
             (root / "controller" / "cgroup.procs").write_text(str(os.getpid()))
             entries = [{"slot": slot, "out": root / "attempt", "opening_start": 1,
-                        "engines": [{"id": "white", "path": files[1], "whole_sha256": sha(files[1]), "native_sha256": "a" * 64, "tt_bytes": 12 << 30},
+                        "engines": [{"id": "white", "path": files[1], "whole_sha256": sha(files[1]), "native_sha256": "a" * 64, "tt_bytes": 256 << 30,
+                                     "uci": {"kind": "original-peer-uci-v1", "family": "ice4", "hash_mib": 262144, "threads": 192}},
                                     {"id": "black", "path": files[2], "whole_sha256": sha(files[2]), "native_sha256": "b" * 64, "tt_bytes": 12 << 30}]}]
             class Channel:
                 def handoff(self):
@@ -88,6 +89,13 @@ class PeakReadyTests(unittest.TestCase):
             class Executor:
                 def run_wave(self, jobs, wall_seconds, release_callback, on_event, *, authorize_go, observe_transport):
                     self_outer.assertEqual(jobs[0].argv[1], str(Path(probe.placement.__file__).resolve()))
+                    arguments = list(jobs[0].argv)
+                    white = arguments.index("name=white")
+                    black = arguments.index("name=black")
+                    self_outer.assertIn("option.Hash=262144", arguments[white:black])
+                    self_outer.assertIn("option.Threads=192", arguments[white:black])
+                    self_outer.assertFalse(any(value.startswith(("option.Hash=", "option.Threads="))
+                                               for value in arguments[black:]))
                     recorded = json.loads((entries[0]["out"] / "slot.json").read_text())
                     self_outer.assertEqual(recorded["cgroup"], group)
                     self_outer.assertEqual(recorded["saved_ancestor_nodes"], [0, 1])
