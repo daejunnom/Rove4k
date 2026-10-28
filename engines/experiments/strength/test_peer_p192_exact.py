@@ -170,6 +170,53 @@ int main(void) {
 
 
 class TransformProperties(unittest.TestCase):
+    def test_emission_and_phalanx_composition_and_guards(self):
+        emission, phalanx = exact.peer_c4ke_move_emission, exact.peer_c4ke_phalanx
+        original = c4ke_edit_sources()
+        original["src/chess.cpp"] += b"\r\n".join(emission.CONSTANTS) + b"\r\n#define LSB countr_zero\r\n"
+        context = phalanx._START + b" synthetic context " + phalanx._BEFORE
+        original["src/board.cpp"] += (b"\r\n" + emission.PAWN_BEFORE + b"\r\n" + emission.PIECE_BEFORE +
+                                      b"\r\n" + b"\r\n".join(emission.PAWN_CALLS) + b"\r\n" + context)
+        variants = ("edit-castle-emission-v1", "edit-castle-phalanx-v1")
+        with pin_synthetic("c4ke", original), patch.object(phalanx, "_CONTEXT_SHA256", exact.peers.sha(context)):
+            baseline, _ = exact.transform("c4ke", original, variant="edit-castle-or-v1")
+            for variant in variants:
+                with self.subTest(variant=variant):
+                    changed, proof = exact.transform("c4ke", original, variant=variant)
+                    self.assertEqual(exact.restore("c4ke", changed, proof, variant=variant), original)
+                    self.assertEqual(proof["tt_bytes"], 192 << 30)
+                    expected = baseline["src/board.cpp"]
+                    pairs = ((emission.PAWN_BEFORE, emission.PAWN_AFTER), (emission.PIECE_BEFORE, emission.PIECE_AFTER)) if variant == variants[0] else ((phalanx._BEFORE, phalanx._AFTER),)
+                    for before, after in pairs:
+                        self.assertEqual(expected.count(before), 1)
+                        expected = expected.replace(before, after)
+                    self.assertEqual(changed["src/board.cpp"], expected)
+                    for path in set(original) - {"src/board.cpp"}:
+                        self.assertEqual(changed[path], baseline[path])
+                    for other in ("baseline", "edit-castle-or-v1", *(v for v in variants if v != variant)):
+                        with self.assertRaises(ValueError):
+                            exact.restore("c4ke", changed, proof, variant=other)
+                    forged = copy.deepcopy(proof)
+                    forged["variant"] = "edit-castle-or-v1"
+                    with self.assertRaises(ValueError):
+                        exact.restore("c4ke", changed, forged, variant=variant)
+                    with self.assertRaises(ValueError):
+                        exact.source_closure("ice4", variant=variant)
+        for path in original:
+            altered = dict(original)
+            altered[path] += b" " + emission.NAME + b" "
+            with self.subTest(path=path), pin_synthetic("c4ke", altered), self.assertRaises(ValueError):
+                exact.transform("c4ke", altered, variant=variants[0])
+        for variant, path, marker in ((variants[0], "src/board.cpp", emission.PAWN_CALLS[0]),
+                                       (variants[0], "src/chess.cpp", emission.CONSTANTS[0]),
+                                       (variants[1], "src/board.cpp", context),
+                                       (variants[1], "src/chess.cpp", phalanx._DEFINITIONS[1])):
+            altered = dict(original)
+            altered[path] = altered[path].replace(marker, b"altered", 1)
+            with self.subTest(variant=variant, marker=marker), pin_synthetic("c4ke", altered), \
+                    patch.object(phalanx, "_CONTEXT_SHA256", exact.peers.sha(context)), self.assertRaises(ValueError):
+                exact.transform("c4ke", altered, variant=variant)
+
     def test_quiet_candidate_composition_and_guards(self):
         quiet = exact.peer_c4ke_quiet_history
         variant = "edit-castle-quiet-v1"

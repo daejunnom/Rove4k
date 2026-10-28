@@ -18,6 +18,8 @@ try:
     from . import peer_c4ke_slider_loop
     from . import peer_c4ke_startpos_loop
     from . import peer_c4ke_quiet_history
+    from . import peer_c4ke_move_emission
+    from . import peer_c4ke_phalanx
 except ImportError:
     import peers
     import peer_ice_structural
@@ -26,6 +28,8 @@ except ImportError:
     import peer_c4ke_slider_loop
     import peer_c4ke_startpos_loop
     import peer_c4ke_quiet_history
+    import peer_c4ke_move_emission
+    import peer_c4ke_phalanx
 
 PROFILE = "test-p192-exact-v1"
 ENTRIES = 3 << 33
@@ -131,7 +135,7 @@ def _variant_edits(name, variant):
         baseline = _RAY_EDITS if variant == "ray-castle-or-v1" else _EDITS["c4ke"]
         return {path: (*baseline.get(path, ()), *structural.get(path, ()))
                 for path in baseline.keys() | structural.keys()}
-    if name == "c4ke" and variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1"):
+    if name == "c4ke" and variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1", "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
         structural = peer_c4ke_edit_structural.edit_specs("edit-loop-v1")
         castle = (peer_c4ke_structural.edit_specs("castle-or-v1")
                   if variant != "edit-loop-v1" else {})
@@ -150,6 +154,13 @@ def _variant_edits(name, variant):
             extra = {path: tuple((role, before, after.replace(b"rove_p", b"rove_qp"), count)
                                  for role, before, after, count in edits)
                      for path, edits in quiet.edit_specs(quiet.VARIANT).items()}
+        elif variant == "edit-castle-phalanx-v1":
+            extra = peer_c4ke_phalanx.edit_specs(peer_c4ke_phalanx.VARIANT)
+        elif variant == "edit-castle-emission-v1":
+            candidate = peer_c4ke_move_emission
+            extra = {path: () for path in candidate.SOURCE_FILES}
+            extra["src/board.cpp"] = (("pawn-emitter", candidate.PAWN_BEFORE, candidate.PAWN_AFTER, 1),
+                                      ("piece-emitter", candidate.PIECE_BEFORE, candidate.PIECE_AFTER, 1))
         return {path: (*baseline.get(path, ()), *structural.get(path, ()), *castle.get(path, ()), *extra.get(path, ()))
                 for path in baseline.keys() | structural.keys() | castle.keys() | extra.keys()}
     raise ValueError("unsupported peer transform variant")
@@ -261,7 +272,7 @@ def transform(name, source_files, *, variant="baseline"):
         raise ValueError("ray loop variable name already exists")
     if variant == "ray-castle-or-v1" and any(b"rove_ray" in data for data in source_files.values()):
         raise ValueError("ray loop variable name already exists")
-    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1") and any(
+    if variant in ("edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1", "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1", "edit-castle-emission-v1", "edit-castle-phalanx-v1") and any(
             b"rove_p" in data or b"rove_i" in data for data in source_files.values()):
         raise ValueError("edit loop variable name already exists")
     if variant in ("edit-castle-slider-v1", "edit-castle-startpos-v1"):
@@ -277,6 +288,14 @@ def transform(name, source_files, *, variant="baseline"):
                  for name in (*candidate.IDENTIFIERS, b"rove_qp")]
         if any(name.search(data) for data in source_files.values() for name in names):
             raise ValueError("quiet-history helper or parameter identifier collides")
+        candidate.transform(candidate.VARIANT, {path: source_files[path] for path in candidate.PATHS})
+    if variant == "edit-castle-emission-v1":
+        candidate = peer_c4ke_move_emission
+        if any(candidate.NAME in data for data in source_files.values()):
+            raise ValueError("candidate name already exists")
+        candidate.transform({path: source_files[path] for path in candidate.SOURCE_FILES})
+    if variant == "edit-castle-phalanx-v1":
+        candidate = peer_c4ke_phalanx
         candidate.transform(candidate.VARIANT, {path: source_files[path] for path in candidate.PATHS})
     output, proofs = {}, {}
     for path in sorted(edits):
@@ -307,7 +326,8 @@ def transform(name, source_files, *, variant="baseline"):
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     elif name == "c4ke" and variant in ("castle-or-v1", "ray-castle-or-v1",
                                          "edit-loop-v1", "edit-castle-or-v1", "edit-castle-alloc24-v1",
-                                         "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1"):
+                                         "edit-castle-slider-v1", "edit-castle-startpos-v1", "edit-castle-quiet-v1",
+                                         "edit-castle-emission-v1", "edit-castle-phalanx-v1"):
         receipt["variant"] = variant
         receipt["variant_scope"] = "pinned source transform; minifier, native runtime and playing strength unverified"
     return output, receipt
