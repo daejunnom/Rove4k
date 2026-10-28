@@ -79,20 +79,20 @@ SCAN_IMAGES = {
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 FINAL_COMPACTS = {
     "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
-          "variant": "shortnames-v1", "bytes": 5250,
-          "sha256": "03ab70a6900eba651fc2ee3663d7ddfd91bdea10ca04b2401d93148a396128e5"},
+          "variant": "shortnames-v1", "bytes": 6487,
+          "sha256": "d1e251eb3beddd51c2174c97e4254296c6a97b5e99b02cfab165447c53a30b2b"},
     "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
           "variant": "b-search-names", "bytes": 8395,
           "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
     "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
-          "variant": "unused-macro-names", "bytes": 6253,
-          "sha256": "a7582b648230a519250d52920ba62a0371a3e3fedc3a19214d84df0feb71497c"},
+          "variant": "unused-macro-names", "bytes": 7370,
+          "sha256": "6f9e2f7c4f44ceb8dcade552cc6669db4cd7cf9f6031ffb7c51d6405f6d9b839"},
     "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
-          "variant": "e-fixed-coeff-macros", "bytes": 7015,
-          "sha256": "7bfab248c5cbefb5eade5fd7c8872a0954fd4173b866cf19845aac1e51e9e6db"},
+          "variant": "e-fixed-coeff-macros", "bytes": 8634,
+          "sha256": "0ce8977c9ca390974e4952c85bd2630567f9ce81b1ca7068c6f6e50540814ceb"},
     "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
-          "variant": "names-null", "bytes": 4762,
-          "sha256": "b8b8b9a29350cc02501931b009823efdac6695ab589460715372a571cdf96187"},
+          "variant": "names-null", "bytes": 5065,
+          "sha256": "9351978b08ac412dcce6b8b6b6546071fcc535e4ebdbe09e45f264c5ea9cc3f8"},
 }
 EP = "engines/experiments/tcec-next/profile_ep.py"
 EP_PIN = dict(bytes=8477, sha256="9e089d39ded6da656a94b96a35c6b45c7a3839d6fc42672df8ff46d5f8220a34")

@@ -11,7 +11,8 @@ class CMacroCompactContract(unittest.TestCase):
         self.body = (b'\n#include <time.h>\n#define FROM(m) (m)\n#define PROMO(m) (m)\n#define MOVE(m) (m)\n'
                      + b'FROM(1);' * 5 + b'PROMO(2);' * 7 + b'MOVE(3);' * 2
                      + b' "PROMO FROM MOVE AO TQ YO"; /* PROMO AO */ // FROM TQ\n'
-                     + b'1e+AO;\n#include<immintrin.h>\nstatic int U(\n')
+                     + b'1e+AO;\n#include<immintrin.h>\nstatic int U(\n'
+                     + b'\n'.join(before for before, _ in subject._REWRITES))
         self.digest = hashlib.sha256(self.body).hexdigest()
 
     def test_inverse_and_opaque_literals_for_each_profile(self):
@@ -24,6 +25,9 @@ class CMacroCompactContract(unittest.TestCase):
                 self.assertLess(result.index(b'#include<immintrin.h>'), result.index(b'#define TQ'))
                 self.assertIn(b'"PROMO FROM MOVE AO TQ YO"', result)
                 self.assertIn(b'/* PROMO AO */ // FROM TQ\n1e+AO;', result)
+                for before, after in subject._REWRITES:
+                    self.assertNotIn(before, result)
+                    self.assertIn(after, result)
                 self.assertFalse(proof["native_identical"])
                 self.assertFalse(proof["runtime_qualified"])
 
@@ -64,6 +68,19 @@ class CMacroCompactContract(unittest.TestCase):
                 subject._move_header(source)
         with self.assertRaises(ValueError):
             subject._restore_header(subject._EARLY + subject._HEADER + b'static int U(static int U(')
+
+    def test_rewrite_missing_duplicate_and_inverse_anchors_are_rejected(self):
+        canonical = b'\n'.join(before for before, _ in subject._REWRITES)
+        compact = subject._rewrite(canonical)
+        self.assertEqual(subject._rewrite(compact, reverse=True), canonical)
+        for before, after in subject._REWRITES:
+            for bad in (canonical.replace(before, b'', 1), canonical + before,
+                        canonical + after):
+                with self.subTest(anchor=before, bad=bad[-40:]), self.assertRaises(ValueError):
+                    subject._rewrite(bad)
+            for bad in (compact.replace(after, b'', 1), compact + after, compact + before):
+                with self.subTest(inverse_anchor=after, bad=bad[-40:]), self.assertRaises(ValueError):
+                    subject._rewrite(bad, reverse=True)
 
 
 if __name__ == "__main__":

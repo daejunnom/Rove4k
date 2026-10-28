@@ -12,11 +12,14 @@ SPEC.loader.exec_module(HELPER)
 
 class SelectedSpelling(unittest.TestCase):
     def setUp(self):
-        self.source = b"NULL " * 4 + b"PROMO " * 8 + b"MOVE " * 3 + b"aa " * 28
+        self.source = (b"NULL " * 4 + b"PROMO " * 8 + b"MOVE " * 3 + b"aa " * 28 +
+                       b"!(w->e&255) t->s=-s;")
 
     def candidate(self, variant):
         data = self.source
         for before, after, _ in HELPER.TOKENS:
+            data = data.replace(before, after)
+        for before, after in HELPER.EXPRESSIONS:
             data = data.replace(before, after)
         return data
 
@@ -53,6 +56,14 @@ class SelectedSpelling(unittest.TestCase):
         with patch.dict(HELPER.INPUTS, {"test-p4": HELPER.pin(unsafe)}):
             with self.assertRaisesRegex(ValueError, "already used"):
                 HELPER.transform_source(unsafe, family="F", profile_id="test-p4")
+
+    def test_rejects_missing_or_duplicate_expression(self):
+        for before, _ in HELPER.EXPRESSIONS:
+            for unsafe in (self.source.replace(before, b""), self.source + before):
+                with self.subTest(before=before, source=unsafe), \
+                     patch.dict(HELPER.INPUTS, {"test-p4": HELPER.pin(unsafe)}), \
+                     self.assertRaisesRegex(ValueError, "expression role differs"):
+                    HELPER.transform_source(unsafe, family="F", profile_id="test-p4")
 
 
 if __name__ == "__main__":

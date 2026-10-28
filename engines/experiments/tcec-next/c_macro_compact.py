@@ -1,4 +1,4 @@
-"""C-only pinned macro spelling experiment; no runtime authority.
+"""C-only pinned macro and source compaction; no runtime authority.
 
 The immintrin header is moved before the three compact macro definitions;
 their names are then replaced in declarations and uses. Comments, quoted
@@ -23,6 +23,19 @@ _COUNTS = {b"PROMO": 8, b"FROM": 6, b"MOVE": 3}
 _EARLY = b"#include <time.h>\n"
 _HEADER = b"#include<immintrin.h>\n"
 _LATE = _HEADER + b"static int U("
+_REWRITES = (
+    (b"strtok(NULL,", b"strtok(0,"),
+    (b"d==128-1", b"d==127"),
+    (b"C<=128-2", b"C<=126"),
+    (b"static void O(X*a,int d){*a+=(d-*a*d/16384);}static int s(int p){return p+6;}static int h(",
+     b"static void O(X*a,int d){*a+=(d-*a*d/16384);}static int h("),
+    (b"R=s(p->b[o])", b"R=p->b[o]+6"),
+    (b"R=s(q.b[P])", b"R=q.b[P]+6"),
+    (b"for(int f=0;f<8;f++){b(&t,f,qa[f]);b(&t,16+f,1);b(&t,96+f,-1);b(&t,112+f,-qa[f]);}",
+     b"for(int f=0;f<8;f++)b(&t,f,qa[f]),b(&t,16+f,1),b(&t,96+f,-1),b(&t,112+f,-qa[f]);"),
+    (b"if(U)e->aT=a,e->U=U;else U=e->aT==a?e->U:0;",
+     b"U=U?(e->aT=a,e->U=U):e->aT==a?e->U:0;"),
+)
 _IDENT = re.compile(rb"[A-Za-z_][A-Za-z_0-9]*")
 _NUMBER = re.compile(rb"(?:[0-9]|\.[0-9])(?:[eEpP][+-]|[A-Za-z_0-9.])*")
 _LITERAL = re.compile(rb'(?:u8|[LuU])?["\']')
@@ -93,15 +106,25 @@ def _restore_header(source):
     return source.replace(_EARLY + _HEADER, _EARLY, 1).replace(b"static int U(", _LATE, 1)
 
 
+def _rewrite(source, *, reverse=False):
+    pairs = reversed(_REWRITES) if reverse else _REWRITES
+    for original, compact in pairs:
+        before, after = (compact, original) if reverse else (original, compact)
+        if source.count(before) != 1 or source.count(after) != 0:
+            raise ValueError("C compact rewrite anchors differ")
+        source = source.replace(before, after, 1)
+    return source
+
+
 def transform_source(source, *, family, profile_id):
     if family != "C" or type(profile_id) is not str or profile_id not in _PREFIX or type(source) is not bytes:
         raise ValueError("only the pinned C P4 and W256 source forms are supported")
     prefix = _PREFIX[profile_id]
     if not source.startswith(prefix) or sha256(source[len(prefix):]).hexdigest() != _BODY_SHA256:
         raise ValueError("C macro source differs from its pinned body")
-    result = _replace(_move_header(source), _NAMES, _COUNTS)
+    result = _rewrite(_replace(_move_header(source), _NAMES, _COUNTS))
     inverse = {value: key for key, value in _NAMES.items()}
-    if _restore_header(_replace(result, inverse, {_NAMES[key]: count for key, count in _COUNTS.items()})) != source:
+    if _restore_header(_replace(_rewrite(result, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()})) != source:
         raise ValueError("C macro complete inverse differs")
     return result, {"schema": SCHEMA, "variant": DECLARATION["variant"],
                     "family": family, "profile_id": profile_id,
@@ -115,7 +138,7 @@ def restore_source(candidate, proof):
     if type(candidate) is not bytes or type(proof) is not dict:
         raise ValueError("C macro candidate and proof required")
     inverse = {value: key for key, value in _NAMES.items()}
-    source = _restore_header(_replace(candidate, inverse, {_NAMES[key]: count for key, count in _COUNTS.items()}))
+    source = _restore_header(_replace(_rewrite(candidate, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()}))
     regenerated, expected = transform_source(source, family=proof.get("family"), profile_id=proof.get("profile_id"))
     try:
         proof_matches = (json.dumps(expected, sort_keys=True, separators=(",", ":"), allow_nan=False)

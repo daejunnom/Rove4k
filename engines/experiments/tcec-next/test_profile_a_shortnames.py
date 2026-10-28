@@ -31,6 +31,21 @@ class AShortnamesTests(unittest.TestCase):
             with self.subTest(family=family, profile=profile), self.assertRaises(ValueError):
                 target.transform_source(b"int OLD;", family=family, profile_id=profile)
 
+    def test_expression_stages_are_exact_and_reversible(self):
+        original = b"|".join(before for before, _ in target.EXPRESSIONS)
+        compact, stages = target._expressions(original)
+        self.assertEqual(compact, b"|".join(after for _, after in target.EXPRESSIONS))
+        self.assertEqual(target._inverse_expressions(compact, stages), original)
+        for before, _ in target.EXPRESSIONS:
+            with self.subTest(missing=before), self.assertRaisesRegex(ValueError, "occurrence"):
+                target._expressions(original.replace(before, b"missing"))
+            with self.subTest(duplicate=before), self.assertRaisesRegex(ValueError, "occurrence"):
+                target._expressions(original + b"|" + before)
+        with self.assertRaises(ValueError):
+            target._inverse_expressions(compact, stages[:-1])
+        with self.assertRaises(ValueError):
+            target._inverse_expressions(compact.replace(b"strtok(0,", b"strtok(1,"), stages)
+
 
 if __name__ == "__main__":
     unittest.main()

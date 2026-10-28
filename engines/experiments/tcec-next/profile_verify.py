@@ -74,7 +74,7 @@ SCAN_PIN = {"bytes": 10623, "sha256": "98eb3139bcbd745f08fbab2d8a738b428d4e668de
 FINAL_COMPACT = {
     "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
           "variant": "shortnames-v1", "schema": "rove4k.a-shortnames.v1",
-          "pin": {"bytes": 5250, "sha256": "03ab70a6900eba651fc2ee3663d7ddfd91bdea10ca04b2401d93148a396128e5"},
+          "pin": {"bytes": 6487, "sha256": "d1e251eb3beddd51c2174c97e4254296c6a97b5e99b02cfab165447c53a30b2b"},
           "profiles": ("test-p4", "tcec-provisional")},
     "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
           "variant": "b-search-names", "schema": "rove4k.profile-b-short-names.v1",
@@ -82,15 +82,15 @@ FINAL_COMPACT = {
           "profiles": ("test-p4", "tcec-provisional")},
     "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
           "variant": "unused-macro-names", "schema": "rove4k.c-macro-compact-experiment.v1",
-          "pin": {"bytes": 6253, "sha256": "a7582b648230a519250d52920ba62a0371a3e3fedc3a19214d84df0feb71497c"},
+          "pin": {"bytes": 7370, "sha256": "6f9e2f7c4f44ceb8dcade552cc6669db4cd7cf9f6031ffb7c51d6405f6d9b839"},
           "profiles": ("test-p4", "tcec-provisional")},
     "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
           "variant": "e-fixed-coeff-macros", "schema": "rove4k.e-fixed-coeff-macros.v1",
-          "pin": {"bytes": 7015, "sha256": "7bfab248c5cbefb5eade5fd7c8872a0954fd4173b866cf19845aac1e51e9e6db"},
+          "pin": {"bytes": 8634, "sha256": "0ce8977c9ca390974e4952c85bd2630567f9ce81b1ca7068c6f6e50540814ceb"},
           "profiles": ("test-p4", "tcec-provisional")},
     "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
           "variant": "names-null", "schema": "rove4k-f-final-spelling-v1",
-          "pin": {"bytes": 4762, "sha256": "b8b8b9a29350cc02501931b009823efdac6695ab589460715372a571cdf96187"},
+          "pin": {"bytes": 5065, "sha256": "9351978b08ac412dcce6b8b6b6546071fcc535e4ebdbe09e45f264c5ea9cc3f8"},
           "profiles": ("test-p4", "test-p28", "tcec-provisional")},
 }
 EP = "engines/experiments/tcec-next/profile_ep.py"

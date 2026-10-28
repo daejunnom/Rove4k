@@ -39,7 +39,8 @@ class FixedEProjection(unittest.TestCase):
 
     def test_macro_projection_follows_coefficients_and_restores_exactly(self):
         source = (b"#define FROM(m) (m)\n#define MOVE(a,b,c) (a)\n#define PROMO(m) (m)\n"
-                  + fixture() + b"FROM(x);MOVE(x,y,z);PROMO(x);\n")
+                  + fixture() + b"FROM(x);MOVE(x,y,z);PROMO(x);\n"
+                  + b";".join(before for before, _ in target.FINAL_EDITS))
         with patch.object(target, "INPUT_SHA256", {hashlib.sha256(source).hexdigest()}):
             coefficient_result, _ = target.transform(source)
         with patch.object(target, "COEFFICIENT_RESULT_SHA256", {hashlib.sha256(coefficient_result).hexdigest()}):
@@ -58,9 +59,22 @@ class FixedEProjection(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "macro identifiers"):
                 target.transform_macros(source)
 
+    def test_final_projection_rejects_missing_duplicate_and_inverse_collisions(self):
+        source = b";".join(before for before, _ in target.FINAL_EDITS)
+        result, report = target.transform_final(source)
+        self.assertTrue(report["inverse_exact"])
+        for before, after in target.FINAL_EDITS:
+            with self.assertRaisesRegex(ValueError, "final expression layout"):
+                target.transform_final(source.replace(before, b"", 1))
+            with self.assertRaisesRegex(ValueError, "final expression layout"):
+                target.transform_final(source + b";" + before)
+            with self.assertRaisesRegex(ValueError, "final expression layout"):
+                target.transform_final(source + b";" + after)
+
     def test_public_two_stage_proof_binds_profile_and_full_inverse(self):
         source = (b"#define FROM(m) (m)\n#define MOVE(a,b,c) (a)\n#define PROMO(m) (m)\n"
-                  + fixture() + b"FROM(x);MOVE(x,y,z);PROMO(x);\n")
+                  + fixture() + b"FROM(x);MOVE(x,y,z);PROMO(x);\n"
+                  + b";".join(before for before, _ in target.FINAL_EDITS))
         source_sha = hashlib.sha256(source).hexdigest()
         with patch.object(target, "INPUT_SHA256", {source_sha}):
             coefficient_result, _ = target.transform(source)

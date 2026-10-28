@@ -1,8 +1,8 @@
 """F-only final C spellings with exact source pins and reversible edits.
 
-The selected variant changes only pointer null constants and three unused macro
-names. Native identity and runtime qualification are not implied by the source
-transformation itself.
+The selected variant changes pointer null constants, three macro names, and
+two equivalent expressions. Native identity and runtime qualification are not
+implied by the source transformation itself.
 """
 from __future__ import annotations
 
@@ -19,13 +19,15 @@ INPUTS = {
 }
 OUTPUTS = {
     "names-null": {
-        "test-p4": (6988, "eb639275453807d596c61faf869d2c70f2faa415d6c3d51575b6cd4bb357a4a9"),
-        "test-p28": (7021, "80d6ae320d4998a9d6f79a6038020ee39c23262ccc4f252e3b1963fedfa46266"),
-        "tcec-provisional": (6990, "87b5e9e41ffd2f3965248033801443e5d142e6b861118402f7edfa032ce87615"),
+        "test-p4": (6989, "6d849252d5994d531399b5eb57f915c1ff3ff3ca79a4674591ac074c30a97730"),
+        "test-p28": (7022, "5e36e83138e24172ac0ba66fd654f0a396c2882e5ef56cda3e1eff27111f50e7"),
+        "tcec-provisional": (6991, "5e46fd242e777c79c45ceda782be430476a6b650a35d24eb2e2636f7f4a461a2"),
     },
 }
 TOKENS = ((b"NULL", b"0", 4), (b"PROMO", b"qO", 8),
           (b"MOVE", b"qe", 3), (b"aa", b"qt", 28))
+EXPRESSIONS = ((b"!(w->e&255)", b"w->e%256==0"),
+               (b"t->s=-s;", b"t->s*=-1;"))
 
 
 def pin(data):
@@ -42,6 +44,10 @@ def _edits(source, variant):
         if after != b"0" and re.search(rb"\b" + after + rb"\b", source):
             raise ValueError("F replacement identifier is already used")
         rows.extend((match.start(), before, after) for match in matches)
+    for before, after in EXPRESSIONS:
+        if source.count(before) != 1:
+            raise ValueError("F expression role differs")
+        rows.append((source.index(before), before, after))
     return sorted(rows)
 
 

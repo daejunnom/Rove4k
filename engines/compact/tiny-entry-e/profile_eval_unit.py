@@ -41,6 +41,36 @@ COEFFICIENT_RESULT_SHA256 = frozenset({
     "85b145b40964f6330133436bf34b9d7f987939952a65e838eda5ea695231cca7",
 })
 MACRO_EDITS = ((b"FROM", b"TT"), (b"MOVE", b"YX"), (b"PROMO", b"XX"))
+# Exact-context substitutions after the model/macro stage.  The outer input
+# digest pins the whole producer source; these anchors make inversion unique.
+FINAL_EDITS = (
+    (b'nt(void){J strtok(NULL,', b'nt(void){J strtok(0,'),
+    (b'(d==128-1)*2', b'(d==127)*2'),
+    (b'C<=128-2;C++', b'C<=126;C++'),
+    (b'for(L f=0;f<8;f++){b(&t,f,qa[f]);',
+     b'for(L f=0;f!=8;f++){b(&t,f,qa[f]);'),
+)
+
+
+def transform_final(source: bytes) -> tuple[bytes, dict]:
+    result = source
+    for before, after in FINAL_EDITS:
+        if result.count(before) != 1 or result.count(after):
+            raise ValueError("the guarded E final expression layout differs")
+        result = result.replace(before, after, 1)
+    restored = result
+    for before, after in reversed(FINAL_EDITS):
+        if restored.count(after) != 1 or restored.count(before):
+            raise ValueError("the E final expression inverse is ambiguous")
+        restored = restored.replace(after, before, 1)
+    if restored != source:
+        raise ValueError("the E final expression inverse differs")
+    return result, {
+        "source_bytes": len(source), "source_sha256": sha256(source).hexdigest(),
+        "result_bytes": len(result), "result_sha256": sha256(result).hexdigest(),
+        "inverse_exact": True, "source_only": True, "runtime_qualified": False,
+    }
+
 
 
 def transform(source: bytes) -> tuple[bytes, dict]:
@@ -103,12 +133,13 @@ def transform_source(source: bytes, *, family: str, profile_id: str) -> tuple[by
     if selected is None or selected[0] != profile_id:
         raise ValueError("the pinned E source and profile differ")
     coefficient, first = transform(source)
-    result, second = transform_macros(coefficient)
+    macros, second = transform_macros(coefficient)
+    result, third = transform_final(macros)
     proof = {"schema": SCHEMA, "family": family, "profile_id": profile_id,
              "variant": DECLARATION["variant"], "ep_variant": selected[1],
              "input": {"bytes": len(source), "sha256": sha256(source).hexdigest()},
              "output": {"bytes": len(result), "sha256": sha256(result).hexdigest()},
-             "components": [first, second], "full_inverse": True,
+             "components": [first, second, third], "full_inverse": True,
              "source_only": True, "runtime_qualified": False}
     return result, proof
 
@@ -119,6 +150,10 @@ def restore_source(candidate: bytes, proof: dict) -> bytes:
             proof.get("output") != {"bytes": len(candidate), "sha256": sha256(candidate).hexdigest()}):
         raise ValueError("the exact E candidate and proof are required")
     source = candidate
+    for before, after in reversed(FINAL_EDITS):
+        if source.count(after) != 1 or source.count(before):
+            raise ValueError("the E final expression inverse is ambiguous")
+        source = source.replace(after, before, 1)
     for before, after in reversed(MACRO_EDITS):
         source = re.sub(rb"\b" + after + rb"\b", before, source)
     for before, after in reversed(EDITS):

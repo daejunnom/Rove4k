@@ -1,8 +1,9 @@
-"""Finite A source-name compaction after the maintained dependency stage.
+"""Finite A source compaction after the maintained dependency stage.
 
 Only complete pinned A sources are admitted.  Replacing C identifier tokens
 does not touch string or character literals, comments, or unrelated tokens.
-The full inverse and named native-image checks remain separate obligations.
+The pinned expression substitutions have an exact inverse as well; native-image
+checks remain a separate obligation.
 """
 from hashlib import sha256
 import json
@@ -16,11 +17,15 @@ INPUTS = {
     "tcec-provisional": (7597, "f85fa3716aed39fe9b2ca973ac3d87650dbac95dfa9cedbaf800ada4f6375a23"),
 }
 OUTPUTS = {
-    "test-p4": (7540, "79074cfacf8225df8285bcdca08931a42d8270a48e560b3a8c48937f225fab36"),
-    "tcec-provisional": (7542, "8144c429c67b8c41611996cb50e8fda2e85359d7389df0836321836d5f7195ef"),
+    "test-p4": (7527, "f6afa9e4872dbe0a3a94ec5edd9934835bae7680bc9041a92e8d3aca8dc5f886"),
+    "tcec-provisional": (7529, "e27c7609c42b9d39629a79b8b92a01b2b70cb369c6ca3e719ce22b99aef0de37"),
 }
 NAMES = ((b"HISTORY", b"BB", 3), (b"MOVES", b"PL", 4),
          (b"MATE", b"LL", 10), (b"PLY", b"JJ", 8))
+EXPRESSIONS = ((b"strtok(NULL,", b"strtok(0,"),
+               (b"(unsigned)p->aI", b"(Y)p->aI"),
+               (b"if(x<0)x=0;", b"x=x<0?0:x;"),
+               (b"JJ-1", b"127"), (b"JJ-2", b"126"))
 _TOKEN = re.compile(rb'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|/\*.*?\*/|//[^\n]*|[A-Za-z_][A-Za-z_0-9]*', re.S)
 _IDENT = re.compile(rb"[A-Za-z_][A-Za-z_0-9]*\Z")
 
@@ -78,17 +83,40 @@ def _inverse(candidate, edits):
     return result
 
 
+def _expressions(source):
+    """Apply only single, exact pinned source spans and retain inverse offsets."""
+    result, stages = source, []
+    for before, after in EXPRESSIONS:
+        require(result.count(before) == 1, "expression occurrence count differs")
+        at = result.index(before)
+        result = result[:at] + after + result[at + len(before):]
+        stages.append([{ "input_begin": at, "output_begin": at,
+                         "before": before.decode(), "after": after.decode() }])
+    return result, stages
+
+
+def _inverse_expressions(candidate, stages):
+    require(type(stages) is list and len(stages) == len(EXPRESSIONS),
+            "expression stages differ")
+    for edits in reversed(stages):
+        candidate = _inverse(candidate, edits)
+    return candidate
+
+
 def transform_source(source, *, family, profile_id):
     require(family == "A" and profile_id in INPUTS and type(source) is bytes
             and (len(source), sha256(source).hexdigest()) == INPUTS[profile_id],
             "exact full A source and supported profile required")
-    result, edits = _project(source, NAMES)
+    renamed, edits = _project(source, NAMES)
+    result, expression_edits = _expressions(renamed)
     require((len(result), sha256(result).hexdigest()) == OUTPUTS[profile_id]
-            and _inverse(result, edits) == source, "named output or complete inverse differs")
+            and _inverse(_inverse_expressions(result, expression_edits), edits) == source,
+            "named output or complete inverse differs")
     proof = {"schema": SCHEMA, "family": family, "profile_id": profile_id,
              "variant": DECLARATION["variant"], "input": pin(source), "output": pin(result),
-             "edits": edits, "full_inverse": True, "raw_source_delta": len(result) - len(source),
-             "scope": "identifier tokens only; literals, comments and other bytes preserved",
+             "edits": edits, "expression_edits": expression_edits,
+             "full_inverse": True, "raw_source_delta": len(result) - len(source),
+             "scope": "identifier tokens and pinned expression spans; other bytes preserved",
              "features_removed": False, "engine_executed": False, "runtime_qualified": False}
     return result, proof
 
@@ -97,7 +125,7 @@ def restore_source(candidate, proof):
     require(type(proof) is dict and proof.get("schema") == SCHEMA and proof.get("family") == "A"
             and proof.get("profile_id") in OUTPUTS and pin(candidate) == proof.get("output"),
             "named A inverse proof required")
-    original = _inverse(candidate, proof.get("edits"))
+    original = _inverse(_inverse_expressions(candidate, proof.get("expression_edits")), proof.get("edits"))
     rebuilt, expected = transform_source(original, family="A", profile_id=proof["profile_id"])
     require(rebuilt == candidate and json.dumps(proof, sort_keys=True, separators=(",", ":")) ==
             json.dumps(expected, sort_keys=True, separators=(",", ":")), "canonical projection proof differs")
