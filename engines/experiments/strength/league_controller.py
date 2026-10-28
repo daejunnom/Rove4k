@@ -146,6 +146,47 @@ def _snapshot_state(campaign, snapshot):
     return state
 
 
+def _budget_report(state, at, compute, upper):
+    """Describe the current ledger arithmetic without claiming a bill.
+
+    The prior balances and receipts are recorded assertions, and the instance
+    charge is calculated at the recorded upper rate from the request time.
+    Neither those values nor a recorded limit event authenticate actual AWS
+    charges. The reserve and its buffer expose the existing policy unchanged.
+    """
+    recorded_ancillary = state.prior_ancillary_usd + sum(
+        (amount for _, amount in state.ancillary_receipts), decimal('0'))
+    reserve_floor = decimal('20')
+    reserve_buffer = max(decimal('0'), reserve_floor - recorded_ancillary)
+    # This is the maximum policy window, not an actual authorized game or
+    # proof of a future charge. A shorter window can yield a different result.
+    _, projected_upper = state.totals(at + 60)
+    maximum_window_fits = state.release_window_fits(at, at + 60)
+    reasons = []
+    if state.confirmed_limit:
+        reasons.append('ledger_limit_reported')
+    if upper >= decimal('120'):
+        reasons.append('estimated_upper_reached')
+    return {
+        # Keep the original keys for consumers of previous reports.
+        'compute_usd': str(compute), 'upper_usd': str(upper),
+        'compute_upper_usd': str(compute),
+        'prior_compute_recorded_usd': str(state.prior_compute_usd),
+        'ancillary_recorded_usd': str(recorded_ancillary),
+        'ancillary_reserve_floor_usd': str(reserve_floor),
+        'ancillary_reserve_buffer_usd': str(reserve_buffer),
+        'budget_limit_usd': '120',
+        'maximum_release_window_seconds': 60,
+        'maximum_release_window_upper_usd': str(projected_upper),
+        'maximum_release_window_budget_fits': maximum_window_fits,
+        'projection_scope': 'ledger_arithmetic_only_not_game_admission',
+        'instance_charge_basis': 'request_time_upper_rate_and_minimum_60_seconds',
+        'billing_authenticated': False,
+        'confirmed_billed_usd': None,
+        'draining_reasons': reasons,
+    }
+
+
 class LeagueController:
     """Serialize actual budget observations and produce a denial-only mailbox.
 
@@ -213,9 +254,10 @@ class LeagueController:
                       'release_observed': row.release_observed, 'settled': row.settled}
                      for row in state.games]
             return {'state': 'draining' if state.draining else 'diagnostic',
-                    'budget': {'compute_usd': str(compute), 'upper_usd': str(upper)},
+                    'budget': _budget_report(state, at, compute, upper),
                     'draining': state.draining, 'games': games,
                     'scored_go_allowed': False, 'termination_allowed': False,
+                    'scored_go_block_reason': 'score_authority_not_implemented',
                     'declared_resource_ids_disjoint': True, 'iam_isolation_verified': False,
                     'legacy_nonce_tokens_tags_schedules_verified': False,
                     'physical_settlement_verified': False, 'anchor': asdict(snapshot.anchor)}

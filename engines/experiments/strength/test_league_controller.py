@@ -131,16 +131,33 @@ class LeagueControllerTests(unittest.TestCase):
         self.assertEqual(before['state'], 'diagnostic')
         self.assertFalse(before['draining'])
         self.assertGreater(float(before['budget']['upper_usd']), 119)
+        self.assertEqual(before['budget']['compute_usd'], before['budget']['compute_upper_usd'])
+        self.assertEqual(before['budget']['prior_compute_recorded_usd'], '99')
+        self.assertEqual(before['budget']['ancillary_recorded_usd'], '0')
+        self.assertEqual(before['budget']['ancillary_reserve_floor_usd'], '20')
+        self.assertEqual(before['budget']['ancillary_reserve_buffer_usd'], '20')
+        self.assertEqual(before['budget']['draining_reasons'], [])
+        self.assertIsNone(before['budget']['confirmed_billed_usd'])
+        self.assertFalse(before['budget']['billing_authenticated'])
+        self.assertEqual(before['scored_go_block_reason'], 'score_authority_not_implemented')
         self.assertEqual({row['game_id'] for row in before['games']}, {'game-a', 'game-b'})
         self.assertTrue(all(row['release_authorized'] and not row['settled'] for row in before['games']))
         boot = '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabb'
         host = DiagnosticHost('i-123', boot, 'first-token')
         mailbox = self.controller.diagnostic_mailbox(host, read_boot=lambda: boot, now_utc=lambda: 1001)
         try:
+            projected = self.controller.observe(request_id='league-window-projection-001', at=1224)
+            self.assertFalse(projected['draining'])
+            self.assertEqual(projected['budget']['draining_reasons'], [])
+            self.assertLess(float(projected['budget']['upper_usd']), 120)
+            self.assertGreaterEqual(float(projected['budget']['maximum_release_window_upper_usd']), 120)
+            self.assertEqual(projected['budget']['maximum_release_window_seconds'], 60)
+            self.assertFalse(projected['budget']['maximum_release_window_budget_fits'])
             after = self.controller.observe(request_id='league-observation-002', at=1226)
             self.assertEqual(after['state'], 'draining')
             self.assertTrue(after['draining'])
             self.assertGreaterEqual(float(after['budget']['upper_usd']), 120)
+            self.assertEqual(after['budget']['draining_reasons'], ['estimated_upper_reached'])
             self.assertEqual({row['game_id'] for row in after['games']}, {'game-a', 'game-b'})
             self.assertTrue(all(not row['settled'] for row in after['games']))
             self.assertFalse(after['scored_go_allowed'])
@@ -165,8 +182,39 @@ class LeagueControllerTests(unittest.TestCase):
         report = self.controller.observe(request_id='league-observation-003', at=1001)
         self.assertTrue(report['draining'])
         self.assertLess(float(report['budget']['upper_usd']), 120)
+        self.assertEqual(report['budget']['draining_reasons'], ['ledger_limit_reported'])
+        self.assertIsNone(report['budget']['confirmed_billed_usd'])
         self.assertFalse(report['scored_go_allowed'])
         self.assertFalse(report['termination_allowed'])
+        self.event(2, 'budget.v2.ancillary_charge', {'receipt_id': 'after-limit', 'usd': '21'}, at=1002)
+        report = self.controller.observe(request_id='league-observation-both-causes', at=1003)
+        self.assertEqual(report['budget']['draining_reasons'],
+                         ['ledger_limit_reported', 'estimated_upper_reached'])
+
+    def test_ancillary_receipts_are_distinguished_from_the_reserve_floor(self):
+        self.event(1, 'budget.v2.ancillary_charge', {'receipt_id': 'storage', 'usd': '3'})
+        report = self.controller.observe(request_id='league-breakdown-001', at=1001)
+        self.assertEqual(report['budget']['ancillary_recorded_usd'], '3')
+        self.assertEqual(report['budget']['ancillary_reserve_floor_usd'], '20')
+        self.assertEqual(report['budget']['ancillary_reserve_buffer_usd'], '17')
+        self.assertEqual(report['budget']['upper_usd'], '119')
+        self.assertEqual(report['budget']['draining_reasons'], [])
+        self.assertFalse(report['budget']['billing_authenticated'])
+
+        self.event(2, 'budget.v2.ancillary_charge', {'receipt_id': 'other', 'usd': '17'}, at=1002)
+        report = self.controller.observe(request_id='league-breakdown-002', at=1003)
+        self.assertEqual(report['budget']['ancillary_recorded_usd'], '20')
+        self.assertEqual(report['budget']['ancillary_reserve_buffer_usd'], '0')
+        self.assertEqual(report['budget']['upper_usd'], '119')
+        self.assertFalse(report['draining'])
+
+        self.event(3, 'budget.v2.ancillary_charge', {'receipt_id': 'tax', 'usd': '2'}, at=1004)
+        report = self.controller.observe(request_id='league-breakdown-003', at=1005)
+        self.assertEqual(report['budget']['ancillary_recorded_usd'], '22')
+        self.assertEqual(report['budget']['ancillary_reserve_buffer_usd'], '0')
+        self.assertEqual(report['budget']['upper_usd'], '121')
+        self.assertEqual(report['budget']['draining_reasons'], ['estimated_upper_reached'])
+        self.assertTrue(report['draining'])
 
     def test_mailbox_requires_an_observation_and_stays_closed_when_limit_confirmed(self):
         boot = '9c87985b-49cb-4c8e-9de5-3ea3d9c7fabb'
@@ -212,6 +260,8 @@ class LeagueControllerTests(unittest.TestCase):
         client.doc['campaign'] = self.plan.campaign
         opening = client.doc['opening']
         opening['prior_compute_usd'] = '5'
+        opening['prior_ancillary_usd'] = '3'
+        opening['prior_receipts'] = [['prior-storage', '3']]
         opening['prior_limit_confirmed'] = True
         opening['as_of'] = 1000
         opening['events'] = [
@@ -233,6 +283,9 @@ class LeagueControllerTests(unittest.TestCase):
             controller = LeagueController(self.plan, store, owner)
             report = controller.observe(request_id='league-opening-observation-001', at=1001)
             self.assertTrue(report['draining'])
+            self.assertEqual(report['budget']['prior_compute_recorded_usd'], '5')
+            self.assertEqual(report['budget']['ancillary_recorded_usd'], '3')
+            self.assertEqual(report['budget']['ancillary_reserve_buffer_usd'], '17')
             self.assertGreater(float(report['budget']['compute_usd']), 5)
             self.assertLess(float(report['budget']['upper_usd']), 120)
             self.assertEqual([row['game_id'] for row in report['games']], ['opening-game'])
