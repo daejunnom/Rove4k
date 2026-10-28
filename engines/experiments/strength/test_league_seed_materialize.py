@@ -247,6 +247,77 @@ class MaterializeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             handle.read_member('origin/A/unknown', self.spec)
 
+    def test_original_source_plan_uses_actual_restore_preflight_without_restoring(self):
+        cloud = layout.cloud
+        fixture, _, _ = pinned_fixture()
+        row = fixture.seed['rove'][0]
+        original = '/home/runner/work/_temp/rove-alias-fixture'
+        seal = {'format': 'rove4k.source-bundle-seal.v1',
+                'ci_context': fixture.seed['source_origin'],
+                'producer': {'ID': 'ubuntu', 'VERSION_ID': '24.04'},
+                'bundle': cloud.pin(fixture.files[row['source_bundle']]),
+                'profiles': [{'family': row['family'], 'profile': row['profile'],
+                              'build_root': original + '/build'}]}
+        fixture.files[row['source_seal']] = cloud.ledger.canonical(seal) + b'\n'
+        fixture.reseal()
+        fixture.seed['original_layout']['roots'] = [{'original_root': original, 'seed_prefix': 'origin/A',
+            'files': {name[len('origin/A/'):]: cloud.pin(body) for name, body in fixture.files.items()
+                      if name.startswith('origin/A/')}}]
+        raw, manifest_sha = archive_bytes(fixture.seed, fixture.files)
+        spec = transfer_spec_for(raw, manifest_sha, fixture.seed['source_origin'])
+        snapshot = stage_and_inspect(spec, Client(data=raw), self.stage_root)
+        handle = snapshot.materialize(spec, self.target_root)
+        try:
+            with mock.patch.object(cloud, '_original_layout_source_plan',
+                                   wraps=cloud._original_layout_source_plan) as preflight:
+                report = handle.inspect_original_source_plan(spec)
+            self.assertEqual(preflight.call_count, 1)
+            self.assertEqual(report['root_count'], 1)
+            self.assertEqual(report['original_plan_sha256'],
+                             cloud.ledger.digest(cloud.original_layout_plan(fixture.seed)))
+            for claim in ('original_paths_restored', 'source_authorized', 'host_authenticated',
+                          'producer_authenticated', 'runtime_qualified', 'score_qualified', 'go_authorized'):
+                self.assertIs(report[claim], False)
+            self.assertFalse((handle.root_path / 'origin/A/build/main.c').exists())
+            self.assertTrue((handle.root_path / 'origin/A/__rove_seed_build_v1__/main.c').is_file())
+            with self.assertRaises(ValueError):
+                handle.inspect_original_source_plan(replace(spec, request=replace(spec.request,
+                                                    seed_version_id='other-version')))
+            target = handle.root_path / handle.physical_for(row['source_seal'], spec)
+            target.write_bytes(b'X' * target.stat().st_size)
+            with self.assertRaises(ValueError):
+                handle.inspect_original_source_plan(spec)
+        finally:
+            handle.close()
+            snapshot.close()
+
+    def test_original_source_plan_rejects_seal_root_mismatch_before_copy(self):
+        cloud = layout.cloud
+        fixture, _, _ = pinned_fixture()
+        row = fixture.seed['rove'][0]
+        original = '/home/runner/work/_temp/rove-alias-fixture'
+        seal = {'format': 'rove4k.source-bundle-seal.v1',
+                'ci_context': fixture.seed['source_origin'],
+                'producer': {'ID': 'ubuntu', 'VERSION_ID': '24.04'},
+                'bundle': cloud.pin(fixture.files[row['source_bundle']]),
+                'profiles': [{'family': row['family'], 'profile': row['profile'],
+                              'build_root': original + '/elsewhere'}]}
+        fixture.files[row['source_seal']] = cloud.ledger.canonical(seal) + b'\n'
+        fixture.reseal()
+        fixture.seed['original_layout']['roots'] = [{'original_root': original, 'seed_prefix': 'origin/A',
+            'files': {name[len('origin/A/'):]: cloud.pin(body) for name, body in fixture.files.items()
+                      if name.startswith('origin/A/')}}]
+        raw, manifest_sha = archive_bytes(fixture.seed, fixture.files)
+        spec = transfer_spec_for(raw, manifest_sha, fixture.seed['source_origin'])
+        snapshot = stage_and_inspect(spec, Client(data=raw), self.stage_root)
+        handle = snapshot.materialize(spec, self.target_root)
+        try:
+            with self.assertRaisesRegex(ValueError, 'exact sealed original build root'):
+                handle.inspect_original_source_plan(spec)
+        finally:
+            handle.close()
+            snapshot.close()
+
     def test_independent_request_change_is_rejected_before_and_after_creation(self):
         other = replace(self.spec, request=replace(self.spec.request, seed_version_id='other-version'))
         with self.assertRaises(ValueError):

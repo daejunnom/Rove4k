@@ -661,18 +661,25 @@ class OriginalLayout:
         return self
 
 
-def restore_original_layout(seed, seed_root):
-    """Copy exact declared members to new CI-owned paths; never merge/delete."""
-    require(sys.platform == "linux", "original CI layout restoration requires Linux")
-    revalidate_seed(seed, seed_root)
+def _original_layout_source_plan(seed, reader):
+    """Check the original seal/build-root correspondence without restoring files.
+
+    The reader belongs to the caller and confers no producer or host authority.
+    In particular this does not create an OriginalLayout or admit compilation.
+    """
     plan = original_layout_plan(seed)
     require(not seed.get("rove") or plan, "Rove cloud seed omitted its exact original-layout restore map")
     for selected in seed.get("rove", []):
-        seal = checked_json(Path(seed_root) / selected["source_seal"])
+        seal_data = reader(selected["source_seal"])
+        bundle_data = reader(selected["source_bundle"])
+        for logical, data in ((selected["source_seal"], seal_data), (selected["source_bundle"], bundle_data)):
+            require(pin(data) == {key: seed["members"][logical][key] for key in ("bytes", "sha256")},
+                    "original-layout source member differs from its seed pin")
+        seal = json.loads(seal_data)
         require(seal.get("format") == "rove4k.source-bundle-seal.v1" and
                 seal.get("ci_context") == seed["source_origin"] and
                 seal.get("producer") == {"ID": "ubuntu", "VERSION_ID": "24.04"} and
-                seal.get("bundle") == pin(ordinary(Path(seed_root) / selected["source_bundle"], limit=MAX_SEED)),
+                seal.get("bundle") == pin(bundle_data),
                 "original-layout declaration does not bind the sealed source origin/bundle")
         profiles = [entry for entry in seal.get("profiles", []) if
                     (entry.get("family"), entry.get("profile")) == (selected["family"], selected["profile"])]
@@ -684,6 +691,14 @@ def restore_original_layout(seed, seed_root):
         execution = Path(mapping["original_root"]) / relative
         require(str(execution) == profiles[0].get("build_root"),
                 "restored execution build differs from the exact sealed original build root")
+    return plan
+
+
+def restore_original_layout(seed, seed_root):
+    """Copy exact declared members to new CI-owned paths; never merge/delete."""
+    require(sys.platform == "linux", "original CI layout restoration requires Linux")
+    revalidate_seed(seed, seed_root)
+    plan = _original_layout_source_plan(seed, lambda name: ordinary(Path(seed_root) / name, limit=MAX_MEMBER))
     for row in plan:
         destination = Path(row["original_root"])
         require(not destination.exists() and not any(path.is_symlink() for path in (destination, *destination.parents)) and

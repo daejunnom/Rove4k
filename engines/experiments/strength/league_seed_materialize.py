@@ -254,6 +254,27 @@ class MaterializedSeed:
                 'host_authenticated': False, 'producer_authenticated': False,
                 'cloud_consumer_integrated': False, 'runtime_qualified': False, 'go_authorized': False}
 
+    def inspect_original_source_plan(self, spec):
+        """Replay the actual cloud restore preflight without creating its roots.
+
+        The alias reader is bound to the independently supplied snapshot and
+        checked again after the shared cloud validation. This is not an
+        OriginalLayout, a copy to the original CI path, or source authority.
+        """
+        self.verify_for(spec)
+        mapping = self._bind(spec)
+        cloud = layout.cloud
+        plan = cloud._original_layout_source_plan(
+            mapping.manifest, lambda logical: self._read_bound_member(logical, mapping))
+        self.verify_for(spec)
+        return {'format': 'rove4k-original-source-plan-diagnostic-v1',
+                'seed_manifest_sha256': mapping.manifest_sha256,
+                'original_plan_sha256': cloud.ledger.digest(plan),
+                'root_count': len(plan),
+                'original_paths_restored': False, 'source_authorized': False,
+                'host_authenticated': False, 'producer_authenticated': False,
+                'runtime_qualified': False, 'score_qualified': False, 'go_authorized': False}
+
     def consume_cloud_diagnostic(self, spec, bank_out):
         """Run cloud's seed and bank consumers through this pinned alias tree.
 
