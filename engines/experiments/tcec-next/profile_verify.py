@@ -17,6 +17,7 @@ import json
 import lzma
 import os
 from pathlib import Path, PurePosixPath
+import re
 import signal
 import stat
 import struct
@@ -927,6 +928,55 @@ def _check_command_set(manifest):
             "producer command failed, was forced, or is not terminal")
 
 
+def require_profile_proof_closure(manifest, production_paths):
+    """Validate the mandatory legacy source-proof inventory before reading it.
+
+    This is the original producer contract, including its shared verifier
+    helper paths. A future transport policy needs its own explicit admission;
+    removing a pin and its file is not a valid projection of this contract.
+    """
+    inputs = manifest.get("inputs")
+    require(isinstance(inputs, dict) and inputs, "profile input closure is empty")
+    require(isinstance(production_paths, set) and production_paths <= set(inputs),
+            "production closure omitted from profile inputs")
+    proof_only = set(SUPPORT) | {"engines/scripts/verify_shell.py", "engines/tests/verify.py",
+        "engines/compact/tiny-entry-f/verify.py",
+        "engines/experiments/tcec-next/profile_verify.py", "engines/experiments/tcec-next/profile_rules.py"}
+    extras = set(inputs) - production_paths
+    require(extras <= proof_only, "unclassified input outside the explicit production/proof closure")
+    require(_json_equal(manifest.get("proof_inputs"), {name: inputs[name] for name in extras}),
+            "profile proof inventory differs from frozen inputs")
+    family = manifest.get("family")
+    require(family in tuple("ABCEF"), "profile proof inventory requires a C family")
+    # The producer always froze the shared support helpers. Its own profile
+    # verifier was historically optional, so do not require it retroactively.
+    required = set(SUPPORT)
+    if manifest.get("plan", {}).get("representation") == "source-jit":
+        required.add("engines/scripts/verify_shell.py")
+    if family == "F":
+        required |= {"engines/compact/tiny-entry-f/verify.py", "engines/tests/verify.py"}
+    require(required <= extras, "mandatory profile proof helper is absent from frozen proof inventory")
+    for name in required:
+        value = inputs[name]
+        require(isinstance(value, dict) and set(value) == {"bytes", "sha256"}
+                and type(value["bytes"]) is int and 0 < value["bytes"] <= 16 << 20
+                and isinstance(value["sha256"], str) and re.fullmatch(r"[a-f0-9]{64}", value["sha256"]),
+                "mandatory profile proof helper identity is malformed: " + name)
+
+
+def require_profile_control_closure(manifest, control_manifest):
+    """Retain the exact input identities recorded by the maintained control."""
+    inputs, control = manifest.get("inputs"), control_manifest.get("inputs")
+    require(isinstance(inputs, dict) and isinstance(control, dict) and control
+            and all(name in inputs and _json_equal(inputs[name], value) for name, value in control.items()),
+            "maintained control input is absent or differs from profile")
+    control_closure = control_manifest.get("control_source_closure")
+    require(isinstance(control_closure, dict) and control_closure
+            and _json_equal(manifest.get("control_source_closure"), control_closure)
+            and all(name in inputs and _json_equal(inputs[name], value) for name, value in control_closure.items()),
+            "maintained control source closure is absent or differs from profile")
+
+
 def admit_c_build(manifest, build):
     require(manifest.get("format") == 1 and manifest.get("class") == CLASS,
             "explicit new C production-profile build required")
@@ -974,11 +1024,7 @@ def admit_c_build(manifest, build):
     api.SourceClosure.validate(spec,
         engine_inputs=[row["path"] for row in closure_record["inputs"] if row["role"] == "engine"],
         tool_inputs=[row["path"] for row in closure_record["inputs"] if row["role"] == "tool"], submission=True)
-    proof_only = set(SUPPORT) | {"engines/scripts/verify_shell.py", "engines/tests/verify.py",
-        "engines/compact/tiny-entry-f/verify.py",
-        "engines/experiments/tcec-next/profile_verify.py", "engines/experiments/tcec-next/profile_rules.py"}
-    require(production_paths <= set(inputs) and set(inputs) - production_paths <= proof_only,
-            "unclassified input outside the explicit production/proof closure")
+    require_profile_proof_closure(manifest, production_paths)
     for relative, value in inputs.items():
         # Proof tools describe this particular build receipt; they never enter
         # the emitted source. A later verifier revision gets its own runtime
@@ -997,6 +1043,7 @@ def admit_c_build(manifest, build):
     control_manifest = json.loads(control_raw)
     require(control_manifest["complete"] is True and control_manifest["reproducible"] is True,
             "fresh source control is incomplete")
+    require_profile_control_closure(manifest, control_manifest)
     _check_command_set(control_manifest)
     produced, proof = projection.transform_source(base, family=family, profile=profile,
                                                 entry_cleanup=plan["entry_cleanup"])

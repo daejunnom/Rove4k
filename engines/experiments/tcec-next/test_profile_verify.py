@@ -83,6 +83,129 @@ def compound_gate_fixture(build, family="A", profile="test-p4", *, v2=False):
 
 
 class ProfileRuntimeAdmission(unittest.TestCase):
+    def test_profile_proof_inventory_requires_every_frozen_support(self):
+        from copy import deepcopy
+        production = {"engines/scripts/production.py"}
+        inputs = {name: {"bytes": 9, "sha256": digest} for name, digest in VERIFY.SUPPORT.items()}
+        inputs.update({name: VERIFY.pin(name.encode()) for name in
+                       ("engines/scripts/verify_shell.py", "engines/experiments/tcec-next/profile_verify.py")})
+        inputs["engines/scripts/production.py"] = VERIFY.pin(b"producer")
+        proof = {name: value for name, value in inputs.items() if name not in production}
+        manifest = {"family": "A", "plan": {"representation": "source-jit"},
+                    "inputs": inputs, "proof_inputs": proof}
+        VERIFY.require_profile_proof_closure(manifest, production)
+        for helper in VERIFY.SUPPORT:
+            with self.subTest(missing=helper):
+                changed = deepcopy(manifest)
+                # Remove both declaration and pin: set equality alone cannot
+                # prove the producer's required helper inventory is complete.
+                del changed["inputs"][helper]
+                del changed["proof_inputs"][helper]
+                with self.assertRaisesRegex(ValueError, "mandatory profile proof helper"):
+                    VERIFY.require_profile_proof_closure(changed, production)
+            with self.subTest(drift=helper):
+                changed = deepcopy(manifest)
+                changed["inputs"][helper]["sha256"] = "0" * 63
+                changed["proof_inputs"][helper]["sha256"] = "0" * 63
+                with self.assertRaisesRegex(ValueError, "mandatory profile proof helper"):
+                    VERIFY.require_profile_proof_closure(changed, production)
+        changed = deepcopy(manifest)
+        changed["proof_inputs"].pop(next(iter(VERIFY.SUPPORT)))
+        with self.assertRaisesRegex(ValueError, "proof inventory"):
+            VERIFY.require_profile_proof_closure(changed, production)
+        changed = deepcopy(manifest)
+        changed["proof_inputs"]["engines/scripts/extra.py"] = VERIFY.pin(b"extra")
+        with self.assertRaisesRegex(ValueError, "proof inventory"):
+            VERIFY.require_profile_proof_closure(changed, production)
+        for family, extra in (("A", ()), ("F", ("engines/compact/tiny-entry-f/verify.py", "engines/tests/verify.py"))):
+            complete = deepcopy(manifest)
+            complete["family"] = family
+            for name in extra:
+                complete["inputs"][name] = VERIFY.pin(name.encode())
+                complete["proof_inputs"][name] = VERIFY.pin(name.encode())
+            VERIFY.require_profile_proof_closure(complete, production)
+            required = ("engines/scripts/verify_shell.py", *extra)
+            for name in required:
+                with self.subTest(family=family, missing=name):
+                    changed = deepcopy(complete)
+                    del changed["inputs"][name]
+                    del changed["proof_inputs"][name]
+                    with self.assertRaisesRegex(ValueError, "mandatory profile proof helper"):
+                        VERIFY.require_profile_proof_closure(changed, production)
+        # Early producer versions added the verifier only when present; a
+        # frozen receipt is not rebound to the current verifier's bytes.
+        historical = deepcopy(manifest)
+        optional = "engines/experiments/tcec-next/profile_verify.py"
+        del historical["inputs"][optional]
+        del historical["proof_inputs"][optional]
+        for helper in VERIFY.SUPPORT:
+            historical["inputs"][helper]["sha256"] = "1" * 64
+            historical["proof_inputs"][helper]["sha256"] = "1" * 64
+        VERIFY.require_profile_proof_closure(historical, production)
+
+    def test_control_frozen_inputs_must_match_the_profile(self):
+        from copy import deepcopy
+        control_inputs = {name: {"bytes": 9, "sha256": digest} for name, digest in VERIFY.SUPPORT.items()}
+        control_closure = {"engines/scripts/production.py": VERIFY.pin(b"producer")}
+        manifest = {"inputs": {**control_inputs, **control_closure},
+                    "control_source_closure": deepcopy(control_closure)}
+        control = {"inputs": deepcopy(control_inputs), "control_source_closure": deepcopy(control_closure)}
+        VERIFY.require_profile_control_closure(manifest, control)
+        for kind in ("missing", "changed", "closure"):
+            with self.subTest(kind=kind):
+                changed = deepcopy(manifest)
+                key = next(iter(VERIFY.SUPPORT))
+                if kind == "missing":
+                    del changed["inputs"][key]
+                elif kind == "changed":
+                    changed["inputs"][key]["bytes"] += 1
+                else:
+                    changed["control_source_closure"]["engines/scripts/production.py"]["bytes"] += 1
+                with self.assertRaisesRegex(ValueError, "maintained control"):
+                    VERIFY.require_profile_control_closure(changed, control)
+
+    def test_actual_admission_rejects_a_removed_proof_pin_before_input_reads(self):
+        source, native, header, payload = b"source", b"native", b"header", b"payload"
+        content = {"main.c": source, "native/x": native, "header.sh": header,
+                   "payload.lzma": payload, "x": header + payload}
+        expected = {prefix + "_" + key: value
+                    for prefix, raw in (("source", source), ("native", native),
+                                        ("header", header), ("payload", payload),
+                                        ("whole", header + payload))
+                    for key, value in VERIFY.pin(raw).items()}
+        proof = {name: {"bytes": 9, "sha256": digest} for name, digest in VERIFY.SUPPORT.items()}
+        proof.update({name: VERIFY.pin(name.encode()) for name in
+                      ("engines/scripts/verify_shell.py", "engines/experiments/tcec-next/profile_verify.py")})
+        removed = next(name for name in proof if "tiny-entry-d" in name)
+        del proof[removed]
+        production = "engines/scripts/production.py"
+        source_proofs = []
+        row = {"path": production, "role": "tool", **VERIFY.pin(b"producer")}
+        attempts = [{"directory": name, **expected, "source_proofs": source_proofs,
+                     "target_type_gate": {"image_identical": True}} for name in ("first", "repeat")]
+        plan = {"representation": "source-jit", "entry_cleanup": "none"}
+        manifest = {"format": 1, "class": VERIFY.CLASS, "complete": True, "reproducible": True,
+                    "family": "A", "entry": "A", "resources": {}, "plan": plan,
+                    "actual": {"source": "main.c", "native": "native/x", "program": "x"},
+                    "expected_contract": expected, "attempts": attempts, "source_proofs": source_proofs,
+                    "inputs": {production: VERIFY.pin(b"producer"), **proof}, "proof_inputs": proof,
+                    "source_closure": {"family": "A", "admission": "expected-pins-verified", "inputs": [row]}}
+        api = types.SimpleNamespace(ArtifactPlan=lambda *_args, **_kwargs: types.SimpleNamespace(to_record=lambda: plan),
+                                    SourceClosure=types.SimpleNamespace(validate=lambda *_args, **_kwargs: None))
+        reads = []
+        def checked(_build, name, _expected):
+            reads.append(name)
+            key = name.split("/", 1)[1] if name.startswith(("first/", "repeat/")) else name
+            return content[key]
+        with patch.object(VERIFY, "validate_spelling_request"), \
+                patch.object(VERIFY, "_resource_record", return_value=(object(), object())), \
+                patch.object(VERIFY, "contracts", return_value=api), \
+                patch.object(VERIFY, "_check_command_set"), \
+                patch.object(VERIFY, "checked_artifact", side_effect=checked):
+            with self.assertRaisesRegex(ValueError, "mandatory profile proof helper"):
+                VERIFY.admit_c_build(manifest, Path("synthetic-not-read"))
+        self.assertFalse(any(name.startswith("inputs/") for name in reads))
+
     def test_shared_profiles_cannot_enter_legacy_runtime_launcher(self):
         from dataclasses import replace
         for profile in ("test-p16", "test-p192"):
