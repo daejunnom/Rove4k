@@ -1,0 +1,60 @@
+name: Experimental original peer small UCI smoke
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/strength/original_peer_smoke*.py'
+      - 'engines/experiments/strength/test_original_peer_smoke*.py'
+      - 'engines/experiments/strength/original_peer_uci.py'
+      - 'engines/experiments/strength/original_peer_build*.py'
+      - 'engines/experiments/strength/peer_exact_runner.py'
+      - 'engines/experiments/strength/peers.py'
+      - '.github/workflows/original-peer-uci-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        peer: [ice4, c4ke]
+    env:
+      PEER: ${{ matrix.peer }}
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Test owned small UCI smoke
+        run: python -I -B -m unittest discover -s engines/experiments/strength -p 'test_original_peer_smoke*.py'
+      - name: Fetch pinned original to temporary storage
+        run: |
+          if ! python -I -B engines/experiments/strength/peers.py source --peer "$PEER" \
+              --out "$RUNNER_TEMP/peer-source" >"$RUNNER_TEMP/source.log" 2>&1; then
+            echo 'Pinned source acquisition failed.' >&2
+            exit 1
+          fi
+      - name: Build and run small UCI smoke
+        run: |
+          export CHECKOUT_SHA="$(git rev-parse HEAD)"
+          if ! python -I -B engines/experiments/strength/original_peer_smoke_ci.py \
+              --peer "$PEER" --source "$RUNNER_TEMP/peer-source" \
+              --out "$RUNNER_TEMP/peer-output" --receipt "$RUNNER_TEMP/peer-smoke.json" \
+              >"$RUNNER_TEMP/smoke.log" 2>&1; then
+            echo 'Original peer small UCI smoke failed.' >&2
+            exit 1
+          fi
+      - name: Preserve JSON receipt only
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: original-peer-small-uci-${{ matrix.peer }}-${{ github.sha }}-attempt-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/peer-smoke.json
+          if-no-files-found: error
+          retention-days: 7
