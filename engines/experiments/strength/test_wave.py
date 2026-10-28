@@ -632,6 +632,41 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(ValueError):
             wave.WaveExecutor(output_limit_bytes=0)
 
+    @unittest.skipUnless(sys.platform == "linux", "Linux process and socket ownership")
+    def test_long_per_game_admission_is_not_legacy_runtime_timeout(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-long-admission-") as folder:
+            root = Path(folder)
+            script = root / "toy.py"
+            script.write_text(TOY)
+            out = root / "out"
+            job = wave.WaveJob("game", (sys.executable, str(script), "brief", str(out / "events.jsonl")),
+                               {}, {"game": "game"}, out)
+            result = wave.WaveExecutor().run_wave([job], 13 * 3600,
+                authorize_go=lambda job, obs: True, observe_transport=lambda job, obs: None)[0]
+            self.assertEqual(result["status"], "completed")
+            self.assertEqual(result["returncode"], 0)
+            self.assertEqual(result["gate_transport"], "sent")
+            self.assertFalse(result["cleanup_forced"])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux admission boundary")
+    def test_wave_time_rejects_nonfinite_and_preserves_legacy_bound(self):
+        with tempfile.TemporaryDirectory(prefix="rove-wave-time-admission-") as folder:
+            out = Path(folder) / "not-created"
+            job = wave.WaveJob("game", ("/does-not-exist",), {}, {"game": "game"}, out)
+            for value in (0, -1, float("nan"), float("inf"), True, 10 ** 1000):
+                with self.subTest(value=str(value)[:20]), self.assertRaises(ValueError):
+                    wave.WaveExecutor().run_wave([job], value, authorize_go=lambda *_: True,
+                                                 observe_transport=lambda *_: None)
+                self.assertFalse(out.exists())
+            with self.assertRaises(ValueError):
+                wave.WaveExecutor().run_wave([job], 13 * 3600)
+            self.assertFalse(out.exists())
+            # The async path must get past the time check, then fail its
+            # separate durable-authorizer contract before any process starts.
+            with self.assertRaisesRegex(ValueError, "async authorization requires"):
+                wave.WaveExecutor().run_wave([job], 13 * 3600, async_authorizer=object())
+            self.assertFalse(out.exists())
+
     @unittest.skipUnless(sys.platform == "linux", "Linux admission boundary")
     def test_duplicate_rejects_before_spawn_or_output(self):
         with tempfile.TemporaryDirectory(prefix="rove-wave-admission-") as temporary:

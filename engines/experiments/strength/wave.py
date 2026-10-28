@@ -511,9 +511,19 @@ class WaveExecutor:
         """
         if sys.platform != "linux":
             raise RuntimeError("the wave executor requires Linux /proc and Unix sockets")
-        if not jobs or not 0 < wall_seconds <= 12 * 3600:
-            raise ValueError("nonempty jobs and a bounded positive wave wall time required")
         asynchronous = async_authorizer is not None
+        # In the per-game paths this is an admission deadline, never a
+        # campaign lifetime or a timeout for a sent/possibly sent game.  The
+        # legacy all-at-once path retains its existing bounded wall timeout.
+        if not jobs or type(wall_seconds) not in (int, float):
+            raise ValueError("nonempty jobs and a finite positive wave time required")
+        try:
+            wall_seconds = float(wall_seconds)
+        except OverflowError as error:
+            raise ValueError("finite positive wave time required") from error
+        if (not math.isfinite(wall_seconds) or wall_seconds <= 0
+                or (authorize_go is None and not asynchronous and wall_seconds > 12 * 3600)):
+            raise ValueError("finite positive wave time required; legacy wall time is bounded")
         if asynchronous and (authorize_go is not None or release_callback is not None or release_fence is not None
                 or not callable(getattr(async_authorizer, "request", None))
                 or not callable(getattr(async_authorizer, "poll", None)) or not callable(observe_transport)
