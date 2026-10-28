@@ -61,6 +61,7 @@ jobs:
           retention-days: 7
 
   generate:
+    name: source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant || matrix.b_variant }}
     needs: source-contracts
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -359,6 +360,11 @@ jobs:
           (root / 'admission.json').write_text(json.dumps(result, indent=2) + '\n')
           print(json.dumps(result, sort_keys=True))
           PY
+      - name: Seal the admitted source for P16 and P192 seed transport
+        run: |
+          python -I -B engines/experiments/strength/league_source_bundle.py \
+            --out "$EVIDENCE_ROOT" --runner-temp "$RUNNER_TEMP" \
+            --family "$FAMILY" --profile "$PROFILE"
       - name: Preserve actual artifacts, bounded command logs and failures
         if: always() && env.EVIDENCE_ROOT != ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
