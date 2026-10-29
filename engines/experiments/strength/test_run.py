@@ -920,6 +920,53 @@ class PlanAndControllerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "durable owner recovery"):
             run.assert_no_unreconciled_releases([{"event": "campaign.release_unreconciled"}])
 
+        # A planned GO2 receipt may be pending even if no write was attempted;
+        # it remains quarantined rather than being treated as a confirmed GO.
+        controller.append.reset_mock()
+        unresolved_intent = {**settled, "status": "cancelled_unreconciled",
+                             "gate_authorized": True, "gate_intent_requested": True,
+                             "gate_receipt": "pending", "gate_released": False,
+                             "released_monotonic": None}
+        controller.event("cancelled", job, unresolved_intent)
+        self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                         ["game.process_completed", "campaign.release_unreconciled"])
+
+        # Contradictory no-send and send/receipt evidence must be rejected
+        # before journaling anything or changing another owned game's state.
+        other_game = type("State", (), {"result": "untouched", "interrupted": None})()
+        controller.results.games[("other-game", 0)] = other_game
+        for contradiction in ({"gate_released": True}, {"gate_released": 0},
+                              {"gate_send_started_monotonic": 1.0}, {"released_monotonic": 1.0},
+                              {"gate_receipt": "matched"}, {"gate_receipt_monotonic": 1.0},
+                              {"gate_fence_send_time_uncertain": True},
+                              {"gate_transport_observation_error": "lost"},
+                              {"gate_release_event_error": "lost"},
+                              {"gate_receipt_event_error": "lost"}):
+            with self.subTest(contradiction=contradiction):
+                controller.append.reset_mock()
+                controller.uncertain_releases = {"other-job": {"sentinel": True}}
+                with self.assertRaisesRegex(ValueError, "bounded gate outcome"):
+                    controller.event("cancelled", job, {**settled, **contradiction})
+                controller.append.assert_not_called()
+                self.assertEqual(controller.uncertain_releases, {"other-job": {"sentinel": True}})
+                self.assertEqual(other_game.result, "untouched")
+
+        for contradiction in ({"gate_authorization_requested": True, "gate_authorization_resolved": False},
+                              {"gate_authorization_requested": False, "gate_authorization_resolved": True},
+                              {"gate_intent_requested": True}, {"gate_authorization_requested": 0},
+                              {"gate_authorized": 0}, {"gate_authorization_unknown": 0}):
+            with self.subTest(authorization=contradiction):
+                controller.append.reset_mock()
+                with self.assertRaisesRegex(ValueError, "authorization state differs"):
+                    controller.event("cancelled", job, {**settled, **contradiction})
+                controller.append.assert_not_called()
+        for contradiction in ({"gate_authorized": "yes"}, {"gate_authorization_unknown": 0}):
+            with self.subTest(unreconciled_authorization=contradiction):
+                controller.append.reset_mock()
+                with self.assertRaisesRegex(ValueError, "authorization state differs"):
+                    controller.event("cancelled", job, {**unresolved_intent, **contradiction})
+                controller.append.assert_not_called()
+
         for unresolved_transport in ({"gate_transport": "uncertain"},
                                      {"gate_transport": "sent", "gate_transport_observation_error": "lost"},
                                      {"gate_transport": "sent", "gate_authorized": True,

@@ -27,6 +27,67 @@ def allowed_nodes():
     return parse_list(match[1])
 
 
+def _parse_security_status(text):
+    """Decode the task's own Linux credentials without inferring authority."""
+    if type(text) is not str or len(text) > 16384:
+        raise ValueError("bounded process status required")
+    keys = {"Uid", "Gid", "Groups", "CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb", "NoNewPrivs"}
+    fields = {}
+    for line in text.splitlines():
+        key, sep, value = line.partition(":")
+        if sep and key in keys:
+            if key in fields:
+                raise ValueError("duplicate security status field")
+            fields[key] = value.strip()
+    if set(fields) != keys:
+        raise ValueError("incomplete security status")
+    result = {}
+    for key in ("Uid", "Gid"):
+        tokens = fields[key].split()
+        if len(tokens) != 4 or any(not re.fullmatch(r"[0-9]{1,10}", x) or int(x) > 0xffffffff for x in tokens):
+            raise ValueError("invalid process credential fields")
+        result[key.lower()] = [int(x) for x in tokens]
+    groups = fields["Groups"].split()
+    if len(groups) > 256 or any(not re.fullmatch(r"[0-9]{1,10}", x) or int(x) > 0xffffffff for x in groups):
+        raise ValueError("invalid process supplementary groups")
+    result["groups"] = [int(x) for x in groups]
+    for key in ("CapInh", "CapPrm", "CapEff", "CapBnd", "CapAmb"):
+        if not re.fullmatch(r"[0-9a-fA-F]{1,32}", fields[key]):
+            raise ValueError("invalid process capability mask")
+        result[key] = fields[key].lower()
+    if fields["NoNewPrivs"] not in ("0", "1"):
+        raise ValueError("invalid no-new-privileges value")
+    result["no_new_privs"] = fields["NoNewPrivs"] == "1"
+    return result
+
+
+def preexec_security_observation():
+    """Observe this placement task only; no isolation or future claim follows.
+
+    Namespace identities are the view of this task, not host UID mappings.
+    An unavailable field is telemetry and does not block execution.
+    """
+    result = {"scope": "calling pre-exec thread in its user namespace; not post-exec engine or host authority",
+              "isolation_proven": False, "cgroup_escape_prevented": False,
+              "scored_game_admitted": False}
+    try:
+        with Path("/proc/thread-self/status").open("rb") as status:
+            raw = status.read(16385)
+        result["credentials"] = _parse_security_status(raw.decode("ascii"))
+    except (OSError, UnicodeError, ValueError) as error:
+        result["credentials"] = None
+        result["credentials_unavailable"] = type(error).__name__
+    namespaces = {}
+    for name in ("user", "mnt", "cgroup", "pid"):
+        try:
+            info = os.stat("/proc/thread-self/ns/" + name)
+            namespaces[name] = {"device": info.st_dev, "inode": info.st_ino}
+        except OSError:
+            namespaces[name] = None
+    result["namespaces"] = namespaces
+    return result
+
+
 def memory_policy(policy=None, nodes=()):
     """The task policy, not mbind on an address range discarded by exec."""
     if platform.system() != "Linux" or platform.machine() not in ("x86_64", "amd64"):
@@ -668,7 +729,8 @@ def apply_slot(slot, *, cgroup=None, saved_ancestor_cpus=None, saved_ancestor_no
             "requested_nodes": sorted(nodes), "effective_allowed_nodes": sorted(effective_nodes),
             "inherited_policy": inherited_policy, "requested_policy": requested_policy,
             "observed_policy": observed_policy, "fallback": fallback,
-            "cgroup": cgroup, "stage": "pre-exec runner; final engine observation is separate"}
+            "cgroup": cgroup, "stage": "pre-exec runner; final engine observation is separate",
+            "security_observation": preexec_security_observation()}
     if saved_ancestor_nodes is not None:
         receipt["saved_ancestor_nodes"] = sorted(saved_ancestor_nodes)
     return receipt

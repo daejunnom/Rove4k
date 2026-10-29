@@ -1634,17 +1634,44 @@ class StageController:
             status = observation.get("status")
             if (status not in ("cancelled_before_go", "cancelled_unreconciled") or
                     observation.get("gate_cancelled") is not True or
-                    observation.get("gate_transport") != "not_attempted"):
+                    observation.get("gate_transport") != "not_attempted" or
+                    (observation.get("gate_released") is not None and observation.get("gate_released") is not False) or
+                    observation.get("gate_send_started_monotonic") is not None or
+                    observation.get("released_monotonic") is not None or
+                    observation.get("gate_receipt") not in (None, "pending", "unresolved") or
+                    observation.get("gate_receipt_monotonic") is not None or
+                    (observation.get("gate_fence_send_time_uncertain") is not None and
+                     observation.get("gate_fence_send_time_uncertain") is not False) or
+                    observation.get("gate_transport_observation_error") is not None or
+                    observation.get("gate_release_event_error") is not None or
+                    observation.get("gate_receipt_event_error") is not None):
                 raise ValueError("cancelled runner lacks a bounded gate outcome")
+            # An authorization request or durable intent may already have
+            # committed even when no socket write occurred. A caller cannot
+            # relabel those cases as settled, nor present inconsistent
+            # requested/resolved flags as a clean before-GO cancellation.
+            requested = observation.get("gate_authorization_requested")
+            resolved = observation.get("gate_authorization_resolved")
+            intent_requested = observation.get("gate_intent_requested")
+            if (type(observation.get("gate_authorized")) is not bool or
+                    type(observation.get("gate_authorization_unknown")) is not bool or
+                    any(value is not None and type(value) is not bool
+                    for value in (requested, resolved, intent_requested)) or
+                    resolved is True and requested is not True or
+                    status == "cancelled_before_go" and
+                    (observation.get("gate_authorized") is not False or
+                     observation.get("gate_authorization_unknown") is not False or
+                     intent_requested is True or requested is True and resolved is not True) or
+                    status == "cancelled_unreconciled" and not
+                    (observation.get("gate_authorized") is True or
+                     observation.get("gate_authorization_unknown") is True or intent_requested is True)):
+                raise ValueError("cancelled runner authorization state differs")
             if not physically_settled(observation):
                 self.record_unsettled(job, observation)
             else:
                 self.append("game.process_completed", observation, **keys)
             if status == "cancelled_unreconciled":
                 self.quarantine_release(job, observation, keys)
-            elif (observation.get("gate_authorized") is not False or
-                  observation.get("gate_authorization_unknown") is not False):
-                raise ValueError("before-GO cancellation still has unresolved authorization")
             elif physically_settled(observation) and state.result is None and state.interrupted is None:
                 self.append("game.interrupted", {"reason": "budget_drain", "runner_observation": observation}, **keys)
         elif event in ("completed", "aborted", "delivery_uncertain"):

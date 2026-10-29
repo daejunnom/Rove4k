@@ -15,6 +15,62 @@ import placement
 
 
 class PlacementTests(unittest.TestCase):
+    def test_security_status_rejects_partial_or_ambiguous_fields(self):
+        status = ("Uid:\t1000\t1001\t1002\t1003\nGid:\t10\t11\t12\t13\n"
+                  "Groups:\t10 20\nCapInh:\t0000000000000000\nCapPrm:\t0000000000000001\n"
+                  "CapEff:\t0000000000000000\nCapBnd:\t000000000000000f\n"
+                  "CapAmb:\t0000000000000000\nNoNewPrivs:\t1\n")
+        parsed = placement._parse_security_status(status)
+        self.assertEqual(parsed["uid"], [1000, 1001, 1002, 1003])
+        self.assertEqual(parsed["gid"], [10, 11, 12, 13])
+        self.assertEqual(parsed["groups"], [10, 20])
+        self.assertTrue(parsed["no_new_privs"])
+        for invalid in (status + "Uid:\t0 0 0 0\n", status.replace("NoNewPrivs:\t1\n", ""),
+                        status.replace("CapEff:\t0000000000000000", "CapEff:\txyz"),
+                        status.replace("Groups:\t10 20", "Groups:\t-1"),
+                        status.replace("Groups:\t10 20", "Groups:\t" + "1 " * 257),
+                        status.replace("Uid:\t1000", "Uid:\t4294967296")):
+            with self.subTest(status=invalid), self.assertRaises(ValueError):
+                placement._parse_security_status(invalid)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process status required")
+    def test_security_observation_is_real_task_snapshot_not_isolation_proof(self):
+        observed = placement.preexec_security_observation()
+        self.assertEqual(observed["credentials"]["uid"][:3], list(os.getresuid()))
+        self.assertEqual(observed["credentials"]["gid"][:3], list(os.getresgid()))
+        self.assertEqual(set(observed["credentials"]["groups"]), set(os.getgroups()))
+        self.assertEqual(observed["namespaces"]["user"]["inode"], os.stat("/proc/thread-self/ns/user").st_ino)
+        self.assertFalse(observed["isolation_proven"])
+        self.assertFalse(observed["cgroup_escape_prevented"])
+        self.assertFalse(observed["scored_game_admitted"])
+
+    def test_security_status_unavailable_does_not_authorize_or_block(self):
+        with patch.object(placement.Path, "open", side_effect=PermissionError):
+            observed = placement.preexec_security_observation()
+        self.assertIsNone(observed["credentials"])
+        self.assertEqual(observed["credentials_unavailable"], "PermissionError")
+        self.assertFalse(observed["isolation_proven"])
+        self.assertFalse(observed["scored_game_admitted"])
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux process placement required")
+    def test_real_placement_exec_records_security_before_exec(self):
+        cpus = sorted(os.sched_getaffinity(0))
+        nodes = sorted(placement.allowed_nodes())
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp).resolve()
+            slot, receipt = root / "slot.json", root / "receipt.json"
+            slot.write_text(json.dumps({"slot": {"cpus": cpus[:1], "memory_nodes": nodes,
+                                                   "policy": "inherit"}}))
+            result = subprocess.run([sys.executable, str(Path(placement.__file__).resolve()),
+                                     "--slot", str(slot), "--record", str(receipt),
+                                     "--", "/bin/true"], capture_output=True, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+            observed = json.loads(receipt.read_text())["security_observation"]
+            self.assertEqual(observed["credentials"]["uid"][:3], list(os.getresuid()))
+            self.assertFalse(observed["isolation_proven"])
+            self.assertFalse(observed["cgroup_escape_prevented"])
+            self.assertFalse(observed["scored_game_admitted"])
+
     def test_live_cgroup_observation_requires_original_identity_and_limits(self):
         # Fake attributes exercise the parser and receipt binding only; they do
         # not establish real cgroup, ancestor or memory-page observations.
@@ -836,6 +892,8 @@ finally:
                         data = json.loads(record.read_text())
                         self.assertEqual(data["saved_ancestor_nodes"], [0, 1])
                         self.assertEqual(data["effective_allowed_nodes"], [1])
+                        self.assertFalse(data["security_observation"]["isolation_proven"])
+                        self.assertFalse(data["security_observation"]["scored_game_admitted"])
                         self.assertEqual((group / "cgroup.procs").read_text(), str(os.getpid()))
                     else:
                         with self.assertRaises(ValueError):
