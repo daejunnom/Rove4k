@@ -12,7 +12,7 @@ SPEC.loader.exec_module(HELPER)
 
 class SelectedSpelling(unittest.TestCase):
     def setUp(self):
-        self.source = (b"NULL " * 4 + b"PROMO " * 8 + b"MOVE " * 3 + b"aa " * 28 +
+        self.source = (b"NULL " * 4 + b"PROMO " * 8 + b"MOVE " * 3 + b"aa " * 28 + b"zc " * 5 +
                        b"!(w->e&255) t->s=-s;")
 
     def candidate(self, variant):

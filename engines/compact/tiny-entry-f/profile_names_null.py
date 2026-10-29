@@ -1,8 +1,8 @@
 """F-only final C spellings with exact source pins and reversible edits.
 
-The selected variant changes pointer null constants, three macro names, and
-two equivalent expressions. Native identity and runtime qualification are not
-implied by the source transformation itself.
+The selected variant changes pointer null constants, three macro names, one
+typedef name, and two equivalent expressions. Native identity and runtime
+qualification are not implied by the source transformation itself.
 """
 from __future__ import annotations
 
@@ -19,13 +19,14 @@ INPUTS = {
 }
 OUTPUTS = {
     "names-null": {
-        "test-p4": (6989, "6d849252d5994d531399b5eb57f915c1ff3ff3ca79a4674591ac074c30a97730"),
-        "test-p28": (7022, "5e36e83138e24172ac0ba66fd654f0a396c2882e5ef56cda3e1eff27111f50e7"),
-        "tcec-provisional": (6991, "5e46fd242e777c79c45ceda782be430476a6b650a35d24eb2e2636f7f4a461a2"),
+        "test-p4": (6989, "8e5963bcf26535f092e6090aa20d0e6477644b8ce476beeb1ea45f4c9641d2ab"),
+        "test-p28": (7022, "6641206c8f6fad54218bb6f84ee5013e083af2d1bc2884005c083e9a73bdb60a"),
+        "tcec-provisional": (6991, "0f5e8899bdc318af96d142e6873141544a13b918663dcc7bc97868d2112fc755"),
     },
 }
 TOKENS = ((b"NULL", b"0", 4), (b"PROMO", b"qO", 8),
-          (b"MOVE", b"qe", 3), (b"aa", b"qt", 28))
+          (b"MOVE", b"qA", 3), (b"aa", b"qt", 28),
+          (b"zc", b"qW", 5))
 EXPRESSIONS = ((b"!(w->e&255)", b"w->e%256==0"),
                (b"t->s=-s;", b"t->s*=-1;"))
 

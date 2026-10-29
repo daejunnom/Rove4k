@@ -90,7 +90,7 @@ FINAL_COMPACT = {
           "profiles": ("test-p4", "tcec-provisional")},
     "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
           "variant": "names-null", "schema": "rove4k-f-final-spelling-v1",
-          "pin": {"bytes": 5065, "sha256": "9351978b08ac412dcce6b8b6b6546071fcc535e4ebdbe09e45f264c5ea9cc3f8"},
+          "pin": {"bytes": 5112, "sha256": "9c61ccb50418fccbeb7562385c10920f5926f616cf35e7034dba9b834824b836"},
           "profiles": ("test-p4", "test-p28", "tcec-provisional")},
 }
 EP = "engines/experiments/tcec-next/profile_ep.py"
