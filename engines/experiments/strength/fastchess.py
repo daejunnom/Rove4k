@@ -28,6 +28,11 @@ PATCH = HERE / "patches" / "fastchess-rove.patch"
 PINS = {
     "app/src/engine/process/process_posix.hpp": "ffdbe2ce285ddb5e5558fd32035c6bbbfd96fb0493fc2af35f45faa12a5c81ef",
     "app/src/engine/uci_engine.cpp": "8d4366ef96e33c5ef242180222547a5ae01fb9cfcc7238f77afb1cf52430ac89",
+    "app/src/core/globals/globals.hpp": "469735da629a75ea2fb72cd8973d8985a5eb32832c22ec2906a1cca3eb54385f",
+    "app/src/core/globals/globals.cpp": "499b4f461797648bca7b4f4662f758f233ee3cfc36182d455e484ee06b326f3f",
+    "app/src/matchmaking/tournament/base/tournament.cpp": "e049ce98afc9c4ea1d4cd6869842801dc7e23ce167da22951a5b6db265b4fadc",
+    "app/src/engine/process/interrupt.hpp": "8c20940017044ea1138def456da236d1c8342292b2542844804de2810b309897",
+    "app/src/engine/process/pipe.hpp": "55cb9758613e2d12aaf3e45866862f0d23d02a409b78fa7ee435b18af4f8c765",
     "app/src/matchmaking/match/match.cpp": "c8e21fb6d3dc75a50365ca0b5a765aa05e1d155a8587ee775477cdc8741bab41",
     "app/src/main.cpp": "465606a822f6ca20fcaf6a1f75427e2cd0e2ffefc8e1b31cc72a99a58f6525a5",
 }
@@ -278,16 +283,48 @@ def patched_sources(originals: dict[str, bytes]) -> dict[str, bytes]:
             raise ValueError("pinned upstream source differs: " + path)
     result = {path: body.decode("utf-8") for path, body in originals.items()}
     path = "app/src/engine/process/process_posix.hpp"
-    text = _replace_once(result[path], "#    include <optional>\n", "#    include <optional>\n#    include <limits>\n#    include <mutex>\n", "deadline and input lock includes")
+    text = _replace_once(result[path], "#    include <optional>\n", "#    include <optional>\n#    include <atomic>\n#    include <limits>\n#    include <mutex>\n", "deadline and input lock includes")
     text = _replace_once(text, '''        assert(!is_initalized_);
 
         wd_       = wd;
 ''', '''        std::lock_guard<std::mutex> input_lock(input_mutex_);
         assert(!is_initalized_);
         input_poisoned_ = true;
+        input_cancelled_.store(false);
 
         wd_       = wd;
 ''', "serialize engine input initialization")
+    text = _replace_once(text, '''        argv_split parser(command_);
+''', '''        // Prepare interruption before spawning so failure cannot orphan an engine.
+        interrupt_.cleanup();
+        interrupt_.setup();
+        const int interrupt_read = interrupt_.get_read_fd();
+        const int interrupt_write = interrupt_.get_write_fd();
+        const int read_flags = interrupt_read >= 0 ? fcntl(interrupt_read, F_GETFD) : -1;
+        const int write_flags = interrupt_write >= 0 ? fcntl(interrupt_write, F_GETFD) : -1;
+        if (read_flags < 0 || write_flags < 0 || !(read_flags & FD_CLOEXEC) ||
+            !(write_flags & FD_CLOEXEC) || atomic::io_shutdown.load()) {
+            interrupt_.cleanup();
+            startup_error_ = true;
+            return Result::Error("engine interrupt setup failed");
+        }
+
+        argv_split parser(command_);
+''', "interrupt before engine spawn")
+    text = _replace_once(text, '''        // create a control pipe to interrupt polling when terminating
+        interrupt_.cleanup();
+        interrupt_.setup();
+
+''', "", "remove post-spawn interrupt setup")
+    text = _replace_once(text, '''        const auto success = spawn_with(execv_argv, posix_spawnp)  //
+                                 .on_error([&]() { return spawn_with(execv_argv, posix_spawn); });
+''', '''        input_setup_failed_ = false;
+        const auto success = spawn_with(execv_argv, posix_spawnp)  //
+                                 .on_error([&]() {
+                                     return input_setup_failed_ ? Result::Error("engine input setup failed") :
+                                                                  spawn_with(execv_argv, posix_spawn);
+                                 });
+''', "do not spawn after input setup failure")
     text = _replace_once(text, '''        sg_out_ = Stream(in_pipe_.read_end(), realtime_logging_, Standard::OUTPUT, log_name_);
 ''', '''        // Only a newly spawned process with new pipes may clear a poison.
         input_poisoned_ = false;
@@ -314,6 +351,27 @@ def patched_sources(originals: dict[str, bytes]) -> dict[str, bytes]:
             const int ready = poll(fds.data(), static_cast<nfds_t>(fds_count), poll_timeout_ms);
 ''', "remaining poll budget")
     text = _replace_once(text, "            if (ready == 0) {\n                flush_partials_on_timeout(lines);", "            if (ready == 0) {\n                if (bounded && std::chrono::steady_clock::now() < deadline) continue;\n                flush_partials_on_timeout(lines);", "long capped poll")
+    text = _replace_once(text, '''        lines.clear();
+
+        const bool bounded = threshold.count() > 0;
+''', '''        lines.clear();
+        if (input_cancelled_.load() || atomic::io_shutdown.load()) return Result::Error("Interrupted by control pipe");
+
+        const bool bounded = threshold.count() > 0;
+''', "sticky input interrupt before read")
+    text = _replace_once(text, '''        while (true) {
+            // We prefer to use poll instead of select because
+''', '''        while (true) {
+            if (input_cancelled_.load() || atomic::io_shutdown.load()) return Result::Error("Interrupted by control pipe");
+            // We prefer to use poll instead of select because
+''', "sticky input interrupt during read")
+    text = _replace_once(text, '''            if (fds[INT_IDX].revents & POLLIN) {
+                [[maybe_unused]] uint64_t junk;
+''', '''            if (fds[INT_IDX].revents & POLLIN) {
+                // Publish before consuming the shared notification.
+                input_cancelled_.store(true);
+                [[maybe_unused]] uint64_t junk;
+''', "publish input interrupt before read")
     text = _replace_once(text, '''        assert(is_initalized_);
         if (!alive()) return Result::Error("process not alive");
 
@@ -328,36 +386,156 @@ def patched_sources(originals: dict[str, bytes]) -> dict[str, bytes]:
             return Result::Error("process not alive");
         }
 
+        const bool shutdown_control = input == "stop\\n" || input == "quit\\n";
         size_t written = 0;
         while (written < input.size()) {
+            const bool stopping = inputStopping();
+            // Retain a graceful shutdown if a complete stop/quit can be sent
+            // immediately. Never wait or append to a partial message on stop.
+            if (stopping && (!shutdown_control || written)) {
+                input_poisoned_ = true;
+                return Result::Error("engine input interrupted; delivery uncertain");
+            }
             const size_t left = input.size() - written;
             const size_t max_write = static_cast<size_t>(std::numeric_limits<ssize_t>::max());
             const ssize_t count = write(out_pipe_.write_end(), input.data() + written,
                                         left < max_write ? left : max_write);
             if (count > 0) {
                 written += static_cast<size_t>(count);
+                // A stop racing a completed write cannot prove non-delivery.
+                if (!shutdown_control && inputStopping()) {
+                    input_poisoned_ = true;
+                    return Result::Error("engine input interrupted; delivery uncertain");
+                }
                 continue;
             }
-            // Do not re-enter a blocking write after Fastchess was stopped.
-            // A signal delivered to some other thread still cannot interrupt
-            // this write; this check is not a bounded shutdown guarantee.
-            if (count < 0 && errno == EINTR && !atomic::stop.load()) continue;
+            const int error = errno;
+            if (count < 0 && error == EINTR && !inputStopping()) continue;
+            if (count < 0 && (error == EAGAIN || error == EWOULDBLOCK) && !inputStopping()) {
+                // Normal operation has no arbitrary write deadline. The short
+                // poll interval checks stop even if another thread consumes
+                // the shared interrupt notification.
+                pollfd fds[2] = {{out_pipe_.write_end(), POLLOUT, 0},
+                                 {interrupt_.get_read_fd(), POLLIN, 0}};
+                const int ready = poll(fds, 2, 100);
+                if (ready < 0 && errno == EINTR && !inputStopping()) continue;
+                if (fds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL))
+                    input_cancelled_.store(true);
+                if (ready >= 0 && !(fds[0].revents & (POLLERR | POLLHUP | POLLNVAL)) &&
+                    !(fds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL)) &&
+                    !inputStopping()) continue;
+            }
             // Do not send a later command on this stream: it could complete a
             // prefix. Keep the pipe open here; EOF can itself complete a line.
             input_poisoned_ = true;
             if (written) return Result::Error("partial engine input write; delivery uncertain");
             if (count == 0) return Result::Error("engine input write returned zero");
-            return Result::Error(strerror(errno));
+            return Result::Error("engine input failed or interrupted; delivery uncertain");
         }
 ''', "complete engine input write")
+    text = _replace_once(text, '''   private:
+    struct SpawnFileActions {
+''', '''   private:
+    bool inputStopping() noexcept {
+        if (input_cancelled_.load() || atomic::stop.load() || atomic::io_shutdown.load()) return true;
+        // Observe a pending interrupt without consuming it: readOutput may
+        // also need it. It publishes input_cancelled_ before consuming it.
+        pollfd wake{interrupt_.get_read_fd(), POLLIN, 0};
+        int ready;
+        do { ready = poll(&wake, 1, 0); }
+        while (ready < 0 && errno == EINTR && !atomic::stop.load());
+        if ((ready < 0 && errno != EINTR) ||
+            (wake.revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL))) {
+            input_cancelled_.store(true);
+            return true;
+        }
+        return input_cancelled_.load() || atomic::stop.load() || atomic::io_shutdown.load();
+    }
+
+    struct SpawnFileActions {
+''', "non-consuming input interrupt observation")
+    text = _replace_once(text, '''        try {
+            SpawnFileActions fa;
+''', '''        try {
+            // Pipe read and write ends have distinct open-file descriptions;
+            // only the parent's engine-input write end becomes nonblocking.
+            int flags;
+            do { flags = fcntl(out_pipe_.write_end(), F_GETFL); }
+            while (flags < 0 && errno == EINTR && !atomic::stop.load());
+            if (flags < 0) {
+                input_setup_failed_ = true;
+                throw fastchess_exception("engine input F_GETFL failed");
+            }
+            int set_flags;
+            do { set_flags = fcntl(out_pipe_.write_end(), F_SETFL, flags | O_NONBLOCK); }
+            while (set_flags < 0 && errno == EINTR && !atomic::stop.load());
+            if (set_flags < 0) {
+                input_setup_failed_ = true;
+                throw fastchess_exception("engine input F_SETFL failed");
+            }
+            SpawnFileActions fa;
+''', "nonblocking parent engine input before spawn")
     text = _replace_once(text, '''    pid_t process_pid_{0};
     Pipe in_pipe_, out_pipe_, err_pipe_;
 ''', '''    pid_t process_pid_{0};
     std::mutex input_mutex_;
     bool input_poisoned_ = true;
+    bool input_setup_failed_ = false;
+    std::atomic_bool input_cancelled_{false};
     Pipe in_pipe_, out_pipe_, err_pipe_;
 ''', "per-engine input poison")
     result[path] = text
+    path = "app/src/engine/process/interrupt.hpp"
+    result[path] = _replace_once(result[path], '''        int pipefds[2];
+        if (pipe(pipefds) == 0) {
+            fd_read_  = pipefds[0];
+            fd_write_ = pipefds[1];
+            fcntl(fd_read_, F_SETFD, FD_CLOEXEC);
+            fcntl(fd_write_, F_SETFD, FD_CLOEXEC);
+        }
+''', '''        int pipefds[2];
+#if defined(__linux__)
+        // Do not fall back to pipe()+fcntl on Linux: another worker can
+        // spawn an engine between those calls and inherit the control pipe.
+        if (pipe2(pipefds, O_CLOEXEC) == 0) {
+            fd_read_  = pipefds[0];
+            fd_write_ = pipefds[1];
+        }
+#else
+        if (pipe(pipefds) == 0) {
+            fd_read_  = pipefds[0];
+            fd_write_ = pipefds[1];
+            fcntl(fd_read_, F_SETFD, FD_CLOEXEC);
+            fcntl(fd_write_, F_SETFD, FD_CLOEXEC);
+        }
+#endif
+''', "atomic Linux interrupt descriptors")
+    path = "app/src/engine/process/pipe.hpp"
+    result[path] = _replace_once(result[path], '''        if (pipe(fds_.data()) != 0) throw fastchess_exception("pipe() failed");
+        if (fcntl(fds_[0], F_SETFD, FD_CLOEXEC) == -1 || fcntl(fds_[1], F_SETFD, FD_CLOEXEC) == -1)
+            throw fastchess_exception("fcntl() failed");
+''', '''#if defined(__linux__)
+        if (pipe2(fds_.data(), O_CLOEXEC) != 0) throw fastchess_exception("pipe2() failed");
+#else
+        if (pipe(fds_.data()) != 0) throw fastchess_exception("pipe() failed");
+        if (fcntl(fds_[0], F_SETFD, FD_CLOEXEC) == -1 || fcntl(fds_[1], F_SETFD, FD_CLOEXEC) == -1) {
+            close_fds();
+            throw fastchess_exception("fcntl() failed");
+        }
+#endif
+''', "atomic Linux engine pipe descriptors")
+    path = "app/src/core/globals/globals.hpp"
+    result[path] = _replace_once(result[path], "extern std::atomic_bool stop;\n", "extern std::atomic_bool stop;\nextern std::atomic_bool io_shutdown;\n", "global IO teardown declaration")
+    path = "app/src/core/globals/globals.cpp"
+    result[path] = _replace_once(result[path], "std::atomic_bool stop                 = false;\n", "std::atomic_bool stop                 = false;\nstd::atomic_bool io_shutdown          = false;\n", "global IO teardown definition")
+    path = "app/src/matchmaking/tournament/base/tournament.cpp"
+    result[path] = _replace_once(result[path], '''BaseTournament::~BaseTournament() {
+    LOG_TRACE("~BaseTournament()");
+''', '''BaseTournament::~BaseTournament() {
+    // Publish first so a late engine registration cannot miss this teardown.
+    atomic::io_shutdown.store(true);
+    LOG_TRACE("~BaseTournament()");
+''', "publish teardown before interruption snapshot")
     path = "app/src/engine/uci_engine.cpp"
     result[path] = _replace_once(result[path], '''    writeEngine("isready");
 
@@ -393,8 +571,11 @@ def make_patch(originals: dict[str, bytes], outputs: dict[str, bytes]) -> bytes:
     for path in sorted(outputs):
         before = originals.get(path, b"").decode("utf-8").splitlines(keepends=True)
         after = outputs[path].decode("utf-8").splitlines(keepends=True)
-        chunks.extend(difflib.unified_diff(before, after,
-            fromfile="a/" + path if path in originals else "/dev/null", tofile="b/" + path))
+        for line in difflib.unified_diff(before, after,
+                fromfile="a/" + path if path in originals else "/dev/null", tofile="b/" + path):
+            # Unified diffs must mark a source line without a final newline;
+            # otherwise the next file header is concatenated to that line.
+            chunks.append(line if line.endswith("\n") else line + "\n\\ No newline at end of file\n")
     return "".join(chunks).encode("utf-8")
 
 

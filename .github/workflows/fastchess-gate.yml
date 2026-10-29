@@ -10,6 +10,7 @@ on:
       - 'engines/experiments/strength/original_peer_uci.py'
       - 'engines/experiments/strength/test_fastchess.py'
       - 'engines/experiments/strength/test_fastchess_write.py'
+      - 'engines/experiments/strength/test_fastchess_closed_stdio.py'
       - 'engines/experiments/strength/wave.py'
       - 'engines/experiments/strength/test_wave.py'
       - 'engines/experiments/strength/patches/fastchess-rove.patch'
@@ -22,6 +23,7 @@ on:
       - 'engines/experiments/strength/original_peer_uci.py'
       - 'engines/experiments/strength/test_fastchess.py'
       - 'engines/experiments/strength/test_fastchess_write.py'
+      - 'engines/experiments/strength/test_fastchess_closed_stdio.py'
       - 'engines/experiments/strength/wave.py'
       - 'engines/experiments/strength/test_wave.py'
       - 'engines/experiments/strength/patches/fastchess-rove.patch'
@@ -66,6 +68,11 @@ jobs:
         run: |
           set -euo pipefail
           python3 -I -B engines/experiments/strength/test_fastchess_write.py --source "$RUNNER_TEMP/fastchess-source" --build "$RUNNER_TEMP/fastchess-build/build.json" --out "$RUNNER_TEMP/fastchess-write-runtime"
+      - name: Exercise engine launch with closed standard descriptors
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B engines/experiments/strength/test_fastchess_closed_stdio.py --source "$RUNNER_TEMP/fastchess-source" --build "$RUNNER_TEMP/fastchess-build/build.json" --out "$RUNNER_TEMP/fastchess-closed-stdio"
       - name: Preserve bounded build and protocol evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -81,6 +88,7 @@ jobs:
             ${{ runner.temp }}/fastchess-build/build.log
             ${{ runner.temp }}/fastchess-build/build.command.json
             ${{ runner.temp }}/fastchess-write-runtime/write-fault.json
+            ${{ runner.temp }}/fastchess-closed-stdio/closed-stdio.json
             ${{ runner.temp }}/fastchess-runtime/runtime.json
             ${{ runner.temp }}/fastchess-runtime/*/runner.log
             ${{ runner.temp }}/fastchess-runtime/*/*.jsonl
