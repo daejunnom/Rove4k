@@ -75,6 +75,15 @@ and compiler-diagnostic identity. `replay` reconstructs the selected derivation
 without repeating its search. See the [source portfolio guide](https://github.com/daejunnom/Rove4k/blob/main/tools/nvcompact/docs/SOURCE-PORTFOLIO.md)
 for the explicit C/Python observation contracts and bounded search settings.
 
+The development build adds `cleanup-source SOURCE --language c|cpp` for
+source-proven unused literal includes and ordinary unreferenced static free
+functions. C envelope search opts in with `"cleanup": true` and retains its
+whole-file cost, compiler/native identity and replay gates. The C++ cleanup
+command supports a conservative subset; Clang-referenced declarations, source
+location observers and unsupported type/compile-time contexts are preserved.
+Rust/Python cleanup is explicitly unsupported. This command is separate from
+read-only advice and does not itself select or deploy a final artifact.
+
 Version 0.6.0 provides `advise-c` for
 typed constants, unused declarations and integer ranges at individual reads,
 plus `inspect-binary` for exact repeated-byte inventories. Advice does not enter

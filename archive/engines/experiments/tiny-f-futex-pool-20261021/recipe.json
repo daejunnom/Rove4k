@@ -1,0 +1,78 @@
+{
+  "format": 1,
+  "family": "F",
+  "stage": "F4720-three-SC-atomic-word-pthread-private-futex-first-cost",
+  "native_compiles": 1,
+  "codec_compressions": 1,
+  "producer_sha256": "33a145e56f7e866cfd62af2ff2936112129d8826d6225ef6d035a98c6ce5c790",
+  "transform_sha256": "b67f743a7c295b1f4960228bd1a2016eaef53b8a29721cb71b273666b4b29734",
+  "compiler": [
+    "cc",
+    "-Os",
+    "-pthread",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
+  },
+  "controls": {
+    "source": {
+      "sha256": "d942731c54f82da8dfa1aa5fedcc6328b56b32fe0ab527b5396847ceea541f26",
+      "path": "/home/stemxstudio/rove4k-f-type-tokens-normal-20261021/main.c",
+      "bytes": 9464
+    },
+    "native": {
+      "sha256": "62acc5347f30e036820cd7fb2c96a065692368e44e53366460ef7b5c8c32c444",
+      "path": "/home/stemxstudio/rove4k-f-type-tokens-normal-20261021/native/x",
+      "bytes": 18576
+    },
+    "whole": {
+      "sha256": "738c33319cc0d865b12c75a8fe0a6d0d1d2ed63f162a8cf09441e793d8ffb4c7",
+      "path": "/home/stemxstudio/rove4k-f-type-tokens-normal-20261021/x",
+      "bytes": 4720
+    },
+    "bootstrap": {
+      "sha256": "9cc5dc139e9370ac2b0e0f1f64f45e62e5c8b121718211b08127731f9f2c2ddc",
+      "path": "/home/stemxstudio/rove4k-f-type-tokens-normal-20261021/bootstrap.py",
+      "bytes": 10463
+    },
+    "normal_recipe": {
+      "sha256": "8f9f1966675e8a9faa5d5423e8c589fd9630b28f484a260f0976ef3e44d1e642",
+      "path": "/mnt/c/Users/강민수/Documents/Codex/rove4k-engines-af-20261020/engines/compact/tiny-entry-f/recipe.json",
+      "bytes": 47806
+    }
+  },
+  "helpers": {
+    "bootstrap.py.in": {
+      "sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+      "path": "engines/compact/tiny-entry-f/bootstrap.py.in"
+    },
+    "launcher.sh": {
+      "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "path": "engines/compact/tiny-entry-f/launcher.sh"
+    },
+    "pack_stream.py": {
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "path": "engines/compact/tiny-a/pack_stream.py"
+    },
+    "decode.py": {
+      "sha256": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a",
+      "path": "engines/experiments/tiny-source-codec/decode.py"
+    }
+  }
+}

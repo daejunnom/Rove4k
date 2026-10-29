@@ -1,0 +1,394 @@
+{
+  "format": 1,
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "fixed_renames": [
+    [
+      "score",
+      "l"
+    ],
+    [
+      "from",
+      "o"
+    ],
+    [
+      "moves",
+      "B"
+    ],
+    [
+      "depth",
+      "C"
+    ],
+    [
+      "Board",
+      "E"
+    ],
+    [
+      "alpha",
+      "G"
+    ],
+    [
+      "best",
+      "H"
+    ],
+    [
+      "line",
+      "R"
+    ],
+    [
+      "budget",
+      "S"
+    ],
+    [
+      "data",
+      "U"
+    ],
+    [
+      "created",
+      "V"
+    ],
+    [
+      "bestmove",
+      "ab"
+    ],
+    [
+      "target",
+      "ad"
+    ],
+    [
+      "piece_index",
+      "ae"
+    ],
+    [
+      "home",
+      "af"
+    ],
+    [
+      "correction",
+      "ah"
+    ],
+    [
+      "Worker",
+      "ai"
+    ],
+    [
+      "scores",
+      "aj"
+    ],
+    [
+      "status",
+      "ak"
+    ],
+    [
+      "continuation",
+      "an"
+    ],
+    [
+      "bound",
+      "ao"
+    ],
+    [
+      "length",
+      "at"
+    ],
+    [
+      "repetitions",
+      "av"
+    ],
+    [
+      "tactical",
+      "az"
+    ],
+    [
+      "keys",
+      "aA"
+    ],
+    [
+      "list",
+      "aB"
+    ],
+    [
+      "evaluation",
+      "aC"
+    ],
+    [
+      "ply",
+      "aD"
+    ],
+    [
+      "reduce",
+      "aE"
+    ],
+    [
+      "beta",
+      "aH"
+    ],
+    [
+      "half",
+      "aI"
+    ],
+    [
+      "save",
+      "aJ"
+    ],
+    [
+      "bonus",
+      "aK"
+    ],
+    [
+      "check",
+      "aL"
+    ],
+    [
+      "error",
+      "aM"
+    ],
+    [
+      "promotion",
+      "aR"
+    ],
+    [
+      "key",
+      "aT"
+    ],
+    [
+      "set_position",
+      "aU"
+    ],
+    [
+      "infinite",
+      "aY"
+    ],
+    [
+      "clock",
+      "a1"
+    ],
+    [
+      "count",
+      "a2"
+    ],
+    [
+      "legal",
+      "a4"
+    ],
+    [
+      "nodes",
+      "a5"
+    ],
+    [
+      "minors",
+      "a7"
+    ],
+    [
+      "side",
+      "bd"
+    ]
+  ],
+  "resource_literals": [
+    [
+      "WORKERS",
+      "2"
+    ],
+    [
+      "TT_BITS",
+      "18"
+    ]
+  ],
+  "function_spellings": [
+    [
+      "attacked",
+      "aa"
+    ],
+    [
+      "make",
+      "ac"
+    ],
+    [
+      "think",
+      "ag"
+    ],
+    [
+      "value",
+      "al"
+    ],
+    [
+      "start",
+      "am"
+    ],
+    [
+      "dead",
+      "ap"
+    ],
+    [
+      "mix",
+      "aq"
+    ],
+    [
+      "gen",
+      "ar"
+    ],
+    [
+      "now",
+      "as"
+    ],
+    [
+      "search",
+      "au"
+    ],
+    [
+      "probe",
+      "aw"
+    ],
+    [
+      "capture",
+      "ax"
+    ],
+    [
+      "claim",
+      "ay"
+    ],
+    [
+      "learn",
+      "aF"
+    ],
+    [
+      "first",
+      "aG"
+    ],
+    [
+      "parse",
+      "aN"
+    ],
+    [
+      "go",
+      "aO"
+    ],
+    [
+      "result",
+      "aP"
+    ],
+    [
+      "read_line",
+      "aQ"
+    ],
+    [
+      "number",
+      "aS"
+    ],
+    [
+      "work",
+      "aV"
+    ],
+    [
+      "wait",
+      "aW"
+    ],
+    [
+      "clear",
+      "aX"
+    ],
+    [
+      "text",
+      "aZ"
+    ],
+    [
+      "rights",
+      "ba"
+    ],
+    [
+      "piece",
+      "bb"
+    ],
+    [
+      "state",
+      "bc"
+    ],
+    [
+      "ep",
+      "be"
+    ],
+    [
+      "put",
+      "bf"
+    ],
+    [
+      "walk",
+      "bg"
+    ],
+    [
+      "add",
+      "bh"
+    ]
+  ],
+  "compression": {
+    "format": "xz",
+    "filter": "LZMA2",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "CRC64"
+  },
+  "expected": {
+    "readable_sha256": "321ab861fe8e8ebc1791cbd389edbecc53091ede195e172e9983f2455ee12c6d",
+    "source_bytes": 11148,
+    "source_sha256": "5e0e77321110371aec3a7a06f93290e7581f08f721fc9bb07fcef26c406429b7",
+    "native_bytes": 22664,
+    "native_sha256": "d39167146236aafde21b59439b853bd10561f04e9186c18b839c2f84f2e16e12",
+    "whole_bytes": 5207,
+    "whole_sha256": "085fcf6bd411a59111aaebbdc6bd59e2687a5c38de2ce28f0ad9643882633e36",
+    "bootstrap_sha256": "11679fb20e24e7cb777cb49e4bee5a7ee7ea999278651fbba6d622320e751d44",
+    "dev_source_sha256": "8a0985aad0b1514aa78a6aafc59c0fc1cc511d1b06a441bab91a404cdd98a477",
+    "dev_native_sha256": "dad84ccaa35f6c9d7860b1bd39d283f8bdb7d5a1c74ec6c25615e443376974ce"
+  },
+  "local_input_sha256": {
+    "engine.c": "321ab861fe8e8ebc1791cbd389edbecc53091ede195e172e9983f2455ee12c6d",
+    "bootstrap.py.in": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+    "launcher.sh": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+  },
+  "qualified_receipt": {
+    "producer_build_sha256": "59f2b8b30ca17d8e084474f1dff8b7effb1e177ebaa2fb3f9f69e09b6c27a9d1",
+    "final_evidence_index_sha256": "be24c6f166da35230f7ebbdff979979744c7cc49339927055894fe08b4ff9c8f",
+    "predecessor_5223": {
+      "producer_build_sha256": "fa4587ce3af610e04edff071e5976b2fdb638f2c163701d21dbe61de34c907f2",
+      "runtime_receipt_sha256": "5d298cc4e7ad787a5503c46a2d33a8e338689f678d64fc8bc0a086ef6ed077d3"
+    },
+    "scope": "final qualified 5207 generated-member/legal-startpos-history specialization; historical receipts are not executed or inferred by builder"
+  },
+  "provenance": {
+    "origin": "maintained readable Tiny A plus selected tiny-search transforms, minimal shipping UCI policy and two qualified generated-member/legal-startpos-history guard specializations",
+    "source_rename_decisions": "45 accepted mappings through trial93 fixed, no search",
+    "function_encoding": "combined-fixed-stripped fixed selected spelling decisions",
+    "stitch_helper": "current tracked LF-aware stitch; only identical strip_dev_counters is consumed"
+  }
+}

@@ -1,0 +1,96 @@
+name: Experimental W256 submission preparation
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/submission-prepare.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: submission-prepare-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check the separate submission policy without W256 execution
+        run: python -I -B engines/experiments/tcec-next/test_submission_prepare.py
+
+  prepare:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {entry: A, ep_variant: control}
+          - {entry: B, ep_variant: control}
+          - {entry: C, ep_variant: legal-maker}
+          - {entry: E, ep_variant: legal-maker}
+          - {entry: F, ep_variant: control}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Configure owned output and select the actual submission recipe
+        env:
+          ENTRY: ${{ matrix.entry }}
+          EP_VARIANT: ${{ matrix.ep_variant }}
+        run: |
+          W256_OUT="$RUNNER_TEMP/rove4k-submission-${ENTRY}-${EP_VARIANT}-${{ github.run_attempt }}"
+          mkdir "$W256_OUT"
+          printf 'W256_OUT=%s\n' "$W256_OUT" >> "$GITHUB_ENV"
+          python -I -B - > "$W256_OUT/producer-arguments.txt" <<'PY'
+          import importlib.util, os, sys
+          from pathlib import Path
+          path = Path('engines/experiments/tcec-next/submission_prepare.py').resolve()
+          spec = importlib.util.spec_from_file_location('submission_recipe', path)
+          helper = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = helper
+          spec.loader.exec_module(helper)
+          print('\n'.join(helper.selected_arguments(os.environ['ENTRY'], ep_variant=os.environ['EP_VARIANT'])))
+          PY
+      - name: Compile and package twice using the existing selected W256 producer
+        # profile_build owns compilation and packaging. It has no --execute
+        # switch and this lane never invokes a shipping program or allocates TT.
+        run: |
+          set -o pipefail
+          mapfile -t selected_arguments < "$W256_OUT/producer-arguments.txt"
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/profile_build.py \
+            "${selected_arguments[@]}" --out "$W256_OUT/build" \
+            2>&1 | tee "$W256_OUT/producer.log"
+      - name: Readmit and export the exact deliverable without runtime qualification
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/submission_prepare.py \
+            --entry '${{ matrix.entry }}' --ep-variant '${{ matrix.ep_variant }}' --build "$W256_OUT/build" \
+            --out "$W256_OUT/submission" --execute \
+            2>&1 | tee "$W256_OUT/prepare.log"
+      - name: Preserve prepared artifacts, compile evidence and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-W256-${{ matrix.entry }}-${{ matrix.ep_variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.W256_OUT }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

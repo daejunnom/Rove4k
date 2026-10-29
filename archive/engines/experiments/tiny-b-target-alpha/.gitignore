@@ -1,0 +1,5 @@
+!control/target/
+control/target/*
+!control/target/exchange-loop.c.in
+!control/target/generate.c.in
+!control/target/transform.py

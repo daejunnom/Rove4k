@@ -1,0 +1,1639 @@
+# Maintained E: current full wrapper choices
+
+Shared C bodies are owned by [engines/common](../../common/README.md). The builder
+assembles the canonical template before the existing readable transformations;
+compile or inspect the composed source rather than feeding its named fragments
+directly to a C compiler.
+
+Current 2026-10-25 selections fix workers2 / TT18 / PLY128: default
+`--wrapper grace` is **4,859 B**, and explicit `--wrapper shell` is **4,323 B**.
+Each reproduced twice and passed its own quit/EOF selected runtime checks
+(four sessions, 16 legal GO results across the two wrappers). Full engine
+source8526/c0b01df4 and native18576/7d052990 are unchanged.
+
+Grace retains compiler-group ownership, final reap and125 workspace
+preservation. Bash has separate cancellation and delayed-cleanup guarantees.
+Both remain above4096; strength and tournament eligibility are not established.
+No resource UCI option is added. See
+[the acceptance record](../../../docs/WRAPPER-IMPLEMENTATION.ko.md#후속-압축과-엔진별-bash-인수)
+for current receipts and CI. Historical source-freeze and first-cost records
+below are preserved rather than overwritten.
+
+## Historical terminal seek-implied flush record - 2026-10-24
+
+The actual cost candidate is **4897 B**, down **4 B** from the current4901 B
+W1/W2 full predecessor. Bootstrap10376->10366 B removes only10 B of explicit
+`f.flush();`. The same nice32 LZMA1/73 B header and ALONE header bytes remain.
+The full C/native/DEV, E model21 physical coefficients, five ordering features,
+TT/learners/search, clocks and two-worker resources remain selected. The file
+is801 B above4096; eligibility and the full A-F goal remain open.
+
+The explicitly frozen compiler_seek.py runs only after every previous source,
+literal, compiler_group, dead-score and sole-GO guard, the old10496 B BOOT
+guard, W1/W2 with shared_wait=True and the exact10376 B/86da8ff3 guard. It
+receives owner metadata and transform/restore callbacks from the same frozen
+compiler_stdin.py. The helper inverses and replays that exact owner before
+removing one flush statement, protecting source spelling, all other bytes,
+the declared AST and full byte/AST inverse. Old whole/BOOT pins are retained.
+
+The contract is builtin `open(d+'/c','w+b')` regular BufferedRandom. Its seek
+flushes pending writes before rewind and compiler spawn. A pending write
+failure now surfaces at seek instead of explicit flush; explicit flush hooks,
+traceback identity, monkeypatches and arbitrary file-like objects are outside
+this contract. Source evaluation, pre-spawn preparation, descriptor ownership,
+parent UCI FD0, masks/spawn publication, WNOWAIT/group settlement remain.
+
+Actual comparison receipt SHA-256:
+`77450bd11f963c258405609eaad936f91a182450cbd4f424bb97c0b74c6ef96a`.
+Actual source proof SHA-256:
+`b1f88e0c2e42115e033f29dd49ea5953f91e12a565fdef4d2345a0767083a150`.
+First-cost encoded once, strict Python inverse reached EOF with zero trailing
+data and exact restored bytes. Baseline encode/inverse0, CLI inverse0 and
+compiler/engine0 are preserved as measured counts. Runtime is not inferred.
+PENDING: one existing ordinary --dev reproduction and unchanged selected
+verification of the new exact wrapper. Completion will be recorded outside
+Git while these actual producing inputs remain frozen; no source annotation.
+
+# Maintained E: terminal W1/W2 input transport and shared wait - 2026-10-24
+
+The actual selected complete file is **4901 B**, down **45 B** from the
+corrected-owner4946 B predecessor at the same nice32 LZMA1 recipe and73 B
+header. Bootstrap10496->10376 B saves120 bytes. The full8526 B C source,
+18576 B native, E19 model21 physical coefficients, five ordering features,
+TT/three learners/search, two workers and unchanged DEV remain selected.
+The file is805 B above4096; no tournament eligibility is claimed.
+
+The explicitly frozen `engines/scripts/compiler_stdin.py` is applied only
+after all current cross/keyword/order/depth/square source/literal stages,
+compiler_group, dead-score BOOT and sole-GO BOOT guards have run. The exact
+10496 B/31b5296f predecessor is retained before this terminal stage, and the
+recipe preserves its4946 B/b7d135ec whole pin. No earlier guard or helper
+pin is weakened. The actual fixed-codec control reproduced the whole input,
+and the selected W1/W2 bytes and source/AST full inverse were verified.
+
+W1 changes only compiler input transport: the private source file is fully
+written/flushed/rewound before spawn, passed as child FD0 and closed before
+wait/settlement and engine exec. Compiler argv `-x c -`, source bytes and
+spelling, original parent UCI FD0 and engine FD execution remain. Compiler
+FD0 is now seekable and private cwd gains c; this exact E source uses only
+system angle headers and has no compiler-private file observations. General
+source/compiler equivalence is outside the admitted compile-input contract.
+The blocked signal interval includes source preparation; cancellation can
+be delivered after spawn publication/unmask, so compiler0-on-cancel is not
+claimed. W2 shares leader/group wait code with fresh per-call deadlines,
+retaining WNOWAIT before live-group settlement and reap/cleanFalse125 policy.
+
+Actual comparison receipt SHA-256:
+`0ff62844c4a0ea0250c579bcbda19ebf130e706db927f64fefe15126c6e5f464`.
+Actual source proof SHA-256:
+`a5c1764778f1290cb21735b3940e9f2c456f072d048737153d2acd88726dfb47`.
+Comparison compiled/executed no engine. Ordinary --dev and unchanged
+selected verification of this exact new wrapper are pending.
+
+# Maintained E: sole-GO function boundary - 2026-10-24
+
+The full shipping candidate is **4946 B**, down **7 B** from the actual
+corrected-owner **4953 B** predecessor. Source8549->8526 B and bootstrap
+10519->10496 B each save23 bytes. The same nice32 LZMA1,73-byte header,
+compiler argv and two-worker TT18 profile remain. The file is850 B above4096.
+
+The actual static `w(void)` has one exact-go main caller. Its complete407 B
+body moves byte-identically into that caller's nested block; only function
+definition/call boundaries disappear. Two spans, three protected gaps and
+full inverse retain all other TU bytes. Inner a/d/S/t/n bindings stay local,
+including a/d shadowing main's thread array and exit status only inside the
+block. No return/goto/label, local static, VLA or location macro is moved.
+Clock token order, drain, budget/deadline, stop reset, mutex publication,
+both completed-depth tokens and broadcast/unlock order remain unchanged.
+E19 model21 physical coefficients, five ordering features, TT, three
+learners and search/stop logic remain. Canonical/DEV bypass the new stage.
+
+The helper is frozen through `local_input_sha256`. Packaging restores the
+previous source, consumes the actual dead-score/square/depth/order/keyword/
+cross source and literal inverse chain, current compiler-group owner and
+dead-score bootstrap guard, then replaces only the final source expression.
+Previous helper pins, whole-input guards, non-source bytes/AST, argv and
+FD contracts are retained; the new bootstrap has its own exact inverse.
+
+One fresh fixed-argv compile produced18576 B native SHA-256
+`7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40`.
+Actual entire native bytes equal the qualified4953 predecessor. No new
+layout/RAM/performance or strength improvement is claimed.
+First-cost encoded one candidate and passed strict Python EOF/zero trailing
+data and actual CLI byte-exact inverse; baseline encode/compile/runtime0.
+Its original two preparation assertion failures remain separate before any
+candidate writes/products; they are not codec retries or semantic failures.
+First-cost index SHA-256:
+`0b8af66a8baade03516cd60754f751ddac3057654ee15640a79e0dfd1b980778`.
+The fresh native original leader remained unreaped until other group
+members settled, then reaped with group absence, forced cleanup0 and owned0.
+One ordinary --dev run reproduced the new shipping source/native/bootstrap/
+whole twice and unchanged DEV source/native twice. One unchanged selected
+verifier passed quit/EOF two sessions and eight legal GO results, three
+stable startup TIDs per session, exact deleted native, stdio-only FDs,
+private/helper path absence, closing result, reader EOF and physical exit0.
+Cancellation causality remains unproven; active-search/physical-exit evidence
+is retained in its measured scope. Both original ordinary/selected leaders
+stayed unreaped until other group members settled, then reaped with group
+absence at settlement, forced cleanup0 and owned0.
+Build receipt SHA-256:
+`2cf99e4388718e19f1b3b0d835d44dd14951648804a999dd803e1704bad3e95d`.
+Selected runtime receipt SHA-256:
+`c5e875d754eab5a5ec1f0d98615faaef2739c660211e2bcc321624711f84446e`.
+The actual producing recipe SHA-256 was
+`c9307863ea18f3bd45a71c1e0fd63c9513256bce11e9e59850c994bfa345183e`.
+The final recipe adds this normal completion annotation only; helper/build
+bytes remain identical to the producer. README is not a builder input.
+No other profile, new-head CI, games, SAN, codec sweep, speed/strength or
+tournament eligibility claim is added. The4096-byte target remains open.
+
+# Maintained E: remove unconsumed shipping score state - 2026-10-24
+
+The selected full shipping candidate is **4953 B**, down **10 B** from the
+actual **4963 B** complete file with the corrected compiler-group owner.
+The C input is **8549 B**, down20; bootstrap is **10519 B**, down20.
+The same nice32 LZMA1 recipe, 73-byte header, compiler argv and two-worker
+TT18 profile remain. This file is857 B above4096; eligibility remains open.
+
+The shipping Worker score `l` is only reset and stored. Result selection
+reads completed depth `C` and best move `H` or a legal fallback. The late
+`shipping_dead_score.py` removes that field, its two writes and the unused
+local return binding. The recursive `h` call and all arguments remain.
+Four exact spans, five protected gaps and a full inverse preserve all other
+TU bytes, including the E19 model's21 physical coefficients, five ordering
+features, three learners, TT, PVS/QS, stop handling and completed best/depth
+commit. Canonical and DEV source paths do not enter this stage.
+
+The builder freezes this helper through `local_input_sha256`. Packaging
+first restores the previous TU and consumes the actual square/depth/order/
+keyword/cross literal chain and current compiler-group transform in full.
+Only then does the new helper replace the sole source literal. Exact old
+bootstrap admission, non-source Python AST/bytes and argv/FD guards remain.
+
+Fresh fixed-argv native discovery compiled this candidate once and produced
+**18576 B**, SHA-256
+`7d0529905678edfb35394ba654754ddd41985fe7c50c996463a514bd8440cc40`.
+The predecessor was22672 B with a different hash. A separate typed layout
+probe compiled once and printed old/new `sizeof(Worker)=68976`, align8.
+`H` moves from offset12 to8; `a5=16`, `aA=24`, `zC=33816`, `an=66584` and
+`ah=66922` remain. No Worker RAM reduction or native identity is claimed.
+
+First-cost encoded this one candidate once. Strict Python inverse reached
+EOF with zero trailing bytes; the actual lzma CLI inverse was byte exact.
+Baseline compile/encode0 and engine runtime0. The three original native/
+layout discovery child leaders remained unreaped until other group members
+settled, then reaped with group absence, forced cleanup0 and owned0.
+First-cost index SHA-256:
+`b478a96550cfa3755c226c974dc5a4210c7ee954dd5fec0c4ed7d88a7dedb1a9`.
+One ordinary --dev run reproduced shipping source/native/bootstrap/whole
+twice and unchanged DEV source/native twice. The actual new wrapper passed
+one unchanged selected verifier: quit/EOF two sessions, eight legal GO
+results, three stable startup TIDs per session, the selected deleted native,
+stdio-only descriptors, absent private/compiler paths, finished readers
+and physical return0. Cancellation causality remains unproven; the active
+search and physical exit observations are retained in their own scope.
+Build receipt SHA-256:
+`f15c5d06823b7bcce2cf1b2de0627a01327135a3b58c49ef4d043f27c83890c1`.
+Selected runtime receipt SHA-256:
+`d30161a5daafdcba1da139a4426adea2b84f24a6f53ffe7ccc8f988b6c362c93`.
+
+The actual producing recipe SHA-256 was
+`6cc48a1982297876f55431cb87f58d7ea9ceaa9f98bb9249616dac0d4e413849`.
+The final recipe adds this normal completion annotation only; README is
+not a builder input. Helper and builder bytes are unchanged from the actual
+producer. Both original ordinary/selected leaders stayed unreaped until
+other group members settled, then reaped with group absence at settlement,
+forced cleanup0 and owned0. No new SAN, other profile, codec sweep, game,
+new-head CI, speed/strength or tournament eligibility claim is added.
+
+# Maintained E: one pool condition — 2026-10-22
+
+The fixed first-cost complete file is **4897 B**, source
+**10104 B**, native **26304 B** and bootstrap
+**11106 B**. Complete-file reduction is **17 B**
+from the actual FD0 baseline; source reduction is 38 B.
+The new entire native is `f080aff7aefd9dec8ba793ecf8cdd8b828c32ba2225933a4e7b9af52f0361099`.
+The shared pure `tiny-entry-a/shipping_condition_bce.py` is called with
+explicit family E after its original last shipping C stage. E uses a separate ready counter and pending0.
+Its exact 5 spans/6 gaps/full inverse preserve every other byte.
+
+All waits keep the same mutex and original while predicates; all four
+notifications remain broadcasts in their original positions. Startup each
+worker notification, pending2/epoch/seen, last result+printf/fflush before
+completion notify and drain before root/history reuse stay intact.
+Partial-create still skips normal drain and publishes quitting before
+joining only created workers, without an additional stop store. Physical
+termination relies on successful joins; the existing nonzero-join f2/free
+error policy is unchanged and not newly proven safe.
+
+One condition queue can additionally wake the wrong predicate class. Those
+waiters recheck while under the same mutex, but reacquisition/contend,
+scheduling/latency and deadline node/depth/result observations may differ.
+No exact timed trace, performance, RAM or strength equivalence is claimed.
+Canonical/DEV, all existing model/features/TT/learners/input/search bytes,
+compiler/profile/codec/73-byte header and FD0 template stage remain fixed.
+C keeps its own -mavx2 and nice64; B/E keep nice32.
+
+Firstcost reused actual frozen baseline bytes, compiled/encoded the sole
+candidate once and passed strict Python2/CLI2 bootstrap/source restoration
+with EOF/no trailing data. Baseline compile/encode0 and candidate runtime0.
+The original preparation syntax error and precompile B missing-FD0-context
+gate failure remain preserved separately; neither executed a candidate
+compiler/encoder. Corrected run uses the actual frozen readonly helper and
+unchanged package function. Firstcost index SHA-256 is
+`587a6416050d3616912a2194dc8f42533d3b8d22c0dc271dc2eac940fad0f7d0`.
+
+Ordinary --dev ran once and reproduced shipping twice and unchanged DEV
+twice. Entire source/native/bootstrap/whole matched the original firstcost
+bytes, and DEV source/native matched the actual previous FD0 baseline.
+The unchanged selected verifier ran once on the actual new wrapper: quit/
+EOF two sessions, eight GO calls and main+two worker TIDs per session.
+The new native image, private-path removal, finite input, closing bestmove,
+reader completion and physical exit were observed. Build receipt SHA is
+`219221779a499a412bc2c49f22f54aa677d001c3074dcc6c139c4397b9cf2fbe`; runtime SHA is
+`9808bec27c18a638446a7d4f465677aba7039d5eb9314ae47909c830ed001d05`.
+All original handles settled/reaped with groups absent at settlement, no
+forced cleanup and owned0. F4 original normal completed before the serial
+B->C->E ordinary/selected stream; F next normal was notified only after all
+BCE original handles closed. No late bare PID/TID probe or extra positive
+run is used. Producing recipe SHA is `e3b0ab6b094bbfa289d53fe1d865a194e60106df1e79fd3947c9c90249dbd901`;
+final recipe/README overlays are completion annotations only. Existing
+runtime ancestry is separate; this validates the new image in the narrow
+selected wrapper scope. No new SAN/NVC, codec/name sweep, optional consumer,
+feature deletion, training, performance/RAM/strength or new-head CI claim.
+The4096 B target and broader qualification remain open.
+
+# Maintained E: shared fixed readonly flag template — 2026-10-22
+
+The fixed first-cost file is **4914 B**, down10 from4924.
+Bootstrap11154→11144 B removes10 bytes. Entire C,
+native and DEV bytes, compiler/resources and original codec/header73 remain.
+The4096 B target remains open. This is a Python template spelling change.
+
+The explicitly frozen shared tiny-a/shipping_readonly.py accepts only this
+family's fixed legacy template and one FD span, with two protected gaps,
+full inverse and one C marker. Existing local/helper/legacy marker/prefix
+guards run first; C also keeps its original Popen argv guard before this
+stage. C source insertion and all prior literal helpers remain unchanged.
+Standard Linux os.O_RDONLY equals0; open/path/FD/unlink/exec and exception
+control are retained. Generic OS, os monkeypatch, Python source/bytecode/
+traceback and timing equivalence are not claimed. F/F8/optional opt out;
+source_package and shared prepare code are not modified or auto-enrolled.
+
+Original four-family FD-only first-cost index:
+`a4cf965cfd83aeba97c6bb9f372f0283371093edebf47cb627fdc1421457f14f`.
+One candidate encode per family and strict Python/CLI restore passed, with
+baseline/candidate compile0 and baseline encode0. The actual current C and
+native were reused, not recompiled. Old sourceproof/preparation errors and
+other LOSS/candidate records remain separate outside Git.
+
+One ordinary --dev builder reproduced shipping source/native/bootstrap/whole
+twice and old DEV source/native twice. Actual C/native/DEV entire bytes equal
+their qualified predecessors; new bootstrap/whole equal the fixed firstcost
+artifacts. One unchanged selected verifier passed quit/EOF2 sessions8 legal
+GO epochs,3 stable startup TIDs each, the original exact restored deleted
+native, absent private/compiler paths, finished readers and physical exit.
+Cancellation causality, timed-node equality, performance and strength remain
+unproven. Normal calls ran serially A→B→C→E with original owned handles.
+
+Actual build SHA-256:
+`9eece4fbe70aed6748fa315d8bfc26f3bdd85ccc2c1bf7a9ad4a97dfb0d0ddd2`.
+Actual runtime SHA-256:
+`3c19178831dcde1570358ee332fb16ac507fee7fae0350b933bc943ee21a5a74`.
+All eight original command handles exited0, were reaped and had absent groups
+at settlement; forced cleanup/owned handles0. No late bare PID/TID probe or
+product retry is added. Producing recipe/source and final annotations remain
+separate. After execution only recipe/README completion notes changed;
+shared helper/builders/expected/profile/codecs stayed producing bytes.
+Only the shared helper and A/B/C/E build/recipe/README are owned. No new
+semantic fixture/SAN/NVC/game/codec search or rootdocs/Git/CI work is added.
+Historical sections below retain their own identities and scope.
+
+# Maintained E: shared terminal legality iteration — 2026-10-22
+
+The fixed first-cost file is **4924 B**, compact C **10142 B**, native
+**26336 B** and bootstrap **11154 B**: source48 and whole9 bytes below
+E4933. The entire native changed to
+`5a1f68ee513193876fbf78d05d5670b923c143688c48751f18c9bc82d67b0858`.
+The pure late `newshipping_terminal.py` follows `shipping_center` only
+inside shipping. Four exact regions, five protected gaps and full inverse
+bind the actual10190/34cc868b source to10142/260c3075. Canonical/DEV and
+their earlier model/reference admission bypass this stage.
+
+The mask is ordinary0/draw1/cap-only2/draw+cap3. Terminal positions suppress
+the entire TT G call and QS standpat; their first legal move returns before
+++Z, path/learner/TT-store/root publication. Entry o() node accounting stays
+before this terminal decision in both versions. Draw takes precedence, only
+cap-only stores stopped, and no-legal mate/stale stays exact. Initialized
+production Worker history and yb0..12, actual Board caches and all19 logical/
+21 physical coefficients remain in domain. Terminal paths now compute
+ordering and sort private scratch before legal make. Private first legal
+child/order/work, wall time and SMP interleaving may differ; these are
+accepted observation changes, not byte identity or timed-node equality.
+
+The actual E GCC13 compiler order, workers2/TT18/PLY128,73-byte header and
+ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 remain fixed. Firstcost compile1/
+encode1 reused baseline bytes without baseline compile/encode, and strict
+Python2/CLI2 restored complete source/bootstrap with EOF/no trailing data.
+Its immutable index SHA-256 is
+`7987545ad0a81394a69d181d9aca9a59c276be5b0335c41d8451d90497797993`.
+Prior mate/halfmove/controller LOSS records remain unchanged. No cost retry,
+NVC, codec sweep, feature removal, model update or training is used.
+
+Actual E terminal fatal ASan/UBSan focus passed with one compile/run and
+28 old/new paired calls, including draw/cap/both, no-legal mate/stale,
+claim rejects, both sides, EP/promotion/castling and initialized yb0..12.
+The unchanged actual new TU includes old M with only its definition name
+aliased; every case returns before recursion. Actual E19 physical21 and
+typed parent/Worker/history/path/correction/learner/root/entry-node/stop
+and TT final states agreed. Warm exact137/depth255 is set/read through
+actual G and would expose an escaped terminal cutoff at n127. It does not
+measure ordinary M137 or transient atomic probes; TT probe suppression
+follows separately from the actual source guard. Compiler and fixture
+stderr were empty, original handles settled without forced cleanup, and
+ASan retained64TiB virtual shadow allowance with finite sampled RSS/CPU/
+output/wall supervision. Focused index SHA-256 is
+`4ae4eb41a5c90be920572a260e077d025318a5854ad7e2629eae8fd9e5a93a7c`.
+Historical C results do not qualify E. The maintained ordinary builder
+ran once with --dev and reproduced shipping twice plus unchanged DEV twice.
+The entire source/native/bootstrap/whole equal the original firstcost
+artifacts; DEV21314/31376 source/native equal the previous actual controls.
+The unchanged selected verifier ran once on actual4924 B with quit/EOF
+two sessions and eight legal GO epochs. Each observed the new restored
+native image, main+two worker TIDs, private-path removal, finite input,
+active-search physical exit and finished readers. Build receipt SHA-256 is
+`769e345bfacc0c614a5fe0073e2a88df61b2cd81eb216213bb88c1bd825bbabe`; runtime receipt is
+`d9dd187e9d4c50e6c9974c3bd2309cf1661910a68bc84890643592af0efc14c5`.
+Original focus/build/selected/outer handles all settled, were reaped, and
+had no owned groups at settlement, with no forced cleanup and owned0.
+A then B completed before E, and F was notified only after E original
+terminal/owned0. No late bare PID/TID gate or positive overlap is used.
+Producing recipe SHA-256 `26d305eaa9e3f509929564c8d1a4aca1b0e1fc20152af56fb9a98ca906b55f33`
+is frozen separately; subsequent recipe/README changes are completion
+annotations only. New-head CI is separate and owned by root. Cancellation
+causality, timed node/bestmove equality, performance, strength and broad
+qualification remain unproven; the4096 B target remains open.
+
+# Maintained E: shared center feature construction — 2026-10-22
+
+The fixed first-cost file is **4933 B**, compact C **10190 B**, native
+**26336 B** and bootstrap **11202 B**. Sharing Q's two mirrored axis-min
+constructions removes10 source bytes and2 actual complete-file bytes from
+E4935. Native length is unchanged but the entire image differs:
+`953d8bd582a96cea2339acc9ca137a30716a834cc497bcbb29950b0564b4fe7a`.
+Source-domain equivalence, first-cost, ordinary --dev reproduction and the
+unchanged selected wrapper verifier passed. The4096 B target remains open.
+
+The E-owned pure `shipping_center.py` follows ordering-side processing only
+in shipping. It changes the sole Q body from two min-like ternaries to
+`7-(abs(q%8*2-7)+abs(q/8-7))/2`, with one exact span, two protected gaps and
+full inverse. Q is called only by d's private piece-activity updates and R's
+generated-move center delta. Valid0x88 q=16*rank+file has file/rank0..7,
+so q%8=file and q/8=2*rank. Both abs arguments are odd in-7..7; their sum
+is even2..14, division is exact, and the same center result stays0..6.
+All64 valid-square source data agree. Offboard q8(old0/new1) is outside
+actual callers; arbitrary Q(int) equivalence is not claimed.
+
+Each d/H update therefore preserves exact typed Board fields and mutation
+order, including material/activity/mailbox/king/hash. All19 logical/21
+physical coefficients, fixed zero slots, S quadratic/clamp, five R features,
+search/learners/TT/input/pool and canonical/DEV reference admission remain.
+The existing readable model is admitted before this late shipping stage.
+This source proof closes the d/R feature impact; the136Board/2472move SAN
+campaign is not repeated. A new native identity does not inherit old-native
+runtime qualification, timed node equality, performance or strength claims.
+
+Actual frozen package/raw bytes envelope, GCC13, workers2/TT18/PLY128,
+73-byte header and ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 are fixed.
+Baseline11212 bootstrap exact preceded candidatecompile1/encode1; baseline
+compile/encode0 and strictPython2/CLI2 full bootstrap/source EOF/trailing
+restoration passed. First-cost index SHA-256 is
+`b150cc861c1e7f84321a803de8455981c7b53ced097ea2ceb0894963e840d689`.
+Original source/proposal/outputs/receipts and prior LOSS indices remain outside
+Git; no cost rerun, source/codec sweep, NVC, training or feature removal is used.
+
+The maintained builder ran once with --dev, reproducing shipping twice and
+old DEV twice. Source/native/bootstrap/whole matched first-cost in their
+entirety; old DEV21314/31376 source/native matched the previous controls.
+The unchanged selected verifier ran once against actual4933 B, with quit
+and EOF sessions and eight legal GO epochs. Each session observed the new
+restored native, main+two worker TIDs, private-path removal, finite input
+completion, active-search physical exit and finished readers. Cancellation
+causality, timed node/bestmove equality, performance and strength remain
+unproven. Build receipt SHA-256 is
+`d4a871605fe4aa68f2b1e81a0f8890ccd06121d4718653ec47167bc07e997cc4`; runtime receipt is
+`4a543b5d3d7bd2b165e506f68aaaf3120aadde94034690c1945868a329ecf0a7`.
+All original handles settled with group absence at settlement, no forced
+cleanup and owned handles0. B completed before E started and C was notified
+after E terminal/owned0; there was no selected overlap or late bare PID/TID
+gate. Producing recipe SHA-256 `db788ebd715aebb7e308c70171434259ede85ce82446ffa70fdbb921e3dcc27f`
+is frozen separately. Final recipe changes after execution are completion
+annotations only. E4935 8f9890e CI remains prior-head evidence; a new-head
+CI result is not claimed by this local validation.
+
+# Maintained E: generated mover side reuse — 2026-10-22
+
+The fixed first-cost file is **4935 B**, compact C **10200 B**, native
+**26336 B**. Reusing the generated mover side in the pawn ordering feature
+removes10 source bytes and11 actual complete-file bytes from E4946.
+Native length stays the same but the entire image differs:
+`77a43ff91f24cd37b38923269ee9415e96aa6fb73c7fa5a985849d3f1aa53242`.
+First-cost, fatal ASan/UBSan actual-function validation, ordinary --dev
+reproduction and the unchanged selected wrapper verifier passed. The4096 B
+target remains open.
+
+The pure E-owned `shipping_ordering_side.py` follows capture metadata only
+in shipping. It replaces `i=p->b[d],a=abs(i)` with `a=abs(p->b[d])` and
+`*(i<0?-1:1)` with `*p->s`, preserving three gaps,10181-byte complement
+and a full inverse. R receives only moves generated from the same Board;
+nonzero own-side origins and side±1 prove the reused sign. EP and promotion
+read the original pawn before make. Root drain and private children preserve
+the Board during R; const spelling alone is not the ownership argument.
+The original int8-to-int promotion, all E19 coefficients, the other ordering
+features and search/learners/TT/input/pool bytes remain. Canonical and old
+DEV21 retain their existing readable/helper domain and bypass this stage.
+
+Actual frozen package/raw source envelope, GCC13 profile,73-byte header and
+ALONE9e/lc2lp0pb0/BT4/dict64MiB/nice32 remain fixed. Baseline bootstrap exact
+preceded candidate compile1/encode1; strict Python2/CLI2 full restoration
+passed with EOF and no trailing data. First-cost index SHA-256:
+`07f0dbd557bc6378a79c699282773ff7d76db78a826d4ed1bee0c2583e00bd22`.
+No cost rerun or past mate/halfmove composition is used. Original source,
+outputs and first receipts remain outside Git. Native byte identity, timed
+node equality, performance, strength and full qualification are not inferred.
+
+The focused fixture includes the unchanged actual new TU and the actual old
+R with only its definition name aliased, sharing the same model and globals.
+It compared2472 generated moves over136 root/legal-child Boards, including
+both EP colors, four castle wings and all four promotions for both sides;
+actual R results and every typed input Board field agreed. Fatal ASan/UBSan
+compiler1/function run1 finished with empty stderr and settled original
+handles. No engine main, worker, search, TT or learner campaign ran here.
+Its external focused index SHA-256 is `a41c3ed9694f962b48eb79846484c3864f4d4845bfbcde7f6c5ca28559229cb3`.
+The preserved preparation-only FROM substring guard error predates product
+compile/run and remains separate from this PASS. ASan retains64TiB virtual
+AS for shadow reservation, with sampled RSS/CPU/output/time supervision;
+this is no memory reduction or true peak-RSS claim.
+
+The maintained builder ran once with --dev, reproducing shipping twice and
+old DEV twice. Source/native/bootstrap/whole matched the fixed first-cost
+artifacts in their entirety, while old DEV21314/31376 source/native matched
+the previous control bytes. The unchanged selected verifier ran once against
+the actual4935 B wrapper, with quit and EOF sessions, each observing the
+restored native image, main+two worker TIDs, private-path removal, finite
+input completion and active-search physical exit/readers. Cancellation
+causality remains unproven. Build receipt SHA-256 is
+`841e7571b6e0fcc982dc61e3ae1bb80fa76ae91f0aff4ea3adb1d9cfd1c5ee22`; runtime receipt is
+`197876ce85d0afc15da3feabe9cb55db325dd216b4c1eab46741b065f23c65cd`.
+All original command handles settled with group absence at that settlement,
+no forced cleanup and owned handles0. No late bare numeric PID/TID gate or
+cost rerun was added. The producing recipe is frozen separately as
+`ff6151a935f20077b98b8419e4321a668537ddc46173bcb87aefe42812849341`; final recipe changes after
+that run are completion annotations only. Prior-head CI is separate from
+this new local E result.
+
+# Maintained E: shared73-byte header — 2026-10-22
+
+The selected complete file is **4946 B**, four bytes below E4950 and850 B
+above4096. Its10210 B C,26336 B native,11222 B bootstrap and exact DEV tuple
+remain unchanged. The sole output change is the pinned shared
+`source_package.XZ_STDIN_HEADER` replacing the77-byte shell prefix with73 B.
+The legacy marker/prefix validation and local launcher are retained; the
+existing encoder emits the identical compressed payload with unchanged codec.
+
+`tail -n+4` skips three header lines and stdin `xz -d` restores the exact ALONE
+bootstrap. Decoder-failure exit, trailing-newline command substitution, Python
+argv and exec remain. Exact old/new bounded decode plus unchanged bootstrap
+identity reuses the earlier source/argv/core proofs. This does not change E19
+evaluation, Move metadata, C source or native code. Whole SHA:
+`97fc4d9c6fe1af1951d4906303b4a0b5e8a396019ae2584911c9585db948229c`.
+One ordinary --dev call reproduced shipping and the unchanged DEV tuple
+twice. Its complete outputs equal the exact header-only substitution, with
+the original compressed payload intact. One unchanged selected verifier
+passed quit/EOF2 sessions8 legal GO, exact restored native, persistent3
+startup TIDs, private-path/helper/readers cleanup and physical exit0. All
+outer commands exited0, were reaped and left their groups absent. No
+runtime failure or retry occurred. Generic signal/descendant/fresh/core/
+game/strength/many-core coverage is not added by this packaging change.
+
+Build receipt `66e3ef54e6f138f7ec25c0271c1b8538aa4c0457edd67ce994248835b80da600`;
+runtime `b18ad71e1360eb4f703662a0d7e2efab87f94c5ffaf2ea1282019467d5871b0e`;
+producing recipe `043610c3554771a74ad4fd2ed30d9d7830bb7368eff2cfd72ac6d24261003cd6`.
+Producing closure 38 ordinary files. Final recipe/README are receipt-only
+annotations; source-producing code and expected artifact bytes are unchanged.
+
+# Historical E: capture-only Move bit3 — 2026-10-22
+
+Selected first-cost whole **4950 B**, compact C **10210 B**: source76 B and
+actual whole12 B below qualified4962, still854 B above4096. The pure fixed
+`shipping_capture.py` follows derived history only in shipping. Its8 edits,
+9 individually pinned gaps, full inverse and complement bind the actual
+source. Canonical and old DEV21 bypass it; fresh closure discovers it from
+the existing recipe helper map without research files as generation inputs.
+
+Valid0x88 source squares leave bit3 free. Capture metadata uses that bit,
+FROM119 strips it, and TO/PROMO plus17bit TT Move allocation stay. Quiet
+promotion is tag0 with PROMO handled separately. E19 coefficients, physical21
+slots/zero0,6, quadratic S(), five-feature R(), Board accumulators and quiet
+raw-Move noise remain protected. Captures bypass the quiet-noise tier. This
+changes private Move/TT ABI: use fresh TT, never mix old/new payloads. Raw
+native/Move/TT byte identity and timed-node equality are not claimed.
+
+One fatal ASan/UBSan compile/run passed actual old/new E52 pairs. Original
+E34 plus18 history cases, expectation checks and prior result fields remain;
+819 actual generated move checks include29 captures and8 quiet promotions.
+Tag is checked independently against the old mailbox capture predicate;
+actual make rejects a generated king capture and pinned EP normalizes out.
+Both EP colors, all four castles and both-color NBRQ promotions retain their
+original focused cases. Typed Board/r/material/activity/E19 evaluation and
+order scores, keys, learners, all TT keys/score/depth/bound bits, decoded best,
+nodes/cursor/owner state agree. Logical Move fields normalize only capturebit3.
+The actual unmodified M/e/generator/model source is included in separate TUs.
+No C execution qualifies E; all PVS/research branch coverage remains unmeasured,
+and private negative-base adapters do not extend public history1..4096.
+
+One ordinary --dev builder reproduced shipping twice with entire source,
+native, bootstrap and whole bytes equal to first-cost4950. It also actually
+regenerated old DEV21 source/native twice and matched their exact predecessor
+bytes; this is reference-model diagnostics, not E19 model qualification. The
+unchanged selected verifier passed quit/EOF two sessions and8 legal GO epochs,
+exact restored native,3 startup TIDs, stdio-only FDs, exec PID identity, absent
+private paths and physical process/readers exit. Both outer commands ended0
+with empty diagnostics, absent groups and owned handles0; no failure/retry.
+Cancellation causality remains unproven. No extra SAN/fresh/core/game/fault/
+performance/CI run was added during normal promotion. No all-PVS/manycore/
+RAM/performance/strength/target-hardware claim is made.
+
+Actual build receipt `20e24b18611cb154967cf5709050c178b63b6295284691170454636e0657e554`;
+selected runtime `5611021f83bb35228c686033b5547439c84a3a5c587083d53307b2f632387cd2`.
+Producing recipe/builder/helper are preserved separately before current
+recipe/README add completed qualification annotations. Original source,
+first-cost and focused evidence remain unchanged. Before/producing/final
+records are outside Git in
+`rove4k-e-capture-tag-promotion-20261022-evidence`.
+
+# Maintained E: derive history length from the immutable job — 2026-10-21
+
+Complete file **4962 B**, compact C **10286 B**: raw source40B and actual
+whole12B below the qualified4974B predecessor, still866B above4096.
+`engines/scripts/shipping_history_depth.py` is the pure shared B/E helper;
+the E client calls family E after lazy fallback as its last shipping stage.
+It derives L=game_length+ply using the existing bound local, preserves the
+same repetition index set and child key write, and removes the private cursor
+and balanced reset/pop. Five spans, six gaps, inverse and exact input/output
+pins guard the fixed source. No research JSON/artifact is a generation input.
+Worker layout/native identity change; old native byte equality is not claimed.
+
+E19's19 logical coefficients,21 physical slots including zeros0/6, nonlinear
+evaluation, all five ordering features and Board state remain byte protected.
+Canonical/old DEV21, resources, compiler without C AVX2 flags, envdict template,
+prefix77 and ALONE9e/lc2/lp0/pb0/BT4/64MiB/nice32 remain unchanged.
+
+One fatal ASan/UBSan compile/run passed52 actual old/new search pairs: original
+E34 searches, both-color quiet/special child cases and learner seed plus18
+history/stop/TT/terminal boundary adapters. It preserves35 learner boundary
+spots, not C's exhaustive loop. Typed Worker/allkeys/threelearners/fullTT/Board/
+E19 evaluation and ordering/scorebestnodes and old cursor restoration agree.
+Root1/4096, half99/100, ply127 and maximum child index4222 pass. Private base
+L-ply adapters do not expand public history. The four PVS ports retain n+1 by
+source induction; runtime retry-branch coverage is unmeasured, with no node proxy.
+Focused receipt: `49ea100873b64b90f36b0e71a2739db4edff5f5074567c8ad7efc481a1bfb341`.
+
+One ordinary --dev builder now reproduces shipping twice and exact oldDEV21
+source/native twice. The unchanged selected verifier passes two quit/EOF sessions
+and8 legal GO results, exact restored new native image,3 startup TIDs, stdio-only
+FDs, absent private paths and physical process/reader exit. Existing E19 shipping
+and distinct oldDEV model guards remain. Cancellation causality is unproven.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping C | 10286 | `d5dcfbc1abb8ffb61283680b84cd84a175fc5fe68515ea8156ff86ba4c8e38bd` |
+| Native | 26368 | `5e53c78bcffd25c51fbc519c0dcadc916c48afc463a9c8954f65b2475a89e543` |
+| Bootstrap | 11298 | `2be7fdc472ac0df45eb8435ec0f07a0dda1326e1a641a8246c0d6fd4f48b8cd9` |
+| Complete | 4962 | `ae0cdde171524f50aef7f463ca297253588ef9dfcadc27bff42a1e3bc7651830` |
+
+Normal build receipt: `414ff2654e0c8df85ff30afb732ff02ff14c9bf97773139b1903a2f65b7dbacc`.
+Selected runtime receipt: `d53464080526aaca5a76e11394a22154fb2210c212197a5e58f398591b62bbdd`.
+Actual build is `/home/stemxstudio/rove4k-e-history-depth-normal-20261021/build`.
+Its producing recipe78612B/68b7f7f3... is preserved in inputs, separate from final
+recipe/README completion annotations. Expected outputs were explicit before
+normal execution. The first normal invocation passed with no retry.
+
+The shared helper is registered in the36-file recipe-driven source closure;
+fresh/archive was not executed. Before/producing/source/cost/focused evidence
+stays outside Git. Historical sections retain their own identities and scope.
+No new strength, many-core, final-target, timing or whole-engine acceptance is
+added; no extra SAN/core/game/fault/negative campaign or Git action ran.
+
+# Maintained E: lazy fallback normal reproduction and selected validation passed — 2026-10-21
+
+The fixed first-cost file is **4974 B**, compact C **10326 B**, native
+**26368 B**. Against the exact 4986 B predecessor, this source removes34 B
+and the actual whole file saves12 B. The new source/native/bootstrap/whole
+identities are recorded in the recipe; full-native equality is not claimed.
+One candidate compile and encode completed in the five-context portfolio,
+with strict Python/CLI restoration; that cost phase ran no bootstrap or engine.
+One ordinary --dev builder has now reproduced shipping twice and exact old DEV
+source/native twice. The unchanged selected verifier passed quit/EOF in two
+sessions with eight GO results, three startup TIDs each, exact restored native
+and physical process/reader/private-path exit. Build receipt SHA-256:
+`227e9ea551677e79267ad4ec5ce86b21c476d6e04cf124e56aafdbae92a7f6d7`;
+runtime `2c7006db86a5af3079373b4c1575d72b7fb3afbd07e82949bf67855e1fc60bdd`.
+These are local fixed2/TT18 positive observations. Cancellation causality
+remains unproven; no stack-peak, timing equality, many-core or strength result
+is added. The cost-only statements below retain their original scope.
+
+The shipping-only late stage follows continuation-context processing. Its
+three exact regions remove the global fallback declaration and eager GO
+query, then derive the same first legal move only when the selected worker's
+last completed witness is zero. The fixed scratch name is `fb`; full inverse
+and protected gaps bind the transformation to the exact predecessor source.
+The existing helper freeze/import path records `shipping_lazy_fallback.py`.
+Canonical diagnostics and the distinct DEV21 reference bypass the stage.
+
+The last worker calls result while holding the pool mutex after all think
+calls have returned. Main cannot replace the immutable root until that result
+and its physical output finish. Completed-depth selection, fallback legality,
+pending/epoch wrap, cancellation, quit/EOF join, TT, E19 and learners retain
+their contracts. The first-legal query moves from GO setup to the last
+worker's result stack; deadline work, scheduling and stack peaks are not
+claimed identical or smaller. This cost result proves no runtime, strength,
+many-core or final-target readiness. The 4096 B full-engine goal remains open.
+
+First-cost receipt SHA-256:
+`b9613dd993cfab433a479a43b80d8f1b4457f9cbe6147418661f5ca876d2276a`.
+Before/producing records stay outside Git in the E subfolder of
+`rove4k-common-lazy-fallback-promotion-20261021-evidence`.
+Older sections below retain their own qualified image and execution scope.
+
+# Maintained E: carried continuation context and positive cutoff learner — 2026-10-21
+
+Complete file **4986 B**, compact C **10360 B**, native **26400 B**. The
+fixed shipping change removes 40 C bytes and saves 18 complete-file bytes
+against the actual 5004 B environment-form entry. The current file remains
+above 4096 bytes. Native size is unchanged, but its complete bytes differ
+from the predecessor; no old full-native identity is claimed.
+
+The private search receives the signed already-made child piece slot instead
+of decoding the previous move at child entry. All four PVS calls pass that
+slot, and the root passes neutral slot 6. Successful make supplies the actual
+promoted piece, EP pawn or castling king. A quiet nonpromotion cutoff reuses
+the same slot as the original parent FROM column. The two cutoff learner
+callers pass positive depth squared, so the shipping-only formula removes
+`abs(bonus)` within the fixed depth 1..126 and int16 cell domain. Canonical
+and DEV retain their original APIs and formula.
+
+The pure maintained helper follows clock and model-zero processing. It checks
+the exact 10400-byte input, unchanged readable source, seven literal regions,
+eight protected gaps, complete inverse and exact 10360-byte output. Its
+registration enters the builder's frozen helper inputs and the dynamic fresh
+source closure. Fresh extraction was not executed. E19 coefficients, nonlinear
+evaluation, ordering, gen/make, repetition, TT, correction, worker/input/pool,
+compiler argv and the fixed nice32 ALONE codec remain protected.
+
+One fatal ASan+UBSan fixture compile/run compared the actual old and new search
+across 34 pairs, complete Worker and TT bytes, scores, best moves and caller
+Board preservation. It covered 128 legal children, 22 EP/castle/promotion
+children and both signed quiet contexts, with changed history and continuation
+cells. The 35 learner boundary cases accompany reuse of the identical sibling
+C formula/types/domain exhaustive evidence; that exhaustive run was not
+repeated. The four PVS source sites have exact correspondence. Runtime execution
+of all four branches was not separately instrumented or claimed.
+
+One ordinary `--dev` build reproduced shipping and unchanged DEV twice. The
+unchanged selected verifier passed two quit/EOF sessions and eight legal GO
+epochs, restored the exact new native, and observed three persistent startup
+TIDs per session, absent private paths, physical process exit and reader EOF.
+All six observed startup TIDs were absent after closure. Both owned command
+groups were absent with empty diagnostics. Cancellation causality remains
+unproven. Component proof, this normal result and future CI/strength/final
+hardware results are separate. No extra fresh, SAN/core campaign, game or
+performance run was added after normal validation.
+
+This is a manual fixed shipping source transformation. It does not establish
+NVCompact typed Python embedding admission. Source/constant observer absence
+remains unresolved in the recorded custom-startup environment.
+
+Source SHA-256: `6e9e7eb6a439934aba2d48f9387f710a95a0032a89233ff2b676b5d6451d47fb`.
+Native SHA-256: `1b034d2f517e847acdd950590d212bc1cd1c8b76a20a95f7735938e0ebae8781`.
+Bootstrap SHA-256: `c9a9a833949906d4916492191dd38f683a69a37e085c33636ee8d9ae7d59379b`.
+Whole SHA-256: `e6c560d7d1ee3ae0ff23db3bb7f60e05050ceb6ed17436d09496b52c8cb3957b`.
+Build receipt SHA-256: `78131c0bc5ecbcea7467afa8f555315251e1a0e9274d2d327f1624ef77b3e07a`.
+Runtime receipt SHA-256: `ea884bad548665715eb022315bd788e4ac72aac0eab322ab5bd1a79238104da7`.
+
+Producing sources/recipe, normal receipts and pre-change files are preserved
+in `rove4k-e-search-context-normal-20261021-evidence` and the external source
+plan folder. The initial host preparation SyntaxError, original source proposal,
+first cost and focused SAN receipts remain unchanged. Only completion metadata
+and this README were annotated after execution. Historical sections below keep
+their own sources, images and qualification scopes.
+
+# Maintained E: compact environment snapshot — 2026-10-21
+
+Complete file **5004 B**, compact C **10400 B**. The single
+env constructor expression saves6 template bytes and 6 actual whole-file
+bytes against the preceding 5010 B entry. `dict(os.environ,TMPDIR=d)`
+copies the environment and overrides TMPDIR at the original location. Runtime
+environment, compiler argv/C stdin, source/native/DEV, profile/model, signal
+mask, Popen publication, cleanup and deleted-file FD exec are retained.
+Source spelling/columns and failure-traceback bytes are not equality claims.
+
+The finite15-form comparison kept old and unselected signal/helper-composed
+forms. Although helper sharing removes39 raw bytes, env-only is actually
+smallest in every measured full context. No compressed deltas were added.
+
+One ordinary --dev build reproduces shipping and unchanged DEV twice. The
+unchanged selected verifier passes two quit/EOF sessions and8 legal GO epochs,
+exact native restoration,3 persistent startup TIDs, absent private paths and
+physical process/reader exit. Cancellation causality remains unproven. No
+new algorithm, strength, final hardware, game or performance result is claimed.
+
+Build receipt SHA-256: `a5ca38a20671311f4a5ba6b2a0750c31bc7a3cbc2f395ddd91872817563ad45a`.
+Runtime receipt SHA-256: `96e5ceaf43510f59309770e12e2d74eac8f5b4ee346e387d6476c64d00d660d4`.
+Current whole SHA-256: `610837c13883d34fd3e007670d3af6b35aa1ffb6b5ecde89b98f0153f12bd421`.
+
+The producing recipes, actual receipts and pre-annotation sources remain in
+`rove4k-bootstrap-env-normal-20261021-evidence`; original costs and source
+forms are preserved in the source/optional-cost evidence folders. Historical
+sections below retain their own images and scope.
+
+# Maintained E: fixed ASCII compiler argv spelling — 2026-10-21
+
+Complete file **5010 B**, compact C **10400 B**, unchanged native **26400 B**.
+The sole Popen argv literal list becomes one fixed ASCII string followed by
+argument-free `.split()`. All arguments are nonempty and contain no whitespace;
+the resulting ordered argv exactly matches the existing compiler recipe.
+The bootstrap loses27 raw bytes and the actual complete file saves1 byte.
+
+Compiler flags, C source, native and DEV expectations, nice32 ALONE codec,
+77-byte launcher, private TMPDIR, stdio, signal publication, compiler cleanup
+and unlinked descriptor exec stay unchanged. Bootstrap newline count stays
+the same, while spelling/columns and failure-traceback byte identity are not
+preserved claims. NVCompact compile-input-only is a separate, stronger contract
+and this manual wrapper choice does not enter the current automatic F search.
+
+Cost checks decode old/new through Python and independent lzma CLI, recover
+the exact bootstrap/C stdin/argv, and observe all six CLI processes reaped with
+absent groups. B/C each grow1 byte in their own current contexts and remain
+unchanged; their loss is a size result, not a restoration failure.
+
+One ordinary --dev build reproduces shipping and old DEV source/native twice.
+The unchanged selected verifier passes quit/EOF2 sessions and8 legal GO
+epochs, observing the exact restored native,3 persistent startup TIDs,
+absent private paths/helpers, fd0/1/2 and physical process/reader closure.
+Cancellation causality and generic compiler-descendant lifetime remain
+unproven. DEV is reference ancestry, not new E19 model qualification.
+No fresh extraction, extra core matrix, game or benchmark is repeated.
+
+Build receipt SHA-256: `f25d18bf04902d67b8f5894cdb9a2a7f3c91fe9f7d2c29541637f67f07930868`.
+Runtime receipt SHA-256: `64744c39bf9130ab16abbff516d872331c274e7cfbdd066564d66d609fd6e93e`.
+Producing recipe SHA-256: `91481162488b1b05a5f98ca2154ce784812874dc3366e9252d7838df8ce4b498`.
+Only README/recipe completion metadata changes after execution; the
+producing recipe and all previous checkpoint evidence remain external.
+
+Current source SHA-256: `431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e`.
+Current native SHA-256: `dd9015f8a5960a4595d2da5dfc09d6fae24bed1d2e7b1698b1e50245d42da0e0`.
+Current whole SHA-256: `5514ce2f4b74c39f65ca9afcc2b9dfa241598e04df5fdb89eabefdfc28a86594`.
+
+# Maintained E: compact clock presence and E19 slots — 2026-10-21
+
+Complete file **5011 B**, compact C **10400 B**.
+Use UINT64_MAX for absent selected time and complement it for the presence
+test. Actual numeric acceptance remains0..INT64_MAX; invalid/missing values
+still become0 and count as a selected-time assignment. Token consumption,
+budget caps, fallback and epoch publication remain. This removes12 raw
+source bytes; the native has a new identity. DEV bypass remains exact.
+
+The physical coefficient array adds two fixed zero slots, while the logical
+E19 model, signed16 coefficient identity and five-feature ordering remain.
+The measured clock/model composition is5011B versus solo5013/5012B;
+savings are compared with the actual solo minimum rather than added.
+
+Fatal ASan/UBSan compares20 old/new idle GO transitions per family. E also
+checks1536 piece operands,27 order cases,26 legal children and78 nonlinear
+leaf cases. Actual production main/workers are excluded from those fixtures.
+Ordinary --dev regeneration then reproduces shipping/DEV twice for all seven
+selections; unchanged selected verifiers pass14 actual quit/EOF sessions.
+Normal summary SHA-256:
+`8e30da1a34a87d6f68cc8a42aafab4e43cb49049ef38510cfb008776095e01b9`.
+
+Current source SHA-256: `431bdde48fd1f2d450bb92dd6c03e3309017158353de06bfe4fffd0bc96c839e`.
+Current whole SHA-256: `9bcc5310b5410f72da9cab0a1156d1079ad6cb9344914e77f68cccc5c2442f04`.
+
+Local two-worker/TT18 checks do not establish final target resources,
+many-core behavior or strength. The full A–F goal and compression beyond
+size passage remain active. Older sections retain their checkpoint identities.
+
+# Maintained E: smaller plain-Popen cleanup guard — 2026-10-21
+
+Whole **5014 B**. The current template/script loses12 raw bytes
+by testing the fixed plain Popen/None value directly. Poll, cleanup, signal mask,
+compiler argv/C input, private path, descriptor exec and physical lifetime
+operations remain unchanged. C source/native are entire-byte unchanged.
+
+All seven selections regenerate --dev twice and pass unchanged actual selected
+quit/EOF verification. This is local2-worker/TT18 evidence, with no new general
+descendant cleanup, startup-fault or strength guarantee. Normal summary SHA-256:
+`90e45a020a55ef5a3ff6af78dfa42908eb8625395fe5c991d860bde8d34b2ff6`.
+
+Current source SHA-256: `c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8`.
+Current whole SHA-256: `1a17ea1f002459a3d03969165ad562ef24040ea78d0c587398590893b2f807f0`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: final literal/poll compaction — 2026-10-21
+
+Current whole **5019 B**, source **10440 B**.
+Fixed LP64 large mixer hex literal wrappers omitted; values/types and the entire native image remain unchanged.
+All full family features and DEV bypass remain. Final transforms operate on
+separate reference copies where needed; raw policy preimages stay unchanged.
+
+The ordinary --dev builder reproduces shipping and full DEV twice, and unchanged
+selected verifiers pass actual quit/EOF, restoration, legal finite GO and physical
+exit. Local2-worker/TT18 only; final resources and strength remain open. Final
+normal summary SHA-256:
+`af00002687cf6ed0d84f2e85f21169d381bb1cd8721005c05cc87a4fabe2bb96`.
+
+Current source SHA-256: `c65f0d610acbba9ad2dbfad230a18fb8c0a15d1eab995675a58ea71c5b5352e8`.
+Current whole SHA-256: `e978bb6c2f6eade3f31a4b6d63490e0b557efa96dae801040cd6e519c397328a`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: literal include forms — 2026-10-21
+
+Whole **5028→5027 B**, source **10470 B**.
+Only the fixed literal angle-header gap is removed, after all prior shipping
+stages. Every other source byte and directive boundary is preserved. The
+entire native image equals the preceding qualified image. DEV bypasses this
+pass; F's raw policy preimages are retained through separate reference copies.
+
+Ordinary --dev reproduces shipping/DEV twice and unchanged selected verifiers
+pass actual quit/EOF, restoration, finite clocks and physical exit. This is
+local2-worker/TT18 evidence; no new functional or strength run is claimed.
+Normal summary SHA-256:
+`b6be10f54e68ea2c381ed85a5a8fce47253825bb5bafbd1639b5b9802e9c5137`.
+
+Current source SHA-256: `5a3352258412593216641c095762a3171a40a0f3e4d02fa434f67824281b1012`.
+Current whole SHA-256: `655679923b68aa3d60d2ada9694f3b37ac1ee83a7fdfc91c3e7c0c8fc08901a6`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: job/startup source compaction — 2026-10-21
+
+Whole **5056→5028 B**, source **10581→10477 B**, gap **932 B**. The
+late shipping pass moves best reset into unconditional worker think and removes
+the GO reset loop, then omits calloc-covered plain TT zero stores while keeping
+every flag clear. The production all-worker completion fence remains. DEV and
+learners stay unchanged; E19 coefficients remain untrained. Direct preseeded
+think and general TT-reset contracts are separate.
+
+The ordinary --dev builder reproduces shipping and DEV twice; its unchanged
+selected verifier passes actual quit/EOF sessions, exact restoration, legal
+finite clocks, stable3 TIDs and physical exit. Local2-worker/TT18 only; final
+resources and strength remain open. Normal summary SHA-256:
+`4b7b98ecc6cdb94d11a112e307d388633a03fb061d2000b08167b85ac70c72ca`.
+
+Current source SHA-256: `1bf5ca54da0a0ae5ae7c96deabf3830bace04db821c56fd9759c35e317da7436`.
+Current whole SHA-256: `f32e6d680fc09737a33e06c9a28fb739a5b3e4bf8c0e816988bfd1cdf55a9880`.
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: integer source compression — 2026-10-21
+
+The late fixed integer pass uses the existing unsigned64 alias and high-bit
+decimal bound, retaining digit/end-pointer checks, clock consumption and all
+budget clamps. The unused final limits header is removed except for C,
+which has a later intrinsic include. Full/material F also omit two fixed
+positive TT18 casts. Actual composed costs are used, not added deltas.
+
+The entire native remains byte-identical to the previous maintained image;
+no model, learner, search, rule, TT or worker feature is removed.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| E | 5076 | **5056** | 20 | 960 |
+
+Each normal --dev build reproduces shipping and full-reference DEV twice.
+The unchanged selected verifier passes new actual quit/EOF wrappers, exact
+restored native, stable3 TIDs, legal finite GO, private-path/helper absence,
+closing result, reader EOF and physical exit. Normal summary SHA-256:
+`1de4261cbd87622c9326fe8c72137b0d96148fb4e1514b2c81e8dbda4031a2a5`.
+The local2-worker/TT18 profile does not accept final resources or strength.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| E | 10581 | 26400 | `dc7f107a4af3af441244a52f329b5f84f1fccd970eb24c59c9258f1795f6c6ec` |
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: shared material-state compression — 2026-10-21
+
+A shared late source pass replaces three material-classification accumulators
+with one signed state, preserving the existing limited policy. Bare kings
+and a single minor remain dead; KNN stays live. Bishop-only minor sets are
+dead when confined to one square color. Full models/search/TT/
+learning/rules/input/pool remain outside the one-function edit. This is not
+a general theoretical dead-position oracle. Raw source grows18B per policy,
+while actual complete-file cost decreases; independent deltas are not added.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| E | 5086 | **5076** | 10 | 980 |
+
+Actual old/new classifiers and an independent material/count oracle agree
+on109 canonical FENs per policy (31 dead/78 live), with entire Board bytes
+unchanged, under ASan/UBSan. Each ordinary --dev build reproduces shipping
+and full-reference DEV twice. The unchanged selected verifier exercises
+new actual quit/EOF wrappers, exact restored native, stable3 TIDs, legal
+GO, private-path/helper absence, closing result, reader EOF and physical
+exit. Normal summary SHA-256:
+`2c75a07e42a796030509be4ed6ea5f1046a5528911629463397222f1fdbe051f`.
+These are local2-worker/TT18 results, not final resources or strength.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| E | 10624 | 26400 | `fbbe85f3e048159c578ff85152d7e0bcd5e4d771a5d9801b4fcdf039f5e1befc` |
+
+Older sections retain their original checkpoint identities.
+
+# Maintained E: further full-source compression — 2026-10-21
+
+The full/default policy now shares the main-owned tokenizer. Its existing
+clock-key consumption and transactional position replay remain. Full F also
+combines the two exclusive mate-score adjustment branches. Full search,
+models, learning, full-bound full-key TT and persistent SMP are retained.
+
+| Policy | Previous whole | Current whole | Saved | Above4096 |
+|---|---:|---:|---:|---:|
+| E full/default | 5101 | **5086** | 15 | 990 |
+
+Source10606B, native26400B; whole SHA-256
+`7a1d69a3b8e6d335470804b8df23558f74f6990316e30b23f8597e9932e3b392`.
+The ordinary --dev producer reproduces shipping/DEV twice. The unchanged
+selected verifier runs the new actual file through quit/EOF, exact restored
+native, stable3 TIDs, legal GO, private-path/helper absence and physical exit.
+The local two-worker TT18 profile does not establish tournament strength.
+Normal summary SHA:7820f2fe387eee0c1c42df6238b497c2d79efc648d0c6d0fac9aae1d8c7b27b6.
+Earlier sections below retain their original checkpoint identities.
+
+# Maintained E: qualified source refinements — 2026-10-21
+
+Only the generator-admitted valid-0x88 promotion predicate is changed here. The untrained E19 nonlinear evaluation and actual ordering, full search, learners, TT and runtime retain their prior policy.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| E | 5104 | **5101** | 3 | 1005 |
+
+These are actual composed complete-file results, including the unchanged77-byte
+prefix and current fixed compiler/codec. New native identities are admitted
+explicitly; equal native lengths do not imply identical images. Canonical
+full-reference DEV remains unchanged. The fixed replay helper uses complete
+source pins, nonoverlapping literals, inverse and untouched-complement checks.
+
+One ordinary --dev build per policy independently reproduced shipping source,
+native, bootstrap and whole twice and DEV twice. The unchanged selected
+verifier exercised the actual new wrapper in quit/EOF sessions: exact native
+restoration, stable3 startup TIDs, legal finite GO, private-path/helper absence,
+one closing result, reader EOF and physical exit. Component function proofs
+and these wrapper observations have separate scopes. No strength or final
+tournament profile acceptance follows from the local two-worker TT18 runs.
+
+| Policy | Source bytes | Native bytes | Whole SHA-256 |
+|---|---:|---:|---|
+| E | 10710 | 26368 | `2d7bafdd2e7f6de90ee1dde3b215ba508131feb7a88eb47c0567d12aa8fa73b3` |
+
+Normal summary SHA-256:
+`cc82bacb31cfd8fb020fa375a3a1d1b3ece7ac2991dc7ebcf2c7ed772e3d230e`.
+This frozen summary binds producing inputs before subsequent receipt-only
+recipe annotations. Older sections below retain their original identities.
+
+# Maintained E: shared final shipping reductions
+
+The final `engines/scripts/shipping_common.py` pass removes the sole unused
+empty `TINY_H` definition after all existing family stages. A/C/E also omit
+two redundant fixed-TT18 casts. ASCII source uses a raw bytes literal in the
+unchanged bootstrap; every previous non-ASCII/CR/NUL/quote/backslash fallback
+and the historical `pack_stream.py` API remain unchanged.
+
+| Policy | Previous whole | Current whole | Saved | Above 4096 |
+|---|---:|---:|---:|---:|
+| E | 5118 | **5104** | 14 | 1008 |
+
+These are actual composed complete-file measurements with each unchanged
+compiler/profile/codec, not sums of separate candidate savings. Entire native
+bytes match the previous maintained native for every policy; no metadata
+exception applies. Canonical engine, search/model/TT/input/worker contracts
+and full-reference DEV source/native are unchanged.
+
+One ordinary `--dev` builder invocation per policy reproduced shipping
+source/native/bootstrap/whole twice and DEV twice. The unchanged selected
+verifier then ran each new wrapper through quit/EOF: exact restored native,
+three stable startup TIDs, legal finite GO, private paths/helpers absent
+at UCI, one closing result, reader EOF and physical exit. Alternate F DEV
+is still the full-reference diagnostic, not alternate-model execution.
+
+| Policy | New source | Native | Bootstrap | Whole SHA-256 |
+|---|---:|---:|---:|---|
+| E | 10723 | 26368 | 11780 | `a7bfd5cc75a6f05fa29b93ac3fe2b9effdabb4bc1d6f4788948a3468e4209475` |
+
+Exact source/bootstrap/native hashes remain in `recipe.json`. External normal
+summary SHA-256: `4c2bc987c0947387ebe688ac76c7b91f41d1458149278e490638fb1428f7469f`.
+Generated artifacts and reports remain outside Git. The following sections
+describe earlier checkpoints and retain their original validation scope.
+
+## Previous: Maintained minimal E entry
+
+The selected complete launcher is **5,118 bytes**, 40 below its
+preceding complete file and **1022 bytes above4,096**. The final ordinary
+`shipping_global_names.py` follows the type-token stage. It shortens 10 owned
+global functions at 36 physical declaration/reference spans, source
+10891->10755. No local names or model/search logic change.
+
+| Selected artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C |10755|`7577ff9c4e23393534cf396e12a88e64cf44a0c73014f78154d8d9fa791b97b1`|
+| Full native |26368|`2882e45f06e6604bb50ab00269a04e1febca65f590a523c490b3f8267c400734`|
+| Decoded bootstrap |11820|`b186b7533bc16987ad65699b48688a646afc207a820ee04f4df32f95057709ec`|
+| Complete launcher |5118|`3d90f959ae9a41cac62f7d8e5fb67c8a9e7f6dae4059df344f6c16a8b8b75df2`|
+
+Full native and full declared load-image identity to the predecessor are
+false. The bounded object review compares all26 SHF_ALLOC sections: only the
+explicitly pinned build-id note differs. Allocated code/data bytes, address,
+flags and geometry otherwise match. Exact owned-name-normalized symbols retain
+binding/type/size/address/visibility/section, with external dynsym/relocations,
+PHDR and entry unchanged. The declared PT_LOAD bytes differ only in ELF
+section-table-offset lowbyte at40 and build-id descriptor20B at888. Unallocated
+symbol/string tables legitimately encode the declared implementation names.
+This is a static ELF comparison, not process-memory observation or a generic
+metadata exception. The compiler check requires only the one reviewed new
+full-native pin above, never arbitrary metadata changes.
+
+The helper owns full input/output pins, exact literal function/physical-span
+map, token-width checks, inverse, protected complement/directives/opaque bytes.
+main, header/external references, objects, types, members and all existing
+family model/tag/SIMD/search/clock/resource guards remain unchanged. These are
+owned names in a standalone shipping TU, not an external symbol API. No
+AST/experiment/report/artifact dependency enters normal regeneration. DEV
+bypasses the stage and retains its prior source/native and evidence scope.
+Compiler arguments, original family codec, bootstrap and77B launcher stay fixed.
+
+Source proposal SHA0816d024e19b329407efae46bc4490ceeda9eb94530cea0786004dcd2133522f;
+fixed cost SHAe192da7467cbf2dfa950bf50f3127d45e684ef7c484c110bd2a86ccb1d8899c2;
+bounded metadata review SHA4f80b574c9bc0af5c5f7f16a5ba4f5e29601edad11e0856fb34cb099be353cc1.
+Strict original whole/bootstrap reproduction and Python/CLI source/template/
+argv restoration passed. Cost and read-object review executed no target.
+Current ordinary source and controls were preserved, and producing source was
+frozen before the sole normal --dev call. Shipping source/native/bootstrap/
+whole reproduced twice with exactly the measured new full-native pin; prior
+DEV source/native reproduced twice. The unchanged selected verifier completed
+once: quit/EOF2sessions8legalGO, exact restored new native, stable three startup
+TIDs each, private-path/helper absence, active closing search, exactly one
+closing bestmove, finished readers and natural physical exit0. All six observed
+TIDs are now absent. No normal retry or forced cleanup occurred.
+Build SHAa1d7b963324018b1189ca6063e7c194cc7eeafa9b2517e97e36ad283d67a2658;
+runtime SHAe92b3ba7d67885ac296783675099a90f40771174e058cc08a152603ef57a1b4c;
+readback SHA30a4b1d52431dcee828edff5e97fb18431f45b8c174ea09ef7de79a17768ef3e.
+Producing source SHAc6261b695c8ff53d59a31487a227440dc418a86e4067f897b62704dc11ad637a;
+producing recipe SHA8553d812a1e16bf54448f0844f10adb2cb27961d079c0ac84e8a88be68bf036e.
+Only README/recipe completion metadata changed after execution; other
+22 source paths and all helper/expected/compiler/profile/codec
+remain producing bytes. Unchanged fresh.py would discover24 ordinary
+paths; no fresh extraction ran. Cancellation causality and the unchanged
+builder's separate compiler-descendant lifetime proof remain unproven.
+No DEV engine, new core matrix, games, benchmark, training or negative campaign
+was added. Prior native/body proofs retain their exact source/static reuse
+scope, and prior wrapper receipts are not relabeled as these new executions.
+
+# Historical E5158 type-token stage
+
+The selected complete launcher is **5158 bytes**, 18 below E5176 and **1062 bytes above4,096**. Shipping C is 10891 bytes (source delta -214). Final shipping-only `shipping_types.py` owns one fixed type map `{'uint64_t': 'I', 'Move': 'T'}` plus a19-byte uint64_t alias definition. The existing Move typedef is renamed with its type uses and exactly3 MOVE casts; int16_t and private Entry zb remain protected. All full native bytes match the actual preceding native, without a metadata exception.
+
+The ordinary family helper pins the canonical readable, complete final-stage preimage/result, type-role offsets/counts, source/directive alias freshness, sole MOVE line, exact inverse and each unchanged gap. It reads no experiment, report, old artifact, AST or network input. Its pinned existing lexer is frozen before import. Existing canonical/map/core/input and family-specific stages remain ahead of the final type stage; DEV bypasses it and retains its prior diagnostic model scope. Only C admits the fixed later immintrin header at old offset4060; no header is moved and no generic exception is opened. Actual header conflicts must fail the fixed full-native gate.
+
+Unchanged fresh.py dynamically includes the new helper, yielding 23 unique ordinary source paths. Canonical/DEV/verify/fresh/shared bodies, compiler/resources/bootstrap/77-byte prefix and per-family ALONE settings remain unchanged. The whole 18-byte gain is separate from the larger raw source reduction.
+
+| Current artifact | Bytes | SHA-256 |
+|---|---:|---|
+| Shipping C | 10891 | `29f5f760dfade24efa50f4fd2252bbac91b070ad707972ec2b6f19f1f7f99485` |
+| Native ELF | 26416 | `5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509` |
+| Complete launcher | 5158 | `d1c1f11c85869f9472b7758ff6337375f763319d2228047365cef3cc66f3d25a` |
+
+The sole normal builder invocation passed shipping C/native/bootstrap/whole twice and the prior DEV C/native tuple twice, retaining its historical model scope. The unchanged selected verifier then passed its sole quit/EOF invocation: two sessions/eight legal GO epochs, exact restored native image, three stable startup TIDs each, absent private restoration paths/helper children, one closing result, completed readers and physical exit0. Both bounded command groups are terminal0 and absent, with no retry or forced cleanup. Prior sources and raw binary controls were preserved outside Git; native/whole pins are never newline-normalized. Original preflight failures remain preserved separately; approved correction did not change any candidate. No new core fixture, fresh archive extraction, game, benchmark or alias/codec search is part of normal promotion. Historical diagnostic/core evidence is reused by exact native identity within its existing scope; cancellation causality and many-core performance remain unproven.
+
+Normal build receipt: `d7744f49379a1efd164fd379f3f1745cf1f21887928321c4838acd1887d4243d`. Normal selected runtime receipt: `f17d63b577155e3e1bb403496b0a9fa37c2841cf00d4f833cee9c97c9c30757e`. Producing recipe: `0e0a2384c05fa1491591807e56fcde835be6006fdff5d3eac8618fccf1791c91`; producing ordinary-source freeze: `9506a6dd2878046f0135f4567d011a1d210912aa2f4f68c873e1f346f5b76f2e`. Only README/recipe completion metadata changed after execution; all helper/build/compiler/expected/codec bytes remain producing inputs. Git/CI and whole-project acceptance are separate parent work.
+
+# Historical E5176 stage
+
+The current shipping model is **e-hand-quadratic-19-1**, hand-authored and
+**UNTRAINED**, with19 exact signed16 parameters and real evaluation plus
+ordering in search. This is a declared feature/model structure change from
+E21, not a lossless encoding or inference-equivalence claim. Current selected
+complete file is5176B,1080B above4096,105B smaller than prior5281.
+
+`engine.c` and unchanged DEV preserve the old21-coefficient reference as
+ancestry. They do not qualify the new model or private state. The ordinary
+readable `model19.h` defines the shipping19-parameter model and mappings; the
+new `shipping_model.py` follows the existing input stage, binds its token bodies
+to the exact shipping source, and guards all five edits, full inverse and
+untouched complement. It uses only ordinary source inputs. Existing guards,
+compiler, fixed resources, bootstrap, launcher and nice32 ALONE codec remain.
+Future coefficient changes require new source admission and integer bounds.
+
+White inference is M+A+A*abs(A)/128+side*tempo, clamped to+/-20000, with C
+division toward zero. Private Board fields maintain material M/activity A
+through real put deltas. The nonlinear global activity contrast adds cross-piece
+and cross-color interactions; equal activity cancels before nonlinearity.
+Doubled/isolated pawn and bishop-pair features are removed. The original actual
+five-feature ordering and exact coefficients remain; ordering scores are never
+TT bounds. Correction residual and LMR guard use the new actual raw evaluation.
+
+The selected first-cost source11105/b043eae2, native26416/5ddcd703, whole5176/
+a3a36bdc and bootstrap12170/97912c33 are explicit fixed expected identities.
+One focused ASan+UBSan fixture passed actual S/R production consumers and
+independent board/hash/model/order checks, specialmoves for both colors, the
+complete conservative activity interval and actual nonadditivity. Board is
+176B versus168B; measured fixed M allocation4408B versus4392B, with six pushes
+each. These are source/layout checks, not strength or performance claims.
+Initial observer preflight failed with0 compile/run and remains separate.
+
+```sh
+python3 -B engines/compact/tiny-entry-e/build.py --out /absolute/new/E-build --dev
+python3 -B engines/compact/tiny-entry-e/verify.py --build /absolute/E-build --out /absolute/new/E-runtime
+```
+
+Normal E19 direct builder passed once: two shipping reproductions plus two
+exact old DEV21 references. The unchanged verifier passed two selected quit/EOF
+sessions with eight legal GO results, exact new restored native, three startup
+TIDs each, private-path/descriptor cleanup and physical exit/readers fences.
+DEV repetition preserves old reference byte identity; E19 inference/state proof
+comes from its actual focused shipping fixture. `fresh.py` remains unchanged;
+its existing helper-derived closure includes the new model/helper (22 files).
+No fresh archives, games, training, data, AWS or benchmarks run for promotion.
+Cancellation causality, strength, target scaling and4KiB eligibility remain
+unproven. Root owns final Git/docs intake; generated output stays outside Git.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping source | 11105 | `b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052` |
+| Native | 26416 | `5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509` |
+| Complete | 5176 | `a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6` |
+| Bootstrap | 12170 | `97912c3325354eafa584f76f6e70469ec99b9b9f4e41ff5c50df7c4496446e77` |
+
+Normal build receipt `1d7409d1221b48d31cb9ccd41636e3483da714967e939dad0f635d9281c1be72`
+is /home/stemxstudio/rove4k-e-model-structure-normal-20261021/build.json.
+Runtime receipt `2e9d6f7746d903cd125091f3058cf2e9f3c7a7817126ee453ecbe6c69084868a`
+is /home/stemxstudio/rove4k-e-model-structure-normal-runtime-20261021/runtime.json.
+The build preserves exact producing recipe251649c0; final recipe changes only
+qualification metadata after execution. No expected output was learned or
+updated automatically. The previous20-source closure/archive and actual old
+controls were preserved externally before normal source changes.
+
+## Historical E21 records below
+
+The following section describes prior E21 shipping5281 and its ancestors. Its
+21-coefficient/equivalence/qualification statements are historical, not current
+E19 model claims.
+
+# Historical maintained E21 entry
+
+`engine.c` remains the readable canonical program. The selected complete
+shipping file is **5,281 bytes**, **1,185 bytes above 4,096**, down from
+5,366 bytes. Ordinary source inputs regenerate the shipping C, native ELF and
+complete wrapper. Historical reports and generated artifacts are metadata only.
+
+On the qualified Linux x86-64 Ubuntu 24.04.4/GCC 13.3.0/binutils 2.42/glibc 2.39/
+Python 3.12.3/xz-lzma 5.4.5 toolchain:
+
+```sh
+python3 -B engines/compact/tiny-entry-e/build.py --out /absolute/new/E-build --dev
+python3 -B engines/compact/tiny-entry-e/verify.py --build /absolute/E-build --out /absolute/new/E-runtime
+```
+
+Outputs must be new absolute directories outside Git checkouts. A builder call
+independently regenerates shipping twice and optional DEV twice. The unchanged
+verifier opens one quit and one EOF wrapper; each performs its normal source
+compilation/restoration. `fresh.py` can separately archive the 20-file ordinary
+closure and rebuild two extractions. That command is unchanged and has **not**
+been run for this promotion; direct normal build repetition is a separate check.
+
+Fixed resources remain two search workers plus one controller, TT bits 18 and
+PLY 128. These provisional local resources do not establish target scaling.
+Compiler arguments, bootstrap template and launcher bytes are unchanged:
+
+```text
+cc -std=c11 -Os -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=0 -x c - -o x
+```
+
+Existing conditional specialization, compaction, diagnostic stripping, fixed
+shipping alpha and static/local scope maps remain unchanged. The new local
+`shipping_core.py` runs **after** `shipping_scope.py`. It owns one exact
+canonical-to-explanatory-readable edit set and its paired post-scope shipping
+edits. It checks literal input/output hashes and lengths, existing identifier
+roles, operators/literals, position inverse and the complete untouched byte
+complement. The canonical file itself is never rewritten. No new name allocation,
+AST, generic model/PLY rule or relaxed shared admission is involved.
+
+The stage is admitted only for workers 2 / TT 18 / PLY 128 and the exact current
+readable/source hashes. It uses the nonzero production TT payload as a write
+sentinel: bound 1/2/3 occupies bits 41-42, so production stores are nonzero.
+Full 64-bit keys, lock acquire/release, busy drop, replacement and at-least-depth
+reuse remain unchanged. It omits already-consumed selection-prefix assignments
+while preserving selected moves, future suffixes and strict-greater tie behavior.
+Only the inactive outer +/-29,871 evaluation clamp is removed. Mate packing,
+correction bounds, quiescence and PLY/terminal order remain unchanged.
+
+E retains all 21 signed model coefficients, its real ordering function and the
+inner +/-20,000 clamp. Two deliberately nonadmitted 32-queen saturation setups
+exercise that inner clamp separately from the 39 admitted-shape boards.
+
+DEV bypasses alpha, scope and core stages. The canonical readable, previous DEV
+source and full native identities are required by the builder. The helper has
+only standard-library dependencies and consumes bytes supplied by the ordinary
+builder; no Clang, experiment, receipt, generated source or other-engine input
+is read by normal generation.
+
+| Form | Bytes | SHA-256 |
+| --- | ---: | --- |
+| Shipping C | 11,378 | `761e301cdad7b1dcf15da6458959612606e93be8b863ba2072e2ba509cb857f9` |
+| Native ELF | 26,384 | `58b4afd6642260e5fc327cc7ed9c30d59e2ac4f4fb33a5cb1ea64018d6e02a70` |
+| Complete file | 5,281 | `ece61373d390dbc2ea12ec83daaf8bb816a9f6570abd96bedda49374db9183cd` |
+| Bootstrap | — | `1e3d5f7730924b824e13de5d9ce9acc03678cc27c8b764a7c3edca57cc97709c` |
+
+The input-profile native retains its immediate control's 26,384-byte length
+and has a new full identity. The earlier core image had added 24 bytes. **No metadata or allocated-section exception is used.**
+The earlier private-name/build-ID boundary remains historical ancestry only;
+it does not equate this structurally changed image to any old full native.
+
+Packaging retains the 77-byte launcher and one fixed LZMA1 ALONE preset 9
+extreme/lc2/lp0/pb0/BT4/64 MiB dictionary/nice 32 stream. ALONE has no checksum.
+Complete cost includes launcher, bootstrap and source literal. No flag, name,
+codec, resource or layout sweep runs in the builder.
+
+Focused experiment evidence binds the exact new shipping sources: 26 actual TT
+checks, 29 actual selection-block suffix cases and 39 admitted-shape boards per
+family. Those diagnostics do not execute the entire search or imply a broad
+core matrix. Separately, two selected wrappers per family passed legal zero-clock
+and finite bare GO, exact new restored native, startup three persistent TIDs,
+private-path/descriptor cleanup and physical quit/EOF settlement. The frozen
+focused qualification index is
+`fb155e0c5f1709c0f2806524e3e33cf2790e83b99265ad09ab33926bea59fe2c`.
+
+The normal builder reproduced shipping twice and DEV twice from the ordinary
+closure. Both DEV source and full native matched their previous literal pins.
+The unchanged verifier then passed one quit and one EOF session, with eight legal
+GO results for this family. These direct normal receipts are recorded separately
+in `recipe.json`; the final recipe adds qualification/provenance metadata after
+execution, while the exact producing recipe remains preserved outside Git.
+No `fresh.py`, broad core matrix or DEV runtime was executed for this promotion. Old receipts are preserved as ancestry,
+never used as generation inputs or relabeled as new full-core acceptance.
+Cancellation causality, playing strength, target scaling and 4 KiB eligibility
+remain unproven. Generated binaries, fixtures, receipts and archives stay outside Git.
+
+## Fixed shared shipping input profile
+
+The exact current shipping source passed one focused fixture and one actual
+text-only launcher before normal generation. The direct normal builder then
+reproduced shipping twice and DEV twice, and the unchanged verifier passed
+quit/EOF two sessions with eight legal GO. Producing source/recipe and final
+qualification metadata are preserved separately.
+
+The new ordinary shared fixed_input_profile_bce.py runs only after this family's
+current final shipping stage. The original canonical and every previous guard,
+model/SIMD/SEE/search/TT stage remain unchanged. Its dual readable selects the
+exact old DEV bodies; old DEV source/full-native identities remain actual build
+gates. Existing helpers, compiler/profile/codec/bootstrap/launcher and unchanged
+verify/fresh bodies are preserved. No experiment, receipt, generated engine or
+Clang is a normal input. Closure gains this one ordinary helper.
+
+Shipping explicitly accepts NUL-free text, max32767 bytes before LF/finalEOF
+including CR, space/tab/CR/LF delimiters and exact first command tokens. Overlong
+lines drain/drop; VT/FF are not delimiters and embedded NUL is outside contract.
+Numbers are whole ASCII decimal0..LLONG_MAX; four exact clock keys consume one
+value, last own-side values win in either order, absent own clock defaults1000ms
+and present invalid/zero/missing time gives at least1ms. Existing budget caps,
+family worker reset, startup/publication/wait/shutdown and transactional replay
+remain. B/E share nullable legal query+made child; C already had that interface.
+Simple-command extras/leading delimiters/empty moves are declared policy changes,
+not malformed-reader equivalence.
+
+Earlier core/SEE/SIMD qualification paragraphs above describe their exact
+pre-input images and unchanged source responsibilities. The input-profile
+functional/text checks and normal new-image checks are separate receipts; no
+earlier full native identity or parser execution is inherited automatically.
+
+Focused input evidence: each family25 numeric,26 manually isolated GO,25 replay
+transactions,6 direct special roots/96 complete legal children, first legal
+nullable queries and all four promotions. B additionally rebuilt bitboards from
+mailbox; C/E have no shipping v cache and evaluator execution is not inferred
+from these state checks. Workerless manual GO is field publication evidence,
+not a physical pool run. One actual text-only session passed8 ingress boundaries
+with search GO0, exact new native image,3 persistent startup TIDs and EOF cleanup.
+No separate experimental quit/EOF selected sessions were repeated; the unchanged
+normal verifier below owns that check.
+
+Current normal input-profile build receipt SHA-256: `39e7acb5b988dc1f839ae343355f39d0f17072739186751c83ba0beb6df32d9c`.
+Current normal selected runtime receipt: `daa28c9ee2fa8c9a20709382366249923eaf6c140d4b28de4ee995c46ace28c0`.
+The helper's actual_DEV_tuple_verified=False reports the pure byte API's scope;
+the caller's actual generation compared old DEV source/full-native identities
+and passed twice. No DEV engine, fresh extraction, game or benchmark ran.
+Cancellation causality remains unproven. Runtime restored-image, persistent
+startup TID, absent helpers/private paths and physical exit were observed;
+normal compiler descendants were not separately observed by its unchanged
+compile helper. This is a new full native class with no metadata exception.
+
+
+## 고정 두 worker 결과 선택과 출력 잠금 축약
+
+이 단계는 기존 condition_sharing 뒤에서만 적용되는 shipping 전용 pure 변환이다.
+기존 guard와 원 참조 admission은 먼저 그대로 통과하며 전체 inverse는 정확한
+post-condition 소스를 복구한다. canonical·DEV와 A/D/F/F8은 이 단계를 사용하지 않는다.
+두 literal 영역/세 보호 gap 이외는 전체 bytes가 같고 raw 소스는 63B 감소한다.
+깊이 비교는 worker1이 엄격히 클 때만 선택하므로 동점은 원래처럼 worker0이다.
+양 worker의 검색 완료 게시와 동일 pool mutex 아래 결과 읽기는 그대로이다.
+각 printf/puts 한 호출의 같은 FILE 내부 잠금과 결과의 자체 fflush 완료 후
+completion notify·drain·다음 GO/position 게시 순서는 보존한다. 이는 한 OS write,
+외부 raw-fd 원자성 또는 printf+flush 전체 트랜잭션 동등성을 뜻하지 않는다.
+바깥 flockfile/funlockfile 제거로 main reply가 계산 중이나 printf와 flush 사이에
+끼어들 수 있다. flush batch·가시 시각·stdio 경합·스케줄과 시간제 검색 결과는
+달라질 수 있고, 기존 무시된 I/O 오류 정책도 바꾸지 않는다.
+
+고정 ONEcost 결과는 전체 4897→4880B,
+새 native SHA `6ddf569ffea8b4f9346fe10ddae94b99cb9d2fc1c5f31e9224a503348cdcfbe1`이며 원 native 전체 동일 주장은 없다.
+소스·native·bootstrap·전체 expected는 원 firstcost bytes에 명시적으로 고정했다.
+B/E nice32·C nice64 및 C -mavx2, GCC13·header73·FD0 literal/template는 그대로이다.
+원 reply LOSS9 후보와 합성하지 않았다. 비용 stream B→C→E 당시 별도 D/F8 비용
+stream이 겹쳤으며 wall time이나 성능·메모리·기력 개선을 주장하지 않는다.
+
+OUTPUT_NORMAL_PASS: ordinary --dev를 한 번 실행하여 shipping 두 번과 기존 DEV 두 번을
+재생성했다. 전체 source/native/bootstrap/whole은 원 firstcost bytes와 같고 DEV
+source/native는 실제 이전 condition baseline bytes와 같다. unchanged selected는
+새 실제 wrapper에서 quit/EOF 두 session, 합계 여덟 GO, 각 main+두 worker의 3TID를
+관찰했다. 새 native image·private-path 제거·closing bestmove·reader 완료·물리 종료가
+확인되었고 원 handle은 terminal0/reaped/당시 group 부재/강제정리0/owned0으로 닫혔다.
+B→C→E 순서로 각 ordinary+selected를 한 번씩 수행했으며 late PID 조회나 추가 양성
+재실행은 없다. Build SHA `61224dc00628966f5a10d2a45134fd056769ca756224326e52cb8338d73e0211`, runtime SHA
+`8e565bb346be59f62c066e0929f8d7e6b1952cbc431e6de8828abc9a37cefc09`이다. Producing recipe SHA는
+`fd09866193706f4abc78c142835532f1d02678063f269104b9efaeaaaf0113d9`이며 최종 recipe/README 차이는 완료 주석뿐이다.
+기존 runtime ancestry와 새 이미지 검증을 구분한다. 이 결과는 좁은 selected 경로의
+근거이며 grouped flush/timed trace 동일성, 성능·RAM·기력·전체 qualification이나 새 CI
+성공을 뜻하지 않는다. 추가 SAN/NVC/codec검색/fault campaign/학습/선택 소비자는0이다.
+
+
+## 공통 worker 시작·완료 epilogue 공유
+
+새 pure `../tiny-entry-a/shipping_worker_epilogue_bce.py`를 기존 condition/output
+chain 뒤 shipping에만 연결했다. 현재 소스 10041→10005 B,
+native 26216→26192 B, 실제 73 B launcher를 포함한 whole
+4880→4869 B이다. Source SHA `e393fd41fbbfa63b98824552883ab8e9f0c650b1a7b7dd157e6f02c748edd0fd`,
+whole SHA `da6bd7762275a3191eafdb10a3428aea78861d60924a3874e7a675d68d4d9be2`를 고정했다.
+
+worker local `w=0`이 startup만 표시하고 첫 epoch admission 전에 원래 static
+worker 인자 p를 같은 mutex 아래 대입한다. Startup과 완료의 pending 감소·마지막
+방송을 공유한다. B/E는 별도 ready 대신 pending=2와 직접 startup wait를 쓰며
+새 U() 호출과 stopped store는 추가하지 않는다. C의 기존 pending/V startup은 유지한다.
+Startup broadcast 2→1이므로 wake·lock 경합·고정 deadline의 탐색 순서는 달라질 수 있다.
+최종 완료의 기존 result/own fflush 뒤 broadcast와 drain fence를 보존한다.
+
+정확한 span/gap/complement hash와 full literal inverse가 post-output 소스로 돌아가며,
+그 앞 output/condition의 원래 가드·역변환 체인은 유지한다. Canonical/DEV, B SEE/singular,
+C 실제 SIMD, E untrained E19/model order, 공통 HCE/PVS/QS/full TT/learners/rules는
+변경 외 바이트다. 부분 생성 실패는 기존 shutdown jump로 ending drain을 건너뛰고 실제
+생성 수만 join한다는 소스 검토 범위이며 주입 실행은 하지 않았다.
+
+WORKER_EPILOGUE_NORMAL_PASS: ordinary --dev를 한 번 실행하여 shipping 두 번과 기존 DEV
+두 번을 재생성했다. Source/native/bootstrap/whole 전체는 고정 firstcost bytes와
+같고 DEV source/native 전체는 실제 이전 output baseline과 같다. Unchanged selected는
+새 실제 wrapper의 quit/EOF 두 session, 합계 여덟 GO, 각 main+두 worker의 3TID를
+확인했다. 새 native image·private-path 제거·closing bestmove·reader 완료·물리
+종료와 원 handle terminal0/reaped/당시 group 부재/강제정리0/owned0을 기록했다.
+B→C→E 순서로 ordinary+selected를 각 한 번 수행했으며 새 owner outer TERM/KILL
+grace는20초다. 원 runtime helper·verifier PINS/assertions는 그대로다. Build SHA
+`bb88f1d1d3135b4fb7d6d360392aa1a25363518f2f353a5f56cc0fe24ac391d8`, runtime SHA
+`7a81afcc1eb92a2d51689c10a2619c8d10f9a48d16cb4b0a1d846ba2eb7889cd`이다. Producing recipe SHA는
+`9a55195ff32a1241128ed64f89714af4f7eae978a82e4865c577853d90b1bf32`이며 최종 recipe/README 차이는 완료 주석뿐이다.
+Startup broadcast/wake와 고정 deadline의 방문·결과 trace 동일성은 주장하지 않는다.
+cancellation causality는 unproven이며 partial-create/join fault·epoch wrap 주입,
+SAN·추가 fresh·학습·성능·RAM·기력·전체 core qualification·새 CI는 실행/주장하지 않았다.
+Firstcost는 family당 compile/encode 각1이며 baseline 재측정·추가 후보·cost 재실행은0이다.
+
+
+## Piece setter의 제거·삽입 phase 공유
+
+공통 pure `../tiny-entry-a/shipping_setter_phase_bce.py`를 기존 worker stage 뒤 shipping에만
+연결했다. Source 10005→9951 B, native 26192→26168 B,
+73 B launcher를 포함한 실제 whole 4869→4865 B이다. Whole SHA는
+`8701a8573ef09e0dd192c30ab153bbaffa5c8bb7922ad74fc44bfa1f67351ab3`다.
+
+setter에서만 쓰던 private hash/feature leaf를 합치고 n=-1/+1의 두 phase가 한 본문을
+사용한다. Nonzero piece guard와 remove→mailbox 한 번 저장→add→king 순서, C의 개별
+int16 대입 변환, B bitboard/HCE와 E19 feature식을 유지한다. 실제 square/piece domain의
+정수 범위와 local Board 소유권을 검토했다. 원 helper guard·정본·DEV·SEE/singular·SIMD·
+weights/order·full TT/learners/SMP/rules는 변경 외 영역이다. 두 spans/세 gaps/complement와
+전체 inverse가 정확한 post-worker source로 돌아가며 별도 literal adapter는 필요하지 않다.
+
+호출/loop/branch의 시간은 달라질 수 있어 고정 deadline의 방문 순서·TT interleaving·
+nodes·bestmove 동일성은 주장하지 않는다. F의 동형 setter 후보는 별도 LOSS6/미채택이며
+BCE의 gain을 F/F8에 일반화하거나 합성하지 않았다.
+
+SETTER_PHASE_NORMAL_PASS: ordinary --dev 한 번으로 shipping 두 사본과 DEV 두 사본을
+재생성했다. 새 source/native/bootstrap/whole 전체는 고정 firstcost와 같다. DEV
+source/native 전체는 실제 previous-worker 산출물과 대조해 같음을 확인했으며,
+이것은 진단 reference의 재현이고 새 shipping 모델의 동등성 증거를 대신하지 않는다.
+원 selected는 새 native image에서 quit/EOF 두 session·여덟 GO·3 startup TID,
+private-path 제거·closing bestmove 한 번·reader 완료·물리 종료를 확인했다.
+원 여섯 command handle은 가족직렬로 terminal0/reaped/당시 group 부재/강제정리0/
+owned0으로 마감했다. Runtime SHA는 `f453a0714c15a09f983cb8573fa7f0bd417abfa9950d92b7d7abb3bb46bfbb11`이며
+build/runtime 영수증은 recipe setter_phase.normal_validation에 연결했다.
+Producing 후 recipe/README 차이는 완료 주석뿐이다. Causality는 unproven이며
+추가 SAN/fault/epoch-wrap/fresh/학습/cost 재실행·성능/기력/새 CI는0이다.
+
+
+## 고정 object macro 네 개의 직접 치환
+
+공통 pure `../tiny-entry-a/shipping_constants_bce.py`를 setter 뒤 shipping에만 연결했다.
+PLY=128, MOVES=512, HISTORY=4096, MATE=30000의 정의와 실제 code token만
+같은 unsuffixed int literal로 바꾼다. 고정 spans·보호 gaps·전체 inverse와 기존
+입출력 guard를 유지하며 정본·DEV·원 parser·codec·탐색 기능은 그대로다.
+Firstcost 전체 header CPP token과 native 전체 bytes가 원 baseline과 같다.
+Source 9951→9866 B, whole 4865→4825 B
+(73 B launcher 포함, delta -40 B), whole SHA `f89a069fa58645bfc3f6411994f0048220ccd00c0624078345296f57a4b0a6b5`.
+Macro-table와 진단 source 위치의 동일성은 주장하지 않는다.
+CONSTANTS_NORMAL_PASS: ordinary --dev 한 번으로 shipping 두 사본과 DEV 두 사본을
+재현했다. Source/native/bootstrap/whole 전체가 고정 firstcost와 같고 native와
+진단 DEV source/native는 실제 이전 setter 산출물 전체와 같다. 원 selected의
+quit/EOF 두 session·여덟 GO·3 startup TID·private-path 제거·closing bestmove 한 번·
+readers 완료·물리 종료를 확인했다. 원 command 두 개는 terminal0/reaped/group 부재/
+강제정리0/owned0으로 닫았다. Runtime SHA `b4c0fb9d4b09d1ea5676a71e9bb9db4209d9ca1b116bb79fe8efbda8b458f2b8`.
+Recipe constants.normal_validation에 build/runtime 영수증을 연결했다. 이후 변경은
+완료 주석뿐이며 causality는 unproven이다. 추가 SAN/fault/fresh/학습/기력/성능/새 CI는0이다.
+
+## E19와 공통 mailbox PVS/runtime의 정식 결합
+
+현재 E도 mailbox이므로 bitboard 제거는 이 변경의 근거가 아니다. 새 pure
+shipping_cross_e.py는 기존9866B source까지 모든 guard를 먼저 소비하고, 실제
+weights/Q/phase-setter/S/R 다섯 영역을 재결합한다. 나머지 역할별 readable C
+정본은 복구한 full A-PVS/QS/TT/history/continuation/correction/persistent SMP
+구현이다. 이는 E19 모델·ordering을 유지하는 별도 검색 variant이며 기존 E
+전체 trace·기력의 동등성을 뜻하지 않는다. 정본 engine.c·model19.h와 old DEV21
+참조, 이전 guards는 유지한다. 외부 artifact와 A 모듈을 빌드 때 읽지 않는다.
+
+9074B source / 18576B native / 10028B bootstrap / 4646B whole이다.
+현재4825B보다179B 작으며4096까지550B 남았다. Whole SHA는
+`0394497e1994182144cffa9d81d22d948c2913cac37ad60202e9e0e9394a84bc`.
+Packaging은 실제 이전 source literal과 E template를 소비해 만든 old script에서
+컴파일 argv와 source literal 두 곳만 바꾸며 전체 역변환·보호 gap을 검사한다.
+Shipping compiler는 선택된 A flags, 전처리·DEV compiler·고정 자원·codec은 그대로다.
+외부 대표 fixture는 모델·Board·특수 move와 실제 model 소비를 통과했고, 별도
+외부 selected는 두 session/8 GO를 통과했다. 이는 이번 maintained 재현과 분리한다.
+정식 ordinary --dev에서 shipping 두 사본과 실제 이전 DEV 두 사본을 재현했다.
+9074B source/18576B native/10028B bootstrap/4646B whole 전체 바이트는
+고정 firstcost와 같고, DEV 전체 source/native는 실제 이전 DEV와 같다.
+기존 selected 검증의 quit·EOF 두 session/8 GO, session별 시작 TID 3개,
+native image·private path·reader·process 종료 fence를 통과했다.
+원 두 명령은 terminal/reaped/group 부재, forced cleanup 0/owned handle 0이다.
+Runtime SHA `2242fddbb838a93d24423d38173ea64a2915f22298566cd19d1be75a43406892`.
+취소 인과관계는 unproven으로 두며, 이 재현을 기력·성능·SAN·fault·fresh·새 CI
+검증으로 확대하지 않는다. 생산 당시 recipe/README와 완료 주석 후 파일 핀은
+외부 promotion 증거에서 구분한다.
+
+## E shipping keyword와 TT 지역 이름 축약
+
+현재 cross9074 출력 뒤에서 int89/return45를 각각 L/J object macro로 표기하고,
+h의 TT move J/depth L 선언·참조 네 토큰만 j/k로 옮긴다. header 뒤에만
+정의를 넣으며 원 directive·literal·모델 qi/Q/S/r/phase와 PVS/TT/SMP 의미는 유지한다.
+새 source8702/native18576/bootstrap9656/whole4630B로 기존4646B보다16B 작다.
+4096까지534B 남았다. 실제 full-header CPP는 네 지역 이름 역변환 후 동일하고
+native 전체도 이전 E4646과 같다. 새 모델·검색 정책 변경이나 기력·성능 주장이 아니다.
+Packaging은 keyword 역변환9074→기존 cross 역변환9866→실제 oldliteral/template
+10868→기존 cross bootstrap10028 guard→keyword literal9656 순으로 소비한다.
+외부 파일을 런타임 재생성 입력으로 읽지 않으며 canonical/DEV는 이전 경로를 유지한다.
+정식 ordinary --dev에서 두 shipping 사본의 전체 source/native/bootstrap/whole이
+고정 firstcost와 일치했고, 두 DEV 사본도 실제 이전 DEV 전체 bytes와 같았다.
+Native 전체는 이전 E4646과 같다. 기존 selected의 quit·EOF 두 session/8 GO,
+session별 시작 TID3, image/private path/reader/process 종료 fence를 통과했다.
+원 두 명령은 terminal/reaped/group 부재, forced cleanup0/owned handle0이다.
+Runtime SHA `8e3cb5322601bf41d5ed09549ea50bef7569caeeca0c872b229d0741bee7a8d9`.
+취소 인과관계는 unproven이며 새 모델·검색·기력·성능·SAN·fault·fresh·CI 검증은 아니다.
+외부 promotion 증거에서 생산 당시 파일 핀과 완료 주석 후 핀을 구분한다.
+
+## E 정렬 leaf의 실제 단일 소비자 결합
+
+기존 static r은 h의 preordering 한 곳에서만 쓰였다. caller가 이미 계산한
+FROM/TO/sourcepiece+6을 재사용해 그 실제 다섯 ordering 항을 같은 loop로 옮겼다.
+qi physical21/logical19 독립 계수, Q/S/phase setter와 모델·검색 정책은 유지한다.
+Promotion base와 모델 promotion 가산을 한 if로 묶었고, unsigned PROMO식에서
+int local로 바뀐 지점은 고정 promotion2..5/점수범위로 값 동등성을 확인했다.
+Source8616/bootstrap9570/whole4605B로 이전4630보다25B 작고4096까지509B 남았다.
+Native는18576→22672B(+4096)이며 전체 bytes가 다르다. 모델/ordering focused
+fixture는 이전·새 actual ranking body와 독립 E19 oracle을 대조한다.
+Packaging은 inline inverse8702→keyword inverse9074→cross inverse9866→
+실제 이전 literal/template/cross/keyword guard9656→inline literal9570 순서다.
+이전 native 동등 영수증은 해당 keyword stage의 이력이며 이번 출력으로 확대하지 않는다.
+정본·old DEV 경로와 model/DEV false flags를 유지한다. 기력·속도 동등 주장은 없다.
+정식 ordinary --dev에서 두 shipping 사본의 source8616/native22672/bootstrap9570/
+whole4605 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 native722e744e…는 이전802704e6…와 다름을 확인했다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `b0d2db69858c863aed480df7febf7901bd37d6dcb8fabb63de4c34a7c1454cf5`.
+취소 인과관계는 unproven이고 새 기력·성능·SAN·fault·fresh·CI 검증은 아니다.
+생산 파일 핀과 완료 주석 후 핀은 외부 promotion 증거에서 구분한다.
+
+## E 완료 깊이 기반 작업 토큰
+
+별도 epoch qd와 worker local generation 대신 기존 signed ai.C를 작업 토큰으로 쓴다.
+C=-1은 미수령 작업,0은 claim 완료,1..126은 완료 깊이다. 시작 w=NULL과 별도
+ai*a=p를 유지하고, qj 아래 claim0 뒤 think를 호출한다. GO는 기존 j() drain
+후 qj 아래 qk=2와 두 worker의 C=-1을 함께 게시한 뒤 broadcast한다.
+마지막 qk감소→x()/fflush→broadcast, 부분생성실패와 실제 V개 join은 유지한다.
+Direct/private think fixture는호출전C=0을seed해야한다. 정본·DEV 자동적용은없다.
+모든19독립계수/physical21·5ordering·TT·learner·PVS 본문은 그대로다.
+Source8598/bootstrap9552/whole4599B로 기존4605보다6B 작고4096까지503B 남았다.
+Native는22672B로같지만 전체 SHA가cbe2a523…로바뀌므로native동등주장은없다.
+Packaging은pool inverse8616→이전order/keyword/cross inverse와literalguards→
+실제이전9570 script→pool9552 script를소비하며외부artifact를재생성입력으로읽지않는다.
+새행렬·fault·SAN을추가하지않고기존A/F pool패턴과E6role 소스수명검토를재사용한다.
+정식 ordinary --dev에서 두 shipping 사본의 source8598/native22672/bootstrap9552/
+whole4599 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 nativecbe2a523…는 이전722e744e…와 크기는 같지만 bytes가 다르다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `25ace32cbb90e4c3df043a3612105189d245de4041fbd81f54418b2084172876`.
+취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
+호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
+새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.
+
+## E 유효 mailbox 칸 직접 순회
+
+g와 ap의 invalid-square guard 대신 signed int successor `(q+9)&~8`를 쓴다.
+0..7,16..23,…112..119 순서와 마지막128 종료, continue·조기return 입력은 같다.
+두 구간과 세 보호 gap·전체 역변환만 다루며 E19 논리19/물리21, 정수 eval,
+5ordering·3learner·PVS·TT·SMP 본문과 정본/DEV는 바꾸지 않는다.
+Source8569/bootstrap9523/whole4586B로 기존4599보다13B 작고4096까지490B 남았다.
+Native22672B의 SHA0449f0ea…는 이전cbe2a523…와 다르며 기력·시간 동등 주장은 없다.
+포장은 square inverse8598→depth/order/keyword/cross 및 이전 literal guard 실제 소비→
+이전9552 script→square9523 script 순서이며 외부 artifact를 생성 입력으로 읽지 않는다.
+정식 ordinary --dev에서 두 shipping 사본의 source8569/native22672/bootstrap9523/
+whole4586 전체 bytes가 고정 firstcost와 같았고, 두 DEV도 실제 이전 DEV 전체
+source/native와 같았다. 새 native0449f0ea…는 이전cbe2a523…와 크기는 같지만 bytes가 다르다.
+기존 selected의 quit·EOF 두 session/8 GO, 시작 TID3, native image와
+private path/reader/process 종료 fence를 통과했다. 원 두 명령은 terminal/
+reaped/group 부재, forced cleanup0/owned handle0으로 닫혔다.
+Runtime SHA `2f34e6ce566d1349e14b2dea56007a93218b2411bc86431202dbbd41bd62dc4d`.
+취소 인과관계는 unproven이다. 모델·정렬·검색 본문 변경은 없으며, private direct-think
+호출자는 완료 깊이0 seed가 필요하다. canonical/DEV에는 자동 적용하지 않는다.
+새 기력·성능·SAN·fault·fresh·CI 검증은 아니며 생산/완료 주석 핀은 구분한다.
+
+## Compiler-group ownership adoption
+
+현재 생산자는 기존 source/literal/argv 검사를 마친 뒤 `engines/scripts/compiler_group.py`를 encoding 직전에 적용한다. 컴파일러 원 leader를 `WNOWAIT`로 보존한 채 살아 있는 같은 process-group 작업을 정산한 뒤 마지막에 reap한다. Python 진입 시 SIGCHLD disposition을 저장·정규화하고 native exec 전에 복원한다. 원 C/source·compiler argv/env/cwd·stdio·읽기 FD exec·legacy exitstatus는 유지하며, 단순 크기 손실로 이 수명 수정을 숨기지 않는다.
+
+| 현재 생산 context | 이전 whole | 새 measured whole | 새 bootstrap |
+|---|---:|---:|---:|
+| E | 4586 | 4963 | 10539 |
+
+위 값은 각 actual 기존 입력에서 고정 codec 한 번과 strict Python/CLI 복원으로 먼저 측정한 값이다. source/native/compiler/header/codec의 변경이나 다른 문맥 delta의 가산은 없다. 기존 frozen control과 과거 qualified receipts는 당시 범위로 보존한다.
+
+이 entry는 local source/Data proof 및 fixed-cost 측정까지 수행했다. 새 HEAD의 ordinary/positive CI 검증은 별도로 필요하며, F 기본형 양성 결과를 이 프로필의 새 runtime 결과로 재라벨하지 않는다.
+공유 세 형상의 기존 packaging suites는 stream5·ZIP4·restored-files5 tests 모두 통과했다(skipped0). 이 관측은 live same-group 정산이며 detached 작업이나 zombie를 포함한 문자 그대로의 group absence 일반 증명은 아니다.
+
+실제 producing/measurement/normal receipt는 recipe의 `compiler_group_ownership`에 명시했다. 공통 source helper에 대한 alias-only 후보 raw−389/whole+8 손실은 과거 미채택으로 남고 여기서 재실행하지 않았다.
+
+
+## Prepared normalization and path-authority grace — producing checkpoint
+
+The default full source-script path consumes all previous source/literal/compiler-owner/late-BOOT,
+W1/W2 and seek admissions first. The exact previous prepared bootstrap
+10366 B/e5caff86775563e8999876fe8fb9d86aaf2a877bc4499a38cf8bd856b731cbc3 is then admitted before
+calling the same frozen compiler_group.normalize_bootstrap and
+compact_cleanup(state=True, wait=False, termination='grace'). The compiler_group
+legacy emitter still returns the same bytes; its canonical cleanup renderer owns
+both representations. No extra UCI/runtime policy selector is introduced.
+
+Measured complete file 4897->4878 B saves19 B;
+bootstrap 10366->10302 B. The independent fixed-codec
+normalize+state+wait candidate is larger and is retained as an unselected cost.
+Source/native/readable/DEV, worker2/TT18, codec and complete header are unchanged.
+The recipe retains the full predecessor expected/helper/local-input closure and
+a separate selected tuple. Only the four whole/bootstrap expected fields change.
+
+Normalization moves compiler environment dict creation from before source-file
+write/seek to Popen argument evaluation. Current closed builtin values agree,
+but environment/audit hooks, concurrent mutation, allocation/source first-error
+ordering, private e/s snapshots and exact tracebacks are outside equivalence.
+INT/TERM registration/reset remains2 then15. State compaction invalidates d only
+at the two settlement125 exits, retaining the physical workspace; ordinary
+preparation/spawn/nonzero compiler failures keep their original cleanup and error.
+The original graceful signal, separate5s grace/post-KILL/group budgets, unbounded
+normal WNOWAIT, unreaped leader and last reap stay intact. Immediate KILL is not
+selected by this default path.
+
+Frozen common API SHA256 a245174aba2505493737dd87c2fd8943335346ae8ac419e79c1b203543695735; C-default stdin API
+fc92bb6146fcfc5a6c73cd9f68929192a90d22a875bf591caf2cf3b32b87055b preserves the prior C emission.
+The shared package helper is finally frozen at SHA256 149f616c6e8d78b52dc88ccf0dd303d37ad2bcc513e16c40a54ac1daf09d7d2f.
+No mismatch is silently accepted. PENDING: producing source qualification
+requires actual ordinary regeneration and the selected verifier. Old runtime
+receipts keep their original source scope. Completion is recorded separately
+without changing producing recipe/README after qualification.

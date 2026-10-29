@@ -1,0 +1,132 @@
+/* Included after instrumented runtime.c. go/main bodies remain exact. Only
+ * boundary definitions now/read_line/futex_wait and spawn are interposed.
+ * This fixture has NO physical worker threads and claims NO physical join. */
+#define CHECK(x) do{if(!(x))fixture_fail(__LINE__);}while(0)
+static void fixture_fail(unsigned line){
+    char s[64]="finite unit failure line ",digits[16];unsigned n=0,z=25;
+    do{digits[n++]='0'+line%10;line/=10;}while(line);
+    while(n)s[z++]=digits[--n];s[z++]='\n';s[z]=0;output(s);abort();
+}
+enum{OTHER,GO,IGNORED,POSITION,INVALID_POSITION};
+typedef struct{const char *line;int kind;uint64_t budget;int black;} Step;
+static const Step steps[]={
+    {"uci",OTHER,0,0},{"isready",OTHER,0,0},
+    {"go",GO,1000,0},{"stop",IGNORED,0,0},{"ucinewgame",IGNORED,0,0},
+    {"stop extra",IGNORED,0,0},{"ucinewgame extra",IGNORED,0,0},{"isready",IGNORED,0,0},
+    {"go infinite",GO,1000,0},{"go infinite wtime 3000",GO,100,0},{"go btime 9000",GO,1000,0},
+    {"go wtime 0 btime 9000 winc 999",GO,1,0},{"go wtime 3000 winc 400",GO,400,0},
+    {"go wtime 3000 wtime 6000",GO,200,0},{"go wtime -1 btime 6000",GO,1,0},
+    {"go wtime +1",GO,1,0},{"go wtime 12x",GO,1,0},
+    {"go wtime 9223372036854775808",GO,1,0},
+    {"go wtime 9223372036854775807",GO,86400000,0},
+    {"go wtime 3000 winc 9223372036854775807",GO,600,0},
+    {"go wtime btime 6000",GO,1,0},
+    {"position startpos moves e2e4",POSITION,0,1},
+    {"go wtime 0",GO,1000,1},{"go btime 0 wtime 9000",GO,1,1},
+    {"go btime btime 6000",GO,200,1},{"stop",IGNORED,0,1},{"ucinewgame",IGNORED,0,1},
+    {"go btime 3000 binc 400",GO,400,1},
+    {"position startpos moves e2e5",INVALID_POSITION,0,1},{"go btime 3000",GO,100,1},
+};
+static unsigned cursor,completed_commands,clock_cases,ignored_cases,completion_hooks,results_published;
+static int previous=-1,allow_completion,shutdown_eof;
+static uint64_t fixed_now=1000000;
+static Entry *shadow_table,*saved_table;
+static Worker shadow_workers[WORKERS];
+static Board shadow_position;
+static uint64_t shadow_keys[HISTORY],shadow_deadline;
+static int shadow_length,shadow_epoch,shadow_pending,shadow_completed,shadow_stopped,shadow_ready,shadow_quitting,shadow_ids[WORKERS];
+static Move shadow_fallback;
+static unsigned hooks_before;
+static size_t table_bytes(void){return ((size_t)1<<TT_BITS)*sizeof *table;}
+static void table_same(void){CHECK(table==saved_table);CHECK(!memcmp(table,shadow_table,table_bytes()));}
+static void position_same(void){CHECK(!memcmp(&position,&shadow_position,sizeof position));CHECK(game_length==shadow_length);CHECK(!memcmp(game_keys,shadow_keys,sizeof shadow_keys));}
+static void snapshot(void){
+    saved_table=table;memcpy(shadow_table,table,table_bytes());memcpy(shadow_workers,workers,sizeof workers);
+    memcpy(&shadow_position,&position,sizeof position);memcpy(shadow_keys,game_keys,sizeof game_keys);
+    shadow_length=game_length;shadow_deadline=deadline;shadow_fallback=fallback;
+    shadow_epoch=atomic_load(&epoch);shadow_pending=atomic_load(&pending);shadow_completed=atomic_load(&completed);
+    shadow_stopped=atomic_load(&stopped);shadow_ready=atomic_load(&ready);shadow_quitting=atomic_load(&quitting);
+    for(int i=0;i<WORKERS;i++)shadow_ids[i]=atomic_load(ids+i);
+    hooks_before=completion_hooks;
+}
+static void identical(void){
+    table_same();position_same();CHECK(!memcmp(workers,shadow_workers,sizeof workers));
+    CHECK(deadline==shadow_deadline&&fallback==shadow_fallback);
+    CHECK(atomic_load(&epoch)==shadow_epoch&&atomic_load(&pending)==shadow_pending&&atomic_load(&completed)==shadow_completed);
+    CHECK(atomic_load(&stopped)==shadow_stopped&&atomic_load(&ready)==shadow_ready&&atomic_load(&quitting)==shadow_quitting);
+    for(int i=0;i<WORKERS;i++)CHECK(atomic_load(ids+i)==shadow_ids[i]);
+    CHECK(completion_hooks==hooks_before);
+}
+uint64_t now(void){return fixed_now;}
+long fixture_spawn(void (*callback)(void *),void *argument,void *stack,int *id){
+    (void)callback;(void)argument;(void)stack;*id=0;atomic_fetch_add(&ready,1);return 0;
+}
+static void futex_wait(atomic_int *address,int value,int private){
+    CHECK(allow_completion&&address==&completed&&private==1);
+    CHECK(value==shadow_completed&&atomic_load(&epoch)==shadow_epoch&&atomic_load(&pending)==WORKERS);
+    CHECK(atomic_load(&stopped)==1);table_same();position_same();CHECK(!memcmp(workers,shadow_workers,sizeof workers));
+    CHECK(deadline==shadow_deadline&&fallback==shadow_fallback);
+    /* These are synthetic workers. Invoke the ACTUAL publication before
+     * advancing ACTUAL completed, just as the production callback does. */
+    result();results_published++;atomic_store(&pending,0);
+    atomic_store_explicit(&completed,atomic_load(&epoch),memory_order_release);completion_hooks++;
+}
+static void validate_previous(void){
+    if(previous<0)return;
+    Step step=steps[previous];table_same();
+    if(step.kind==GO){
+        CHECK(deadline==fixed_now+step.budget);CHECK(position.s==(step.black?-1:1));position_same();
+        CHECK(atomic_load(&epoch)==shadow_epoch+1&&atomic_load(&pending)==WORKERS&&atomic_load(&stopped)==0);
+        CHECK(atomic_load(&completed)==shadow_epoch);CHECK(fallback==first(&position));
+        CHECK(completion_hooks==hooks_before+(shadow_pending?1u:0u));
+        for(int i=0;i<WORKERS;i++){
+            CHECK(!workers[i].depth&&!workers[i].score&&!workers[i].best&&!workers[i].nodes);
+            /* Simulate partially searched heuristics/results. An ignored
+             * command must leave the ENTIRE worker records unchanged. */
+            workers[i].depth=3;workers[i].score=17+i;workers[i].nodes=101+i;
+            workers[i].best=fallback;workers[i].history[1][2]=137;
+            workers[i].continuation[6][7]=-93;workers[i].correction[81]=47;
+        }
+        clock_cases++;
+    }else if(step.kind==IGNORED||step.kind==OTHER){identical();if(step.kind==IGNORED)ignored_cases++;}
+    else{
+        CHECK(completion_hooks==hooks_before+(shadow_pending?1u:0u));
+        CHECK(atomic_load(&completed)==shadow_epoch&&atomic_load(&pending)==0&&atomic_load(&stopped)==1);
+        CHECK(atomic_load(&epoch)==shadow_epoch&&deadline==shadow_deadline);
+        CHECK(!memcmp(workers,shadow_workers,sizeof workers));
+        if(step.kind==INVALID_POSITION)position_same();
+        else CHECK(position.s==-1&&game_length==2&&position.b[52]==1&&!position.b[20]&&position.h==game_keys[1]&&!position.half);
+    }
+    completed_commands++;
+}
+static int read_line(char *line){
+    if(!cursor){
+        CHECK(atomic_load(&ready)==WORKERS&&game_length==1&&position.s==1);
+        shadow_table=allocate(table_bytes());CHECK(shadow_table);
+        /* Exact actual TT bytes, including locks/padding, are compared after
+         * every command. Sentinels make a hidden startup-style clear visible. */
+        for(int i=0;i<3;i++){Entry *slot=table+(i?i==1?17:(1u<<TT_BITS)-1:0);slot->key=UINT64_C(0xa738bfd2140193)+i;slot->data=UINT64_C(0x928d765431)+i;}
+    }
+    validate_previous();snapshot();
+    if(cursor==sizeof steps/sizeof *steps){
+        previous=-1;allow_completion=1;
+        if(shutdown_eof)return -1;memcpy(line,"quit",5);cursor++;return 1;
+    }
+    CHECK(cursor<sizeof steps/sizeof *steps);
+    previous=(int)cursor;Step step=steps[cursor++];
+    allow_completion=step.kind==GO||step.kind==POSITION||step.kind==INVALID_POSITION;
+    unsigned n=0;while(step.line[n])n++;memcpy(line,step.line,n+1);return 1;
+}
+int main(void){
+    for(shutdown_eof=0;shutdown_eof<2;shutdown_eof++){
+        cursor=0;previous=-1;allow_completion=0;memset(workers,0,sizeof workers);memset(game_keys,0,sizeof game_keys);
+        atomic_store(&epoch,0);atomic_store(&pending,0);atomic_store(&completed,0);atomic_store(&ready,0);atomic_store(&quitting,0);atomic_store(&stopped,0);
+        for(int i=0;i<WORKERS;i++)atomic_store(ids+i,0);
+        CHECK(subject_main()==0);table_same();
+        CHECK(atomic_load(&quitting)==1&&atomic_load(&pending)==0);
+        CHECK(atomic_load(&epoch)==atomic_load(&completed)+1);
+        CHECK(results_published==completion_hooks);
+    }
+    CHECK(completed_commands==2*(sizeof steps/sizeof *steps));CHECK(clock_cases==38&&ignored_cases==14&&completion_hooks==38);
+    output("finite unit pass commands60 clocks38 ignored14 synthetic_completions38\n");return 0;
+}

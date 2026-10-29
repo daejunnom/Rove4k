@@ -1,0 +1,167 @@
+/* Harness only: appended to three exact frozen production translation units.
+ * The proof writer instruments real boundaries and selection sites, and also
+ * inserts the exact rank/select block below as select_fixture. No engine
+ * branch, formula, search condition or compiler optimization is replaced. */
+static uint64_t trace_a,trace_b,trace_events,trace_words;
+static FILE *state_file,*trace_file;
+static unsigned negative_history,negative_continuation,raw_checks;
+static void proof_fail(const char *why){fprintf(stderr,"proof failure: %s\n",why);exit(90);}
+static void raw_move(Move m){
+    ++raw_checks;
+    if(m>UINT64_C(131071))proof_fail("packed priority escaped the search list");
+    if(m&&((FROM(m)|TO(m))&0x88))proof_fail("raw move has off-board endpoint");
+    if(PROMO(m)&& (PROMO(m)<2||PROMO(m)>5))proof_fail("raw move has invalid promotion");
+}
+static void trace_word(uint64_t x){
+    ++trace_words;
+    for(unsigned i=0;i<8;i++,x>>=8){
+        unsigned byte=(unsigned)x&255;
+        if(trace_file&&fputc(byte,trace_file)==EOF)proof_fail("trace write");
+        trace_a=(trace_a^byte)*UINT64_C(1099511628211);
+        trace_b^=byte+UINT64_C(0x9e3779b97f4a7c15)+(trace_b<<6)+(trace_b>>2);
+        trace_b=(trace_b<<13)|(trace_b>>51);
+    }
+}
+static void trace_begin(unsigned tag){++trace_events;trace_word(tag);}
+static void rank_priority(int i,Move m,int priority){
+    raw_move(m);
+    if(priority< -65536||priority>1405000)proof_fail("priority outside proved signed domain");
+    trace_begin(1);trace_word(i);trace_word((unsigned)m);trace_word((uint64_t)(int64_t)priority);
+}
+static void rank_pick(Worker *w,const Board *p,int ply,int i,Move m){
+    raw_move(m);trace_begin(2);trace_word(w->id);trace_word(p->h);trace_word(ply);trace_word(i);trace_word((unsigned)m);
+}
+static void trace_reset(void){trace_a=UINT64_C(1469598103934665603);trace_b=UINT64_C(0x243f6a8885a308d3);trace_events=trace_words=0;}
+static void state_u64(uint64_t x){for(unsigned i=0;i<8;i++,x>>=8)if(fputc((unsigned)x&255,state_file)==EOF)proof_fail("state write");}
+static void state_u16(uint16_t x){if(fputc(x&255,state_file)==EOF||fputc(x>>8,state_file)==EOF)proof_fail("state write");}
+static void state_board(const Board *b){
+    for(int i=0;i<128;i++)state_u64((uint64_t)(int64_t)b->b[i]);
+    state_u64((uint64_t)(int64_t)b->s);state_u64(b->c);state_u64((uint64_t)(int64_t)b->e);
+    state_u64(b->k[0]);state_u64(b->k[1]);state_u64(b->half);state_u64((uint64_t)(int64_t)b->v);state_u64(b->h);state_u64(b->r);
+}
+static void state_dump(unsigned c,const Board *before,Worker *w){
+    state_u64(c);state_board(before);state_board(&position);
+    state_u64(w->id);state_u64(w->depth);state_u64((uint64_t)(int64_t)w->score);raw_move(w->best);state_u64((unsigned)w->best);
+    state_u64(w->nodes);state_u64(w->length);
+    for(unsigned i=0;i<HISTORY+PLY;i++)state_u64(w->keys[i]);
+    for(int f=0;f<128;f++)for(int t=0;t<128;t++)state_u16((uint16_t)w->history[f][t]);
+    for(int a=0;a<13;a++)for(int b=0;b<13;b++)state_u16((uint16_t)w->continuation[a][b]);
+    for(int i=0;i<1024;i++)state_u16((uint16_t)w->correction[i]);
+    state_u64(w->pvs);state_u64(w->qs);state_u64(w->hits);state_u64(w->hist_updates);state_u64(w->cont_updates);
+    state_u64(w->corr_updates);state_u64(w->corr_uses);state_u64(w->ply_aborts);
+    state_u64(game_length);for(int i=0;i<HISTORY;i++)state_u64(game_keys[i]);
+    state_u64(atomic_load(&searched));state_u64(atomic_load(&stopped));
+    for(size_t i=0;i<((size_t)1<<TT_BITS);i++){
+        if(atomic_flag_test_and_set(&table[i].lock))proof_fail("TT slot remained locked");
+        atomic_flag_clear(&table[i].lock);
+        state_u64(table[i].key);state_u64(table[i].data);
+    }
+}
+static void seed(Worker *w,unsigned variant){
+    for(unsigned f=0;f<128;f++)for(unsigned t=0;t<128;t++)
+        w->history[f][t]=(int16_t)((int)((f*977u+t*131u+variant*8191u)&65535u)-32768);
+    for(unsigned a=0;a<13;a++)for(unsigned b=0;b<13;b++)
+        w->continuation[a][b]=(int16_t)((int)((a*3329u+b*1999u+variant*16381u)&65535u)-32768);
+    /* Both full int16 extremes remain safe in the production positive-bonus
+     * learn update: its intermediate products fit int and results fit int16. */
+    w->history[1][32]=-32768;w->continuation[6][8]=-32768;
+    for(unsigned i=0;i<1024;i++)w->correction[i]=(int16_t)((int)((i*61u+variant*17u)&32767u)-16384);
+}
+static void select_fixture(Worker *,const Board *,int,Move,Move *,int,Move *);
+static void fixtures(void){
+    Worker *w=calloc(1,sizeof *w);if(!w)proof_fail("fixture allocation");
+    Board b;start(&b);Move in[3],out[3];
+    Move a=MOVE(16,32,0),bb=MOVE(17,33,0),c=MOVE(18,34,0);
+    trace_reset();
+    for(int id=0;id<2;id++)for(int neg=0;neg<2;neg++){
+        int low=neg?-32000:1,high=neg?-31999:2;
+        memset(w,0,sizeof *w);w->id=id;w->continuation[6][7]=neg?-16000:0;
+        w->history[16][32]=(int16_t)(low-w->continuation[6][7]-(int)((a*37u+w->id*19u)%17));
+        w->history[17][33]=(int16_t)(low-w->continuation[6][7]-(int)((bb*37u+w->id*19u)%17));
+        w->history[18][34]=(int16_t)(high-w->continuation[6][7]-(int)((c*37u+w->id*19u)%17));
+        in[0]=a;in[1]=bb;in[2]=c;select_fixture(w,&b,6,0,in,3,out);
+        if(out[0]!=c||out[1]!=bb||out[2]!=a)proof_fail("destructive selection tie order");
+        w->history[18][34]=(int16_t)(low-w->continuation[6][7]-(int)((c*37u+w->id*19u)%17));
+        in[0]=a;in[1]=bb;in[2]=c;select_fixture(w,&b,6,0,in,3,out);
+        if(out[0]!=a||out[1]!=bb||out[2]!=c)proof_fail("equal priority compared raw move bits");
+    }
+    memset(w,0,sizeof *w);
+    /* Every representable int16 value is passed through the exact production
+     * rank and selection blocks, once in a history cell and once in a
+     * continuation cell. No signed cast or out-of-range learning is needed. */
+    for(unsigned u=0;u<65536;u++){
+        int v=(int)u-32768;
+        w->history[16][32]=(int16_t)v;w->history[17][33]=-32768;w->history[18][34]=-1;
+        w->continuation[6][7]=-32768;
+        in[0]=a;in[1]=bb;in[2]=c;select_fixture(w,&b,6,0,in,3,out);
+        negative_history+=v<0;
+    }
+    Move knight=MOVE(1,32,0); /* jitter zero, so -32768+-32768 reaches -65536 */
+    memset(w,0,sizeof *w);w->history[1][32]=-32768;w->continuation[6][8]=-32768;
+    in[0]=knight;select_fixture(w,&b,6,0,in,1,out);if(out[0]!=knight)proof_fail("minimum priority raw move");
+    for(unsigned u=0;u<65536;u++){
+        int v=(int)u-32768;
+        w->history[1][32]=-32768;w->history[16][32]=-32768;w->history[17][33]=-1;
+        w->continuation[6][8]=(int16_t)v;w->continuation[6][7]=-32768;
+        in[0]=knight;in[1]=a;in[2]=bb;select_fixture(w,&b,6,0,in,3,out);
+        negative_continuation+=v<0;
+    }
+    if(!fen(&b,"1r5k/P7/8/8/8/8/8/7K w - - 0 1"))proof_fail("promotion FEN");
+    for(int promo=2;promo<=5;promo++){
+        Move m=MOVE(96,113,promo);in[0]=m;select_fixture(w,&b,6,m,in,1,out);
+        if(out[0]!=m||(promo>=4&&!(m&65536)))proof_fail("promotion raw high bit");
+    }
+    printf("{\"kind\":\"selection\",\"negative_history_values\":%u,\"negative_continuation_values\":%u,\"all_int16_values_per_cell_kind\":65536,\"events\":%llu,\"words\":%llu,\"trace\":\"%016llx%016llx\"}\n",negative_history,negative_continuation,(unsigned long long)trace_events,(unsigned long long)trace_words,(unsigned long long)trace_a,(unsigned long long)trace_b);
+    free(w);
+}
+int main(int argc,char **argv){
+    if(argc<2||argc>3)return 2;state_file=fopen(argv[1],"wb");if(!state_file)return 3;
+    printf("{\"kind\":\"abi\",\"Board\":%zu,\"Worker\":%zu,\"Move\":%zu,\"Entry\":%zu,\"unsigned\":%zu,\"UINT_MAX\":%u,\"Worker_best_offset\":%zu,\"Worker_keys_offset\":%zu,\"public_move_list\":%zu,\"search_move_and_score_arrays\":%zu}\n",sizeof(Board),sizeof(Worker),sizeof(Move),sizeof(Entry),sizeof(unsigned),UINT_MAX,offsetof(Worker,best),offsetof(Worker,keys),MOVES*sizeof(Move),MOVES*sizeof(Move)+PROOF_SCORE_ARRAY_BYTES);
+    fixtures();
+    /* Raw trace capture begins only after exhaustive synthetic selectors.
+     * All real search cases, including their public parser/gen boundaries,
+     * are captured in canonical eight-byte words and compared directly. */
+    if(argc==3){trace_file=fopen(argv[2],"wb");if(!trace_file)return 6;setvbuf(trace_file,0,_IOFBF,1048576);}
+    static const struct {const char *fen;int depth;unsigned seeded;int keep_tt;const char *replay;} cases[]={
+        {"startpos",4,0,0,0},
+        {"startpos",4,1,1,0},
+        {"r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",3,2,0,0},
+        {"6k1/8/8/3pP3/8/8/8/6K1 w - d6 0 1",4,3,0,0},
+        {"7k/8/8/8/8/8/1Q6/K7 w - - 99 1",4,0,0,0},
+        {"7k/8/8/8/8/8/1Q6/K7 w - - 0 1",4,1,1,0},
+        {"7k/8/8/8/8/8/P7/K7 w - - 0 1",4,2,0,0},
+        {"1r5k/P7/8/8/8/8/8/7K w - - 0 1",4,3,0,0},
+        {"6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1",4,1,0,0},
+        {"6k1/1q6/8/8/8/8/1Q6/K7 w - - 0 1",4,2,0,0},
+        {"7k/6Q1/6K1/8/8/8/8/8 b - - 100 1",4,3,0,0},
+        {"7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",4,0,0,0},
+        {"startpos",4,1,0,"startpos moves g1f3 g8f6 f3g1 f6g8 g1f3 g8f6 f3g1 f6g8"},
+        {"startpos",4,2,1,"startpos moves g1f3 g8f6 f3g1 f6g8"},
+        {"startpos",4,3,1,0}
+    };
+    table=calloc((size_t)1<<TT_BITS,sizeof *table);if(!table)return 4;
+    for(unsigned c=0;c<sizeof cases/sizeof *cases;c++){
+        Worker *w=workers;memset(w,0,sizeof *w);w->id=c&1;memset(game_keys,0,sizeof game_keys);
+        if(!cases[c].keep_tt)clear();
+        trace_reset();
+        if(!strcmp(cases[c].fen,"startpos"))start(&position);else if(!fen(&position,cases[c].fen))proof_fail("search FEN");
+        game_length=1;game_keys[0]=position.h;
+        if(cases[c].replay){char replay[256];strcpy(replay,cases[c].replay);set_position(replay);}
+        if(cases[c].seeded)seed(w,cases[c].seeded);
+        Board before=position;if(!verify_board(&position))proof_fail("root board invariant");
+        Move f=first(&position);raw_move(f);char text_move[6];text(f,text_move);
+        if(f&&parse(&position,text_move)!=f)proof_fail("public text/parse roundtrip");
+        if(parse(&position,"a9a1"))proof_fail("public invalid parse");
+        max_depth=cases[c].depth;limit=0;deadline=UINT64_MAX;atomic_store(&searched,0);atomic_store(&stopped,0);
+        think(w,&position);raw_move(w->best);
+        if(memcmp(&position,&before,sizeof position))proof_fail("root board mutated");
+        if(atomic_load(&stopped)||w->depth!=cases[c].depth)proof_fail("fixed search did not complete");
+        if(w->length!=game_length)proof_fail("key path length did not unwind");
+        state_dump(c,&before,w);
+        printf("{\"kind\":\"search\",\"case\":%u,\"seed\":%u,\"keep_tt\":%d,\"best\":%u,\"score\":%d,\"depth\":%d,\"nodes\":%llu,\"pvs\":%llu,\"qs\":%llu,\"hits\":%llu,\"hist\":%llu,\"cont\":%llu,\"corr\":%llu,\"corr_use\":%llu,\"abort\":%llu,\"events\":%llu,\"words\":%llu,\"trace\":\"%016llx%016llx\",\"length\":%d,\"root_r\":\"%016llx\"}\n",c,cases[c].seeded,cases[c].keep_tt,(unsigned)w->best,w->score,w->depth,(unsigned long long)w->nodes,(unsigned long long)w->pvs,(unsigned long long)w->qs,(unsigned long long)w->hits,(unsigned long long)w->hist_updates,(unsigned long long)w->cont_updates,(unsigned long long)w->corr_updates,(unsigned long long)w->corr_uses,(unsigned long long)w->ply_aborts,(unsigned long long)trace_events,(unsigned long long)trace_words,(unsigned long long)trace_a,(unsigned long long)trace_b,w->length,(unsigned long long)position.r);
+        fflush(stdout);
+    }
+    if(fclose(state_file)||(trace_file&&fclose(trace_file)))return 5;free(table);
+    printf("{\"kind\":\"done\",\"raw_boundary_checks\":%u,\"state_cases\":%zu}\n",raw_checks,sizeof cases/sizeof *cases);
+    return 0;
+}

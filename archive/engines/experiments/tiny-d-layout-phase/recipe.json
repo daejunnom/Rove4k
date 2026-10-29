@@ -1,0 +1,138 @@
+{
+  "format": 1,
+  "source_checkpoint": "7910a33b444a37f43bf9d37e900611b525cc9ea9",
+  "scope": "One exact composition: metadata-first Board and fixed search phase retry, native cost only. No additive savings assumption, codec, packaging or runtime.",
+  "control_file_count": 18,
+  "control_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 9790,
+      "sha256": "dbf34bee63e3a535290f0ce8a0fb9e86046f098161a9cce8407a0f4fe6a1d7fd"
+    },
+    "build.py": {
+      "bytes": 10113,
+      "sha256": "cc99f4e664f49ecf58cd0a8212e652ffb3b87ac3074250a4f721cde355f55edf"
+    },
+    "fresh.py": {
+      "bytes": 10744,
+      "sha256": "0dae1cd97e912700627bc99e8ec69de54a75613d5ed0e2976f9aab51108022ca"
+    },
+    "loader/codec.py": {
+      "bytes": 8164,
+      "sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+    },
+    "loader/image.ld": {
+      "bytes": 452,
+      "sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+    },
+    "loader/loader.c": {
+      "bytes": 5862,
+      "sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094"
+    },
+    "native/board.c": {
+      "bytes": 8880,
+      "sha256": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc"
+    },
+    "native/hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "native/hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "native/image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "native/runtime.c": {
+      "bytes": 15249,
+      "sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63"
+    },
+    "native/search.c": {
+      "bytes": 6269,
+      "sha256": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8"
+    },
+    "native/start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "43df781e2a86d353d5ec1d64fc8dc6390065d8640b6c9775eb9d7535868397c0"
+    },
+    "packer.py": {
+      "bytes": 5510,
+      "sha256": "d23886cfc118c81d1a5ea3389961ce7a407a42494941c6aace3bdc541f169a03"
+    },
+    "recipe.json": {
+      "bytes": 10210,
+      "sha256": "027756a98cd5bc5e524aa6b155367569c1fb8fc3e670700e092092b4837fa1ff"
+    },
+    "verify.py": {
+      "bytes": 28461,
+      "sha256": "83a1221d010428c6ab0927b159c21924313c724df06af4de92cc97b7ddbaa3a7"
+    }
+  },
+  "helper_files": {
+    "transform.py": {
+      "bytes": 1758,
+      "sha256": "43dd688efb46f162e2fdadaa98cbbec4c3ab6c3a66996efc296596e664cce8b0"
+    },
+    "phase.c.in": {
+      "bytes": 520,
+      "sha256": "0228587d1c602162ec8472c6d8f26431d4c721fee8654c9f39c51bcb6f6fd569"
+    },
+    "dependencies/layout-native-build.py": {
+      "bytes": 13730,
+      "sha256": "91e8bb51be8209be6781b9bc0a9c937ad652016186e1f3281d79f73c57443973"
+    }
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "baseline_native": {
+    "scalar-shipping": {
+      "bytes": 8348,
+      "sha256": "0e21d39f5f294f496f2224595462661864b4a274f4c2238a38f47024f0c93bbf"
+    },
+    "hq-shipping": {
+      "bytes": 8736,
+      "sha256": "6b987cc4f616ce9d835679c61d9aff8c0c16b59ec9a74db055c8ce826e14581f"
+    }
+  },
+  "transformations": {
+    "board": {
+      "file": "native/tiny.h",
+      "before": "typedef struct { int8_t b[128]; int s,c,e,k[2],half,v; uint64_t h,r; } Board;",
+      "after": "typedef struct { int s,c,e,k[2],half,v; uint64_t h,r; int8_t b[128]; } Board;",
+      "occurrences": 1
+    },
+    "search": {
+      "file": "native/search.c",
+      "control_sha256": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8",
+      "phase_sha256": "0228587d1c602162ec8472c6d8f26431d4c721fee8654c9f39c51bcb6f6fd569",
+      "candidate_sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
+      "candidate_bytes": 6209
+    }
+  },
+  "candidate_sources": {
+    "native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f"
+    },
+    "native/search.c": {
+      "bytes": 6209,
+      "sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c"
+    }
+  },
+  "flags_resources_unit_order": "Unchanged original control/recipe.json; only source and output paths differ.",
+  "runtime_canonical_or_historical_generated_inputs": false,
+  "original_admission_policy": "Control remains exact full image/layout. Combined candidate is separately measured and must be rejected by unmodified old admission; no expected auto-update."
+}

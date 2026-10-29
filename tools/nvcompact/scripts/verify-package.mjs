@@ -50,6 +50,7 @@ const version = await run(['--version']);
 assert.equal(version.stdout.toString('utf8').trim(), `nvcompact ${packaged.version}`);
 const help = await run(['--help']);
 assert.match(help.stdout.toString('utf8'), /envelope/);
+assert.match(help.stdout.toString('utf8'), /cleanup-source/);
 const doctor = JSON.parse((await run(['doctor', '--json'])).stdout);
 assert.equal(doctor.runtime, 'Rust'); assert.equal(doctor.python_backend, false); assert.equal(doctor.targets_started, false);
 
@@ -129,6 +130,21 @@ await writeFile(cppAdvicePath, cppAdviceSource);
 await writeFile(rustAdvicePath, rustAdviceSource);
 const absentSource = path.join(work, 'absent-advice-input');
 const absentCompiler = path.join(work, 'absent-advice-compiler');
+const cleanupPath = path.join(work, 'cleanup.cpp');
+const cleanup = JSON.parse((await run(['cleanup-source', cppAdvicePath, '--language', 'cpp',
+  '--token-contract', 'no-token-observation', '--clang', process.env.NVCOMPACT_CLANG ?? 'clang',
+  '--output', cleanupPath, '--variant', 'cleanup-functions'])).stdout);
+assert(cleanup.variants.some(variant => variant.id === 'cleanup-functions'));
+assert(!(await readFile(cleanupPath, 'utf8')).includes('dormant'));
+assert.equal(await readFile(cppAdvicePath, 'utf8'), cppAdviceSource);
+for (const language of ['rust', 'python']) {
+  const unexpected = path.join(work, `unexpected-${language}-cleanup`);
+  const rejected = await run(['cleanup-source', absentSource, '--language', language,
+    '--clang', absentCompiler, '--portfolio', unexpected], { expectedCode: 2 });
+  assert.match(rejected.stderr.toString('utf8'), /unsupported/);
+  assert.equal(rejected.stdout.length, 0);
+  await assert.rejects(lstat(unexpected), { code: 'ENOENT' });
+}
 const cppAdvice = JSON.parse((await run(['advise-source', cppAdvicePath, '--language', 'cpp',
   '--clang', process.env.NVCOMPACT_CLANG ?? 'clang'])).stdout);
 const rustAdvice = JSON.parse((await run(['advise-source', rustAdvicePath, '--language', 'rust',
@@ -228,6 +244,7 @@ const report = { format: 'nvcompact.npm-install-validation.v1', status: 'pass',
     'raw ELF build with no verifier execution','independent exact native replay',
     'explicit verification of 256 integer cases and 2 invalid cases',
     'verified recipe still requires --verify for new execution','typed source notation',
+    'installed C++ cleanup candidate and explicit Rust/Python cleanup rejection before input/output access',
     'installed C++ typed constants, unused declarations, read domains and type/category-preserving n-version advice',
     'installed Rust typed constants, unused bindings, read domains and typed n-version advice without a compiler',
     'installed final-artifact byte inventory without semantic-constant or savings claims',

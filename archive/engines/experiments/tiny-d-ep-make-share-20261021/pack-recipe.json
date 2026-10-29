@@ -1,0 +1,227 @@
+{
+  "scope": "one EP make-sharing whole first cost + exact positive data-only decoding; no target",
+  "class": "c-d-ep-make-share-fixed21-atomic16-v1",
+  "native_receipt_path": "/home/stemxstudio/rove4k-tiny-d-ep-make-share-native-20261021-v1/native-cost.json",
+  "native_receipt_sha256": "b19caeb5a30ec83bc278a72ad4ccc959c091a3101129c2d9d87f2a926faef52b",
+  "candidate_packer_sha256": "814ee4c3ea3d9c164c4d93c77a590e6b80eee925e8ab27d742c624918e50e920",
+  "reference_packer_sha256": "bef35757058d15bff04f37aa20e91006e68058d7e83bb05b6372eb168aec3bfb",
+  "candidate_literal_changes_only": true,
+  "loader_source_sha256": {
+    "loader/loader.c": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "b8308c14a0bcf416af2546632a065c67562eab2c6b9eef189855d3850b3d84da",
+    "loader/decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6",
+    "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
+    "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "native_expected": {
+    "scalar-shipping": {
+      "hq": 0,
+      "native_path": "/home/stemxstudio/rove4k-tiny-d-ep-make-share-native-20261021-v1/scalar-shipping/x",
+      "native_bytes": 7836,
+      "native_sha256": "ad76de1424f4de80cbb5c9c19966cb666716c2ed6fc9703d3a2400daae4f3268",
+      "model_wmask": 16847486,
+      "layout": {
+        "bss_base": 4202496,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4201767,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 8192,
+        "image_size": 7836,
+        "reserve_size": 192512,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 7836,
+            "memsz": 7836,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "upper_guard": 4378624
+      }
+    },
+    "hq-shipping": {
+      "hq": 1,
+      "native_path": "/home/stemxstudio/rove4k-tiny-d-ep-make-share-native-20261021-v1/hq-shipping/x",
+      "native_bytes": 8224,
+      "native_sha256": "1c5d426eafa3100e82bd659fac8b347a9686e80f91849c27e5c534d954e8dfe5",
+      "model_wmask": 135274878,
+      "layout": {
+        "bss_base": 4206592,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202084,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 12288,
+        "image_size": 8224,
+        "reserve_size": 196608,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8224,
+            "memsz": 8224,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4206592,
+            "paddr": 4206592,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "upper_guard": 4382720
+      }
+    }
+  },
+  "codec": "rove4k-context-h24-base10-fixed21-replay-zero4-v2",
+  "models_sha256": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920",
+  "controls": {
+    "scalar-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/scalar-shipping/context/x",
+      "native_bytes": 7932,
+      "native_sha256": "890cf9a47918f3525ae8340999d5f1d0a9a34f51f9f4ed21b01fd6472fe2f96b",
+      "whole_bytes": 6064,
+      "whole_sha256": "ef992be19acbf77b8942c19bf98cd81f92a310be03e5d4ee290595ae3886ef88",
+      "model_wmask": 16847486
+    },
+    "hq-shipping": {
+      "native_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/native-first/x",
+      "linked_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/native-first/linked",
+      "whole_path": "/home/stemxstudio/rove4k-tiny-entry-d-atomic128-normal-build-20261021/hq-shipping/context/x",
+      "native_bytes": 8288,
+      "native_sha256": "84261c1153d1e0d71b3241375423cf8a6ffc386a6058380a1b14abfc6d757efe",
+      "whole_bytes": 6253,
+      "whole_sha256": "a03667db1839b238c217968a35883bf99d2b32fb82f9f475c2e8c8dd8814222c",
+      "model_wmask": 135274878
+    }
+  },
+  "helpers": {
+    "scalar-shipping": {
+      "path": "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/scalar-shipping/decode/check",
+      "bytes": 16680,
+      "sha256": "46a9123e51250509e2acdfa88a4fc220be20c271e8c0bbb5bdd6749ca3f5e759",
+      "historical_compile_command": [
+        "cc",
+        "-O2",
+        "-std=c11",
+        "-DCRC_ONLY=0",
+        "-DMODEL_WMASK=16847486u",
+        "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/inputs/diagnostic.c",
+        "-o",
+        "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/scalar-shipping/decode/check"
+      ],
+      "historical_receipt_path": "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/results.json",
+      "historical_receipt_sha256": "b645ec13306c0f40ea7cd19be045fe140354482fa37f13434d0a2f6a7cd4b2c1",
+      "source_sha256": {
+        "diagnostic.c": "e9212ebe1ba7b1e5e9dbc62882394c558b3abe7f0a5a98cd4aecda257fb60303",
+        "decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6"
+      }
+    },
+    "hq-shipping": {
+      "path": "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/hq-shipping/decode/check",
+      "bytes": 16680,
+      "sha256": "d8784718d061f80f63cf294abedc5c481e863f7d3861c86c86e485425cf022f3",
+      "historical_compile_command": [
+        "cc",
+        "-O2",
+        "-std=c11",
+        "-DCRC_ONLY=0",
+        "-DMODEL_WMASK=135274878u",
+        "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/inputs/diagnostic.c",
+        "-o",
+        "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/hq-shipping/decode/check"
+      ],
+      "historical_receipt_path": "/home/stemxstudio/rove4k-tiny-d-hardware-crc-firstcost-20261021-v1/results.json",
+      "historical_receipt_sha256": "b645ec13306c0f40ea7cd19be045fe140354482fa37f13434d0a2f6a7cd4b2c1",
+      "source_sha256": {
+        "diagnostic.c": "e9212ebe1ba7b1e5e9dbc62882394c558b3abe7f0a5a98cd4aecda257fb60303",
+        "decoder.h": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6"
+      }
+    }
+  },
+  "helper_limits": {
+    "address_space_bytes": 134217728,
+    "cpu_seconds": 10,
+    "wall_seconds": 30
+  },
+  "candidate_encodes": 2,
+  "loader_links": 2,
+  "positive_data_helper_executions": 2,
+  "new_helper_compiles": 0,
+  "target_TT_ASM_engine_executions": 0,
+  "runtime_qualified": false,
+  "execution_isa_required": "Linux x86-64 SSE4.2 CRC32 + CX16"
+}

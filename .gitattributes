@@ -1,0 +1,7 @@
+engines/compact/tiny-rust-d/** text eol=lf
+engines/scripts/fixed_shipping_alpha.py text eol=lf
+engines/scripts/fixed_shipping_storage.py text eol=lf
+engines/scripts/fixed_input_profile_bce.py text eol=lf
+engines/scripts/source_package.py text eol=lf
+engines/scripts/compiler_group.py text eol=lf
+engines/experiments/packaging-control/** text eol=lf

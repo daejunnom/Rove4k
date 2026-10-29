@@ -1,0 +1,78 @@
+{
+  "format": 1,
+  "normal_entry": "../../compact/tiny-entry-d",
+  "normal_recipe_sha256": "74e3568e2e689a822d145e01648cea65442a1e3f1d8bcab88aa68a147a9b3a73",
+  "packer_sha256": "26c1e9660cbe834dd67391dd309e8223391d8137ba199101399c5cc87b629f1e",
+  "transform_sha256": "31660f98114583e4034bc0082943170556232361a324f22d7359158b31fe176e",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "native_source8": {
+    "tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
+    "board.c": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc",
+    "search.c": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
+    "runtime.c": "5b20d4e60d60b5edfb4b7b5a15217346098f0bd9ccdd155a7369c90743e81ed1",
+    "hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+  },
+  "native_units": [
+    "board.c",
+    "search.c",
+    "runtime.c",
+    "hq.c",
+    "start.S"
+  ],
+  "native_flags": [
+    "-Oz",
+    "-std=c11",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-stack-protector",
+    "-fno-builtin",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-flto"
+  ],
+  "controls": {
+    "scalar-shipping": {
+      "hq": 0,
+      "bytes": 8092,
+      "sha256": "59829299f667cdb6682c5ed4a955fb50b76a5584209caf9e4bddf1c0ee2cd160",
+      "native_paths": [
+        "/home/stemxstudio/rove4k-tiny-entry-d-context-fresh-20261020-v1/build-1/scalar-shipping/native-first/x",
+        "/home/stemxstudio/rove4k-tiny-entry-d-context-fresh-20261020-v1/build-1/scalar-shipping/native-repeat/x"
+      ],
+      "linked_path": "/home/stemxstudio/rove4k-tiny-d-tt-payload-lock-native-20261020-v1/control/scalar-shipping/first/linked",
+      "linked_sha256": "12afb4f5b6d0aed41486e44555a4e1d1683bab96a22400366f1f9f77f076ee4b"
+    },
+    "hq-shipping": {
+      "hq": 1,
+      "bytes": 8480,
+      "sha256": "f1d6558ec5a13e400c2d6df182b01b3236bf1ee1e99f686e47f144a32d222c5c",
+      "native_paths": [
+        "/home/stemxstudio/rove4k-tiny-entry-d-context-fresh-20261020-v1/build-1/hq-shipping/native-first/x",
+        "/home/stemxstudio/rove4k-tiny-entry-d-context-fresh-20261020-v1/build-1/hq-shipping/native-repeat/x"
+      ],
+      "linked_path": "/home/stemxstudio/rove4k-tiny-d-tt-payload-lock-native-20261020-v1/control/hq-shipping/first/linked",
+      "linked_sha256": "fb936fc4c7e007ad0850ce913226b61b0269f12fd63e59336b28d2320a258eaa"
+    }
+  },
+  "cost_scope": "candidate scalar/HQ one compile each; exact old actual controls read-only reuse, no control compile/repeat/codec/loader/target",
+  "source_dependency": "exact maintained ordinary native8 and pinned parser/strip module only; no tracked original/control source copies; one external candidate-source8 tree",
+  "normal_admission": "not called for candidates and not modified; new native hashes/geometry observations require separate root intake"
+}

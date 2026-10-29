@@ -1,0 +1,604 @@
+{
+  "format": 1,
+  "stage": "one fixed source codec candidate; no native compile or runtime",
+  "head": "a3546f1f409337bc0cf176cdfefc14bbdd1a3693",
+  "source_files": {
+    "control-head/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control-head/engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "control-head/engines/compact/tiny-b/generate.py": {
+      "bytes": 5581,
+      "sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59"
+    },
+    "control-head/engines/compact/tiny-entry-a/bootstrap.py.in": {
+      "bytes": 997,
+      "sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba"
+    },
+    "control-head/engines/compact/tiny-entry-a/build.py": {
+      "bytes": 10811,
+      "sha256": "9c213eabf0d858b908745f5e0693a038d9cca8eb0d6c8d6512b25299fd937654"
+    },
+    "control-head/engines/compact/tiny-entry-a/engine.c": {
+      "bytes": 24820,
+      "sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734"
+    },
+    "control-head/engines/compact/tiny-entry-a/launcher.sh": {
+      "bytes": 77,
+      "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    },
+    "control-head/engines/compact/tiny-entry-a/recipe.json": {
+      "bytes": 11794,
+      "sha256": "e987acd3fb580992f195df5b43935ff983c73cd57522d0695aafb601fce1186e"
+    },
+    "control-head/engines/compact/tiny-entry-a/shipping_alpha.py": {
+      "bytes": 16228,
+      "sha256": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d"
+    },
+    "control-head/engines/compact/tiny-entry-b/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control-head/engines/compact/tiny-entry-b/build.py": {
+      "bytes": 9715,
+      "sha256": "247a81e9ef87c0881982a7db900480ebc175949414b7385fa437ee39dfa1262e"
+    },
+    "control-head/engines/compact/tiny-entry-b/engine.c": {
+      "bytes": 28953,
+      "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+    },
+    "control-head/engines/compact/tiny-entry-b/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control-head/engines/compact/tiny-entry-b/recipe.json": {
+      "bytes": 5202,
+      "sha256": "c1eed41b63b59cf35eb3040a48274c6cfe8421d9dc9a17d7fe7d9a1a6860835d"
+    },
+    "control-head/engines/compact/tiny-entry-b/shipping_storage.py": {
+      "bytes": 8334,
+      "sha256": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662"
+    },
+    "control-head/engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "bytes": 1082,
+      "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+    },
+    "control-head/engines/compact/tiny-entry-c/build.py": {
+      "bytes": 10027,
+      "sha256": "263fb4f179bdeaf83568bd55cd6749067f8ee795827b6509f547938efc08ae03"
+    },
+    "control-head/engines/compact/tiny-entry-c/engine.c": {
+      "bytes": 26692,
+      "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+    },
+    "control-head/engines/compact/tiny-entry-c/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control-head/engines/compact/tiny-entry-c/recipe.json": {
+      "bytes": 6144,
+      "sha256": "72a907d2a236fa7b281f50b56f9b33fb4ab751f932cd76325e3e654661588edc"
+    },
+    "control-head/engines/compact/tiny-entry-c/shipping_alpha.py": {
+      "bytes": 11618,
+      "sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3"
+    },
+    "control-head/engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control-head/engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9752,
+      "sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61"
+    },
+    "control-head/engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+    },
+    "control-head/engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control-head/engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 5348,
+      "sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7"
+    },
+    "control-head/engines/compact/tiny-entry-f/bootstrap.py.in": {
+      "bytes": 1006,
+      "sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6"
+    },
+    "control-head/engines/compact/tiny-entry-f/build.py": {
+      "bytes": 11518,
+      "sha256": "11f973ab34ef5b986469177fb17fc95292588332b73f584077c47d4e7b3c8981"
+    },
+    "control-head/engines/compact/tiny-entry-f/engine.c": {
+      "bytes": 26100,
+      "sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89"
+    },
+    "control-head/engines/compact/tiny-entry-f/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control-head/engines/compact/tiny-entry-f/recipe.json": {
+      "bytes": 11348,
+      "sha256": "09e57419c9b821239727043b28a2d2f983ef3bd058dccb9371cb6572cc28299e"
+    },
+    "control-head/engines/compact/tiny-entry-f/shipping_alpha.py": {
+      "bytes": 20068,
+      "sha256": "beb86014c320d493af5c02e899a2eeca470abf9a262a09015293533c0a0e0794"
+    },
+    "control-head/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control-head/engines/scripts/fixed_shipping_storage.py": {
+      "bytes": 28039,
+      "sha256": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71"
+    },
+    "control-head/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control-head/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control-head/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "control-current-f/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/bootstrap.py.in": {
+      "bytes": 1006,
+      "sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/build.py": {
+      "bytes": 11514,
+      "sha256": "02b78043434d4e0032b8c27b2a4cde88b8e4b2481e4f6f0409ab276084736423"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/engine.c": {
+      "bytes": 25755,
+      "sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/recipe.json": {
+      "bytes": 17651,
+      "sha256": "a2c04c79ba7808455e6721d8ce08211d7823dfd6752b49027ebccc200097e370"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/shipping_alpha.py": {
+      "bytes": 26273,
+      "sha256": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8"
+    },
+    "control-current-f/engines/compact/tiny-entry-f/shipping_storage.py": {
+      "bytes": 33085,
+      "sha256": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df"
+    },
+    "control-current-f/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control-current-f/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control-current-f/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "launcher.sh": {
+      "bytes": 77,
+      "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+    }
+  },
+  "head_Git_raw_source_intake": {
+    "engines/compact/tiny-a/pack_stream.py": {
+      "raw_bytes": 5564,
+      "raw_sha256": "830b9db094d6bebb1d403db2c717d62df57b98c7e555acef1593990037c30fdb",
+      "LF_normalization": true
+    },
+    "engines/compact/tiny-a/stitch.py": {
+      "raw_bytes": 3929,
+      "raw_sha256": "da5bd691ec061122a254e8b498deeab697544ae0b9c5db3586dcc44f87180e78",
+      "LF_normalization": true
+    },
+    "engines/compact/tiny-b/generate.py": {
+      "raw_bytes": 5661,
+      "raw_sha256": "53ba5d98ce52177fb411f296cbd34d086cc8bb732293eda704aba96fccd2165c",
+      "LF_normalization": true
+    },
+    "engines/compact/tiny-entry-a/bootstrap.py.in": {
+      "raw_bytes": 997,
+      "raw_sha256": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-a/build.py": {
+      "raw_bytes": 10811,
+      "raw_sha256": "9c213eabf0d858b908745f5e0693a038d9cca8eb0d6c8d6512b25299fd937654",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-a/engine.c": {
+      "raw_bytes": 24820,
+      "raw_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-a/launcher.sh": {
+      "raw_bytes": 77,
+      "raw_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-a/recipe.json": {
+      "raw_bytes": 11794,
+      "raw_sha256": "e987acd3fb580992f195df5b43935ff983c73cd57522d0695aafb601fce1186e",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-a/shipping_alpha.py": {
+      "raw_bytes": 16228,
+      "raw_sha256": "bcc2c28ad8b51a5c3eec6752e157f5de8c46e960333ad1a24fbd0ad328d8597d",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/bootstrap.py.in": {
+      "raw_bytes": 1072,
+      "raw_sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/build.py": {
+      "raw_bytes": 9715,
+      "raw_sha256": "247a81e9ef87c0881982a7db900480ebc175949414b7385fa437ee39dfa1262e",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/engine.c": {
+      "raw_bytes": 28953,
+      "raw_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/launcher.sh": {
+      "raw_bytes": 75,
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/recipe.json": {
+      "raw_bytes": 5202,
+      "raw_sha256": "c1eed41b63b59cf35eb3040a48274c6cfe8421d9dc9a17d7fe7d9a1a6860835d",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-b/shipping_storage.py": {
+      "raw_bytes": 8334,
+      "raw_sha256": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/bootstrap.py.in": {
+      "raw_bytes": 1082,
+      "raw_sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/build.py": {
+      "raw_bytes": 10027,
+      "raw_sha256": "263fb4f179bdeaf83568bd55cd6749067f8ee795827b6509f547938efc08ae03",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/engine.c": {
+      "raw_bytes": 26692,
+      "raw_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/launcher.sh": {
+      "raw_bytes": 75,
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/recipe.json": {
+      "raw_bytes": 6144,
+      "raw_sha256": "72a907d2a236fa7b281f50b56f9b33fb4ab751f932cd76325e3e654661588edc",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-c/shipping_alpha.py": {
+      "raw_bytes": 11618,
+      "raw_sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "raw_bytes": 1072,
+      "raw_sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-e/build.py": {
+      "raw_bytes": 9752,
+      "raw_sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-e/engine.c": {
+      "raw_bytes": 28001,
+      "raw_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-e/launcher.sh": {
+      "raw_bytes": 75,
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-e/recipe.json": {
+      "raw_bytes": 5348,
+      "raw_sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/bootstrap.py.in": {
+      "raw_bytes": 1006,
+      "raw_sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/build.py": {
+      "raw_bytes": 11518,
+      "raw_sha256": "11f973ab34ef5b986469177fb17fc95292588332b73f584077c47d4e7b3c8981",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/engine.c": {
+      "raw_bytes": 26100,
+      "raw_sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/launcher.sh": {
+      "raw_bytes": 75,
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/recipe.json": {
+      "raw_bytes": 11348,
+      "raw_sha256": "09e57419c9b821239727043b28a2d2f983ef3bd058dccb9371cb6572cc28299e",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/shipping_alpha.py": {
+      "raw_bytes": 20068,
+      "raw_sha256": "beb86014c320d493af5c02e899a2eeca470abf9a262a09015293533c0a0e0794",
+      "LF_normalization": false
+    },
+    "engines/scripts/fixed_shipping_alpha.py": {
+      "raw_bytes": 21999,
+      "raw_sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806",
+      "LF_normalization": false
+    },
+    "engines/scripts/fixed_shipping_storage.py": {
+      "raw_bytes": 28039,
+      "raw_sha256": "3f4f05b0b3fee71ee8876b22653c9b7481b5af207b7e023c27b0832e4e734d71",
+      "LF_normalization": false
+    },
+    "engines/scripts/minify.py": {
+      "raw_bytes": 6787,
+      "raw_sha256": "3a21a0aa129803e6ac0467172b742231368426571bd48fb1382699d98a1bd772",
+      "LF_normalization": true
+    },
+    "engines/scripts/rename_c.py": {
+      "raw_bytes": 12862,
+      "raw_sha256": "c62d0e72f62112d03c2cb0f80736b1a8a4515f718e8066434f5c0057a7e71ec0",
+      "LF_normalization": true
+    },
+    "engines/scripts/specialize.py": {
+      "raw_bytes": 2431,
+      "raw_sha256": "14aaa808bb7c9f47fb34fc095b55a08a4f5004e0cc48eff7ef3ddbf3b92bf076",
+      "LF_normalization": true
+    }
+  },
+  "current_F_raw_source_intake": {
+    "engines/compact/tiny-a/pack_stream.py": {
+      "raw_bytes": 5444,
+      "raw_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/bootstrap.py.in": {
+      "raw_bytes": 1006,
+      "raw_sha256": "84608782831299a6f7b1010dea89501eb10e6e34ee1cdc8f3804d448354cf4c6",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/build.py": {
+      "raw_bytes": 11514,
+      "raw_sha256": "02b78043434d4e0032b8c27b2a4cde88b8e4b2481e4f6f0409ab276084736423",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/engine.c": {
+      "raw_bytes": 25755,
+      "raw_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/launcher.sh": {
+      "raw_bytes": 75,
+      "raw_sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/recipe.json": {
+      "raw_bytes": 17651,
+      "raw_sha256": "a2c04c79ba7808455e6721d8ce08211d7823dfd6752b49027ebccc200097e370",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/shipping_alpha.py": {
+      "raw_bytes": 26273,
+      "raw_sha256": "74abadbd79735e9f6b30c513b422245bae737f81d4e3bd04a7b8e597e61937e8",
+      "LF_normalization": false
+    },
+    "engines/compact/tiny-entry-f/shipping_storage.py": {
+      "raw_bytes": 33085,
+      "raw_sha256": "b8d1984c8585b3052f22b4f3713a7fb0a7107a5ad91a2951d91f9a852a36c3df",
+      "LF_normalization": false
+    },
+    "engines/scripts/minify.py": {
+      "raw_bytes": 6624,
+      "raw_sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+      "LF_normalization": false
+    },
+    "engines/scripts/rename_c.py": {
+      "raw_bytes": 12574,
+      "raw_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+      "LF_normalization": false
+    },
+    "engines/scripts/specialize.py": {
+      "raw_bytes": 2386,
+      "raw_sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+      "LF_normalization": false
+    }
+  },
+  "cases": [
+    {
+      "label": "head-A",
+      "family": "A",
+      "control": "control-head",
+      "entry": "engines/compact/tiny-entry-a",
+      "baseline_expected": {
+        "readable_sha256": "71f9ff6ce1b7f555ad85c3bf49766381c0627315da94acf0c49eeee7bee4a734",
+        "source_bytes": 10184,
+        "source_sha256": "9e764bbbea91f198a4cb5aff62aae9f3007df5f715d4d8b8142e4795b5109d5a",
+        "native_bytes": 22672,
+        "native_sha256": "84ce7fd107783474af8f39aeec7b95c244d475ab797eefd2627b9741b265210a",
+        "whole_bytes": 4980,
+        "whole_sha256": "4f339d08d99e51cd5935f20cc10d0665ed19f515e227cb5fa6be1623e7b21a8d",
+        "bootstrap_sha256": "1397aa310d1ae1e65b528f3f12977494cde173356313b687436ec3b15b37a391",
+        "dev_source_sha256": "41ab9f0f5d28183b76833d038c40e0bb6a2ee6ef9303766c293dd577680a4c9c",
+        "dev_native_sha256": "8733dbf0814a2c2545251f6e0e17d243ecfd41fce7853fb325ca9720fedd1102"
+      },
+      "source_class": "a3546f1 immutable Git ordinary source",
+      "candidate_nice_len": 273
+    },
+    {
+      "label": "head-B",
+      "family": "B",
+      "control": "control-head",
+      "entry": "engines/compact/tiny-entry-b",
+      "baseline_expected": {
+        "readable_sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6",
+        "source_bytes": 13071,
+        "source_sha256": "96e6e330e5289d1c404dac0402e8b672a89c52e193a9d4f9aebb02e0c9042ffa",
+        "native_bytes": 26496,
+        "native_sha256": "5a315a66f86ff81f9b0feb679b25f919c5aaf63bb9db2d157040a5b7ce6bbb4b",
+        "whole_bytes": 5851,
+        "whole_sha256": "25b2c6a1198d5e600be252ae57da84ca9f9e40c3167021ce33f3f9eff29f425c",
+        "dev_source_sha256": "31ef1cb522371a0094effb098c8ea9c0a78ff800c01da9eef5087c5b43e18ec2",
+        "dev_native_sha256": "9e5ac53ca94cf36e6ac43632d2e507598deb516e40405bafa6bd874e56069c30",
+        "bootstrap_sha256": "7159e4bad6b9bfd37f69dbcc8ebe6fec5ff497c425323ec2e71050f43dc46673"
+      },
+      "source_class": "a3546f1 immutable Git ordinary source",
+      "candidate_nice_len": 32
+    },
+    {
+      "label": "head-C",
+      "family": "C",
+      "control": "control-head",
+      "entry": "engines/compact/tiny-entry-c",
+      "baseline_expected": {
+        "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+        "source_bytes": 12224,
+        "source_sha256": "20f06b6ed9ada03db6f8719f05ecdf9cb52802ab0a1acc8999627999db899046",
+        "native_bytes": 26424,
+        "native_sha256": "cc67f03a58f350a1bd0ab1f07e774c13cf8f6b628b469107834da6f505f7cf00",
+        "whole_bytes": 5687,
+        "whole_sha256": "0fc91619c63cd0fe163abc4825cc7badff3e8b19e4e88ad67cfec165223ab575",
+        "bootstrap_sha256": "f3f9ab2ce26f317d4c6e9d6c2ba7527fea88671297341a3cda008e613ca78047",
+        "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+        "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+      },
+      "source_class": "a3546f1 immutable Git ordinary source",
+      "candidate_nice_len": 64
+    },
+    {
+      "label": "head-E",
+      "family": "E",
+      "control": "control-head",
+      "entry": "engines/compact/tiny-entry-e",
+      "baseline_expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 12641,
+        "source_sha256": "af0ab88d9f4ce25154b3fda909fc00b9eca0cda8d8784b4b07e4926015a2c330",
+        "native_bytes": 26408,
+        "native_sha256": "5429f2d80521f775bac6802ec4940e8e0ff1b344464ed8e9a0629ba6650eb675",
+        "whole_bytes": 5679,
+        "whole_sha256": "83e8e7f22f24e3161268554ab4c5ff7ad7f6007822ea6892e6fae68670e80fb4",
+        "bootstrap_sha256": "0abbdd272bb28aae532b6c88fbb691b5e353329bde6ea3e2caad1178e4cb9bfa",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "source_class": "a3546f1 immutable Git ordinary source",
+      "candidate_nice_len": 32
+    },
+    {
+      "label": "head-F",
+      "family": "F",
+      "control": "control-head",
+      "entry": "engines/compact/tiny-entry-f",
+      "baseline_expected": {
+        "readable_sha256": "dc065b98d99a147f862bd2d4cb0a1349ff79a2da7c1be873d906dff71cc9cd89",
+        "source_bytes": 10745,
+        "source_sha256": "fa03bfe65508b5fd72097940cea869c79744a8d3d2fa3bd09f8cd60b90173dc2",
+        "native_bytes": 22664,
+        "native_sha256": "ef10962ff16e5158e0cb18cbf96b944404bd1c4db301bfbb47a0faed33466c22",
+        "whole_bytes": 5083,
+        "whole_sha256": "c4308bd1173d93a5ae83055ae0dd535264d4fec0c938dc4a78ccc2536e25ff02",
+        "dev_source_sha256": "9528b0e97f71d2d07d60a63956fc19a9156f778b30088b34f62e4eb445260ece",
+        "dev_native_sha256": "bd71ff07625fa9891a4b4ef79c50b5215fa4169f18d83f15d9378fe833872a2d",
+        "bootstrap_sha256": "27140179b5d628d1458cc79936f5c541512ecf6a191b1754a5ce760d3245484d"
+      },
+      "source_class": "a3546f1 immutable Git ordinary source",
+      "candidate_nice_len": 32
+    },
+    {
+      "label": "current-F5051",
+      "family": "F",
+      "control": "control-current-f",
+      "entry": "engines/compact/tiny-entry-f",
+      "baseline_expected": {
+        "readable_sha256": "ec39b5641ac9fc5ab19a0c919c05e0d68169b461cc1d32afeee83274926becbd",
+        "source_bytes": 10477,
+        "source_sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90",
+        "native_bytes": 22672,
+        "native_sha256": "757b9a14cd5174dad55754196cce098fd89018a8b0d7adcf08bcddb2e1fc092b",
+        "whole_bytes": 5051,
+        "whole_sha256": "ad4030ad32af47469ca067e4f10c4b60103eddcc6afdfefd22dedea1269052ce",
+        "dev_source_sha256": "84fbc9b3651494ce0ebabdc25b9a1fa7b3a334fa7394eee2631581682a804b58",
+        "dev_native_sha256": "6eb28892842bef969edff9295aae74b7edd71d61eb39ac01236f2adcd4785340",
+        "bootstrap_sha256": "3a6dc4c7c77c77b48f4b020cda1a4397af22eb2cdea97447bf97d7bae8a29162"
+      },
+      "source_class": "separate working ordinary F5051 snapshot; not a354 source",
+      "candidate_nice_len": 32
+    }
+  ],
+  "candidate": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "check": "NONE",
+    "dictionary_bytes": 67108864,
+    "prefix_bytes": 77,
+    "header_hex": "0200000004ffffffffffffffff"
+  },
+  "repetitions": 2,
+  "native_compile_limit": 0,
+  "engine_limit": 0,
+  "sourcevariants": 0,
+  "codec_sweep": false,
+  "reference_document": {
+    "bytes": 30189,
+    "sha256": "c2dc4b008fa51310bf41caa1eab21e1362488304cdc9183797d525effc1736eb",
+    "role": "user-supplied analysis; root-authorized fixed codec task only"
+  },
+  "archive": {
+    "bytes": 419840,
+    "sha256": "c0fd365780d44ad66af6ac5dde7502411cc402b32baffcbbe6ef860cf0e867d3"
+  },
+  "new_source_sha256": {
+    "build.py": "7f5d2d3a52b5f3b4b3410cfad5919a7ec28b94baae8a331cbbf8c102b5adaa90",
+    "decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a"
+  }
+}

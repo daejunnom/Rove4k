@@ -1,0 +1,82 @@
+{
+  "control_git_commit_metadata": "1f35a6eba8ad88070e96a2221549402bc45fbf8b",
+  "control_source18_index_sha256_metadata": "b8f7c95d3606caae4ce251258e9ed1a60522690f805a64ce1683166f61c49421",
+  "control_source18_set_sha256_metadata": "3a6c106509b7193f168e68aa075ec02b6a815132396f4a721364e4f57eefe6d0",
+  "entry": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 12430,
+      "sha256": "5cf53648d620755d329f7de19e472bb1335278ad6edb6f694f02552b94dadedb"
+    },
+    "build.py": {
+      "bytes": 10157,
+      "sha256": "85173a5fa96935217f17ae618099b993101a08cf3702aa53a14f713c80a7c932"
+    },
+    "fresh.py": {
+      "bytes": 10744,
+      "sha256": "0dae1cd97e912700627bc99e8ec69de54a75613d5ed0e2976f9aab51108022ca"
+    },
+    "loader/codec.py": {
+      "bytes": 8164,
+      "sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+    },
+    "loader/image.ld": {
+      "bytes": 452,
+      "sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+    },
+    "loader/loader.c": {
+      "bytes": 5862,
+      "sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094"
+    },
+    "native/board.c": {
+      "bytes": 8880,
+      "sha256": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc"
+    },
+    "native/hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "native/hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "native/image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "native/runtime.c": {
+      "bytes": 15249,
+      "sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63"
+    },
+    "native/search.c": {
+      "bytes": 6209,
+      "sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c"
+    },
+    "native/start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f"
+    },
+    "packer.py": {
+      "bytes": 5996,
+      "sha256": "0312b09e5e503b74e84cc29b6d5dfd8084e9e94972ed291998df63f11ad7d679"
+    },
+    "recipe.json": {
+      "bytes": 12302,
+      "sha256": "7631f030bbf968e0590df6069bfc5af5b534582f7136d7b56add5ee4027a787f"
+    },
+    "verify.py": {
+      "bytes": 29617,
+      "sha256": "de495e5731f2e37daa67cfbee3634c7b1c0966eee82afd13999cf17927d00f91"
+    }
+  },
+  "format": 1,
+  "runtime_control_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+  "scope": "one pending-latch native-first cost; no compiler/profile/codec/loader/core change; old exact image admission stays unchanged"
+}

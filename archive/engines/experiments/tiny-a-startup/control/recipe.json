@@ -1,0 +1,406 @@
+{
+  "format": 1,
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-Os",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x",
+    "-s"
+  ],
+  "preprocessor": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18"
+  ],
+  "helper_sha256": {
+    "engines/scripts/specialize.py": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/stitch.py": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "fixed_renames": [
+    [
+      "score",
+      "l"
+    ],
+    [
+      "from",
+      "o"
+    ],
+    [
+      "moves",
+      "B"
+    ],
+    [
+      "depth",
+      "C"
+    ],
+    [
+      "Board",
+      "E"
+    ],
+    [
+      "alpha",
+      "G"
+    ],
+    [
+      "best",
+      "H"
+    ],
+    [
+      "line",
+      "R"
+    ],
+    [
+      "budget",
+      "S"
+    ],
+    [
+      "data",
+      "U"
+    ],
+    [
+      "created",
+      "V"
+    ],
+    [
+      "bestmove",
+      "ab"
+    ],
+    [
+      "target",
+      "ad"
+    ],
+    [
+      "piece_index",
+      "ae"
+    ],
+    [
+      "home",
+      "af"
+    ],
+    [
+      "correction",
+      "ah"
+    ],
+    [
+      "Worker",
+      "ai"
+    ],
+    [
+      "scores",
+      "aj"
+    ],
+    [
+      "status",
+      "ak"
+    ],
+    [
+      "continuation",
+      "an"
+    ],
+    [
+      "bound",
+      "ao"
+    ],
+    [
+      "length",
+      "at"
+    ],
+    [
+      "repetitions",
+      "av"
+    ],
+    [
+      "tactical",
+      "az"
+    ],
+    [
+      "keys",
+      "aA"
+    ],
+    [
+      "list",
+      "aB"
+    ],
+    [
+      "evaluation",
+      "aC"
+    ],
+    [
+      "ply",
+      "aD"
+    ],
+    [
+      "reduce",
+      "aE"
+    ],
+    [
+      "beta",
+      "aH"
+    ],
+    [
+      "half",
+      "aI"
+    ],
+    [
+      "save",
+      "aJ"
+    ],
+    [
+      "bonus",
+      "aK"
+    ],
+    [
+      "check",
+      "aL"
+    ],
+    [
+      "error",
+      "aM"
+    ],
+    [
+      "promotion",
+      "aR"
+    ],
+    [
+      "key",
+      "aT"
+    ],
+    [
+      "set_position",
+      "aU"
+    ],
+    [
+      "infinite",
+      "aY"
+    ],
+    [
+      "clock",
+      "a1"
+    ],
+    [
+      "count",
+      "a2"
+    ],
+    [
+      "legal",
+      "a4"
+    ],
+    [
+      "nodes",
+      "a5"
+    ],
+    [
+      "minors",
+      "a7"
+    ],
+    [
+      "side",
+      "bd"
+    ]
+  ],
+  "resource_literals": [
+    [
+      "WORKERS",
+      "2"
+    ],
+    [
+      "TT_BITS",
+      "18"
+    ]
+  ],
+  "function_spellings": [
+    [
+      "attacked",
+      "aa"
+    ],
+    [
+      "make",
+      "ac"
+    ],
+    [
+      "think",
+      "ag"
+    ],
+    [
+      "value",
+      "al"
+    ],
+    [
+      "start",
+      "am"
+    ],
+    [
+      "dead",
+      "ap"
+    ],
+    [
+      "mix",
+      "aq"
+    ],
+    [
+      "gen",
+      "ar"
+    ],
+    [
+      "now",
+      "as"
+    ],
+    [
+      "search",
+      "au"
+    ],
+    [
+      "probe",
+      "aw"
+    ],
+    [
+      "capture",
+      "ax"
+    ],
+    [
+      "claim",
+      "ay"
+    ],
+    [
+      "learn",
+      "aF"
+    ],
+    [
+      "first",
+      "aG"
+    ],
+    [
+      "parse",
+      "aN"
+    ],
+    [
+      "go",
+      "aO"
+    ],
+    [
+      "result",
+      "aP"
+    ],
+    [
+      "read_line",
+      "aQ"
+    ],
+    [
+      "number",
+      "aS"
+    ],
+    [
+      "work",
+      "aV"
+    ],
+    [
+      "wait",
+      "aW"
+    ],
+    [
+      "clear",
+      "aX"
+    ],
+    [
+      "text",
+      "aZ"
+    ],
+    [
+      "rights",
+      "ba"
+    ],
+    [
+      "piece",
+      "bb"
+    ],
+    [
+      "state",
+      "bc"
+    ],
+    [
+      "ep",
+      "be"
+    ],
+    [
+      "put",
+      "bf"
+    ],
+    [
+      "walk",
+      "bg"
+    ],
+    [
+      "add",
+      "bh"
+    ]
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "dictionary_bytes": 67108864,
+    "header_hex": "0200000004ffffffffffffffff"
+  },
+  "expected": {
+    "readable_sha256": "79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed",
+    "source_bytes": 10958,
+    "source_sha256": "5ed00fd936cf6228ec7f73d6c1fddd0f18bfe899aff82b5aa695732240079b59",
+    "native_bytes": 22664,
+    "native_sha256": "6d9a3c192078f22914e17a0332ef2f0dbd134050833c1fceb0ccb221ecba34e2",
+    "whole_bytes": 5140,
+    "whole_sha256": "75dc3d610d39bbc0702c6eda219fa0acb4d167c40d3c78e241cf867a33e5a4e7",
+    "bootstrap_sha256": "833d83371cd7ddb11a4a940801fe99c4e2ffc11fc2da32482ee264f20883b095",
+    "dev_source_sha256": "60e40bfa24ae06afdafbdfffacda2576b7056d22dffb12e70a22d0d8c3142942",
+    "dev_native_sha256": "ff29baa1648f68812424f6e1f718f5e44b9037813e74dc2492a3e4425c88cb0f"
+  },
+  "local_input_sha256": {
+    "engine.c": "79284c72b64d087aa3127ea65b461aef8c7776355ea1c4ab9b2f81e59b4b48ed",
+    "bootstrap.py.in": "898bf1f24168f6e99a7ffb9b0ba9e805af0c7627ea115d47ac687c1389d015ba",
+    "launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+  },
+  "qualified_receipt": {
+    "composition_first_cost_sha256": "e64bb57448049fe95d63859ebb4a04cdac2fd4ab1783f2154a12bcace6686fe3",
+    "ownership_summary_sha256": "671717f28b8efdf6417c2d660aac1a2a9bde0dff3661cb22caff3b4b78090407",
+    "transport_original_freeze_sha256": "8c672052054916bba63d436bddfa9fff6a45d27487eaa5d8d2a61c5d076ce1d8",
+    "transport_input_closure_revision_sha256": "2a07487768738bb9cd87f24f27a0e41b084cce7dd12322d90435a2e5c4975219",
+    "predecessor_5207": {
+      "producer_build_sha256": "59f2b8b30ca17d8e084474f1dff8b7effb1e177ebaa2fb3f9f69e09b6c27a9d1",
+      "final_evidence_index_sha256": "be24c6f166da35230f7ebbdff979979744c7cc49339927055894fe08b4ff9c8f",
+      "predecessor_5223": {
+        "producer_build_sha256": "fa4587ce3af610e04edff071e5976b2fdb638f2c163701d21dbe61de34c907f2",
+        "runtime_receipt_sha256": "5d298cc4e7ad787a5503c46a2d33a8e338689f678d64fc8bc0a086ef6ed077d3"
+      },
+      "scope": "final qualified 5207 generated-member/legal-startpos-history specialization; historical receipts are not executed or inferred by builder"
+    },
+    "scope": "actual fixed 5140 composition cost; ownership query/reset and unchanged board/search evidence reused by exact source boundaries, transport preserves exact ownership bootstrap; new selected runtime receipt is separate"
+  },
+  "provenance": {
+    "origin": "maintained readable Tiny A and selected structural/minimal-UCI/legal-generated-history decisions, qualified nullable-text/made-child query and worker-entry reset ownership, fixed LZMA-alone transport",
+    "source_rename_decisions": "45 accepted mappings through trial93 fixed, no search",
+    "function_encoding": "combined-fixed-stripped fixed selected spelling decisions",
+    "stitch_helper": "current tracked LF-aware stitch; only identical strip_dev_counters is consumed",
+    "unchanged_board_search_body_sha256": "557f9e15c072410fc16c7f3aad8320e904e02574b99b1c625a9047c620b85b57",
+    "DEV_identity": "qualified ownership candidate DEV; deliberately differs from former 5207 DEV",
+    "transport": "one measured composition, actual5140, no additive savings assumption; fixed ALONE LZMA1 profile and77byte prefix"
+  }
+}

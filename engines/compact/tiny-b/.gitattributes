@@ -1,0 +1,2 @@
+# Frozen strict-overlay inputs are byte identities, including line endings.
+base/* -text

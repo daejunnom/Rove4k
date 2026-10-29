@@ -1,0 +1,107 @@
+{
+  "format": 1,
+  "family": "C",
+  "scope": "one fixed local residual16 feature SIMD first cost; no engine or functional acceptance",
+  "canonical_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+  "control": {
+    "source": {
+      "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/C-build/main.c",
+      "bytes": 11284,
+      "sha256": "68ad43dec85adcfff6e65bba0f457738e33ff545d786d43c3c3a7b53e618f02c"
+    },
+    "native": {
+      "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/C-build/native/x",
+      "bytes": 26408,
+      "sha256": "05e1ffa928e488ed1cbfef7679634e465415326c1ba60e739d3842bb4fc0f766"
+    },
+    "whole": {
+      "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/C-build/x",
+      "bytes": 5344,
+      "sha256": "fd8dd108aceddf70e7adfa5ea02fc1b0ddc713e75bd3d6bb8efed8c6d41ba100"
+    },
+    "bootstrap": {
+      "path": "/home/stemxstudio/rove4k-ce-core-normal-20261020-v1/C-build/bootstrap.py",
+      "bytes": 12359,
+      "sha256": "e15844b22df8e83a6920356e0710cfad677633f753034024bddfd5ed662ddef0"
+    }
+  },
+  "tracked_inputs": {
+    "engines/compact/tiny-entry-c/engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+    "engines/compact/tiny-entry-c/recipe.json": "e225866cc6cf919b7b8bb85daa38af62b9a42cd156a134bf39747760baa46289",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/experiments/tiny-source-codec/decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a",
+    "engines/compact/tiny-entry-c/bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+    "engines/compact/tiny-entry-c/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+  },
+  "rules": [
+    {
+      "label": "PSQT/constructor/gather to local color-residual signed16 dot",
+      "canonical_before": "static int32_t tiny_table[13*64];\n#if DEV\nstatic atomic_uint_fast64_t tiny_leaf_calls,tiny_order_calls,tiny_init_calls;\nstatic int tiny_scalar(const Board *p){\n    int score=0;\n    for(int q=0;q<128;q++)if(!(q&0x88)&&p->b[q])score+=value(p->b[q],q);\n    return score;\n}\n#endif\nstatic void __attribute__((constructor)) tiny_eval_init(void){\n#if DEV\n    atomic_fetch_add_explicit(&tiny_init_calls,1,memory_order_relaxed);\n#endif\n    for(int v=-6;v<=6;v++)for(int q=0;q<64;q++)tiny_table[(v+6)*64+q]=value(v,(q/8)*16+q%8);\n}\nstatic int tiny_raw(const Board *p){\n    __m256i sum=_mm256_setzero_si256(),base=_mm256_setr_epi32(384,385,386,387,388,389,390,391);\n#if DEV\n    atomic_fetch_add_explicit(&tiny_leaf_calls,1,memory_order_relaxed);\n#endif\n    for(int q=0;q<128;q+=16){\n        __m256i pieces=_mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i *)(p->b+q)));\n        __m256i index=_mm256_add_epi32(base,_mm256_slli_epi32(pieces,6));\n        sum=_mm256_add_epi32(sum,_mm256_i32gather_epi32(tiny_table,index,4));\n        base=_mm256_add_epi32(base,_mm256_set1_epi32(8));\n    }\n    __m128i half=_mm_add_epi32(_mm256_castsi256_si128(sum),_mm256_extracti128_si256(sum,1));\n    half=_mm_hadd_epi32(half,half);\n    return _mm_cvtsi128_si32(_mm_hadd_epi32(half,half));\n}\n",
+      "canonical_after": "#if DEV\nstatic int32_t tiny_table[13*64];\n#if DEV\nstatic atomic_uint_fast64_t tiny_leaf_calls,tiny_order_calls,tiny_init_calls;\nstatic int tiny_scalar(const Board *p){\n    int score=0;\n    for(int q=0;q<128;q++)if(!(q&0x88)&&p->b[q])score+=value(p->b[q],q);\n    return score;\n}\n#endif\nstatic void __attribute__((constructor)) tiny_eval_init(void){\n#if DEV\n    atomic_fetch_add_explicit(&tiny_init_calls,1,memory_order_relaxed);\n#endif\n    for(int v=-6;v<=6;v++)for(int q=0;q<64;q++)tiny_table[(v+6)*64+q]=value(v,(q/8)*16+q%8);\n}\nstatic int tiny_raw(const Board *p){\n    __m256i sum=_mm256_setzero_si256(),base=_mm256_setr_epi32(384,385,386,387,388,389,390,391);\n#if DEV\n    atomic_fetch_add_explicit(&tiny_leaf_calls,1,memory_order_relaxed);\n#endif\n    for(int q=0;q<128;q+=16){\n        __m256i pieces=_mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i *)(p->b+q)));\n        __m256i index=_mm256_add_epi32(base,_mm256_slli_epi32(pieces,6));\n        sum=_mm256_add_epi32(sum,_mm256_i32gather_epi32(tiny_table,index,4));\n        base=_mm256_add_epi32(base,_mm256_set1_epi32(8));\n    }\n    __m128i half=_mm_add_epi32(_mm256_castsi256_si128(sum),_mm256_extracti128_si256(sum,1));\n    half=_mm_hadd_epi32(half,half);\n    return _mm_cvtsi128_si32(_mm_hadd_epi32(half,half));\n}\n#else\nstatic int tiny_raw(const Board *p){\n    static const int16_t w[16]={100,320,330,500,900,0,1,0,-100,-320,-330,-500,-900,0,-1,0};\n    int16_t x[16]={0};\n    for(int q=0;q<128;q++)if(!(q&0x88)){\n        int v=p->b[q];\n        if(v){\n            int k=abs(v),o=8*(v<0),t=value(v,q);\n            x[o+k-1]++;\n            x[o+6]+=(v>0?t:-t)-w[k-1];\n        }\n    }\n    __m256i y=_mm256_madd_epi16(_mm256_loadu_si256((const __m256i *)x),_mm256_loadu_si256((const __m256i *)w));\n    __m128i z=_mm_add_epi32(_mm256_castsi256_si128(y),_mm256_extracti128_si256(y,1));\n    z=_mm_hadd_epi32(z,z);\n    return _mm_cvtsi128_si32(_mm_hadd_epi32(z,z));\n}\n#endif\n",
+      "active_before": "static int32_t tiny_table[13*64];\nstatic void __attribute__((constructor)) tiny_eval_init(void){\n    for(int v=-6;v<=6;v++)for(int q=0;q<64;q++)tiny_table[(v+6)*64+q]=value(v,(q/8)*16+q%8);\n}\nstatic int tiny_raw(const Board *p){\n    __m256i sum=_mm256_setzero_si256(),base=_mm256_setr_epi32(384,385,386,387,388,389,390,391);\n    for(int q=0;q<128;q+=16){\n        __m256i pieces=_mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i *)(p->b+q)));\n        __m256i index=_mm256_add_epi32(base,_mm256_slli_epi32(pieces,6));\n        sum=_mm256_add_epi32(sum,_mm256_i32gather_epi32(tiny_table,index,4));\n        base=_mm256_add_epi32(base,_mm256_set1_epi32(8));\n    }\n    __m128i half=_mm_add_epi32(_mm256_castsi256_si128(sum),_mm256_extracti128_si256(sum,1));\n    half=_mm_hadd_epi32(half,half);\n    return _mm_cvtsi128_si32(_mm_hadd_epi32(half,half));\n}\n",
+      "active_after": "static int tiny_raw(const Board *p){\n    static const int16_t w[16]={100,320,330,500,900,0,1,0,-100,-320,-330,-500,-900,0,-1,0};\n    int16_t x[16]={0};\n    for(int q=0;q<128;q++)if(!(q&0x88)){\n        int v=p->b[q];\n        if(v){\n            int k=abs(v),o=8*(v<0),t=value(v,q);\n            x[o+k-1]++;\n            x[o+6]+=(v>0?t:-t)-w[k-1];\n        }\n    }\n    __m256i y=_mm256_madd_epi16(_mm256_loadu_si256((const __m256i *)x),_mm256_loadu_si256((const __m256i *)w));\n    __m128i z=_mm_add_epi32(_mm256_castsi256_si128(y),_mm256_extracti128_si256(y,1));\n    z=_mm_hadd_epi32(z,z);\n    return _mm_cvtsi128_si32(_mm_hadd_epi32(z,z));\n}\n",
+      "shipping_before": "static int32_t tiny_table[13*64];static void __attribute__((constructor))tiny_eval_init(void){for(int v=-6;v<=6;v++)for(int q=0;q<64;q++)tiny_table[(v+6)*64+q]=value(v,(q/8)*16+q%8);}static int U(const za*p){__m256i yt=_mm256_setzero_si256(),a=_mm256_setr_epi32(384,385,386,387,388,389,390,391);for(int q=0;q<128;q+=16){__m256i d=_mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i*)(p->b+q)));__m256i index=_mm256_add_epi32(a,_mm256_slli_epi32(d,6));yt=_mm256_add_epi32(yt,_mm256_i32gather_epi32(tiny_table,index,4));a=_mm256_add_epi32(a,_mm256_set1_epi32(8));}__m128i f=_mm_add_epi32(_mm256_castsi256_si128(yt),_mm256_extracti128_si256(yt,1));f=_mm_hadd_epi32(f,f);return _mm_cvtsi128_si32(_mm_hadd_epi32(f,f));}\n",
+      "shipping_after": "static int U(const za*p){static const int16_t w[16]={100,320,330,500,900,0,1,0,-100,-320,-330,-500,-900,0,-1,0};int16_t x[16]={0};for(int q=0;q<128;q++)if(!(q&0x88)){int v=p->b[q];if(v){int k=abs(v),o=8*(v<0),t=value(v,q);x[o+k-1]++;x[o+6]+=(v>0?t:-t)-w[k-1];}}__m256i y=_mm256_madd_epi16(_mm256_loadu_si256((const __m256i*)x),_mm256_loadu_si256((const __m256i*)w));__m128i z=_mm_add_epi32(_mm256_castsi256_si128(y),_mm256_extracti128_si256(y,1));z=_mm_hadd_epi32(z,z);return _mm_cvtsi128_si32(_mm_hadd_epi32(z,z));}\n"
+    }
+  ],
+  "DEV_witness_spans": [
+    "#if DEV\nstatic atomic_uint_fast64_t tiny_leaf_calls,tiny_order_calls,tiny_init_calls;\nstatic int tiny_scalar(const Board *p){\n    int score=0;\n    for(int q=0;q<128;q++)if(!(q&0x88)&&p->b[q])score+=value(p->b[q],q);\n    return score;\n}\n#endif\n",
+    "#if DEV\n    atomic_fetch_add_explicit(&tiny_init_calls,1,memory_order_relaxed);\n#endif\n",
+    "#if DEV\n    atomic_fetch_add_explicit(&tiny_leaf_calls,1,memory_order_relaxed);\n#endif\n"
+  ],
+  "candidate": {
+    "readable_bytes": 27350,
+    "readable_sha256": "d508688149f2ed45d9ae316ee61bb5708fcdcd8d142dbee14e01ceb17d260a4f",
+    "source_bytes": 11086,
+    "source_sha256": "90a566c5e814cf87dd38f92f40ce8fe7115c4d4d07f75d9ff0981ffaae1fbc28"
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "DEV": false
+  },
+  "compression": {
+    "format": "alone",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "mf": "BT4",
+    "dict_size": 67108864,
+    "nice_len": 64,
+    "prefix_bytes": 77
+  },
+  "proposal_sha256": "31691e8be2c1bbdff0bd4ffd92af0558289cf0655207b2684ddd4dc61fbc00ea",
+  "new_alias_allocation": false,
+  "metadata_exceptions": false,
+  "counts_max": {
+    "native_compiles": 1,
+    "compressions": 1,
+    "baseline_copies": 0,
+    "baseline_compiles": 0,
+    "AST": 0,
+    "PP_commands": 0,
+    "engine": 0,
+    "games": 0,
+    "benchmarks": 0
+  }
+}

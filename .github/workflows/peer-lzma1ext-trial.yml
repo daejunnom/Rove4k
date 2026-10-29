@@ -1,0 +1,126 @@
+name: Experimental c4ke LZMA1EXT comparison
+
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/strength/peer_lzma1ext_trial.c'
+      - 'engines/experiments/strength/peer_lzma1ext_trial.py'
+      - 'engines/experiments/strength/test_peer_lzma1ext_trial.py'
+      - 'engines/experiments/strength/peer_lzma1ext_compare.py'
+      - 'engines/experiments/strength/test_peer_lzma1ext_compare.py'
+      - 'engines/experiments/strength/peer_p192_exact*.py'
+      - 'engines/experiments/strength/peer_exact_*.py'
+      - 'engines/experiments/strength/peer_c4ke_*.py'
+      - 'engines/experiments/strength/peer_launcher_trim.py'
+      - 'engines/experiments/strength/peers.py'
+      - 'engines/experiments/strength/registry.py'
+      - '.github/workflows/peer-lzma1ext-trial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: peer-lzma1ext-trial-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    # Historical transformed-peer size experiment; original peer builds and
+    # Rove submission-size comparisons have separate workflows.
+    if: github.event_name == 'workflow_dispatch'
+    name: c4ke-${{ matrix.source_variant }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        source_variant:
+          - edit-castle-phalanx-v1
+          - edit-castle-phalanx-ep-hash-v1
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      LZMA_DEB_VERSION: '5.6.1+really5.4.5-1ubuntu0.4'
+      SOURCE_VARIANT: ${{ matrix.source_variant }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install and check exact liblzma package versions
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            "liblzma5=$LZMA_DEB_VERSION" "liblzma-dev=$LZMA_DEB_VERSION" "xz-utils=$LZMA_DEB_VERSION"
+          for package in liblzma5 liblzma-dev xz-utils; do
+            actual="$(dpkg-query -W -f='${Version}' "$package")"
+            test "$actual" = "$LZMA_DEB_VERSION"
+          done
+      - name: Verify helper and comparison contracts on synthetic inputs
+        run: |
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_peer_lzma1ext*.py'
+      - name: Build and check two temporary helpers
+        run: |
+          for attempt in 1 2; do
+            cc -std=c11 -O2 -Wall -Wextra engines/experiments/strength/peer_lzma1ext_trial.c \
+              -llzma -o "$RUNNER_TEMP/lzma1ext-helper-$attempt"
+            "$RUNNER_TEMP/lzma1ext-helper-$attempt" --version \
+              | python -c 'import re,sys; s=sys.stdin.read(); assert re.fullmatch(r"header=5\.4\.5 runtime=5\.4\.5 header_number=50040052 runtime_number=50040052 ext=1\n", s), s'
+          done
+      - name: Record toolchain identities
+        run: |
+          python - "$RUNNER_TEMP/lzma1ext-toolchain.json" <<'PY'
+          import hashlib, json, pathlib, subprocess, sys
+          names = ('liblzma5', 'liblzma-dev', 'xz-utils')
+          versions = {name: subprocess.check_output(['dpkg-query', '-W', '-f=${Version}', name], text=True).strip()
+                      for name in names}
+          helper_source = pathlib.Path('engines/experiments/strength/peer_lzma1ext_trial.c').read_bytes()
+          record = {'packages': versions,
+                    'cc_version': subprocess.check_output(['cc', '--version'], text=True).splitlines()[0],
+                    'cxx_version': subprocess.check_output(['g++', '--version'], text=True).splitlines()[0],
+                    'python_version': sys.version,
+                    'helper_source_sha256': hashlib.sha256(helper_source).hexdigest()}
+          pathlib.Path(sys.argv[1]).write_text(json.dumps(record, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+      - name: Fetch pinned c4ke source to temporary storage only
+        run: |
+          python -I -B engines/experiments/strength/peers.py source \
+            --peer c4ke --out "$RUNNER_TEMP/lzma1ext-peer-source"
+      - name: Reproduce two baseline packages in temporary storage
+        run: |
+          timeout --signal=TERM --kill-after=30s 2100s \
+            python -I -B engines/experiments/strength/peer_p192_exact_build.py \
+            --peer c4ke --source "$RUNNER_TEMP/lzma1ext-peer-source" \
+            --out "$RUNNER_TEMP/lzma1ext-baseline" \
+            --source-variant "$SOURCE_VARIANT" --launcher-variant gnu-tail-v1 \
+            --codec-search extended --wall-seconds 600
+      - name: Check emitted C++ syntax without running an engine
+        run: |
+          for attempt in 1 2; do
+            if ! c++ -O3 -std=c++23 -pthread -march=native -xc++ -fsyntax-only \
+              "$RUNNER_TEMP/lzma1ext-baseline/attempt-$attempt/main.cpp" \
+              >"$RUNNER_TEMP/lzma1ext-syntax-$attempt.stdout" \
+              2>"$RUNNER_TEMP/lzma1ext-syntax-$attempt.stderr"; then
+              echo "Generated source syntax check failed for attempt $attempt; diagnostics are retained only in runner temp."
+              exit 1
+            fi
+          done
+      - name: Compare both attempts and report complete-file size
+        run: |
+          python -I -B engines/experiments/strength/peer_lzma1ext_compare.py \
+            --producer-root "$RUNNER_TEMP/lzma1ext-baseline" \
+            --source-variant "$SOURCE_VARIANT" \
+            --helper-1 "$RUNNER_TEMP/lzma1ext-helper-1" \
+            --helper-2 "$RUNNER_TEMP/lzma1ext-helper-2" \
+            --xz "$(command -v xz)" --toolchain-json "$RUNNER_TEMP/lzma1ext-toolchain.json" \
+            --receipt "$RUNNER_TEMP/lzma1ext-comparison.json"
+      - name: Preserve numeric and hash receipt only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: c4ke-lzma1ext-comparison-${{ matrix.source_variant }}-${{ github.sha }}
+          path: ${{ runner.temp }}/lzma1ext-comparison.json
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,220 @@
+{
+  "format": 1,
+  "scope": "one fixed BCJ expression over exact worker-reset pair; cost only",
+  "baseline_receipt_sha256": "c89c7ec1a595ded61c11844352e80f244149eb29088eaa62b3ec6499ce9d2063",
+  "normal_sources": {
+    "loader/loader.c": "fba857458166293381a5e403e1ee8ebeeb6171e682f395b0f21524a60670fef4",
+    "loader/decoder.h": "f400246d0665f9d20eaf3cb4390254aed44c8f724c4f0a25a891253a2b8a4dea",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "43b97d360a8eed9929153f06d8262b4d5dd8bf97da0bad68a3665ad77270c32f",
+    "loader/range_bits.py": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854",
+    "loader/models.json": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920",
+    "packer.py": "26c1e9660cbe834dd67391dd309e8223391d8137ba199101399c5cc87b629f1e",
+    "recipe.json": "74e3568e2e689a822d145e01648cea65442a1e3f1d8bcab88aa68a147a9b3a73"
+  },
+  "before": "            u32 value = (u32)out[i+1] | (u32)out[i+2] << 8 |\n                        (u32)out[i+3] << 16 | (u32)out[i+4] << 24;\n            value -= (u32)(i+5);\n            out[i+1] = value; out[i+2] = value >> 8;\n            out[i+3] = value >> 16; out[i+4] = value >> 24;",
+  "after": "            u32 value;\n            __builtin_memcpy(&value, out+i+1, sizeof value);\n            value -= (u32)(i+5);\n            __builtin_memcpy(out+i+1, &value, sizeof value);",
+  "occurrences": 1,
+  "candidate_loader_sha256": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c",
+  "candidate_loader_bytes": 2997,
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "forms": {
+    "scalar-shipping": {
+      "files": {
+        "native": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-native-20261020-v1/scalar-shipping/x",
+          "bytes": 8060,
+          "sha256": "381fd1f478b090372365371d39337920c11fee4ab04ed59ab8616d0286b125d1"
+        },
+        "packet": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/scalar-shipping/payload.bin",
+          "bytes": 5020,
+          "sha256": "4aecde84c170d0be88d3110d9854494d453c9773235f18cb008b54eb40dfd919"
+        },
+        "linked": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/scalar-shipping/linked",
+          "bytes": 6672,
+          "sha256": "f0b15d26f8d9e3225b642b1b10e7c41aa9ed2691ee5e795e7d5ea08fe11586b0"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/scalar-shipping/x",
+          "bytes": 6387,
+          "sha256": "4c2f7a8839f2d97c19631bf010050fccf3c90df67b7aef5e321cf1412d4b0df8"
+        }
+      },
+      "definitions": {
+        "IMAGE_BASE": 4194304,
+        "IMAGE_SIZE": 8060,
+        "IMAGE_PAGES": 8192,
+        "IMAGE_ENTRY": 4201982,
+        "BSS_BASE": 4202496,
+        "BSS_PAGES": 176128,
+        "GUARD_BASE": 4190208,
+        "RESERVE_SIZE": 192512,
+        "CHECKPOINT": 0
+      },
+      "layout": {
+        "entry": 4201982,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8060,
+            "memsz": 8060,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4202496,
+            "paddr": 4202496,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8060,
+        "image_pages": 8192,
+        "bss_base": 4202496,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4378624,
+        "reserve_size": 192512
+      },
+      "maintained_whole": {
+        "bytes": 6401,
+        "sha256": "7e8f405c40ae5a64f3420f23d77a179d4154e5b9bd9e9c67aea1c83a18d238da"
+      }
+    },
+    "hq-shipping": {
+      "files": {
+        "native": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-native-20261020-v1/hq-shipping/x",
+          "bytes": 8448,
+          "sha256": "215ee72678b41032e7f3283bf40fda752f385833df46d2b430bfc2d5c5f89008"
+        },
+        "packet": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/hq-shipping/payload.bin",
+          "bytes": 5213,
+          "sha256": "2a47024e48caec8065c593f42b3026731faf0131c85cea664c402fe04d55f019"
+        },
+        "linked": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/hq-shipping/linked",
+          "bytes": 6864,
+          "sha256": "d92dca1afaf0107046dd62053cedbdc2bfde52f743acdcc941ecf482a8adfc41"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-tiny-d-worker-reset-whole-20261020-v1/hq-shipping/x",
+          "bytes": 6580,
+          "sha256": "07bedfa1707c302fe29d776f0c25b3a63c5bc560a8de4cd08abb96db90ede3a8"
+        }
+      },
+      "definitions": {
+        "IMAGE_BASE": 4194304,
+        "IMAGE_SIZE": 8448,
+        "IMAGE_PAGES": 12288,
+        "IMAGE_ENTRY": 4202288,
+        "BSS_BASE": 4206592,
+        "BSS_PAGES": 176128,
+        "GUARD_BASE": 4190208,
+        "RESERVE_SIZE": 196608,
+        "CHECKPOINT": 0
+      },
+      "layout": {
+        "entry": 4202288,
+        "section_offset": 0,
+        "section_size": 0,
+        "section_count": 0,
+        "section_names": 0,
+        "segments": [
+          {
+            "type": 1,
+            "flags": 5,
+            "offset": 0,
+            "vaddr": 4194304,
+            "paddr": 4194304,
+            "filesz": 8448,
+            "memsz": 8448,
+            "align": 4096
+          },
+          {
+            "type": 1,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 4206592,
+            "paddr": 4206592,
+            "filesz": 0,
+            "memsz": 175092,
+            "align": 4096
+          },
+          {
+            "type": 1685382481,
+            "flags": 6,
+            "offset": 0,
+            "vaddr": 0,
+            "paddr": 0,
+            "filesz": 0,
+            "memsz": 0,
+            "align": 8
+          }
+        ],
+        "image_base": 4194304,
+        "image_size": 8448,
+        "image_pages": 12288,
+        "bss_base": 4206592,
+        "bss_size": 175092,
+        "bss_pages": 176128,
+        "guard_base": 4190208,
+        "upper_guard": 4382720,
+        "reserve_size": 196608
+      },
+      "maintained_whole": {
+        "bytes": 6614,
+        "sha256": "be6a45a21895b204550cc0ae7a9a73928d6f4df1313757bad68db4dd97c4f358"
+      }
+    }
+  },
+  "no_native_compile": true,
+  "no_encoder": true,
+  "no_target": true,
+  "no_AST": true,
+  "single_loader_compile_per_form": true,
+  "no_flag_model_or_spelling_sweep": true
+}

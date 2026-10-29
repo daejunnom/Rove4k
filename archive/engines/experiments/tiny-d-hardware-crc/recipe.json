@@ -1,0 +1,284 @@
+{
+  "format": 1,
+  "scope": "one SSE4.2 CRC32 byte function first-cost; fixed old native/packet and all normal bodies outside function",
+  "ISA_profile": "Linux x86-64 SSE4.2 CRC32 r32,r/m8 mandatory, no dispatch/fallback",
+  "normal21": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 8166,
+      "sha256": "3d428640c62031ba8d97e5cd119118dadd38f0bf2c5564510929dbeb3038ae43"
+    },
+    "build.py": {
+      "bytes": 10990,
+      "sha256": "3bf753d6f8bb099bb68163b2b64be5d0c3228171ed0e1f30af3bf93201fa8507"
+    },
+    "fresh.py": {
+      "bytes": 10819,
+      "sha256": "efe64b546b0e0f752124b09e8c943fee93f4263a51b43c5e6d3844164bce4d70"
+    },
+    "packer.py": {
+      "bytes": 6387,
+      "sha256": "dec913164c4cfdda5857554f96fd6eefeb58bb9a6528a0b91172a7a1fbe7a829"
+    },
+    "recipe.json": {
+      "bytes": 30661,
+      "sha256": "a8c4008d26b5cda646b1646dd94bff1067455d7368e4885c60726666949ce874"
+    },
+    "verify.py": {
+      "bytes": 29877,
+      "sha256": "398a73aac2523157863d7232a6454ffa165d8a2c1bf541897383fe9f17f6ed2c"
+    },
+    "native/tiny.h": {
+      "bytes": 2696,
+      "sha256": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f"
+    },
+    "native/board.c": {
+      "bytes": 8770,
+      "sha256": "d412aa04f0609c0b10217d021f18fc2a888b863ece09064ffd9ad02a337963db"
+    },
+    "native/search.c": {
+      "bytes": 6209,
+      "sha256": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c"
+    },
+    "native/runtime.c": {
+      "bytes": 15027,
+      "sha256": "51902e800066562f7dbc5d240db57a6635b20c74ed8fede3a4cd71329fc62a38"
+    },
+    "native/hq.h": {
+      "bytes": 463,
+      "sha256": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412"
+    },
+    "native/hq.c": {
+      "bytes": 1488,
+      "sha256": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f"
+    },
+    "native/start.S": {
+      "bytes": 845,
+      "sha256": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b"
+    },
+    "native/image.ld": {
+      "bytes": 446,
+      "sha256": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+    },
+    "loader/loader.c": {
+      "bytes": 2997,
+      "sha256": "ea574f09aefc0f910a64c683c7052482d3b2e0c52a10f09450233b155674a85c"
+    },
+    "loader/image.ld": {
+      "bytes": 452,
+      "sha256": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99"
+    },
+    "loader/codec.py": {
+      "bytes": 7794,
+      "sha256": "b8308c14a0bcf416af2546632a065c67562eab2c6b9eef189855d3850b3d84da"
+    },
+    "loader/decoder.h": {
+      "bytes": 3445,
+      "sha256": "1f6ac732ca74f9dfa5a0080cf8ea0b5ca10475d6d2f34a7756d65da6455ef94f"
+    },
+    "loader/range_bits.py": {
+      "bytes": 4041,
+      "sha256": "9c4f9a69b3655a1cd95969cd601193174a15894e35a92248cb3c7ccdd74d2854"
+    },
+    "loader/models.json": {
+      "bytes": 905,
+      "sha256": "3101a5638551990cb2d5a33d6d28fbab436d04d301b676cc2e45afa63b7f6920"
+    }
+  },
+  "owned_inputs": {
+    "decoder.h": {
+      "bytes": 3421,
+      "sha256": "162129fbc2e876252d7a3f58bda9672aff3a1a6170c35903b73624e571b60fd6"
+    },
+    "diagnostic.c": {
+      "bytes": 3803,
+      "sha256": "e9212ebe1ba7b1e5e9dbc62882394c558b3abe7f0a5a98cd4aecda257fb60303"
+    }
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "forms": {
+    "scalar-shipping": {
+      "native": {
+        "attempt": 1,
+        "form": "scalar-shipping",
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/scalar-shipping/native-first/x",
+        "bytes": 7964,
+        "sha256": "24a6856e00fb902a2c11580616a8048f2832f8b9d0cf35a29a8861e5841eedb8"
+      },
+      "packet": {
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/scalar-shipping/context/payload.bin",
+        "bytes": 4971,
+        "sha256": "1ae6c71f2355aba3ca89bcc151585c832ddcb130621444c7f5c567276f893409"
+      },
+      "old_whole": {
+        "attempt": 1,
+        "form": "scalar-shipping",
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/scalar-shipping/context/x",
+        "bytes": 6165,
+        "sha256": "106f78f0a677b56051fd1034147dddcb133bb20360baed18c79cf0e4412a2342"
+      },
+      "model_wmask": 16847486,
+      "native_layout": {
+        "bss_base": 4202496,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4201879,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 8192,
+        "image_size": 7964,
+        "reserve_size": 192512,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 7964,
+            "flags": 5,
+            "memsz": 7964,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4202496,
+            "type": 1,
+            "vaddr": 4202496
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4378624
+      }
+    },
+    "hq-shipping": {
+      "native": {
+        "attempt": 1,
+        "form": "hq-shipping",
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/hq-shipping/native-first/x",
+        "bytes": 8352,
+        "sha256": "6acbd92ccd37b51b6745115336576a15ddaa1018e6521471a98e295bc2308626"
+      },
+      "packet": {
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/hq-shipping/context/payload.bin",
+        "bytes": 5151,
+        "sha256": "86d0e63bf852bc8ac96576097531cf3134809e0ae837adf219e85b14ce7c7517"
+      },
+      "old_whole": {
+        "attempt": 1,
+        "form": "hq-shipping",
+        "path": "/home/stemxstudio/rove4k-tiny-entry-d-model-replay-fresh-20261020-v1/build-1/hq-shipping/context/x",
+        "bytes": 6345,
+        "sha256": "c7936c39e9d36064d2b3399fd32619010e6280d31c5d59f42a02a12ce25d6875"
+      },
+      "model_wmask": 135274878,
+      "native_layout": {
+        "bss_base": 4206592,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202196,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 12288,
+        "image_size": 8352,
+        "reserve_size": 196608,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 8352,
+            "flags": 5,
+            "memsz": 8352,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4206592,
+            "type": 1,
+            "vaddr": 4206592
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4382720
+      }
+    }
+  },
+  "proposal_sha256": "ca3c744e40df8fedee46a5ab121565fe739fe164942c93002f836f073f69d34d",
+  "CRC_test_counts": {
+    "zero": 1,
+    "seed_basis": 32,
+    "byte_basis": 8,
+    "all256bytes_times_fixed6seeds": 1536,
+    "deterministic_random": 4096,
+    "total": 5673
+  },
+  "execution_scope": {
+    "CRC_compile": 1,
+    "CRC_run": 1,
+    "shipping_loader_compile": 2,
+    "static_objdump": 2,
+    "packet_diag_compile": 2,
+    "packet_diag_run": 2,
+    "native_compile": 0,
+    "encoder_run": 0,
+    "shipping_audit_engine_run": 0,
+    "CHECKPOINT_compile": 0,
+    "negative_fault_RIE_ptrace_register_personality_campaign": 0,
+    "new_agents": 0
+  }
+}

@@ -1,0 +1,53 @@
+static int emit(Visit *x,int from,int to,int pawn){
+    int promotion=pawn&&((to>>4)==0||(to>>4)==7);
+    for(int z=promotion?2:0;z<=(promotion?5:0);z++)
+        if(offer(x,facts(x->p,MOVE(from,to,z))))return 1;
+    return 0;
+}
+/* Three fixed enumeration passes at most in a search node: survey, remaining
+ * tacticals, remaining quiets. Attack and EP probes use geometry only. */
+static int walk(Visit *x){
+    const Board *p=x->p;int s=x->side,listing=x->op!=ATTACK;
+    for(int from=0;from<128;from++){
+        if(from&0x88){from+=7;continue;}
+        int a=abs(p->b[from]);
+        if(x->op==SURVEY){
+            if(a==2){x->minors++;x->knights++;}
+            else if(a==3){x->minors++;x->colors|=1<<((from+(from>>4))&1);}
+            else if(a&&a<6)x->major=1;
+        }
+        if(p->b[from]*s<=0)continue;
+        if(listing&&a==1){
+            int to=from+s*16;
+            if(!(to&0x88)&&!p->b[to]){
+                if(emit(x,from,to,1))return 1;
+                if((from>>4)==(s>0?1:6)&&!p->b[to+s*16]&&emit(x,from,to+s*16,0))return 1;
+            }
+        }
+        int first=a==1?(s>0?12:14):a==2?0:a==3?12:8;
+        int last=a==1?first+2:a==2?8:a==4?12:16;
+        for(int i=first;i<last;i++){
+            int d=steps[i];
+            for(int to=from+d;!(to&0x88);to+=d){
+                int target=p->b[to];
+                if(!listing&&to==x->sq)return 1;
+                if(target*s>0||(listing&&a==1&&!target&&to!=p->e))break;
+                if(listing&&emit(x,from,to,a==1))return 1;
+                if(target||a<3||a==6)break;
+            }
+        }
+        if(listing&&a==6){
+            int home=s>0?4:116,shift=s>0?0:2;
+            if(from==home&&!attacked(p,home,-s)){
+                if((p->c&(1<<shift))&&!p->b[home+1]&&!p->b[home+2]&&!attacked(p,home+1,-s)&&emit(x,from,home+2,0))return 1;
+                if((p->c&(2<<shift))&&!p->b[home-1]&&!p->b[home-2]&&!p->b[home-3]&&!attacked(p,home-1,-s)&&emit(x,from,home-2,0))return 1;
+            }
+        }
+    }
+    return 0;
+}
+#if DEV
+int gen(const Board *p,Move *moves){
+    Visit x={0};x.p=p;x.side=p->s;x.op=COLLECT;x.list=moves;walk(&x);return x.count;
+}
+#endif

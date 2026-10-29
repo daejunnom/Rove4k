@@ -1,0 +1,33 @@
+{
+  "format": 1,
+  "family": "F",
+  "policy": "fixed-F-reparse-gated-lexical-reuse-v1",
+  "input": {
+    "bytes": 10477,
+    "sha256": "c63a450245ff4ca703a5abe2dc75d840c7c7e936bb2a30a726c30014e3a92e90"
+  },
+  "function_wide_baseline": {
+    "bytes": 10011,
+    "sha256": "4e7a2a76ea753ebc3ccbcb4371ea76810c06b193e45b2f6ca70e66bd79112e9a"
+  },
+  "reference_sha256": "02ca17d1c251945f1c021e3482272ef891485c2227a90b4712a36b987d29f08b",
+  "reference_source_bytes": 14935,
+  "reference_path": "engines/experiments/tiny-scope-names/rename.py",
+  "clang_site_inputs": {
+    "clang/__init__.py": "961d8ad419dc7aa10d8d7b75e5fcd624cc681403a55ce99ad14ae4fe4a7be749",
+    "clang/cindex.py": "a66f9d25b3058b042fcd6d145268abde37886e6ed8666ca63aeb6ea3c4027156",
+    "clang/enumerations.py": "da8197921b63c923b09a990553d8678e19b2b96c6750f13186aa0e345a505c12",
+    "clang/native/libclang.so": "a8612b1c9a7125701277f63e5616f1d1eb9c91410c4bf195878067868c927f94"
+  },
+  "stdatomic_sha256": "4e4de7f617643a9f6e49c678866c05266b3d8d4145eb653066f1ca3f6e49b0be",
+  "parser_arguments": [
+    "-std=gnu17",
+    "-Os",
+    "-pthread"
+  ],
+  "expected_renamed_declarations": 98,
+  "expected_edits": 451,
+  "soft_budget_seconds": 60,
+  "purpose": "alias distribution/repetition only; same eligibility already reaches one-character raw minimum",
+  "native_codec_engine_authorized": false
+}

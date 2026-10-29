@@ -1,0 +1,225 @@
+{
+  "format": 1,
+  "class": "rust-d-shared-query-data8-v1",
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128
+  },
+  "compiler": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+  "native_flags": [
+    "--edition=2024",
+    "-C",
+    "opt-level=z",
+    "-C",
+    "lto=fat",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "panic=abort",
+    "-C",
+    "force-unwind-tables=no",
+    "-C",
+    "relocation-model=static",
+    "-C",
+    "default-linker-libraries=no",
+    "-C",
+    "debuginfo=0",
+    "-C",
+    "strip=symbols",
+    "--check-cfg",
+    "cfg(tiny_dev)",
+    "-C",
+    "link-arg=-nostdlib",
+    "-C",
+    "link-arg=-static",
+    "-C",
+    "link-arg=-no-pie",
+    "-C",
+    "link-arg=-Wl,--build-id=none",
+    "-C",
+    "link-arg=-Wl,--no-dynamic-linker",
+    "-C",
+    "link-arg=-Wl,-T,link.ld",
+    "--crate-name",
+    "rove4k_tiny_d",
+    "main.rs",
+    "-o",
+    "x"
+  ],
+  "control_expected": {
+    "control-scalar": {
+      "bytes": 16816,
+      "sha256": "bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878"
+    },
+    "control-hq": {
+      "bytes": 16816,
+      "sha256": "f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8"
+    }
+  },
+  "candidate_source_expected": {
+    "main.rs": {
+      "bytes": 4701,
+      "sha256": "2d90b57ecaf39f33503b953ea4bc44cc9c27b0db0f20dfa81aa74996b0b88183"
+    },
+    "board.rs": {
+      "bytes": 14792,
+      "sha256": "7e4a11d7bc37b829bf1da52a435c419ea62f3261fb524c9f49e812dc5961f69d"
+    },
+    "search.rs": {
+      "bytes": 9503,
+      "sha256": "da2583806efea022b1b3b1337557b896a373a561f11d665b1ca747c29e3aed81"
+    },
+    "runtime.rs": {
+      "bytes": 6287,
+      "sha256": "79ec56d42a1969295db66f98cfe08d9576f647826e6c08434a6d8bad3856e469"
+    },
+    "os.rs": {
+      "bytes": 4596,
+      "sha256": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e"
+    },
+    "link.ld": {
+      "bytes": 444,
+      "sha256": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc"
+    },
+    "build.py": {
+      "bytes": 6904,
+      "sha256": "08f28ebdc45ad49c2a23f7eb8e28b086612ea9a33dbc39cb8ccbd66bfcf68e89"
+    }
+  },
+  "changes": [
+    {
+      "file": "board.rs",
+      "old": "    pub fn parse(&self, text: &str) -> Option<Move> {",
+      "new": "    // One shared membership/copy-make query; callers retain phase ownership.\n    #[inline(never)]\n    pub fn query(&self, wanted: Option<Move>) -> Option<(Move, Self)> {\n        let moves = self.pseudo();\n        for &m in &moves.a[..moves.n] {\n            if let Some(wanted) = wanted { if wanted != m { continue; } }\n            if let Some(child) = self.play(m) { return Some((m, child)); }\n        }\n        None\n    }\n    pub fn parse(&self, text: &str) -> Option<Move> {"
+    },
+    {
+      "file": "board.rs",
+      "old": "    pub fn parse_bytes(&self, b: &[u8]) -> Option<Move> {",
+      "new": "    pub fn parse_bytes(&self, b: &[u8]) -> Option<Move> {\n        self.parse_child_bytes(b).map(|(m, _)| m)\n    }\n    pub fn parse_child_bytes(&self, b: &[u8]) -> Option<(Move, Self)> {"
+    },
+    {
+      "file": "board.rs",
+      "old": "        let moves = self.pseudo();\n        (moves.a[..moves.n].contains(&m) && self.play(m).is_some()).then_some(m)",
+      "new": "        self.query(Some(m))"
+    },
+    {
+      "file": "main.rs",
+      "old": "b=b.play(b.parse_bytes(text)?)?;",
+      "new": "let(_,child)=b.parse_child_bytes(text)?;b=child;"
+    },
+    {
+      "file": "runtime.rs",
+      "old": "let moves=board.legal();job.fallback=moves.a[..moves.n].first().copied().unwrap_or(0);",
+      "new": "job.fallback=board.query(None).map_or(0,|(m,_)|m);"
+    },
+    {
+      "file": "runtime.rs",
+      "old": "let legal=job.board.legal();if !legal.a[..legal.n].contains(&result.best){result.best=0;}",
+      "new": "if job.board.query(Some(result.best)).is_none(){result.best=0;}"
+    }
+  ],
+  "raw_source_delta": 418,
+  "reviewed_patch_sha256": "971d6f629d910f89d2855087f82074425460c09146027dadd600752b94c76473",
+  "source_sha256": {
+    "control/board.rs": "1a1ff1a0693a1b3f53ade2435d2996684a1bcd7b7eee333f28fe669645340b82",
+    "control/build.py": "08f28ebdc45ad49c2a23f7eb8e28b086612ea9a33dbc39cb8ccbd66bfcf68e89",
+    "control/link.ld": "1e8f17bb2f06a6ddabf1f56d155bd7bdcd8c4406d140c22770bcfda96d459bbc",
+    "control/main.rs": "e10e1b797085c1f032edcbfe28a828cf91e8cf2c71f3f11c063328744c34b8a3",
+    "control/os.rs": "892cc62e2c126ebcbc171eb6f8059aacf92cf255d85341487e46effe2b94986e",
+    "control/runtime.rs": "802b497371a409744ad231cd8f621ea3d8b7cd931627e0396f3ec92ad1345b2d",
+    "control/search.rs": "da2583806efea022b1b3b1337557b896a373a561f11d665b1ca747c29e3aed81",
+    "packaging/loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+    "packaging/loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "packaging/loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "packaging/packer.py": "bde43a9bb1a7ec21f93f21071461d79570cf9ae4af8a7733c33e294ecac5291b",
+    "reference/data16.py": "e842bb938b5a6ff9b95776407b93fa1a91cfe061f522e395398fd8833b215316",
+    "reference/data8.py": "f47e2a2d0547d3d981c8a3493a5afa24b3e9440dc0fe3303b0b688d72ddf0733",
+    "producer.py": "75f76c9c056d7109a9156c5cb35d1f373992cdb02a36061849b4730156f5c8a8",
+    "cost.py": "3008f165b28dbcf4146e4d21b442e870bda32a12fa34d3dd570288ce87227645",
+    "README.md": "cad2254601244965d6428cd920200d25f0eef59ef83644a9563ae451158a305e",
+    ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+    "admit.py": "4294e70b205b9617cd81671ae99f893d01136322bfebd9bb322dc1ac0c411239"
+  },
+  "packing_layout": {
+    "image_base": 4194304,
+    "image_size": 16392,
+    "image_pages": 20480,
+    "final_rx_pages": 16384,
+    "entry": 4194544,
+    "bss_base": 4210688,
+    "bss_pages": 4096,
+    "rw_filesz": 8,
+    "rw_memsz": 12,
+    "actual_bss_base": 4210696,
+    "actual_bss_size": 4,
+    "guard_base": 4190208,
+    "upper_guard": 4214784,
+    "reserve_size": 28672,
+    "loader_base": 268435456
+  },
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "codec": {
+    "bcj_version": "e8-e9-whole-image-add-next-offset-le32-v1",
+    "fixed_version": "rfc1951-one-final-fixed-zero-padding-v1"
+  },
+  "runtime_execution_authorized": false,
+  "packing": {
+    "native_cost_sha256": "c68a9b891eedeed580a135828a55d18cc67b64b8cca398a003a4f2cf241a1c49",
+    "native_expected": {
+      "control-scalar": {
+        "bytes": 16816,
+        "sha256": "bd0e3bd1567ae906d4ab9704603204d22302895df1f05679f6221d6445aef878",
+        "rx_filesz": 14240,
+        "load_sha256": "8498ceeabf31a8c688b2344585f126dad086193c2ffe5dc07fb7a994887b5b37"
+      },
+      "control-hq": {
+        "bytes": 16816,
+        "sha256": "f8581a68f09d4d9cdc3e1413aa45ffb385bafd8240f1432403629ec2a0e544f8",
+        "rx_filesz": 14688,
+        "load_sha256": "995e9464eb61e2a5894263f49da545767315f6616c405d9e01540a71b4fc8da0"
+      },
+      "candidate-scalar": {
+        "bytes": 16816,
+        "sha256": "4e9fc136ba06f6fb0bf52b8c95a54826cad5914e7bda5452802bdedca2d05ee7",
+        "rx_filesz": 14144,
+        "load_sha256": "da5540e66c94e47dd6c5c6b773465b39a17e66badbd046f4561061f0f14b8ca5"
+      },
+      "candidate-hq": {
+        "bytes": 16816,
+        "sha256": "2d4a935f4c44888d91f7f5e26127119bc2b4433590ab55fd8f4715347935196b",
+        "rx_filesz": 14592,
+        "load_sha256": "5a7bf1f88d72b9b18d550587441e9c91780f96735c96450be8a455516c2a0f58"
+      }
+    },
+    "admit_body_sha256": "8be4809d066f514eba12cc2b07a4ec670c341b9321169f8a130507805591f7ea",
+    "original_admit_body_exact": true,
+    "control_whole_expected": {
+      "control-scalar": {
+        "bytes": 11403,
+        "sha256": "c485ddc7cca0bbfa31605d6488113075879164802c89ccda48d29d49c7756bc6"
+      },
+      "control-hq": {
+        "bytes": 11762,
+        "sha256": "da6f203d2304311856509d5d8d803cb647e4bb7f3444caa3a2fb1710304607e5"
+      }
+    }
+  }
+}

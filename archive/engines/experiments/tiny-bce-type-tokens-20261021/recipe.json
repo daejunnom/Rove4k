@@ -1,0 +1,1801 @@
+{
+  "format": 1,
+  "stage": "one role-safe fixed two-type token policy per current B/C/E; full-native exact before codec",
+  "policies": {
+    "B": {
+      "uint64_t": "D",
+      "Move": "N"
+    },
+    "C": {
+      "uint64_t": "M",
+      "Move": "T"
+    },
+    "E": {
+      "uint64_t": "I",
+      "Move": "T"
+    }
+  },
+  "macro_old": "#define MOVE(f,t,p) ((Move)(f)|((Move)(t)<<7)|((Move)(p)<<14))\n",
+  "lexer_path": "engines/scripts/rename_c.py",
+  "lexer_sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+  "families": {
+    "B": {
+      "family": "B",
+      "baseline": "/home/stemxstudio/rove4k-b-tactical-normal-20261021/build",
+      "controls": {
+        "main.c": {
+          "bytes": 11430,
+          "sha256": "54759113c9949f0f3d619d5eefe5e8ac4d6b562baf4c09da7e7743907d3f8a2a"
+        },
+        "native/x": {
+          "bytes": 26360,
+          "sha256": "483a2b6c1f420a30d2f04f1acab9101f6b7dc44c06e1485117a2e8117f1365dd"
+        },
+        "bootstrap.py": {
+          "bytes": 12495,
+          "sha256": "ac3cbb751445b451fecfb28d6b43ca711879b6c10797e52c35eb872a353ba523"
+        },
+        "x": {
+          "bytes": 5357,
+          "sha256": "8b8c3b565974813aa2ea54383bcc19240c1dcf506157d2aa0b44c8b24fa3d5be"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-b/generate.py": {
+          "bytes": 5581,
+          "sha256": "c2cc1fd68d05d66f5525dfabc2368fdb0ddff2716bbf65ecb2033614b113aa59"
+        },
+        "engines/compact/tiny-entry-b/bootstrap.py.in": {
+          "bytes": 1072,
+          "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+        },
+        "engines/compact/tiny-entry-b/build.py": {
+          "bytes": 12706,
+          "sha256": "c05dd282f9fa5f8cd35a81e721214f3449b041550c9b0cb165f09b8314324855"
+        },
+        "engines/compact/tiny-entry-b/engine.c": {
+          "bytes": 28953,
+          "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+        },
+        "engines/compact/tiny-entry-b/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-b/recipe.json": {
+          "bytes": 29035,
+          "sha256": "3bc6cd6e77793b7e0f3ccc8cb14f6d0f804445f2480775d852bf57461be9d7d4"
+        },
+        "engines/compact/tiny-entry-b/shipping_core.py": {
+          "bytes": 12150,
+          "sha256": "02806d5c811bb1c5964c691751c69ad1a48585308d1edbd7e2eff47fe96784f3"
+        },
+        "engines/compact/tiny-entry-b/shipping_order.py": {
+          "bytes": 13293,
+          "sha256": "82ee301901fb147ae33723f302ff06663b919b91a6d27b1986a5cfe54be2ceb2"
+        },
+        "engines/compact/tiny-entry-b/shipping_scope.py": {
+          "bytes": 8493,
+          "sha256": "239bd0bdf0506e9f3334f75b5deb871479d59599e44bbb0d4ed3ecd881f13c0e"
+        },
+        "engines/compact/tiny-entry-b/shipping_storage.py": {
+          "bytes": 8334,
+          "sha256": "5663d0b8bbf494354cebe4cce3a709fc05dc32d88407a6b367277dfac0830662"
+        },
+        "engines/compact/tiny-entry-b/shipping_tactical.py": {
+          "bytes": 4728,
+          "sha256": "3039a6a214276093e18cb13e9787fe810358acdc7475ad8f0542bc71bc5d1fd2"
+        },
+        "engines/compact/tiny-entry-b/shipping_walk.py": {
+          "bytes": 8050,
+          "sha256": "9964071df9b2cb092ee042f5e49876357d11f9ed7a8541c211987198581f744a"
+        },
+        "engines/scripts/fixed_input_profile_bce.py": {
+          "bytes": 14637,
+          "sha256": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e"
+        },
+        "engines/scripts/fixed_shipping_alpha.py": {
+          "bytes": 21999,
+          "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "canonical_readable": {
+        "path": "engines/compact/tiny-entry-b/engine.c",
+        "bytes": 28953,
+        "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "template_path": "engines/compact/tiny-entry-b/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-b/launcher.sh",
+      "map": {
+        "uint64_t": "D",
+        "Move": "N"
+      },
+      "alias_prefix": "typedef uint64_t D;",
+      "macro_new": "#define MOVE(f,t,p) ((N)(f)|((N)(t)<<7)|((N)(p)<<14))\n",
+      "counts": {
+        "uint64_t": 30,
+        "Move": 21
+      },
+      "eligible_inventory": {
+        "uint64_t": 30,
+        "int16_t": 3,
+        "Move": 21,
+        "zb": 3
+      },
+      "ordinary_roles": [
+        {
+          "start": 304,
+          "end": 308,
+          "old": "Move",
+          "new": "N",
+          "role": "owned-typedef-declarator",
+          "context": "00\ntypedef unsigned Move;typedef struct{int8_t b[128];ui"
+        },
+        {
+          "start": 338,
+          "end": 346,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "truct{int8_t b[128];uint64_t bb[2][7];int s,c,e,k[2],zL,v;ui"
+        },
+        {
+          "start": 376,
+          "end": 384,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "int s,c,e,k[2],zL,v;uint64_t h,r;}za;\n#define FROM(m) ((m)&1"
+        },
+        {
+          "start": 573,
+          "end": 581,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "ruct{atomic_flag zY;uint64_t zP,zA;}zb;typedef struct{int id"
+        },
+        {
+          "start": 620,
+          "end": 624,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "struct{int id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];"
+        },
+        {
+          "start": 628,
+          "end": 636,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "nt id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];int zV;int16"
+        },
+        {
+          "start": 737,
+          "end": 745,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "qr[2];atomic_int qp;uint64_t qc,qg[HISTORY];int qh;za ql;uin"
+        },
+        {
+          "start": 774,
+          "end": 782,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "STORY];int qh;za ql;uint64_t now(void){struct timespec t;clo"
+        },
+        {
+          "start": 852,
+          "end": 860,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "ONOTONIC,&t);return(uint64_t)t.tv_sec*1000+t.tv_nsec/1000000"
+        },
+        {
+          "start": 974,
+          "end": 982,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": ",-16,17,15,-15,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9"
+        },
+        {
+          "start": 987,
+          "end": 995,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "5,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9e3779b97f4a7c"
+        },
+        {
+          "start": 1372,
+          "end": 1380,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "rn v>0?m:-m;}static uint64_t o(int q){return UINT64_C(1)<<(("
+        },
+        {
+          "start": 1435,
+          "end": 1443,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "4)*8+(q&7));}static uint64_t I(int v,int q){return mix((uint"
+        },
+        {
+          "start": 1471,
+          "end": 1479,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": ",int q){return mix((uint64_t)(q+(v+6)*128));}static uint64_t"
+        },
+        {
+          "start": 1503,
+          "end": 1511,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "(v+6)*128));}static uint64_t S(const za*p){return mix(2048+p"
+        },
+        {
+          "start": 1868,
+          "end": 1872,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "]=q;}}static void g(Move*,int*,int,int,int);static uint6"
+        },
+        {
+          "start": 1899,
+          "end": 1907,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "int,int,int);static uint64_t walk(const za*p,Move*f,int sq,i"
+        },
+        {
+          "start": 1924,
+          "end": 1928,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "4_t walk(const za*p,Move*f,int sq,int s){int n=0;uint64_"
+        },
+        {
+          "start": 1953,
+          "end": 1961,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "t sq,int s){int n=0;uint64_t r=0,b=p->bb[s<0][0];while(b){in"
+        },
+        {
+          "start": 2701,
+          "end": 2709,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "eturn f?n:r;}static uint64_t l(const za*p,int sq,int s){retu"
+        },
+        {
+          "start": 3335,
+          "end": 3339,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "int make(const za*p,Move m,za*t){int a=FROM(m),d=TO(m),f"
+        },
+        {
+          "start": 3817,
+          "end": 3821,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "rn 1;}static void g(Move*a,int*n,int zJ,int to,int d){in"
+        },
+        {
+          "start": 3997,
+          "end": 4001,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "}int gen(const za*p,Move*f){return walk(p,f,0,p->s);}voi"
+        },
+        {
+          "start": 4232,
+          "end": 4240,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "r=t.h;*p=t;}\nstatic uint64_t K(uint64_t a,uint64_t d){zb*e=q"
+        },
+        {
+          "start": 4243,
+          "end": 4251,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "}\nstatic uint64_t K(uint64_t a,uint64_t d){zb*e=qq+(a&((1u<<"
+        },
+        {
+          "start": 4254,
+          "end": 4262,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "nt64_t K(uint64_t a,uint64_t d){zb*e=qq+(a&((1u<<18)-1));if("
+        },
+        {
+          "start": 4829,
+          "end": 4833,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "t Q(zd*w,const za*p,Move m){za t;if(!make(p,m,&t))return"
+        },
+        {
+          "start": 5090,
+          "end": 5098,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "urn SEE_INCOMPLETE;}uint64_t d=l(&t,yv,t.s);for(int k=1;k<7;"
+        },
+        {
+          "start": 5135,
+          "end": 5143,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "or(int k=1;k<7;k++){uint64_t b=d&t.bb[t.s<0][k];while(b){int"
+        },
+        {
+          "start": 5482,
+          "end": 5486,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "a,int d,int f,int n,Move previous,Move*t,Move u,int x){i"
+        },
+        {
+          "start": 5496,
+          "end": 5500,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "int n,Move previous,Move*t,Move u,int x){if(!A(w))return"
+        },
+        {
+          "start": 5503,
+          "end": 5507,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "ove previous,Move*t,Move u,int x){if(!A(w))return 0;int "
+        },
+        {
+          "start": 5683,
+          "end": 5687,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": ">h;L|=V>=2||dead(p);Move X[MOVES],zj=0;int Y[MOVES],Z=ge"
+        },
+        {
+          "start": 5881,
+          "end": 5889,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "return z?-MATE+n:0;}uint64_t zP=p->h^mix(p->r+(unsigned)p->z"
+        },
+        {
+          "start": 5939,
+          "end": 5943,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": ">zL),zA=u?0:K(zP,0);Move tt=zA&131071;int yl=(int16_t)(z"
+        },
+        {
+          "start": 6436,
+          "end": 6440,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "or(int i=0;i<Z;i++){Move m=X[i];int zJ=FROM(m),to=TO(m),"
+        },
+        {
+          "start": 6847,
+          "end": 6851,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "++)if(Y[k]>Y[j])j=k;Move m=X[j];X[j]=X[i];Y[j]=Y[i];if(m"
+        },
+        {
+          "start": 7805,
+          "end": 7813,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "E+PLY)yl-=n;zA=zj|((uint64_t)(uint16_t)yl<<17)|((uint64_t)(a"
+        },
+        {
+          "start": 7834,
+          "end": 7842,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "(uint16_t)yl<<17)|((uint64_t)(a>0?a:0)<<33)|((uint64_t)zo<<4"
+        },
+        {
+          "start": 7860,
+          "end": 7868,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "_t)(a>0?a:0)<<33)|((uint64_t)zo<<41);if(!u)K(zP,zA);return z"
+        },
+        {
+          "start": 7990,
+          "end": 7998,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "(w->zQ,qg,qh*sizeof(uint64_t));for(int a=1;a<=PLY-2;a++){Mov"
+        },
+        {
+          "start": 8027,
+          "end": 8031,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "t a=1;a<=PLY-2;a++){Move d=w->zi;int f=P(w,p,a,-MATE,MAT"
+        },
+        {
+          "start": 8335,
+          "end": 8339,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "int qk,qn,qm;static Move qe;static void T(Move m,char*s)"
+        },
+        {
+          "start": 8357,
+          "end": 8361,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "ve qe;static void T(Move m,char*s){if(!m){strcpy(s,\"0000"
+        },
+        {
+          "start": 8536,
+          "end": 8540,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "PROMO(m)]=0;}static Move H(const za*b,const char*s,za*c)"
+        },
+        {
+          "start": 8573,
+          "end": 8577,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": ",const char*s,za*c){Move a[MOVES];char d[6];int n=gen(b,"
+        },
+        {
+          "start": 8811,
+          "end": 8815,
+          "old": "Move",
+          "new": "N",
+          "role": "type-name",
+          "context": "[i].zB>w->zB)w=qr+i;Move a=w->zi?w->zi:qe;char d[6];T(a,"
+        },
+        {
+          "start": 9499,
+          "end": 9507,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "id R(char*s){za b,c;uint64_t a[HISTORY];int n=1;char*f,*d=st"
+        },
+        {
+          "start": 9812,
+          "end": 9820,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "n*sizeof*a);}static uint64_t G(const char*s){char*e;if(!s||("
+        },
+        {
+          "start": 9973,
+          "end": 9981,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": " void E(char*s){U();uint64_t a=0,d=0,f=0;int j=0;char*m;for("
+        },
+        {
+          "start": 10144,
+          "end": 10152,
+          "old": "uint64_t",
+          "new": "D",
+          "role": "type-name",
+          "context": "strcmp(t+1,\"inc\"))){uint64_t n=G(strtok_r(NULL,\" \\t\\r\\n\",&m)"
+        }
+      ],
+      "protected_type_roles": [
+        {
+          "start": 589,
+          "end": 591,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": " zY;uint64_t zP,zA;}zb;typedef struct{int id,zB,yl;Mov"
+        },
+        {
+          "start": 663,
+          "end": 670,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "HISTORY+PLY];int zV;int16_t zM[128][128],zw[13][13],zx[1024"
+        },
+        {
+          "start": 708,
+          "end": 710,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "3][13],zx[1024];}zd;zb*qq;zd qr[2];atomic_int qp;uint6"
+        },
+        {
+          "start": 4266,
+          "end": 4268,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t64_t a,uint64_t d){zb*e=qq+(a&((1u<<18)-1));if(atomic"
+        },
+        {
+          "start": 4645,
+          "end": 4652,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "rn 1;}static void F(int16_t*a,int d){*a+=(d-*a*d/16384);}st"
+        },
+        {
+          "start": 5965,
+          "end": 5972,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t=zA&131071;int yl=(int16_t)(zA>>17),zo=(zA>>41)&3,yz=(zA>>"
+        }
+      ],
+      "protected_type_counts": {
+        "int16_t": 3,
+        "zb": 3
+      },
+      "candidate_source": {
+        "bytes": 11167,
+        "sha256": "6ae7748ee0e56a925405692385a8adfd141274aaee845efaae406416664b1755"
+      },
+      "insert_offset": 287,
+      "source_delta": -263,
+      "fresh_uppercase_inventory": "DN",
+      "fresh_lowercase_inventory": "y",
+      "control_byte_domains": {
+        "main.c": "raw ASCII text; already LF",
+        "bootstrap.py": "raw UTF-8 text; already LF",
+        "native/x": "raw ELF binary; never newline-normalized",
+        "x": "raw shell-plus-ALONE bytes; never newline-normalized"
+      },
+      "late_includes": []
+    },
+    "C": {
+      "family": "C",
+      "baseline": "/home/stemxstudio/rove4k-c-signed-vector-normal-20261021",
+      "controls": {
+        "main.c": {
+          "bytes": 10656,
+          "sha256": "58e71a9c05cb48e4d1a8de83cd833981f64165344f53c41d0c39542fdfb1ae64"
+        },
+        "native/x": {
+          "bytes": 26376,
+          "sha256": "4ffb9c371eb7c0949f34ed637350ff3be9c7164890d1784c12e3cd3d93912691"
+        },
+        "bootstrap.py": {
+          "bytes": 11731,
+          "sha256": "9b6645146ca734dc7133cc6f50131f8a90c582246f7ae4b9ada75c24397c9451"
+        },
+        "x": {
+          "bytes": 5092,
+          "sha256": "175b73a5a720e2197c3842a8e61ed0a335b927491e43d00e60e42cc8509836b4"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-a/stitch.py": {
+          "bytes": 3863,
+          "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+        },
+        "engines/compact/tiny-entry-c/bootstrap.py.in": {
+          "bytes": 1082,
+          "sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a"
+        },
+        "engines/compact/tiny-entry-c/build.py": {
+          "bytes": 12662,
+          "sha256": "9540669fcd9db7224e4656dc07cfc2c72b4cab627026d4890d7931d7904048ff"
+        },
+        "engines/compact/tiny-entry-c/engine.c": {
+          "bytes": 26692,
+          "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+        },
+        "engines/compact/tiny-entry-c/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-c/recipe.json": {
+          "bytes": 29624,
+          "sha256": "a9f4b24207a1c5b5f15f9a5f67444b62e60d0399123291e935733529f509ad11"
+        },
+        "engines/compact/tiny-entry-c/shipping_alpha.py": {
+          "bytes": 11618,
+          "sha256": "d220d7001a0e4119380d6bad466d39d10ba5d5c047a75e5fdb231b3bd8bd25c3"
+        },
+        "engines/compact/tiny-entry-c/shipping_core.py": {
+          "bytes": 9054,
+          "sha256": "8a654816bb4d4019218e5a1c1d9b8fe7a7cfde20ad0cdf7d2e7ec414247ede2e"
+        },
+        "engines/compact/tiny-entry-c/shipping_incremental.py": {
+          "bytes": 2888,
+          "sha256": "14d7e3bdf8da09f4e97580e86819ccbf253c0f6daabacf6815d9dbefc9bd1f4d"
+        },
+        "engines/compact/tiny-entry-c/shipping_material.py": {
+          "bytes": 3544,
+          "sha256": "65f9644151297b3e0681ada446208aa7bb30cbfa11223dd1da6cc66929fa4e47"
+        },
+        "engines/compact/tiny-entry-c/shipping_scope.py": {
+          "bytes": 8176,
+          "sha256": "a3f845c870cb5b8d935254172f1f5a78afa34281ea15396278a78ed165fc3a03"
+        },
+        "engines/compact/tiny-entry-c/shipping_signed_vector.py": {
+          "bytes": 3277,
+          "sha256": "50b1354e480b0cca88db8c05ee979894a54cf6ce2412bf3ac042b61eb1d7428d"
+        },
+        "engines/compact/tiny-entry-c/shipping_simd.py": {
+          "bytes": 13802,
+          "sha256": "402bbeccc92c82053d1dcb85b20c200cc1303752945ee32b7b03b22f313eaf13"
+        },
+        "engines/scripts/fixed_input_profile_bce.py": {
+          "bytes": 14637,
+          "sha256": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e"
+        },
+        "engines/scripts/fixed_shipping_alpha.py": {
+          "bytes": 21999,
+          "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "canonical_readable": {
+        "path": "engines/compact/tiny-entry-c/engine.c",
+        "bytes": 26692,
+        "sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b"
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 64
+      },
+      "template_path": "engines/compact/tiny-entry-c/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-c/launcher.sh",
+      "map": {
+        "uint64_t": "M",
+        "Move": "T"
+      },
+      "alias_prefix": "typedef uint64_t M;",
+      "macro_new": "#define MOVE(f,t,p) ((T)(f)|((T)(t)<<7)|((T)(p)<<14))\n",
+      "counts": {
+        "uint64_t": 23,
+        "Move": 20
+      },
+      "eligible_inventory": {
+        "uint64_t": 23,
+        "int16_t": 5,
+        "Move": 20,
+        "zb": 3
+      },
+      "ordinary_roles": [
+        {
+          "start": 304,
+          "end": 308,
+          "old": "Move",
+          "new": "T",
+          "role": "owned-typedef-declarator",
+          "context": "00\ntypedef unsigned Move;typedef struct{int8_t b[128];in"
+        },
+        {
+          "start": 369,
+          "end": 377,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "];int s,c,e,k[2],zL;uint64_t h,r;}za;\n#define FROM(m) ((m)&1"
+        },
+        {
+          "start": 566,
+          "end": 574,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "ruct{atomic_flag zY;uint64_t zP,zA;}zb;typedef struct{int id"
+        },
+        {
+          "start": 613,
+          "end": 617,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "struct{int id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];"
+        },
+        {
+          "start": 621,
+          "end": 629,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "nt id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];int zV;int16"
+        },
+        {
+          "start": 743,
+          "end": 751,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": ";atomic_int stopped;uint64_t deadline,game_keys[HISTORY];int"
+        },
+        {
+          "start": 808,
+          "end": 816,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "_length;za position;uint64_t now(void){struct timespec t;clo"
+        },
+        {
+          "start": 886,
+          "end": 894,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "ONOTONIC,&t);return(uint64_t)t.tv_sec*1000+t.tv_nsec/1000000"
+        },
+        {
+          "start": 1011,
+          "end": 1019,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": ",-16,17,15,-15,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9"
+        },
+        {
+          "start": 1024,
+          "end": 1032,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "5,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9e3779b97f4a7c"
+        },
+        {
+          "start": 1415,
+          "end": 1423,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "rn v>0?m:-m;}static uint64_t H(za*p,int v,int q,int n){int k"
+        },
+        {
+          "start": 1527,
+          "end": 1535,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "s*qm[k];return mix((uint64_t)(q+(v+6)*128));}static uint64_t"
+        },
+        {
+          "start": 1559,
+          "end": 1567,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "(v+6)*128));}static uint64_t R(const za*p){return mix(2048+p"
+        },
+        {
+          "start": 1818,
+          "end": 1822,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "tic int W(const za*,Move*,int,int);int attacked(const za"
+        },
+        {
+          "start": 2410,
+          "end": 2414,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "int make(const za*p,Move m,za*t){int a=FROM(m),d=TO(m),f"
+        },
+        {
+          "start": 2892,
+          "end": 2896,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "rn 1;}static void g(Move*a,int*n,int zJ,int to,int d){in"
+        },
+        {
+          "start": 3063,
+          "end": 3067,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ic int W(const za*p,Move*f,int j,int s){int n=0;for(int "
+        },
+        {
+          "start": 3829,
+          "end": 3833,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "}int gen(const za*p,Move*a){return W(p,a,0,p->s);}void s"
+        },
+        {
+          "start": 4285,
+          "end": 4293,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "pi32(z,z));}\nstatic uint64_t J(uint64_t a,uint64_t f){zb*e=t"
+        },
+        {
+          "start": 4296,
+          "end": 4304,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "}\nstatic uint64_t J(uint64_t a,uint64_t f){zb*e=table+(a&((1"
+        },
+        {
+          "start": 4307,
+          "end": 4315,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "nt64_t J(uint64_t a,uint64_t f){zb*e=table+(a&((1u<<18)-1));"
+        },
+        {
+          "start": 4815,
+          "end": 4819,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ic int l(const za*p,Move m){return p->b[TO(m)]||(abs(p->"
+        },
+        {
+          "start": 4934,
+          "end": 4938,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "a,int d,int f,int n,Move previous,Move*u){if(!o(w))retur"
+        },
+        {
+          "start": 4948,
+          "end": 4952,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "int n,Move previous,Move*u){if(!o(w))return 0;int v=atta"
+        },
+        {
+          "start": 5122,
+          "end": 5126,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": ">h;x|=z>=2||dead(p);Move B[MOVES],zj=0;int L[MOVES],X=ge"
+        },
+        {
+          "start": 5323,
+          "end": 5331,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "return v?-MATE+n:0;}uint64_t zP=p->h^mix(p->r+(unsigned)p->z"
+        },
+        {
+          "start": 5377,
+          "end": 5381,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "d)p->zL),zA=J(zP,0);Move tt=zA&131071;int yl=(int16_t)(z"
+        },
+        {
+          "start": 5673,
+          "end": 5677,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "or(int i=0;i<X;i++){Move m=B[i];int zJ=FROM(m),to=TO(m),"
+        },
+        {
+          "start": 5972,
+          "end": 5976,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "++)if(L[k]>L[j])j=k;Move m=B[j];B[j]=B[i];L[j]=L[i];za q"
+        },
+        {
+          "start": 6870,
+          "end": 6878,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "E+PLY)yl-=n;zA=zj|((uint64_t)(uint16_t)yl<<17)|((uint64_t)(a"
+        },
+        {
+          "start": 6899,
+          "end": 6907,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "(uint16_t)yl<<17)|((uint64_t)(a>0?a:0)<<33)|((uint64_t)zo<<4"
+        },
+        {
+          "start": 6925,
+          "end": 6933,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "_t)(a>0?a:0)<<33)|((uint64_t)zo<<41);J(zP,zA);return zi;}voi"
+        },
+        {
+          "start": 7082,
+          "end": 7090,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": ",game_length*sizeof(uint64_t));for(int a=1;a<=PLY-2;a++){Mov"
+        },
+        {
+          "start": 7119,
+          "end": 7123,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "t a=1;a<=PLY-2;a++){Move d=w->zi;int f=P(w,p,a,-MATE,MAT"
+        },
+        {
+          "start": 7455,
+          "end": 7459,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "g=2,quitting;static Move fallback;static void S(Move m,c"
+        },
+        {
+          "start": 7483,
+          "end": 7487,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "lback;static void S(Move m,char*s){if(!m){strcpy(s,\"0000"
+        },
+        {
+          "start": 7662,
+          "end": 7666,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "PROMO(m)]=0;}static Move G(const za*b,const char*s,za*c)"
+        },
+        {
+          "start": 7699,
+          "end": 7703,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": ",const char*s,za*c){Move a[MOVES];char d[6];int n=gen(b,"
+        },
+        {
+          "start": 7947,
+          "end": 7951,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "B>w->zB)w=workers+i;Move a=w->zi?w->zi:fallback;char d[6"
+        },
+        {
+          "start": 8736,
+          "end": 8744,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "id Q(char*s){za b,c;uint64_t a[HISTORY];int n=1;char*f,*d=st"
+        },
+        {
+          "start": 9071,
+          "end": 9079,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "n*sizeof*a);}static uint64_t F(const char*s){char*e;if(!s||("
+        },
+        {
+          "start": 9232,
+          "end": 9240,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": " void D(char*s){V();uint64_t a=0,d=0,f=0;int i=0;char*j;for("
+        },
+        {
+          "start": 9403,
+          "end": 9411,
+          "old": "uint64_t",
+          "new": "M",
+          "role": "type-name",
+          "context": "strcmp(t+1,\"inc\"))){uint64_t n=F(strtok_r(NULL,\" \\t\\r\\n\",&j)"
+        }
+      ],
+      "protected_type_roles": [
+        {
+          "start": 338,
+          "end": 345,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "truct{int8_t b[128];int16_t x[8];int s,c,e,k[2],zL;uint64_t"
+        },
+        {
+          "start": 582,
+          "end": 584,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": " zY;uint64_t zP,zA;}zb;typedef struct{int id,zB,yl;Mov"
+        },
+        {
+          "start": 656,
+          "end": 663,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "HISTORY+PLY];int zV;int16_t zM[128][128],zw[13][13],zx[1024"
+        },
+        {
+          "start": 701,
+          "end": 703,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "3][13],zx[1024];}zd;zb*table;zd workers[2];atomic_int "
+        },
+        {
+          "start": 1185,
+          "end": 1192,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": ">>31);}static const int16_t qm[8]={0,100,320,330,500,900,0,"
+        },
+        {
+          "start": 4319,
+          "end": 4321,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t64_t a,uint64_t f){zb*e=table+(a&((1u<<18)-1));if(ato"
+        },
+        {
+          "start": 4717,
+          "end": 4724,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "rn 1;}static void E(int16_t*a,int d){*a+=(d-*a*abs(d)/16384"
+        },
+        {
+          "start": 5403,
+          "end": 5410,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t=zA&131071;int yl=(int16_t)(zA>>17),zo=(zA>>41)&3,yz=(zA>>"
+        }
+      ],
+      "protected_type_counts": {
+        "int16_t": 5,
+        "zb": 3
+      },
+      "candidate_source": {
+        "bytes": 10445,
+        "sha256": "d424d14f5cb16d7e6a39383821a70ef96cd6c69bcc99c5a948dc4f5a907546d4"
+      },
+      "insert_offset": 287,
+      "source_delta": -211,
+      "fresh_uppercase_inventory": "MT",
+      "fresh_lowercase_inventory": "",
+      "control_byte_domains": {
+        "main.c": "raw ASCII text; already LF",
+        "bootstrap.py": "raw UTF-8 text; already LF",
+        "native/x": "raw ELF binary; never newline-normalized",
+        "x": "raw shell-plus-ALONE bytes; never newline-normalized"
+      },
+      "late_includes": [
+        {
+          "offset": 4060,
+          "line": "#include <immintrin.h>"
+        }
+      ]
+    },
+    "E": {
+      "family": "E",
+      "baseline": "/home/stemxstudio/rove4k-e-model-structure-normal-20261021",
+      "controls": {
+        "main.c": {
+          "bytes": 11105,
+          "sha256": "b043eae2df9190c07beaad8c6528aa1a76db1173990eefc2f047875118991052"
+        },
+        "native/x": {
+          "bytes": 26416,
+          "sha256": "5ddcd703a963d73403ce43e596430588e7050e548c0e0221976a038afc93d509"
+        },
+        "bootstrap.py": {
+          "bytes": 12170,
+          "sha256": "97912c3325354eafa584f76f6e70469ec99b9b9f4e41ff5c50df7c4496446e77"
+        },
+        "x": {
+          "bytes": 5176,
+          "sha256": "a3a36bdc0de02931b03434e760c983b4d7689ff432229e1c4173d26a6a664db6"
+        }
+      },
+      "ordinary_bindings": {
+        "engines/compact/tiny-a/pack_stream.py": {
+          "bytes": 5444,
+          "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+        },
+        "engines/compact/tiny-a/stitch.py": {
+          "bytes": 3863,
+          "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+        },
+        "engines/compact/tiny-entry-e/bootstrap.py.in": {
+          "bytes": 1072,
+          "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+        },
+        "engines/compact/tiny-entry-e/build.py": {
+          "bytes": 11806,
+          "sha256": "aec247a566da37caacebd955a1f5029c7283f6c97c82701ac3f9209fc4441a80"
+        },
+        "engines/compact/tiny-entry-e/engine.c": {
+          "bytes": 28001,
+          "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+        },
+        "engines/compact/tiny-entry-e/launcher.sh": {
+          "bytes": 77,
+          "sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301"
+        },
+        "engines/compact/tiny-entry-e/model19.h": {
+          "bytes": 2546,
+          "sha256": "3f7e2546c72ed4faf3f1257515777b0f0e530bf52c57b7901eae3f4497be26dc"
+        },
+        "engines/compact/tiny-entry-e/recipe.json": {
+          "bytes": 19329,
+          "sha256": "beb9585972c4cdfc596e1a84aa8a1f94634ddf299d5fa27e3b767f3f9b574c7a"
+        },
+        "engines/compact/tiny-entry-e/shipping_core.py": {
+          "bytes": 8625,
+          "sha256": "efaf9d647d012fe70b8d4a659e9faad7cfd5ced61f7ce73240b0c246fe05673e"
+        },
+        "engines/compact/tiny-entry-e/shipping_model.py": {
+          "bytes": 5071,
+          "sha256": "181c29b2744b7eca72b0514865e975a71f9f141f7ddeae4b60bab7743a4d39e4"
+        },
+        "engines/compact/tiny-entry-e/shipping_scope.py": {
+          "bytes": 8378,
+          "sha256": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5"
+        },
+        "engines/scripts/fixed_input_profile_bce.py": {
+          "bytes": 14637,
+          "sha256": "cc3c82d2e4f77f7231d4bafaac5f446a9aa5c0320762e0902a6f32ecc5a7209e"
+        },
+        "engines/scripts/fixed_shipping_alpha.py": {
+          "bytes": 21999,
+          "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+        },
+        "engines/scripts/minify.py": {
+          "bytes": 6624,
+          "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+        },
+        "engines/scripts/rename_c.py": {
+          "bytes": 12574,
+          "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+        },
+        "engines/scripts/specialize.py": {
+          "bytes": 2386,
+          "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+        }
+      },
+      "canonical_readable": {
+        "path": "engines/compact/tiny-entry-e/engine.c",
+        "bytes": 28001,
+        "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "profile": {
+        "workers": 2,
+        "tt_bits": 18,
+        "ply": 128,
+        "dev_default": false
+      },
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "template_path": "engines/compact/tiny-entry-e/bootstrap.py.in",
+      "prefix_path": "engines/compact/tiny-entry-e/launcher.sh",
+      "map": {
+        "uint64_t": "I",
+        "Move": "T"
+      },
+      "alias_prefix": "typedef uint64_t I;",
+      "macro_new": "#define MOVE(f,t,p) ((T)(f)|((T)(t)<<7)|((T)(p)<<14))\n",
+      "counts": {
+        "uint64_t": 23,
+        "Move": 21
+      },
+      "eligible_inventory": {
+        "uint64_t": 23,
+        "int16_t": 4,
+        "Move": 21,
+        "zb": 3
+      },
+      "ordinary_roles": [
+        {
+          "start": 304,
+          "end": 308,
+          "old": "Move",
+          "new": "T",
+          "role": "owned-typedef-declarator",
+          "context": "00\ntypedef unsigned Move;typedef struct{int8_t b[128];in"
+        },
+        {
+          "start": 360,
+          "end": 368,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "t s,c,e,k[2],zL,v,a;uint64_t h,r;}za;\n#define FROM(m) ((m)&1"
+        },
+        {
+          "start": 557,
+          "end": 565,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "ruct{atomic_flag zY;uint64_t zP,zA;}zb;typedef struct{int id"
+        },
+        {
+          "start": 604,
+          "end": 608,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "struct{int id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];"
+        },
+        {
+          "start": 612,
+          "end": 620,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "nt id,zB,yl;Move zi;uint64_t z4,zQ[HISTORY+PLY];int zV;int16"
+        },
+        {
+          "start": 734,
+          "end": 742,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": ";atomic_int stopped;uint64_t deadline,game_keys[HISTORY];int"
+        },
+        {
+          "start": 799,
+          "end": 807,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "_length;za position;uint64_t now(void){struct timespec t;clo"
+        },
+        {
+          "start": 877,
+          "end": 885,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "ONOTONIC,&t);return(uint64_t)t.tv_sec*1000+t.tv_nsec/1000000"
+        },
+        {
+          "start": 1002,
+          "end": 1010,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": ",-16,17,15,-15,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9"
+        },
+        {
+          "start": 1015,
+          "end": 1023,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "5,-17};uint64_t mix(uint64_t x){x+=UINT64_C(0x9e3779b97f4a7c"
+        },
+        {
+          "start": 1331,
+          "end": 1339,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "(r<4?r:7-r);}static uint64_t piece(za*p,int v,int q,int d){i"
+        },
+        {
+          "start": 1523,
+          "end": 1531,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "-1):0));return mix((uint64_t)(q+(v+6)*128));}static uint64_t"
+        },
+        {
+          "start": 1555,
+          "end": 1563,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "(v+6)*128));}static uint64_t O(const za*p){return mix(2048+p"
+        },
+        {
+          "start": 1822,
+          "end": 1826,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "tic int V(const za*,Move*,int,int);int attacked(const za"
+        },
+        {
+          "start": 2414,
+          "end": 2418,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "int make(const za*p,Move m,za*t){int a=FROM(m),d=TO(m),f"
+        },
+        {
+          "start": 2896,
+          "end": 2900,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "rn 1;}static void g(Move*a,int*n,int zJ,int to,int d){in"
+        },
+        {
+          "start": 3067,
+          "end": 3071,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ic int V(const za*p,Move*f,int j,int s){int n=0;for(int "
+        },
+        {
+          "start": 3833,
+          "end": 3837,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "}int gen(const za*p,Move*a){return V(p,a,0,p->s);}void s"
+        },
+        {
+          "start": 4227,
+          "end": 4231,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ic int R(const za*p,Move m){int d=FROM(m),f=TO(m),i=p->b"
+        },
+        {
+          "start": 4590,
+          "end": 4598,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": ");return s;}\nstatic uint64_t G(uint64_t a,uint64_t f){zb*e=t"
+        },
+        {
+          "start": 4601,
+          "end": 4609,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "}\nstatic uint64_t G(uint64_t a,uint64_t f){zb*e=table+(a&((1"
+        },
+        {
+          "start": 4612,
+          "end": 4620,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "nt64_t G(uint64_t a,uint64_t f){zb*e=table+(a&((1u<<18)-1));"
+        },
+        {
+          "start": 5120,
+          "end": 5124,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ic int l(const za*p,Move m){return p->b[TO(m)]||(abs(p->"
+        },
+        {
+          "start": 5239,
+          "end": 5243,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "a,int d,int f,int n,Move previous,Move*u){if(!o(w))retur"
+        },
+        {
+          "start": 5253,
+          "end": 5257,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "int n,Move previous,Move*u){if(!o(w))return 0;int v=atta"
+        },
+        {
+          "start": 5427,
+          "end": 5431,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": ">h;x|=z>=2||dead(p);Move W[MOVES],zj=0;int X[MOVES],Y=ge"
+        },
+        {
+          "start": 5629,
+          "end": 5637,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "return v?-MATE+n:0;}uint64_t zP=p->h^mix(p->r+(unsigned)p->z"
+        },
+        {
+          "start": 5683,
+          "end": 5687,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "d)p->zL),zA=G(zP,0);Move tt=zA&131071;int yl=(int16_t)(z"
+        },
+        {
+          "start": 5979,
+          "end": 5983,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "or(int i=0;i<Y;i++){Move m=W[i];int zJ=FROM(m),to=TO(m),"
+        },
+        {
+          "start": 6240,
+          "end": 6244,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "++)if(X[k]>X[j])j=k;Move m=W[j];W[j]=W[i];X[j]=X[i];za q"
+        },
+        {
+          "start": 7139,
+          "end": 7147,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "E+PLY)yl-=n;zA=zj|((uint64_t)(uint16_t)yl<<17)|((uint64_t)(a"
+        },
+        {
+          "start": 7168,
+          "end": 7176,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "(uint16_t)yl<<17)|((uint64_t)(a>0?a:0)<<33)|((uint64_t)zo<<4"
+        },
+        {
+          "start": 7194,
+          "end": 7202,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "_t)(a>0?a:0)<<33)|((uint64_t)zo<<41);G(zP,zA);return zi;}voi"
+        },
+        {
+          "start": 7343,
+          "end": 7351,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": ",game_length*sizeof(uint64_t));for(int a=1;a<=PLY-2;a++){Mov"
+        },
+        {
+          "start": 7380,
+          "end": 7384,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "t a=1;a<=PLY-2;a++){Move d=w->zi;int f=M(w,p,a,-MATE,MAT"
+        },
+        {
+          "start": 7720,
+          "end": 7724,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "ady,quitting;static Move fallback;static void P(Move m,c"
+        },
+        {
+          "start": 7748,
+          "end": 7752,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "lback;static void P(Move m,char*s){if(!m){strcpy(s,\"0000"
+        },
+        {
+          "start": 7927,
+          "end": 7931,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "PROMO(m)]=0;}static Move E(const za*b,const char*s,za*c)"
+        },
+        {
+          "start": 7964,
+          "end": 7968,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": ",const char*s,za*c){Move a[MOVES];char d[6];int n=gen(b,"
+        },
+        {
+          "start": 8212,
+          "end": 8216,
+          "old": "Move",
+          "new": "T",
+          "role": "type-name",
+          "context": "B>w->zB)w=workers+i;Move a=w->zi?w->zi:fallback;char d[6"
+        },
+        {
+          "start": 8999,
+          "end": 9007,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "id N(char*s){za b,c;uint64_t a[HISTORY];int n=1;char*f,*d=st"
+        },
+        {
+          "start": 9334,
+          "end": 9342,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "n*sizeof*a);}static uint64_t D(const char*s){char*e;if(!s||("
+        },
+        {
+          "start": 9495,
+          "end": 9503,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": " void B(char*s){U();uint64_t a=0,d=0,f=0;int j=0;char*m;for("
+        },
+        {
+          "start": 9666,
+          "end": 9674,
+          "old": "uint64_t",
+          "new": "I",
+          "role": "type-name",
+          "context": "strcmp(t+1,\"inc\"))){uint64_t n=D(strtok_r(NULL,\" \\t\\r\\n\",&m)"
+        }
+      ],
+      "protected_type_roles": [
+        {
+          "start": 573,
+          "end": 575,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": " zY;uint64_t zP,zA;}zb;typedef struct{int id,zB,yl;Mov"
+        },
+        {
+          "start": 647,
+          "end": 654,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "HISTORY+PLY];int zV;int16_t zM[128][128],zw[13][13],zx[1024"
+        },
+        {
+          "start": 692,
+          "end": 694,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "3][13],zx[1024];}zd;zb*table;zd workers[2];atomic_int "
+        },
+        {
+          "start": 1176,
+          "end": 1183,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": ">>31);}static const int16_t tiny_weights[19]={100,320,330,5"
+        },
+        {
+          "start": 4624,
+          "end": 4626,
+          "old": "zb",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t64_t a,uint64_t f){zb*e=table+(a&((1u<<18)-1));if(ato"
+        },
+        {
+          "start": 5022,
+          "end": 5029,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "rn 1;}static void C(int16_t*a,int d){*a+=(d-*a*abs(d)/16384"
+        },
+        {
+          "start": 5709,
+          "end": 5716,
+          "old": "int16_t",
+          "role": "protected-existing-type-or-owned-typedef",
+          "context": "t=zA&131071;int yl=(int16_t)(zA>>17),zo=(zA>>41)&3,yz=(zA>>"
+        }
+      ],
+      "protected_type_counts": {
+        "int16_t": 4,
+        "zb": 3
+      },
+      "candidate_source": {
+        "bytes": 10891,
+        "sha256": "29f5f760dfade24efa50f4fd2252bbac91b070ad707972ec2b6f19f1f7f99485"
+      },
+      "insert_offset": 287,
+      "source_delta": -214,
+      "fresh_uppercase_inventory": "IT",
+      "fresh_lowercase_inventory": "",
+      "control_byte_domains": {
+        "main.c": "raw ASCII text; already LF",
+        "bootstrap.py": "raw UTF-8 text; already LF",
+        "native/x": "raw ELF binary; never newline-normalized",
+        "x": "raw shell-plus-ALONE bytes; never newline-normalized"
+      },
+      "late_includes": []
+    }
+  }
+}

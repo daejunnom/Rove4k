@@ -105,6 +105,11 @@ develop, hotfix는 원격 main을 사용한다. 대상 parent는 이미 존재�
 하며 link/junction, 기존 디렉터리, 다른 worktree 내부·상위 경로, 기존 로컬/원격 branch는
 자동 채택하지 않는다. 기존 checkout과 미커밋 작업은 변경하지 않는다.
 
+명시적으로 요청된 feature PR 위의 변경은 `--base feature/parent`를 사용한다.
+같은 원격 조회·tracking object·expected SHA 검사를 적용하며, 소유 기록에 부모
+브랜치를 보존한다. PR route 검사는 서로 다른 feature 브랜치 사이의 이 경로를
+허용한다. 일반 feature에서 main으로 향하는 경로는 계속 거절한다.
+
 생성 시 Git common directory의 `rove4k-worktrees/`에 branch digest별 작은 소유 기록을
 독점 생성하고 Git의 worktree lock도 남긴다. 기록의 `reserved`는 생성 중단일 수 있다.
 정상 생성 후에만 `created`로 바꾸며, 실패·중단한 기록과 경로는 자동으로 회수하거나

@@ -30,6 +30,11 @@
 `develop`을 구성하고, 실제 변경은 그 기준의 feature PR로 받는다. 이는 이후 직접
 `main` push 권한을 만들지 않는다.
 
+미병합 PR 위의 독립 변경을 명시적으로 요청받은 경우에는 별도 `feature/*`에서 해당
+PR의 `feature/*`를 대상으로 stacked PR을 만든다. 부모 PR의 source SHA를 확인하고
+`start --base feature/parent`로 기준을 지정한다. 부모 브랜치를 직접 수정하지 않으며,
+부모 통합 후 실제 merge base를 확인하여 대상 변경과 필요한 통합을 진행한다.
+
 작업 시작은 `npm run repo -- status --remote-check`로 읽기 전용 상태를 확인할 수 있다.
 새 격리 worktree는 `npm run repo -- start`의 계획을 먼저 보고 명시적으로 생성한다.
 구체 명령과 소유 기록은 [수명주기 문서](docs/REPOSITORY-LIFECYCLE.md)에 설명한다.

@@ -7,6 +7,12 @@ implementation is being designed. This monorepo contains the engine's common
 engineering contracts and **[NVCompact](tools/nvcompact/README.md)**, its internal
 Rust tool for native linking, compression portfolios and submission verification.
 
+The [A–F implementation plan](docs/ENGINE-PLAN.ko.md) covers independent C and
+Rust candidates, candidate-specific search/evaluation and complete submission
+artifacts. [Implementation checkpoints](docs/ENGINE-IMPLEMENTATION.md) distinguish
+working code, size eligibility, target execution and measured performance.
+Training and AWS connections are excluded from the current implementation run.
+
 NVCompact means **N-version compaction**: compare independently declared
 implementations and representation/packing variants, then retain the smallest
 complete artifact that meets the selected contract. It is a development tool;

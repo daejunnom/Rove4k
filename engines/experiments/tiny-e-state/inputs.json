@@ -1,0 +1,107 @@
+{
+  "engines/compact/tiny-ce/build.py": {
+    "bytes": 10506,
+    "sha256": "a0061edc3fae4fd0470a0999c6924a8afde94e2e375fde8d82a291a4bb503b20"
+  },
+  "engines/compact/tiny-ce/generate.py": {
+    "bytes": 4360,
+    "sha256": "a10fca3f1c4482f9c8e38c82656cdee1b8d18a3183536b5ec057a0e213504f2b"
+  },
+  "engines/compact/tiny-ce/c-eval.c.in": {
+    "bytes": 1876,
+    "sha256": "44ab63b267a69feb2eedf3d55206c6dac51c22b641f4c298373e7a572c35b431"
+  },
+  "engines/compact/tiny-ce/e-eval.c.in": {
+    "bytes": 2105,
+    "sha256": "b19e93f6fe8bbe678542275c6d19058aed9e942a04d11b257e81068444d79850"
+  },
+  "engines/compact/tiny-ce/frozen.json": {
+    "bytes": 876,
+    "sha256": "44883f24163b6910660cface4ea55ff8d1900b6fd53d91b9775f50d42226b330"
+  },
+  "engines/compact/tiny-ce/core/provenance.json": {
+    "bytes": 1503,
+    "sha256": "e751477788f471f0ec9650deb40a66f3c2423acd95a6a46b8c17f504de7d8520",
+    "eol_equivalence": {
+      "normalization": "CRLF_to_LF_only",
+      "normalized_identity": {
+        "bytes": 1462,
+        "sha256": "a996e15e0babc0181215b63e74a55ba675705dbc8df0cbecbb14209de135659a"
+      },
+      "original_crlf_count": 41,
+      "verified_lf_variant": {
+        "bytes": 1462,
+        "sha256": "a996e15e0babc0181215b63e74a55ba675705dbc8df0cbecbb14209de135659a",
+        "crlf_count": 0
+      }
+    }
+  },
+  "engines/compact/tiny-ce/core/tiny.h": {
+    "bytes": 2021,
+    "sha256": "e209d37be5c1a8b320c45de87944ed3dc55b8c006713834ad4fd1cfb5eeae19d"
+  },
+  "engines/compact/tiny-ce/core/board.c": {
+    "bytes": 8459,
+    "sha256": "d96f3981b46c13ae152da97ecf884c0a35d81081cd3b242c659ffe39b2d74235"
+  },
+  "engines/compact/tiny-ce/core/search.c": {
+    "bytes": 6269,
+    "sha256": "87bec413c4dcbccafd1b9c48e2a4ae878caae11747caf942f36a1036e88c7fb8"
+  },
+  "engines/compact/tiny-ce/core/main.c": {
+    "bytes": 8699,
+    "sha256": "46e31d2cd761cab09afe537af82cec1e6941eb96bdd72b9d4455ea47ca5c6b63"
+  },
+  "engines/compact/tiny-ce/check.py": {
+    "bytes": 11272,
+    "sha256": "9315a91279971c01b6ea54458226941b66b87b01eec5c2d658566f0b314c5e4b"
+  },
+  "engines/compact/tiny-ce/restoration.py": {
+    "bytes": 4582,
+    "sha256": "ed141efb0bb757598037619dba6a03f75dde18d4204ed10701c2ce771b2a839e"
+  },
+  "engines/scripts/minify.py": {
+    "bytes": 6624,
+    "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+  },
+  "engines/scripts/specialize.py": {
+    "bytes": 2386,
+    "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+  },
+  "engines/scripts/pack.py": {
+    "bytes": 7241,
+    "sha256": "f95a9166f8fc018e4250999fa60c10568fa2ef3388b704a1fdfab9802bef5083"
+  },
+  "engines/compact/tiny-a/stitch.py": {
+    "bytes": 3863,
+    "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+  },
+  "engines/compact/tiny-a/pack_single.py": {
+    "bytes": 3787,
+    "sha256": "0d7463f7b7ea4b6ff411ad81ea5efdc70828a24a6f9a305f5bf7be3c9d43b5ff"
+  },
+  "engines/compact/tiny-a/pack_stream.py": {
+    "bytes": 5444,
+    "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+  },
+  "engines/tests/verify.py": {
+    "bytes": 45921,
+    "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+  },
+  "engines/tests/chess_oracle.py": {
+    "bytes": 10730,
+    "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+  },
+  "engines/model/reference.py": {
+    "bytes": 7546,
+    "sha256": "5620036d9a4ee50554e96ae5f6b5595150138854f5c1fd822149dba58be0f035"
+  },
+  "engines/model/codec.py": {
+    "bytes": 7598,
+    "sha256": "f232a3e9242a32ad6ec3fbb6348516123718efcfeca1799e4b9134be895a46c4"
+  },
+  "engines/model/frozen.json": {
+    "bytes": 876,
+    "sha256": "44883f24163b6910660cface4ea55ff8d1900b6fd53d91b9775f50d42226b330"
+  }
+}

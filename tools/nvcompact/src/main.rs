@@ -1,8 +1,8 @@
 use anyhow::{bail, ensure, Context, Result};
 use clap::{Args, Parser, Subcommand};
 use nvcompact::{
-    advice_profile, advisor, artifact_advice, attempts, cflow, csource, envelope, native, notation,
-    process, resource, uci, write_json,
+    advice_profile, advisor, artifact_advice, attempts, ccleanup, cflow, csource, envelope, native,
+    notation, process, resource, uci, write_json,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -34,6 +34,8 @@ enum Command {
     RewriteC(RewriteArgs),
     /// Generate unranked C local-name and typed literal candidates; no target execution.
     SpellC(SpellArgs),
+    /// Prove C/C++ unused include/free-function candidates; no target execution.
+    CleanupSource(CleanupArgs),
     /// Report C constants, unused symbols and use-site ranges. Never rewrites compression inputs.
     AdviseC(AdviceArgs),
     /// Analyze an explicit C, C++ or Rust scalar subset; other languages are unsupported.
@@ -188,6 +190,29 @@ struct SpellArgs {
     names_per_group: usize,
     #[arg(long)]
     portfolio: Option<PathBuf>,
+}
+#[derive(Args)]
+struct CleanupArgs {
+    source: PathBuf,
+    /// Explicit supported subset: c or cpp. Rust/Python are unsupported.
+    #[arg(long)]
+    language: String,
+    #[arg(long, default_value = "clang")]
+    clang: String,
+    #[arg(long)]
+    standard: Option<String>,
+    #[arg(long = "compiler-arg", allow_hyphen_values = true)]
+    compiler_args: Vec<String>,
+    #[arg(long, default_value = "opaque")]
+    token_contract: String,
+    #[arg(long, default_value_t = 64)]
+    max_candidates: usize,
+    #[arg(long)]
+    portfolio: Option<PathBuf>,
+    #[arg(long, requires = "variant")]
+    output: Option<PathBuf>,
+    #[arg(long, requires = "output")]
+    variant: Option<String>,
 }
 #[derive(Args)]
 struct AdviceArgs {
@@ -715,6 +740,46 @@ fn dispatch(command: Command) -> Result<(Value, bool)> {
             Ok((
                 json!({"variants":variants,"source_sha256":nvcompact::sha256(&original),
                 "scope":"unranked candidates; envelope source_search adds whole-file cost and structural/native admission"}),
+                true,
+            ))
+        }
+        Command::CleanupSource(args) => {
+            let mut options = ccleanup::CleanupOptions {
+                language: args.language.clone(),
+                frontend: cflow::CFlowOptions {
+                    clang: args.clang,
+                    standard: args.standard.unwrap_or_else(|| {
+                        if args.language == "cpp" {
+                            "c++17".into()
+                        } else {
+                            "c11".into()
+                        }
+                    }),
+                    compiler_args: args.compiler_args,
+                    source_path: None,
+                    token_contract: args.token_contract,
+                    ..Default::default()
+                },
+                max_candidates: args.max_candidates,
+                ..Default::default()
+            };
+            options.validate()?;
+            let original = source(&args.source)?;
+            options.frontend.source_path = Some(args.source.canonicalize()?);
+            let variants = ccleanup::generate_variants(&original, &options)?;
+            if let Some(path) = &args.portfolio {
+                portfolio(path, &variants, &args.language)?;
+            }
+            if let Some(path) = &args.output {
+                let selected = variants
+                    .iter()
+                    .find(|v| Some(&v.id) == args.variant.as_ref())
+                    .context("requested cleanup candidate unavailable")?;
+                new_file(path, &selected.data)?;
+            }
+            Ok((
+                json!({"variants":variants,"source_sha256":nvcompact::sha256(&original),
+                "scope":"unranked source-proven candidates; C envelope source_search.cleanup adds whole-file cost, actual compiler diagnostics/native identity and replay; C++ cleanup is this explicit subset only"}),
                 true,
             ))
         }

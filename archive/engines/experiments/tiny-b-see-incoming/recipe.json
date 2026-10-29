@@ -1,0 +1,339 @@
+{
+  "format": 1,
+  "family": "B",
+  "scope": "one incoming-Move exact SEE composition first cost",
+  "baseline": "/home/stemxstudio/rove4k-private-names-normal-B-20261020",
+  "canonical": "engines/compact/tiny-entry-b/engine.c",
+  "canonical_pin": {
+    "bytes": 28953,
+    "sha256": "1f879828346dfbc6023f6abfbbf1e1d2062e8e2dc0e9919aade254ba7a0a97f6"
+  },
+  "normal_input_pins": {
+    "main.c": {
+      "bytes": 12220,
+      "sha256": "daa9ca6e03260320c13a0a551a0c2586ed53d24d49ebba74f87b57b57814ba9f"
+    },
+    "native/x": {
+      "bytes": 26424,
+      "sha256": "ade0b5deba75dea772026018b60300fc5d9d3d02b58141965549384884de3694"
+    },
+    "bootstrap.py": {
+      "bytes": 13285,
+      "sha256": "df45f762e3ffff0db68cf51229f0a90e6789d03c85702d3a35b81fbc78c1119b"
+    },
+    "x": {
+      "bytes": 5558,
+      "sha256": "798688b2e4396367e9a64baeb407941ba28bd47f15f6a2400c875abde2b6db32"
+    },
+    "build.json": {
+      "bytes": 30128,
+      "sha256": "45ad37af4ac3702a6ae9cea7989fabd85d46d143d3859ea38c089eaa79077004"
+    },
+    "inputs/build.py": {
+      "bytes": 10338,
+      "sha256": "fb2fcbb892e9bb99bc8e2c858a6fa24848ca9b041b1f0f1fc6cc7ba50dda7f1e"
+    },
+    "inputs/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "inputs/recipe.json": {
+      "bytes": 7902,
+      "sha256": "836ce04a707a766c0b416148f2981db97ef9870a0d174f0d4ade5f5344500199"
+    }
+  },
+  "owned_executable_pins": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "build.py": {
+      "bytes": 6693,
+      "sha256": "341012cc4394837084eb81b6a28df957d5cbeddaf8a2dbd59b2f206138b001e5"
+    },
+    "transform.py": {
+      "bytes": 7653,
+      "sha256": "02e2c95949cb8e7486a52ab1099677d7ab09ffd043c14789b2d11c6cba8a93ad"
+    }
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 32
+  },
+  "candidate": {
+    "bytes": 12148,
+    "sha256": "6c9081115f5caf209cacc502e19035247a3178aef86c4912fb3a923a651904ce"
+  },
+  "proposal_metadata_only": {
+    "bytes": 12301,
+    "sha256": "0c53e4a53f8b5b44d302eaec849563abf842cef8b080b8f88a829c6757119c53"
+  },
+  "fragment_domain": {
+    "readable_old": {
+      "identity": {
+        "bytes": 1485,
+        "sha256": "06832a1f95ccddac3e31387ab44b35e12e078211ad620526aeb2ab8ce9169b84"
+      },
+      "identifier_counts": {
+        "Board": 4,
+        "COUNT": 2,
+        "Exchange": 2,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 1,
+        "PROMO": 2,
+        "SEE_INCOMPLETE": 1,
+        "TO": 3,
+        "Worker": 1,
+        "__builtin_ctzll": 1,
+        "abs": 3,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "attackers": 1,
+        "b": 4,
+        "best": 4,
+        "candidates": 5,
+        "capture": 2,
+        "complete": 3,
+        "const": 2,
+        "continue": 1,
+        "deadline": 2,
+        "e": 8,
+        "exchange": 3,
+        "for": 1,
+        "from": 3,
+        "gain": 7,
+        "i": 3,
+        "if": 8,
+        "int": 9,
+        "m": 9,
+        "make": 2,
+        "material": 4,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 12,
+        "promotion": 3,
+        "return": 6,
+        "s": 1,
+        "see": 1,
+        "see_calls": 1,
+        "see_incomplete": 1,
+        "static": 2,
+        "stopped": 2,
+        "t": 6,
+        "target": 7,
+        "uint64_t": 1,
+        "visits": 1,
+        "w": 3,
+        "while": 1,
+        "z": 6
+      }
+    },
+    "readable_new": {
+      "identity": {
+        "bytes": 1085,
+        "sha256": "56cb2aea9345bef6fc566bf30bcaee7cf4385dfb01e4250a8f50285780a48c73"
+      },
+      "identifier_counts": {
+        "Board": 3,
+        "COUNT": 2,
+        "Exchange": 2,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 2,
+        "PROMO": 2,
+        "SEE_INCOMPLETE": 1,
+        "TO": 1,
+        "Worker": 1,
+        "__builtin_ctzll": 1,
+        "abs": 2,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "attackers": 1,
+        "b": 3,
+        "best": 4,
+        "candidates": 5,
+        "capture": 1,
+        "complete": 3,
+        "const": 2,
+        "deadline": 2,
+        "e": 8,
+        "exchange": 3,
+        "for": 1,
+        "from": 3,
+        "gain": 6,
+        "i": 3,
+        "if": 7,
+        "int": 9,
+        "m": 8,
+        "make": 1,
+        "material": 2,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 7,
+        "promotion": 3,
+        "return": 6,
+        "s": 1,
+        "score": 3,
+        "see": 1,
+        "see_calls": 1,
+        "see_incomplete": 1,
+        "static": 2,
+        "stopped": 2,
+        "t": 6,
+        "target": 7,
+        "uint64_t": 1,
+        "visits": 1,
+        "w": 3,
+        "while": 1,
+        "z": 4
+      }
+    },
+    "shipping_old": {
+      "identity": {
+        "bytes": 711,
+        "sha256": "b14d22e98583863746b28c8f8be97e343efc8319eb666f93ed2352292e32573e"
+      },
+      "identifier_counts": {
+        "D": 3,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 1,
+        "PROMO": 2,
+        "Q": 1,
+        "SEE_INCOMPLETE": 1,
+        "TO": 3,
+        "__builtin_ctzll": 1,
+        "a": 8,
+        "abs": 3,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "b": 4,
+        "const": 2,
+        "continue": 1,
+        "d": 5,
+        "e": 8,
+        "f": 3,
+        "for": 1,
+        "i": 3,
+        "if": 8,
+        "int": 9,
+        "j": 3,
+        "l": 1,
+        "m": 9,
+        "make": 2,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 12,
+        "qc": 2,
+        "qi": 4,
+        "qp": 2,
+        "return": 6,
+        "s": 1,
+        "static": 2,
+        "t": 6,
+        "uint64_t": 1,
+        "w": 1,
+        "while": 1,
+        "y": 2,
+        "yA": 1,
+        "yv": 7,
+        "z": 6,
+        "zJ": 3,
+        "za": 4,
+        "zc": 2,
+        "zd": 1,
+        "zv": 3
+      }
+    },
+    "shipping_new": {
+      "identity": {
+        "bytes": 639,
+        "sha256": "d65866537c0308c5703bf51eeda5adf0d9c1fe06605d468ee630efd56ae37411"
+      },
+      "identifier_counts": {
+        "D": 3,
+        "MATE": 1,
+        "MOVE": 1,
+        "Move": 2,
+        "PROMO": 2,
+        "Q": 1,
+        "SEE_INCOMPLETE": 1,
+        "TO": 1,
+        "__builtin_ctzll": 1,
+        "a": 6,
+        "abs": 2,
+        "atomic_load_explicit": 1,
+        "atomic_store": 1,
+        "b": 3,
+        "const": 2,
+        "d": 5,
+        "e": 8,
+        "f": 3,
+        "for": 1,
+        "i": 3,
+        "if": 7,
+        "int": 9,
+        "j": 7,
+        "l": 1,
+        "m": 8,
+        "make": 1,
+        "memory_order_relaxed": 1,
+        "now": 2,
+        "p": 7,
+        "qc": 2,
+        "qi": 2,
+        "qp": 2,
+        "return": 6,
+        "s": 1,
+        "static": 2,
+        "t": 6,
+        "uint64_t": 1,
+        "w": 1,
+        "while": 1,
+        "y": 1,
+        "yA": 1,
+        "yv": 7,
+        "z": 4,
+        "zJ": 3,
+        "za": 3,
+        "zc": 2,
+        "zd": 1,
+        "zv": 3
+      }
+    },
+    "readable_candidate": {
+      "bytes": 28553,
+      "sha256": "1c5917a22d3442d38c735a9e7e7b284bf3b5b233ae16507ad3277e1bcd4997c9"
+    }
+  }
+}

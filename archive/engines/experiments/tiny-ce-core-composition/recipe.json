@@ -1,0 +1,321 @@
+{
+  "format": 1,
+  "source_head": "9e2a15235fdc5d79fbe9a43be97eeabdb4833f89",
+  "scope": "one current-names plus fixed-codec four-decision core composition per family",
+  "tracked_inputs": {
+    "engines/compact/tiny-entry-c/engine.c": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+    "engines/compact/tiny-entry-c/recipe.json": "53e838ba06ce7b89f45f4b343f2305e188d9909cfd7473d32c7e9b5db15d4917",
+    "engines/compact/tiny-entry-c/build.py": "987a065045752e1c7babd6171499ff9cbf0512224e0e1de677babfccd77bf88e",
+    "engines/compact/tiny-entry-c/bootstrap.py.in": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+    "engines/compact/tiny-entry-c/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "engines/compact/tiny-entry-c/shipping_scope.py": "a3f845c870cb5b8d935254172f1f5a78afa34281ea15396278a78ed165fc3a03",
+    "engines/compact/tiny-entry-e/engine.c": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+    "engines/compact/tiny-entry-e/recipe.json": "b3dbd885eba1c70041573abc44c54ad99b8cf89302adf96ce4ca1b081844c1b8",
+    "engines/compact/tiny-entry-e/build.py": "ef9ce772f159fe2d7eb996aae1de2074f479298856a70a03b9dde7b39dbf9e56",
+    "engines/compact/tiny-entry-e/bootstrap.py.in": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc",
+    "engines/compact/tiny-entry-e/launcher.sh": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+    "engines/compact/tiny-entry-e/shipping_scope.py": "0cf6528760d8c5b2bbc3ef56ea8dfccdd67af619b671a82927287a2f1ce18fa5",
+    "engines/scripts/minify.py": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b",
+    "engines/scripts/rename_c.py": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5",
+    "engines/compact/tiny-a/pack_stream.py": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e",
+    "engines/experiments/tiny-source-codec/decode.py": "c43303b6524321b24dfba069afc9a135998e408503740ea8d9fbcfb9bb5e9f5a"
+  },
+  "families": {
+    "C": {
+      "canonical_path": "engines/compact/tiny-entry-c/engine.c",
+      "canonical_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+      "expected": {
+        "readable_sha256": "15999279c5bd4690db7129bda032c6b5962acbd814236719cda40755ae31794b",
+        "source_bytes": 11455,
+        "source_sha256": "f70cd11e8cdd1a3d2503255189e80ca9070cf310777d2ff8a89ec9beff732f82",
+        "native_bytes": 26384,
+        "native_sha256": "6c1f83b9921561d605eff90032d4ebb300cde46bc9166e361d6b55c22dc1af09",
+        "whole_bytes": 5395,
+        "whole_sha256": "206a9f1cb116040eb322397a15713defc094f3e567008983ea68101f433feaf4",
+        "bootstrap_sha256": "a02f4b0e2441217d3591e5ee5a80ad7c53275c72311bdf6398bd80dc740703e9",
+        "dev_source_sha256": "c6497c472b243b03cb19ab727b42a189a8be556d818e39d9bf7b74684daaa140",
+        "dev_native_sha256": "5d481d97e7213d9ddad3d0419c0895176be726bfe4e9a1b18ef6c963ba43de7c"
+      },
+      "baseline_files": {
+        "source": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-compose-v2-20261020/C/candidate.c",
+          "bytes": 11455,
+          "sha256": "f70cd11e8cdd1a3d2503255189e80ca9070cf310777d2ff8a89ec9beff732f82"
+        },
+        "native": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-combined-native-20261020/C/x",
+          "bytes": 26384,
+          "sha256": "6c1f83b9921561d605eff90032d4ebb300cde46bc9166e361d6b55c22dc1af09"
+        },
+        "bootstrap": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/C/bootstrap.py",
+          "bytes": 12530,
+          "sha256": "a02f4b0e2441217d3591e5ee5a80ad7c53275c72311bdf6398bd80dc740703e9"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-tiny-source-codec-BCE-static-locals-20261020/C/x",
+          "bytes": 5395,
+          "sha256": "206a9f1cb116040eb322397a15713defc094f3e567008983ea68101f433feaf4"
+        }
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-mavx2",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 64
+      },
+      "template": "engines/compact/tiny-entry-c/bootstrap.py.in",
+      "prefix": "engines/compact/tiny-entry-c/launcher.sh",
+      "candidate_canonical_sha256": "e523b22bf0e0a9a8b0e729ea1f8fe0c7e5512ab8f6b5d6a0d8805cf0fa92b5f1",
+      "candidate_shipping_sha256": "68ad43dec85adcfff6e65bba0f457738e33ff545d786d43c3c3a7b53e618f02c",
+      "rules": [
+        {
+          "label": "TT probe two-argument signature",
+          "canonical_before": "probe(uint64_t key,int write,uint64_t data)",
+          "canonical_after": "probe(uint64_t key,uint64_t data)",
+          "shipping_before": "J(uint64_t a,int d,uint64_t f)",
+          "shipping_after": "J(uint64_t a,uint64_t f)"
+        },
+        {
+          "label": "nonzero store sentinel",
+          "canonical_before": "if(write)e->key=key,e->data=data;",
+          "canonical_after": "if(data)e->key=key,e->data=data;",
+          "shipping_before": "if(d)e->zP=a,e->zA=f;",
+          "shipping_after": "if(f)e->zP=a,e->zA=f;"
+        },
+        {
+          "label": "TT read caller",
+          "canonical_before": "data=probe(key,0,0);",
+          "canonical_after": "data=probe(key,0);",
+          "shipping_before": "zA=J(zP,0,0);",
+          "shipping_after": "zA=J(zP,0);"
+        },
+        {
+          "label": "TT write caller",
+          "canonical_before": "probe(key,1,data);return best;",
+          "canonical_after": "probe(key,data);return best;",
+          "shipping_before": "J(zP,1,zA);return zi;",
+          "shipping_after": "J(zP,zA);return zi;"
+        },
+        {
+          "label": "consumed selection prefix",
+          "canonical_before": "        Move m=moves[j];moves[j]=moves[i];moves[i]=m;\n        int t=scores[j];scores[j]=scores[i];scores[i]=t;\n",
+          "canonical_after": "        Move m=moves[j];moves[j]=moves[i];scores[j]=scores[i];\n",
+          "shipping_before": "Move m=B[j];B[j]=B[i];B[i]=m;int t=L[j];L[j]=L[i];L[i]=t;",
+          "shipping_after": "Move m=B[j];B[j]=B[i];L[j]=L[i];"
+        },
+        {
+          "label": "inactive outer evaluation clamp",
+          "canonical_before": "    if(evaluation>MATE-PLY-1)evaluation=MATE-PLY-1;\n    if(evaluation< -MATE+PLY+1)evaluation=-MATE+PLY+1;\n",
+          "canonical_after": "",
+          "shipping_before": "if(zF>MATE-PLY-1)zF=MATE-PLY-1;if(zF< -MATE+PLY+1)zF=-MATE+PLY+1;",
+          "shipping_after": ""
+        },
+        {
+          "label": "zero-order function",
+          "canonical_before": "static int tiny_order(const Board *p,Move m){(void)p;(void)m;return 0;}\n",
+          "canonical_after": "",
+          "shipping_before": "static int T(const za*p,Move m){(void)p;(void)m;return 0;}",
+          "shipping_after": ""
+        },
+        {
+          "label": "zero-order call",
+          "canonical_before": "        scores[i]+=tiny_order(p,m);\n",
+          "canonical_after": "",
+          "shipping_before": "L[i]+=T(p,m);",
+          "shipping_after": ""
+        }
+      ],
+      "semantic_domain": {
+        "workers": 2,
+        "tt_bits": 18,
+        "PLY": 128,
+        "MATE": 30000,
+        "outer_threshold": 29871,
+        "raw_abs_upper": 29120,
+        "normal_side": [
+          -1,
+          1
+        ],
+        "production_TT_store_bound": [
+          1,
+          2,
+          3
+        ],
+        "bound_shift": 41,
+        "TT_depth_comparison": "at least requested",
+        "C_actual_AVX2_preserved": true,
+        "E_inner_clamp_and_21_coefficients_preserved": false,
+        "query_startup_reset_changes_added": false,
+        "DEV_generated": false
+      }
+    },
+    "E": {
+      "canonical_path": "engines/compact/tiny-entry-e/engine.c",
+      "canonical_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+      "expected": {
+        "readable_bytes": 28001,
+        "readable_sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712",
+        "source_bytes": 11803,
+        "source_sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa",
+        "native_bytes": 26360,
+        "native_sha256": "500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0",
+        "whole_bytes": 5400,
+        "whole_sha256": "7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2",
+        "bootstrap_sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c",
+        "dev_source_bytes": 21314,
+        "dev_source_sha256": "c9992eba91da7f74d4bfba2360679b99945e4faf46fe8d0a34d0f8aca65a4b06",
+        "dev_native_bytes": 31376,
+        "dev_native_sha256": "2ecaae71df819d4457ab7aa14ec7e106292785a78e75ea06c5a3bbc433210094"
+      },
+      "baseline_files": {
+        "source": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-compose-v2-20261020/E/candidate.c",
+          "bytes": 11803,
+          "sha256": "acd417f903ada227092b0ba371d6ad960ab80b4925ab64633b9b8a2774a9b3aa"
+        },
+        "native": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-combined-native-20261020/E/x",
+          "bytes": 26360,
+          "sha256": "500ccb26bc366c129c77720d9229caac99ae9777d0148a1cc25da4a0fd6552d0"
+        },
+        "bootstrap": {
+          "path": "/home/stemxstudio/rove4k-private-function-names-combined-bootstrap-v2-20261020/E/bootstrap.py",
+          "bytes": 12868,
+          "sha256": "dc65f22b293a451ca1d333f8782d206bd0555b2b1b2c58af5f53c978ad64990c"
+        },
+        "whole": {
+          "path": "/home/stemxstudio/rove4k-tiny-source-codec-BCE-static-locals-20261020/E/x",
+          "bytes": 5400,
+          "sha256": "7a04e3d2fac68c4fdca62b6c1fd6e3e71b58da0add25a2b452ab08870d496ec2"
+        }
+      },
+      "compiler": [
+        "cc",
+        "-std=c11",
+        "-Os",
+        "-pthread",
+        "-DWORKERS=2",
+        "-DTT_BITS=18",
+        "-DDEV=0",
+        "-x",
+        "c",
+        "-",
+        "-o",
+        "x"
+      ],
+      "compression": {
+        "format": "lzma-alone",
+        "filter": "LZMA1",
+        "preset": 9,
+        "extreme": true,
+        "lc": 2,
+        "lp": 0,
+        "pb": 0,
+        "check": "NONE",
+        "mf": "BT4",
+        "dictionary_bytes": 67108864,
+        "nice_len": 32
+      },
+      "template": "engines/compact/tiny-entry-e/bootstrap.py.in",
+      "prefix": "engines/compact/tiny-entry-e/launcher.sh",
+      "candidate_canonical_sha256": "276ec6aedc39f6ddc25db96c876ce43dc9917fe953e81f530ed12e6a35437042",
+      "candidate_shipping_sha256": "d3368da33e992e3abdc3bbcab8917edaff8ef751fe7948d11364251a5f6f9ff8",
+      "rules": [
+        {
+          "label": "TT probe two-argument signature",
+          "canonical_before": "probe(uint64_t key,int write,uint64_t data)",
+          "canonical_after": "probe(uint64_t key,uint64_t data)",
+          "shipping_before": "G(uint64_t a,int d,uint64_t f)",
+          "shipping_after": "G(uint64_t a,uint64_t f)"
+        },
+        {
+          "label": "nonzero store sentinel",
+          "canonical_before": "if(write)e->key=key,e->data=data;",
+          "canonical_after": "if(data)e->key=key,e->data=data;",
+          "shipping_before": "if(d)e->zP=a,e->zA=f;",
+          "shipping_after": "if(f)e->zP=a,e->zA=f;"
+        },
+        {
+          "label": "TT read caller",
+          "canonical_before": "data=probe(key,0,0);",
+          "canonical_after": "data=probe(key,0);",
+          "shipping_before": "zA=G(zP,0,0);",
+          "shipping_after": "zA=G(zP,0);"
+        },
+        {
+          "label": "TT write caller",
+          "canonical_before": "probe(key,1,data);return best;",
+          "canonical_after": "probe(key,data);return best;",
+          "shipping_before": "G(zP,1,zA);return zi;",
+          "shipping_after": "G(zP,zA);return zi;"
+        },
+        {
+          "label": "consumed selection prefix",
+          "canonical_before": "        Move m=moves[j];moves[j]=moves[i];moves[i]=m;\n        int t=scores[j];scores[j]=scores[i];scores[i]=t;\n",
+          "canonical_after": "        Move m=moves[j];moves[j]=moves[i];scores[j]=scores[i];\n",
+          "shipping_before": "Move m=W[j];W[j]=W[i];W[i]=m;int t=X[j];X[j]=X[i];X[i]=t;",
+          "shipping_after": "Move m=W[j];W[j]=W[i];X[j]=X[i];"
+        },
+        {
+          "label": "inactive outer evaluation clamp",
+          "canonical_before": "    if(evaluation>MATE-PLY-1)evaluation=MATE-PLY-1;\n    if(evaluation< -MATE+PLY+1)evaluation=-MATE+PLY+1;\n",
+          "canonical_after": "",
+          "shipping_before": "if(zF>MATE-PLY-1)zF=MATE-PLY-1;if(zF< -MATE+PLY+1)zF=-MATE+PLY+1;",
+          "shipping_after": ""
+        }
+      ],
+      "semantic_domain": {
+        "workers": 2,
+        "tt_bits": 18,
+        "PLY": 128,
+        "MATE": 30000,
+        "outer_threshold": 29871,
+        "raw_abs_upper": 20000,
+        "normal_side": [
+          -1,
+          1
+        ],
+        "production_TT_store_bound": [
+          1,
+          2,
+          3
+        ],
+        "bound_shift": 41,
+        "TT_depth_comparison": "at least requested",
+        "C_actual_AVX2_preserved": false,
+        "E_inner_clamp_and_21_coefficients_preserved": true,
+        "query_startup_reset_changes_added": false,
+        "DEV_generated": false
+      }
+    }
+  },
+  "baseline_artifact_copies": 0,
+  "baseline_compiles": 0,
+  "C_AST_runs": 0,
+  "native_limit_per_family": 1,
+  "compression_limit_per_family": 1,
+  "runtime_authorized": false
+}

@@ -1,0 +1,274 @@
+{
+  "format": 1,
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev": 0
+  },
+  "target": "Linux x86-64 raw syscall static native plus admitted fixed-layout own-ELF",
+  "native_source_sha256": {
+    "native/tiny.h": "e19749eb3315253e04171b89b8188df7e0db6b39ec4eb495187a6e158836823f",
+    "native/board.c": "3f04fedb7e449e69b47ac6f2b36eb89ebe193726ac5970b0ae3a4b28008e12dc",
+    "native/search.c": "48e0f21fee8091f1e5c5d08d606740f6ff8c56778a550af2bcfc282d655d974c",
+    "native/runtime.c": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+    "native/hq.h": "ad66a03cef5288010c4377b81ee3661320195545aee6c664a42d3828bfc8b412",
+    "native/hq.c": "50b246280ac1f0b9e1f20834f302b31e30221101abd979bbdc146fcae7c12b5f",
+    "native/start.S": "4a6021518cfe67bee9e42806b596f4f0837e3e93487b1acfa115158ea019ba5b",
+    "native/image.ld": "38756c865914b52432572864446fcc58b791dfb508af8a33156d5c190c01044b"
+  },
+  "loader_source_sha256": {
+    "loader/loader.c": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+    "loader/image.ld": "93934099212b944b20c2f7840ee87e4817311c4f87fddbb2b3f91db28776cf99",
+    "loader/codec.py": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866"
+  },
+  "native_flags": [
+    "-Oz",
+    "-std=c11",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-stack-protector",
+    "-fno-builtin",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-flto"
+  ],
+  "loader_flags": [
+    "-Oz",
+    "-flto",
+    "-nostdlib",
+    "-static",
+    "-no-pie",
+    "-fno-pie",
+    "-fno-pic",
+    "-fno-builtin",
+    "-fno-stack-protector",
+    "-fno-asynchronous-unwind-tables",
+    "-fno-unwind-tables",
+    "-fno-ident",
+    "-fcf-protection=none",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-Wl,--gc-sections,--build-id=none,-s,-z,noexecstack"
+  ],
+  "native_units": [
+    "board.c",
+    "search.c",
+    "runtime.c",
+    "hq.c",
+    "start.S"
+  ],
+  "codec": "BCJ e8/e9 then one-final-fixed-Huffman Deflate; unchanged fixed_compress implementation; no preset selection",
+  "expected": {
+    "scalar-shipping": {
+      "hq": 0,
+      "native_bytes": 8124,
+      "native_sha256": "199da6e1e1a94c97fe853e0ff3d89b52e2057a55592052e7fbe5500147e4aeec",
+      "whole_bytes": 7478,
+      "whole_sha256": "d4f2ba718c5e9391708c86468416338f78b6134d1f017267c6c34add187381f2",
+      "payload_bytes": 6363,
+      "loader_and_headers_bytes": 1115,
+      "audit_bytes": 7501,
+      "audit_sha256": "2d509965f30de9151b4e957e8a805b35f716ac7461960497b01c69639d8d815d",
+      "layout": {
+        "bss_base": 4202496,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202061,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 8192,
+        "image_size": 8124,
+        "reserve_size": 192512,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 8124,
+            "flags": 5,
+            "memsz": 8124,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4202496,
+            "type": 1,
+            "vaddr": 4202496
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4378624
+      }
+    },
+    "hq-shipping": {
+      "hq": 1,
+      "native_bytes": 8512,
+      "native_sha256": "3f4269dc5c0d72c0b43bc73c6a11afdab5844836e12e7c31d60dde08c8ae2806",
+      "whole_bytes": 7718,
+      "whole_sha256": "3bb8a6a97a27a77508848ab9bd388a4802e07f8d8ff0e37b536176423aa7028f",
+      "payload_bytes": 6603,
+      "loader_and_headers_bytes": 1115,
+      "audit_bytes": 7741,
+      "audit_sha256": "3253d027b6132e42e47e963e011dd230384aa96dae5c4b3f3f13a9ec8ea68a1a",
+      "layout": {
+        "bss_base": 4206592,
+        "bss_pages": 176128,
+        "bss_size": 175092,
+        "entry": 4202367,
+        "guard_base": 4190208,
+        "image_base": 4194304,
+        "image_pages": 12288,
+        "image_size": 8512,
+        "reserve_size": 196608,
+        "section_count": 0,
+        "section_names": 0,
+        "section_offset": 0,
+        "section_size": 0,
+        "segments": [
+          {
+            "align": 4096,
+            "filesz": 8512,
+            "flags": 5,
+            "memsz": 8512,
+            "offset": 0,
+            "paddr": 4194304,
+            "type": 1,
+            "vaddr": 4194304
+          },
+          {
+            "align": 4096,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 175092,
+            "offset": 0,
+            "paddr": 4206592,
+            "type": 1,
+            "vaddr": 4206592
+          },
+          {
+            "align": 8,
+            "filesz": 0,
+            "flags": 6,
+            "memsz": 0,
+            "offset": 0,
+            "paddr": 0,
+            "type": 1685382481,
+            "vaddr": 0
+          }
+        ],
+        "upper_guard": 4382720
+      }
+    }
+  },
+  "qualified_receipts_metadata_only": {
+    "current_selection": "exact qualified layout-phase C D over unchanged finite-minimum-v1 runtime; two explicit per-identity mapping classes",
+    "source_lineage": "only one Board declaration reorder and one exact8argument search phase fragment; other6native and loader/codec/profile/flags unchanged",
+    "layout_phase": {
+      "proof_final_index_sha256": "b05e3e344983c0bc340c28570b0229c8c5ab3cb1e579ca0e3bf290ac8a51cc83",
+      "proof_source40_set_sha256": "2b729bc31ef732ce8c1dbd38128e66b4ad597c9200f4f83d03910a018e7b89ba",
+      "combined_whole_cost_sha256": "4b0b4f62b4266c8e2e60c1d8b969fe28de0ff0970822c380a5d4156bd0716b83",
+      "normalized_search_contracts_sha256": "e06e27d4c8c42e4db819afe3b8ab702a4fe61f0d9636e102efd05a4ea5ab2539",
+      "independent_board_contracts_sha256": "c123692a26644738f31e0d3710161b44a37aaefb40517b5ec6843a88606110bb",
+      "physical_two_classes_sha256": "dfcebada0c43fee2dba85893385f261bc398b4c4808a90a6d90055ef1c922add",
+      "audit_build_sha256": "8ffc4989e946df66392143b000c590468fdcf486fe06e653d139a8c2b8d5a3ff",
+      "prepromotion_old18_freeze_sha256": "7e7e9c586a629fefef9698ec2364549e589f103f590cb586014edd9769878396",
+      "scope": "exact actual core W1DEV1 contracts, independent Board fields and exact own-ELF W2 positive physical observations; reduced beta-high dynamic0/unproven; no broadfault/game/performance claim"
+    },
+    "unchanged_finite_runtime": {
+      "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+      "dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+      "scope": "exact unchanged runtime body and protocol policy; previous synthetic completion/arithmetic separate from new actual physical fence proof"
+    },
+    "previous_finite_selection_ancestry_only": {
+      "compose_summary_sha256": "d98218c08f05a9e39af40016e731aba1d1b02846524a2fb412e45e02868aa0fc",
+      "compose_build_sha256": "86ab399d8a2732a4527db0290e01101c9b783c4f87f608c3c8db8ff23ed7540c",
+      "compose_runtime_image_sha256": "3dd9ef4cdee98201d39d3eb51675a31574e84b849cdc32cbbe9c7b838d6167f8",
+      "compose_common_shipping_sha256": "d224fb32e158bad3fcf997810ad96f6225c9b099c0e80a3bb01627fef0e9687a",
+      "compose_shipping_groups": 10,
+      "compose_oracle_games": 2,
+      "source_lineage": "qualified finite policy over project-owned tiny-protocol D; seven other native and all loader/codec sources unchanged; fixed mapping class/flags/resources retained",
+      "separate_prior_evidence_classes": {
+        "native_board_search_HQ": {
+          "source_identity": "seven non-runtime native files unchanged; runtime complement outside go/main and startup/publication/shutdown source ranges are byte-identical",
+          "algorithms_sha256": "22ecdc467df28a847d0b286c9c3e4e88a09a336c2daa18c390fa7b5e6b2eaef5",
+          "hq_kernel_sha256": "6052fc26d9f491eecc4d13f30b093adfd3cd7c877ab9a68dbdd6273859d192d0",
+          "scope": "prior kernel/search proofs, not newly executed in maintained-entry work"
+        },
+        "protocol_runtime": {
+          "campaign_sha256": "17d7e72ecb66440d84e96dcb2f7051873e2efcb3ee2d31df3c0fab4ecee52275",
+          "qualification_sha256": "1598cbf17fad096f0acd3144017ad27ded2a154a9707bd1e9da6450b7dbd4a59",
+          "scope": "prior raw runtime fault fixture provenance for unchanged source ranges only; old strong stop/newgame/infinite lifecycle is excluded from finite policy qualification"
+        },
+        "loader_fault_and_admission": {
+          "loader_source_sha256": "8a6a9cb93ae484400056852c5bc406be1cc15dc7b8df6b0a57e6d6330a2e4094",
+          "codec_source_sha256": "17165d1cb16eaba8916833741bfa229d196c3ad07ca391c14b94288a3cdc0866",
+          "old_v3_image_and_four_negative_decoder_fixtures_sha256": "cf873ffcc25eefac78e5a4f06b430d836438e4b9c5c0d9f619f3c7733231ada1",
+          "old_v3_admission_sha256": "44c8cb0af8a01ff21d0fb0bf3e72d3a80330505cf1c108b3ea4f71cc21cf4774",
+          "scope": "unchanged loader/codec and fixed mapping class; old native negative fixtures remain separate prior evidence; new finite exact image hashes are separately qualified and explicitly admitted"
+        }
+      },
+      "current_selection": "qualified finite-minimum-v1 D; exact selected runtime/native/whole/audit promoted without optimization",
+      "compose_receipts_scope": "old strong-policy control ancestry only; not current shipping policy or image identity proof",
+      "finite_policy": {
+        "runtime_sha256": "82c62b57e500918827721553d67d9e23073c6cb5ca79dc22cdb8e38ab15f8e63",
+        "native_checkpoint_sha256": "1055c89f0f7bc042d33ad53ccad82fb9ca6a39368e6ed84dfd9e2a82fef24767",
+        "whole_cost_sha256": "53cb8a1fc1e9857d87e11c09bfc1ad0d61255784f427368f5940e0f4ab83a390",
+        "actual_dispatch_tt_arithmetic_sha256": "9d164b571a24181b1c93151e82a0ffe2472d77bb0635849409da7a65caf36756",
+        "own_elf_anonymous_native_physical_sha256": "69eafcbbdb6493eeccd903c903154402922441516d584e786cf378c3b4b12ea7",
+        "source_reuse_sha256": "9ce3fd141892e609e4963c5aff3c5a4f2d499f488da78478b570483ecc9e0250",
+        "ownership_reuse_sha256": "9b5ba3345badc4acbf1002973ad772415af7237411b4660d674560d95fdfcd25",
+        "prepromotion_old18_freeze_sha256": "a1a33d1838124fcf8bf3c6e3a209dc85921ae2bdeb1943e267a3a5797488f8ff",
+        "scope": "prior qualified finite source and images; 60 dispatch commands per form, TT sentinels/arithmetic with synthetic completion separate from actual physical worker proof; reused without rerunning those cases",
+        "prior_DEV_ancestry_only": {
+          "preprocessed_runtime_sha256": "4205a736ef55e70f87128e45a207d8695a1451945265fb6a124682a8ae294d18",
+          "scalar_native_bytes": 12860,
+          "scalar_native_sha256": "0b013e8a55f1708b92af1aa4d08b44520c1ed345934db1ccf767c710b5c582ad",
+          "hq_native_bytes": 13248,
+          "hq_native_sha256": "1bcf5bb9ef4d1bc6f8d0d5e5d947f418db21419f38268207bdacd90bf300832e",
+          "scope": "old finite checkpoint DEV equality only; neither native nor preprocessed hash is a current layout-phase DEV identity"
+        }
+      },
+      "scope": "previous finite source/image ancestry only; its unchanged claims and DEV identities describe that previous selection, not the new header/search pair"
+    }
+  },
+  "shipping_protocol": {
+    "id": "finite-minimum-v1",
+    "identification": false,
+    "stop": "consume",
+    "ucinewgame": "consume",
+    "infinite": "consume",
+    "default_budget_ms": 1000,
+    "own_clock_formula": "unchanged",
+    "hard_wall_cap": false,
+    "completion_fences": "next go, position, quit, EOF wait for result-before-completed epoch"
+  }
+}

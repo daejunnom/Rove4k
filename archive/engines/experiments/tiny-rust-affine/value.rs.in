@@ -1,0 +1,11 @@
+static HCE_COEFFICIENTS: [u32; 7] = [3072, 119908, 12608, 8522, 36340, 6020, 0];
+pub fn value(p: i8, square: usize) -> i32 {
+    let a = p.abs() as usize;
+    let rank = (square >> 4) as i32;
+    let advance = if p > 0 { rank } else { 7 - rank };
+    let center = 7 - (2 * (square & 7) as i32 - 7).abs() - (2 * rank - 7).abs();
+    let w = HCE_COEFFICIENTS[a];
+    let positional = (w >> 14) as i32 * advance
+        + (((w >> 10) & 15) as i32 - 3) * center;
+    p.signum() as i32 * ((w & 1023) as i32 + positional)
+}

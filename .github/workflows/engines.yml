@@ -1,0 +1,537 @@
+name: Rove4k engines
+
+on:
+  push:
+    branches: [main, develop]
+    paths: ['engines/**', 'archive/**', '.github/workflows/engines.yml']
+  pull_request:
+    paths: ['engines/**', 'archive/**', '.github/workflows/engines.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engines-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  startup-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check startup telemetry and process ownership without launching engines
+        run: python3 -B -m unittest discover -s engines/tests -p 'test_target_startup.py' -v
+
+  candidates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ROVE_INCLUDE_D: ${{ github.head_ref != 'feature/rove4k-engines-af' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [c]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure external artifacts
+        run: printf 'ROVE_TEST_OUT=%s/rove4k-engines-%s\n' "$RUNNER_TEMP" '${{ matrix.language }}' >> "$GITHUB_ENV"
+      - name: Check the frozen model source and exact integer representation
+        run: |
+          python3 engines/model/codec.py check
+          python3 -m unittest discover -s engines/model -p 'test*.py'
+          python3 -m unittest discover -s engines/model/representations -p 'test_*.py'
+      - name: Check source compaction and real restoration lifetimes
+        run: python3 -m unittest discover -s engines/scripts -p 'test*.py'
+      - name: Check C scheduling contracts independently of engine integration
+        if: matrix.language == 'c'
+        run: |
+          mkdir -p "$ROVE_TEST_OUT"
+          cc -std=c11 -O1 -g -pthread -fsanitize=address,undefined engines/tests/parallel_contract.c -o "$ROVE_TEST_OUT/parallel-contract"
+          timeout 60 "$ROVE_TEST_OUT/parallel-contract"
+      - name: Check C SEE, singular exclusion, SIMD and MTD semantics
+        if: matrix.language == 'c'
+        run: python3 engines/tests/run_search_contract.py --out "$ROVE_TEST_OUT/search-contract" --variants BCF --workers 1
+      - name: Check structural source admission and bounded worker representations
+        if: matrix.language == 'c'
+        run: |
+          python3 -m unittest discover -s engines/compact/c -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-b -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-ce -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/compact/tiny-f -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/experiments/tiny-c-table -p 'test_*.py'
+          python3 -B -m unittest discover -s engines/experiments/tiny-e-state -p 'test_*.py'
+      - name: Check coherent full-key TT publication and directional replacement
+        if: matrix.language == 'c'
+        run: |
+          for single in 0 1; do
+            cc -std=c11 -O2 -pthread -DROVE_VARIANT=6 -DROVE_F_SINGLE="$single" -DROVE_TT_BITS=8 -DROVE_WORKERS=1 -DROVE_DEV=0 engines/tests/c/f_tt_contract.c engines/c/board.c -o "$ROVE_TEST_OUT/tt-contract-$single"
+            timeout 60 "$ROVE_TEST_OUT/tt-contract-$single"
+          done
+      - name: Check the smaller A source architecture and actual complete launcher
+        if: matrix.language == 'c'
+        run: |
+          python3 -B -m unittest discover -s engines/compact/tiny-a -p 'test_*.py'
+          python3 -I -B engines/compact/tiny-a/build.py --out "$ROVE_TEST_OUT/tiny-a" --board generated --single-unit --strip-dev-counters
+          python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/tiny-a/validation-manifest.json" --out "$ROVE_TEST_OUT/tiny-a-verification" --startup-threads 3
+          cc -std=c11 -O2 -pthread -DWORKERS=2 -DTT_BITS=18 -DDEV=1 -DPLY=4 "$ROVE_TEST_OUT/tiny-a/dev/main.c" -o "$ROVE_TEST_OUT/tiny-a-cap"
+          python3 engines/compact/tiny-a/check.py --engine "$ROVE_TEST_OUT/tiny-a/dev/x" --cap-engine "$ROVE_TEST_OUT/tiny-a-cap" --out "$ROVE_TEST_OUT/tiny-a-algorithms.json"
+      - name: Check source-literal byte preservation
+        if: matrix.language == 'c'
+        run: python3 -B -m unittest discover -s engines/experiments/tiny-encoding -p 'test_*.py'
+      - name: Regenerate maintained source entries and run each exact selected file
+        if: matrix.language == 'c'
+        run: |
+          for family in a b c e f; do
+            python3 -B "engines/compact/tiny-entry-$family/build.py" --out "$ROVE_TEST_OUT/tiny-entry-$family" --dev
+            python3 -B "engines/compact/tiny-entry-$family/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-$family" --out "$ROVE_TEST_OUT/tiny-entry-$family-runtime"
+          done
+          python3 -B engines/compact/tiny-entry-f/build.py --policy material-noise --out "$ROVE_TEST_OUT/tiny-entry-f-material-noise" --dev
+          python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-noise/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-noise" --out "$ROVE_TEST_OUT/tiny-entry-f-material-noise-runtime"
+          python3 -B engines/compact/tiny-entry-f/build.py --policy material-move-tt --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --dev
+          python3 -B "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt" --out "$ROVE_TEST_OUT/tiny-entry-f-material-move-tt-runtime"
+          python3 -B -m unittest discover -s engines/experiments/tiny-e-order -p 'test_*.py'
+      - name: Reproduce each full A B C E shell wrapper and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          for family in a b c e; do
+            python3 -B "engines/compact/tiny-entry-$family/build.py" --wrapper shell --out "$ROVE_TEST_OUT/tiny-entry-$family-shell"
+            python3 -B "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/engines/scripts/verify_shell.py" --build "$ROVE_TEST_OUT/tiny-entry-$family-shell" --recipe "$ROVE_TEST_OUT/tiny-entry-$family-shell/selected-verifier/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-$family-shell-runtime"
+          done
+      - name: Reproduce the full TCEC submissions and verify their declared runtime policies
+        if: matrix.language == 'c'
+        run: |
+          for entry in A B C E F F8; do
+            python3 -B engines/experiments/tcec-scope/build.py --entry "$entry" --out "$ROVE_TEST_OUT/tcec-$entry"
+            python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tcec-$entry" --out "$ROVE_TEST_OUT/tcec-$entry-runtime"
+          done
+      - name: Reproduce next full submissions with per-GO lifetime and entry-owned unlink
+        if: matrix.language == 'c'
+        run: |
+          for entry in A B C E F F8; do
+            python3 -B engines/experiments/tcec-next/build.py --entry "$entry" --out "$ROVE_TEST_OUT/tcec-next-$entry"
+            python3 -B engines/experiments/tcec-scope/verify.py --build "$ROVE_TEST_OUT/tcec-next-$entry" --out "$ROVE_TEST_OUT/tcec-next-$entry-runtime"
+          done
+          python3 -B engines/experiments/tcec-next/check_b_state.py --source "$ROVE_TEST_OUT/tcec-next-B/control/main.c" --out "$ROVE_TEST_OUT/tcec-next-B-state"
+      - name: Reproduce the full F kill wrapper and check its selected strict contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-f/build.py --out "$ROVE_TEST_OUT/tiny-entry-f-kill" --wrapper kill
+          python3 -B "$ROVE_TEST_OUT/tiny-entry-f-kill/selected-verifier/engines/compact/tiny-entry-f/verify.py" --build "$ROVE_TEST_OUT/tiny-entry-f-kill" --out "$ROVE_TEST_OUT/tiny-entry-f-kill-runtime"
+      - name: Reproduce the full F shell wrapper and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-f/build.py --out "$ROVE_TEST_OUT/tiny-entry-f-shell" --wrapper shell
+          python3 -B engines/scripts/verify_shell.py --build "$ROVE_TEST_OUT/tiny-entry-f-shell" --recipe "$ROVE_TEST_OUT/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-f-shell-runtime"
+      - name: Reproduce the optional fixed-two-worker A root-hint policy
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-a/build.py --policy root-hint-leader-repair --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --policy root-hint-leader-repair --build "$ROVE_TEST_OUT/tiny-entry-a-root-hint" --out "$ROVE_TEST_OUT/tiny-entry-a-root-hint-runtime"
+      - name: Reproduce the optional fixed-two-worker A NORMAL-slot policy
+        if: matrix.language == 'c'
+        run: |
+          id -u
+          python3 -B engines/compact/tiny-entry-a/build.py --policy root-normal-slots --out "$ROVE_TEST_OUT/tiny-entry-a-root-normal" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --policy root-normal-slots --build "$ROVE_TEST_OUT/tiny-entry-a-root-normal" --out "$ROVE_TEST_OUT/tiny-entry-a-root-normal-runtime"
+      - name: Reproduce the optional fixed-two-worker A PALS feedback policy
+        if: matrix.language == 'c'
+        run: |
+          python3 -B engines/compact/tiny-entry-a/build.py --policy root-pals-feedback --out "$ROVE_TEST_OUT/tiny-entry-a-root-pals" --dev
+          python3 -B engines/compact/tiny-entry-a/verify.py --policy root-pals-feedback --build "$ROVE_TEST_OUT/tiny-entry-a-root-pals" --out "$ROVE_TEST_OUT/tiny-entry-a-root-pals-runtime"
+      - name: Reproduce the fixed eight-worker F profile and check its positive lifetime
+        if: matrix.language == 'c'
+        run: |
+          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8"
+          python3 -I -B engines/compact/tiny-entry-f-resource8/verify.py --build "$ROVE_TEST_OUT/tiny-entry-f-resource8" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-runtime"
+      - name: Reproduce the fixed eight-worker F shell profile and check its selected shell contract
+        if: matrix.language == 'c'
+        run: |
+          python3 -I -B engines/compact/tiny-entry-f-resource8/build.py --base-source "$ROVE_TEST_OUT/tiny-entry-f/main.c" --wrapper shell --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell"
+          python3 -I -B "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/inputs/engines/scripts/verify_shell.py" --build "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/first" --recipe "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell/selected-verifier/recipe.json" --out "$ROVE_TEST_OUT/tiny-entry-f-resource8-shell-runtime"
+      - name: Check the semaphore pool through controlled real-runtime phases and faults
+        if: matrix.language == 'c'
+        run: python3 -B engines/experiments/tiny-semaphore/pool-check.py --frozen engines/experiments/tiny-semaphore --out "$ROVE_TEST_OUT/semaphore-pool"
+      - name: Check dedicated D lossless codecs independently
+        if: matrix.language == 'c' && env.ROVE_INCLUDE_D == 'true'
+        run: python3 -B -m unittest discover -s engines/experiments/tiny-d-loader -p 'test_codecs.py'
+      - name: Regenerate both maintained D own-ELFs and observe their actual restored images
+        if: matrix.language == 'c' && env.ROVE_INCLUDE_D == 'true'
+        run: |
+          python3 -B engines/compact/tiny-entry-d/build.py --out "$ROVE_TEST_OUT/tiny-entry-d"
+          python3 -B engines/compact/tiny-entry-d/verify.py --build "$ROVE_TEST_OUT/tiny-entry-d/build.json" --out "$ROVE_TEST_OUT/tiny-entry-d-runtime"
+      - name: Check the standalone syscall D core and both actual slider paths
+        if: matrix.language == 'c' && env.ROVE_INCLUDE_D == 'true'
+        run: |
+          python3 -B engines/compact/tiny-d/build.py --out "$ROVE_TEST_OUT/tiny-d" --optimize z --lto
+          python3 -B engines/compact/tiny-d/check.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-check"
+          python3 -B engines/compact/tiny-d/algorithms.py --build "$ROVE_TEST_OUT/tiny-d/build.json" --out "$ROVE_TEST_OUT/tiny-d-algorithms"
+          python3 -B engines/compact/tiny-d/test_runtime.py --out "$ROVE_TEST_OUT/tiny-d-runtime"
+      - name: Compile the fixed A root source forms
+        if: matrix.language == 'c'
+        run: python3 -B engines/scripts/build.py --out "$ROVE_TEST_OUT/fixed-root" --profile local-ship --languages c --variant A --parallel root --structural-compact --no-pack
+      - name: Build retained C A-F paths
+        run: |
+          variants=ABCDEF
+          if [ "$ROVE_INCLUDE_D" = false ]; then variants=ABCEF; fi
+          python3 engines/scripts/build.py --out "$ROVE_TEST_OUT/build" --profile local-dev --languages '${{ matrix.language }}' --variants "$variants" --no-pack
+      - name: Verify the engines through their actual process interfaces
+        run: python3 engines/tests/verify.py --manifest "$ROVE_TEST_OUT/build/build.json" --out "$ROVE_TEST_OUT/verification"
+      - name: Preserve bounded build and behavior evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rove4k-${{ matrix.language }}-${{ github.sha }}
+          path: |
+            ${{ env.ROVE_TEST_OUT }}/build/build.json
+            ${{ env.ROVE_TEST_OUT }}/verification/*.json
+            ${{ env.ROVE_TEST_OUT }}/verification/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/search-contract/results.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a/validation-manifest.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-verification/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/tiny-a-algorithms.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-runtime/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-kill/selected-verifier/engines/compact/tiny-entry-f/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-*-shell/selected-verifier/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-shell/selected-verifier/engines/compact/tiny-entry-f/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/source-proof.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-entry-f-resource8-shell/selected-verifier/recipe.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*/build.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*/source-proof.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-*-runtime/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tcec-next-B-state/result.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d/build.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-check/**/*.jsonl
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-algorithms/**/*.json
+            ${{ env.ROVE_TEST_OUT }}/tiny-d-runtime/results.json
+            ${{ env.ROVE_TEST_OUT }}/fixed-root/build.json
+            ${{ env.ROVE_TEST_OUT }}/semaphore-pool/**/*.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  production-foundations:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROVE_INCLUDE_D: ${{ github.head_ref != 'feature/rove4k-engines-af' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only data dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Check production resource and source-closure contracts
+        run: |
+          python -B -m unittest discover -s engines/scripts -p test_production.py
+          python -B -m unittest discover -s engines/scripts -p test_source_composition.py
+          python -B -m unittest discover -s engines/scripts -p test_retirement.py
+          python -B -m unittest discover -s archive -p test_replay.py
+          python -B -m unittest discover -s engines/scripts -p test_production_ci.py
+          python -B -m unittest discover -s engines/scripts -p test_production_input.py
+          python -B -m unittest discover -s engines/scripts -p test_production_source_bundle.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_verify.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_target_runtime.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compiler.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_dependencies.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_a_shortnames.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_w256_names.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_b_semantic_diagnostic.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_c_macro_compact.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_final_compact.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules_compact.py
+          python -B -m unittest discover -s engines/compact/tiny-entry-e -p test_profile_eval_unit.py
+          python -B -m unittest discover -s engines/compact/tiny-entry-f -p test_profile_names_null.py
+          python -I -B engines/experiments/tcec-next/test_compact_mate.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_spelling.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_compound.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_scan_mechanism.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_p28.py
+          python -I -B engines/experiments/tcec-next/test_profile_p28.py --c-faults --out "$RUNNER_TEMP/rove4k-p28-fault-observability"
+          python -I -B engines/experiments/tcec-next/check_spelling_compound.py --self-test
+          if [ "$ROVE_INCLUDE_D" = true ]; then
+            python -I -B engines/experiments/tiny-d-submission/test_storage.py
+            python -I -B engines/experiments/tiny-d-submission/test_source_inputs.py
+            python -I -B engines/experiments/tiny-d-submission/test_storage_inputs.py
+            python -I -B engines/experiments/tiny-d-submission/test_qualify_owner.py
+            python -I -B engines/experiments/tiny-d-submission/test_search_admission.py
+            python -I -B engines/experiments/tiny-d-submission/test_search_runtime.py
+            python -I -B engines/experiments/tiny-d-submission/test_qualify_search.py
+            python -I -B engines/experiments/tiny-d-submission/test_native_operand_filter.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_closed_tu_cleanup.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_scalar_atomic_specialize.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_no_tid_startup.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_exact_clock_predicate.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_no_tid_qualification.py
+            python -I -B engines/experiments/tiny-d-submission/qualify_square_successor.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/structural_size.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/qualify_structural.py --self-test
+          fi
+          if [ "$ROVE_INCLUDE_D" = true ]; then
+            python -I -B engines/experiments/tiny-d-submission/test_proper_alpha.py --self-test
+            python -I -B engines/experiments/tiny-d-submission/test_proper_alpha_admission.py
+          fi
+          python -I -B engines/experiments/tcec-next/check_profile_square_successor.py --self-test
+          if [ "$ROVE_INCLUDE_D" = true ]; then
+            python -I -B engines/experiments/tiny-d-submission/test_profile_p28.py
+          fi
+      - name: Check actual E19 inference, corpus boundaries and optimizer step zero
+        run: python -B -m unittest discover -s engines/training/e19 -p 'test_*.py'
+      - name: Check evaluator placement, durable pairs and AWS service boundaries
+        run: python -B -m unittest discover -s engines/experiments/strength -p 'test_*.py'
+
+  production-profiles:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {family: A, spelling: compound, scan: square-successor, ep_variant: control}
+          - {family: B, spelling: best, scan: control, ep_variant: control}
+          - {family: C, spelling: compound, scan: square-successor, ep_variant: legal-maker}
+          - {family: D, spelling: control, scan: control, ep_variant: control}
+          - {family: E, spelling: compound, scan: control, ep_variant: legal-maker}
+          - {family: F, spelling: compound-v2, scan: control, ep_variant: control}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROVE_INCLUDE_ENTRY: ${{ matrix.family != 'D' || github.head_ref != 'feature/rove4k-engines-af' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Generate and verify the selected full TEST-P4 artifact
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        run: >-
+          python -I -B engines/scripts/production_ci.py
+          --family '${{ matrix.family }}'
+          --spelling-variant '${{ matrix.spelling }}'
+          --scan-variant '${{ matrix.scan }}'
+          --ep-variant '${{ matrix.ep_variant }}'
+          --export-source-bundle
+          --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
+      - name: Check unique mates in the final selected E TEST-P4 source
+        if: matrix.family == 'E'
+        shell: bash
+        run: |
+          python -I -B engines/experiments/tcec-next/profile_build.py \
+            --entry E --profile test-p4 --phase-variant phase-init \
+            --spelling-variant compound --ep-variant legal-maker \
+            --final-compact selected --compile-cc cc \
+            --out "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}"
+          python -I -B engines/experiments/tcec-next/e_selected_mate.py \
+            --build "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}" \
+            --out "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}/mate-regression.json"
+      - name: Preserve E selected-source mate evidence
+        if: always() && matrix.family == 'E'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e-selected-mate-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-final-e-mate-${{ github.run_attempt }}/mate-regression.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Check quiet promotions in the final selected B TEST-P4 search
+        if: matrix.family == 'B'
+        shell: bash
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/profile_build.py \
+            --entry B --profile test-p4 --representation source-jit \
+            --b-variant tcec-final-lf --spelling-variant best \
+            --source-dependencies unused-includes --final-compact selected --compile-cc cc \
+            --out "$RUNNER_TEMP/rove4k-final-b-promotion-${{ github.run_attempt }}"
+          python -I -B engines/experiments/tcec-next/check_b_quiet_promotion.py \
+            --build "$RUNNER_TEMP/rove4k-final-b-promotion-${{ github.run_attempt }}" \
+            | tee "$RUNNER_TEMP/rove4k-production-B-${{ github.run_attempt }}/b-quiet-promotion.json"
+      - name: Transfer the exact sealed source to the Ubuntu22 consumer
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-source-${{ matrix.family }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}/source-bundle.zip
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}/source-seal.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve owned source-bound evidence and failures
+        if: always() && env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-ubuntu22:
+    needs: production-profiles
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [A, B, C, D, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROVE_INCLUDE_ENTRY: ${{ matrix.family != 'D' || github.head_ref != 'feature/rove4k-engines-af' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        with:
+          name: production-source-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}
+      - name: Prepare the system Python oracle without redirecting the compiler
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/rove4k-system22-python"
+          "$RUNNER_TEMP/rove4k-system22-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compile, check actual rules and run the same source on Ubuntu22
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          "$RUNNER_TEMP/rove4k-system22-python/bin/python3" -I -B engines/scripts/production_ci.py \
+            --family '${{ matrix.family }}' --ubuntu22-target \
+            --source-bundle "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}/source-bundle.zip" \
+            --source-seal "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-${{ github.run_attempt }}/source-seal.json" \
+            --out "$RUNNER_TEMP/rove4k-target22-${{ matrix.family }}-${{ github.run_attempt }}"
+      - name: Preserve independent target evidence and failures
+        if: always() && env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-ubuntu22-${{ matrix.family }}-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-target22-${{ matrix.family }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-profiles-p28:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {family: A, spelling: compound, scan: square-successor, ep_variant: control}
+          - {family: B, spelling: best, scan: control, ep_variant: control}
+          - {family: C, spelling: compound, scan: square-successor, ep_variant: legal-maker}
+          - {family: D, spelling: control, scan: control, ep_variant: control}
+          - {family: E, spelling: compound, scan: control, ep_variant: legal-maker}
+          - {family: F, spelling: compound-v2, scan: control, ep_variant: control}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROVE_INCLUDE_ENTRY: ${{ matrix.family != 'D' || github.head_ref != 'feature/rove4k-engines-af' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Generate and verify the selected full TEST-P28 artifact
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        run: >-
+          python -I -B engines/scripts/production_ci.py
+          --family '${{ matrix.family }}'
+          --profile test-p28
+          --spelling-variant '${{ matrix.spelling }}'
+          --scan-variant '${{ matrix.scan }}'
+          --ep-variant '${{ matrix.ep_variant }}'
+          --export-source-bundle
+          --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}'
+      - name: Transfer the exact sealed P28 source to the Ubuntu22 consumer
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-source-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-bundle.zip
+            ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-seal.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve owned P28 source-bound evidence and failures
+        if: always() && env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7
+
+  production-ubuntu22-p28:
+    needs: production-profiles-p28
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [A, B, C, D, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      ROVE_INCLUDE_ENTRY: ${{ matrix.family != 'D' || github.head_ref != 'feature/rove4k-engines-af' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        with:
+          name: production-source-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}
+      - name: Prepare the system Python oracle without redirecting the compiler
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/rove4k-system22-p28-python"
+          "$RUNNER_TEMP/rove4k-system22-p28-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compile, check actual rules and run the same P28 source on Ubuntu22
+        if: env.ROVE_INCLUDE_ENTRY == 'true'
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          "$RUNNER_TEMP/rove4k-system22-p28-python/bin/python3" -I -B engines/scripts/production_ci.py \
+            --family '${{ matrix.family }}' --profile test-p28 --ubuntu22-target \
+            --source-bundle "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-bundle.zip" \
+            --source-seal "$RUNNER_TEMP/rove4k-source-download-${{ matrix.family }}-test-p28-${{ github.run_attempt }}/source-seal.json" \
+            --out "$RUNNER_TEMP/rove4k-production-${{ matrix.family }}-test-p28-ubuntu22-${{ github.run_attempt }}"
+      - name: Preserve independent P28 target evidence and failures
+        if: always() && env.ROVE_INCLUDE_ENTRY == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: production-ubuntu22-${{ matrix.family }}-test-p28-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-production-${{ matrix.family }}-test-p28-ubuntu22-${{ github.run_attempt }}
+          include-hidden-files: true
+          retention-days: 7

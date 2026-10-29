@@ -1,0 +1,4 @@
+static Move first(const Board *b){Visit x={0};x.p=b;x.side=b->s;x.op=FIRST;walk(&x);return x.move;}
+static Move parse(const Board *b,const char *s,Board *child){
+    Visit x={0};x.p=b;x.side=b->s;x.op=MATCH;x.input=s;x.out=child;walk(&x);return x.move;
+}

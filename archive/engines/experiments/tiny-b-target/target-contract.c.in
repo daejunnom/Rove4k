@@ -1,0 +1,51 @@
+/* Inserted before the frozen B contract's main; uses the actual new generator.
+ * Public ordinary generation works while stopped, as position replay needs. */
+static void test_target(void){
+    static const char *positions[]={
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+        "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1",
+        "k3r3/8/8/8/8/8/8/R3K2R w KQ - 0 1",
+        "k4r2/8/8/8/8/8/8/R3K2R w KQ - 0 1",
+        "k5r1/8/8/8/8/8/8/R3K2R w KQ - 0 1",
+        "r3k2r/8/8/8/8/8/8/K3R3 b kq - 0 1",
+        "r3k2r/8/8/8/8/8/8/K4R2 b kq - 0 1",
+        "r3k2r/8/8/8/8/8/8/K5R1 b kq - 0 1",
+        "6k1/8/8/3pP3/8/8/8/4K3 w - d6 0 1",
+        "4k3/8/8/8/3Pp3/8/8/6K1 b - d3 0 1",
+        "4r1k1/8/8/3pP3/8/8/8/4K3 w - d6 0 1",
+        "8/8/8/r4pPK/8/8/8/7k w - f6 0 1",
+        "4k3/8/8/8/3Pp3/8/8/4R1K1 b - d3 0 1",
+        "7K/8/8/8/R4Ppk/8/8/8 b - f3 0 1",
+        "r1r4k/1P6/8/8/8/8/8/7K w - - 0 1",
+        "7k/8/8/8/8/8/1p6/R1R4K b - - 0 1",
+        "4k3/4p3/3p4/8/1B6/8/8/4R2K w - - 0 1",
+    };
+    unsigned single=0,pseudo=0,queries=0,promotions=0,legal=0;
+    atomic_store(&stopped,1);deadline=0;
+    for(unsigned pindex=0;pindex<sizeof positions/sizeof *positions;pindex++){
+        Board p;load(&p,positions[pindex]);Board before=p;Move all[MOVES],one[MOVES];int n=gen(&p,all);
+        pseudo+=(unsigned)n;assert(n<=432);
+        for(int i=0;i<n;i++){
+            for(int j=0;j<i;j++)assert(all[i]!=all[j]);
+            Board child;if(make(&p,all[i],&child)){assert(verify_board(&child));legal++;}
+            promotions+=!!PROMO(all[i]);
+        }
+        for(int target=0;target<128;target++)if(!(target&0x88)){
+            queries+=p.b[target]*p.s<=0;
+            int count=generate(&p,one,target),expected=0;assert(count<=64);
+            if(p.b[target]*p.s<0)for(int i=0;i<n;i++)expected+=TO(all[i])==(unsigned)target;
+            assert(count==expected);
+            for(int i=0;i<count;i++){
+                assert(TO(one[i])==(unsigned)target&&p.b[target]*p.s<0&&capture(&p,one[i]));
+                int found=0;for(int j=0;j<n;j++)found+=one[i]==all[j];assert(found==1);
+                for(int j=0;j<i;j++)assert(one[i]!=one[j]);
+            }
+            single++;
+        }
+        assert(!memcmp(&p,&before,sizeof p)&&atomic_load(&stopped)&&deadline==0);
+    }
+    assert(promotions>=24);
+    printf("target modes: %zu fixtures, %u occupied/friendly/empty single-target checks, %u pseudo/%u legal children, %u promotions; source-derived attack queries %u: pass\n",
+           sizeof positions/sizeof *positions,single,pseudo,legal,promotions,queries);
+}

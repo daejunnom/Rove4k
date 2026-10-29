@@ -1,0 +1,93 @@
+static int offer(Visit *x,Fact d){
+    const Board *p=x->p;Move m=d.m;int tactical=d.c||PROMO(m);
+    if(x->op==SURVEY){
+        if(m==x->tt.m){x->tt=d;x->seen=1;return 0;}
+        int pi=piece_index(d.v),priority=tactical?
+            500000+abs(value(d.c,d.x))*16-abs(value(d.v,d.f)):
+            x->w->history[d.f][d.t]+x->w->continuation[x->prior][pi]+(int)((m*37u+x->w->id*19u)%17);
+        if(PROMO(m))priority+=400000+PROMO(m)*1000;
+        if(priority>x->rank[tactical]){x->rank[tactical]=priority;x->pref[tactical]=d;}
+        return 0;
+    }
+#if DEV
+    if(x->op==COLLECT){if(x->count>=MOVES)abort();x->list[x->count++]=m;return 0;}
+#endif
+    if(x->op==MATCH){char name[6];text(m,name);if(strcmp(x->input,name))return 0;}
+    if(x->op==TACTICAL||x->op==QUIET){
+        if(m==x->tt.m||m==x->pref[tactical].m||tactical!=(x->op==TACTICAL))return 0;
+    }
+    Board q;if(!apply(p,d,&q))return 0;
+    if(x->op==FIRST||x->op==MATCH){x->move=m;if(x->out)*x->out=q;return 1;}
+    x->legal++;
+    if(x->quiet){if(x->a>=x->b)return 1;if(!tactical)return x->op==QUIET;}
+    Worker *w=x->w;int next=piece_index(q.b[d.t]),score;
+    w->keys[w->length++]=q.h;
+    if(x->legal==1||x->depth<=0)score=-search(w,&q,x->depth-1,-x->b,-x->a,x->ply+1,next,0);
+    else{
+        COUNT(w,pvs);
+        int reduce=x->depth>=4&&x->legal>=4&&!tactical&&!x->check&&!attacked(&q,q.k[q.s<0],-q.s);
+        if(reduce){COUNT(w,corr_uses);reduce=p->s*p->v+w->correction[p->h&1023]/64<x->a+100;}
+        score=-search(w,&q,x->depth-1-reduce,-x->a-1,-x->a,x->ply+1,next,0);
+        if(reduce&&score>x->a)score=-search(w,&q,x->depth-1,-x->a-1,-x->a,x->ply+1,next,0);
+        if(score>x->a&&score<x->b)score=-search(w,&q,x->depth-1,-x->b,-x->a,x->ply+1,next,0);
+    }
+    --w->length;
+    if(atomic_load_explicit(&stopped,memory_order_relaxed))return 1;
+    if(score>x->best){x->best=score;x->move=m;x->tactical=tactical;if(x->root)*x->root=m;}
+    if(score>x->a)x->a=score;
+    if(x->a<x->b)return 0;
+    if(x->depth>0&&!tactical){
+        int bonus=x->depth*x->depth;
+        learn(&w->history[d.f][d.t],bonus);learn(&w->continuation[x->prior][piece_index(d.v)],bonus);
+        COUNT(w,hist_updates);COUNT(w,cont_updates);
+    }
+    return 1;
+}
+static int witness(const Board *p){
+    Visit x={0};x.p=p;x.side=p->s;x.op=FIRST;return walk(&x);
+}
+static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,int prior,Move *root){
+    if(!claim(w))return 0;
+    int check=attacked(p,p->k[p->s<0],-p->s),draw=p->half>=100,repetitions=0,end=w->length-1-p->half;
+    if(end<0)end=0;
+    for(int i=w->length-3;i>=end;i-=2)repetitions+=w->keys[i]==p->h;
+    draw|=repetitions>=2;
+    uint64_t key=p->h^mix(p->r+(unsigned)p->half),data=probe(key,0);
+    Visit x={0};x.p=p;x.w=w;x.side=p->s;x.op=SURVEY;x.tt.m=data&131071;
+    x.rank[0]=x.rank[1]=INT_MIN;x.depth=depth;x.a=alpha;x.b=beta;x.ply=ply;x.prior=prior;x.root=root;
+    x.check=check;x.quiet=depth<=0&&!check;x.best=x.quiet?p->s*p->v:-MATE;
+    walk(&x);
+    draw|=!x.major&&(x.minors<2||(!x.knights&&x.colors!=3));
+    if(draw||ply==PLY-1){
+        if(witness(p)){if(!draw){COUNT(w,ply_aborts);atomic_store(&stopped,1);}return 0;}
+        return check?-MATE+ply:0;
+    }
+    int score=(int16_t)(data>>17),bound=(data>>41)&3,ttdepth=(data>>33)&255;
+    if(bound)COUNT(w,hits);
+    if(score>MATE-PLY)score-=ply;
+    if(score< -MATE+PLY)score+=ply;
+    /* A reusable bound was stored only after a legal witness in this full
+     * board/halfmove/reversible-path context. Query modes never write TT. */
+    if(ply&&bound&&ttdepth>=(depth>0?depth:0)&&(bound==1||(bound==2&&score>=beta)||(bound==3&&score<=alpha)))return score;
+    if(depth<=0)COUNT(w,qs);
+    if(x.quiet&&x.best>x.a)x.a=x.best;
+    x.op=FIXED;
+    if(x.seen&&offer(&x,x.tt))goto done;
+    if(x.pref[1].m&&offer(&x,x.pref[1]))goto done;
+    x.op=TACTICAL;if(walk(&x))goto done;
+    if(x.quiet&&x.legal)goto done;
+    x.op=FIXED;if(x.pref[0].m&&offer(&x,x.pref[0]))goto done;
+    if(x.quiet&&x.legal)goto done;
+    x.op=QUIET;walk(&x);
+done:
+    if(atomic_load_explicit(&stopped,memory_order_relaxed))return 0;
+    if(!x.legal)return check?-MATE+ply:0;
+    bound=x.best<=alpha?3:x.best>=beta?2:1;
+    if(depth>0&&bound==1&&!check&&x.move&&!x.tactical&&abs(x.best)<MATE-PLY){
+        int error=x.best-p->s*p->v;if(error>256)error=256;if(error< -256)error=-256;
+        w->correction[p->h&1023]+=error-w->correction[p->h&1023]/64;COUNT(w,corr_updates);
+    }
+    score=x.best;if(score>MATE-PLY)score+=ply;if(score< -MATE+PLY)score-=ply;
+    data=x.move|((uint64_t)(uint16_t)score<<17)|((uint64_t)(depth>0?depth:0)<<33)|((uint64_t)bound<<41);
+    probe(key,data);return x.best;
+}

@@ -1,0 +1,137 @@
+name: Experimental Rove P16/P192 LZMA1EXT comparison
+
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/strength/rove_lzma1ext_compare.py'
+      - 'engines/experiments/strength/test_rove_lzma1ext_compare.py'
+      - 'engines/experiments/strength/peer_lzma1ext_trial.c'
+      - 'engines/experiments/strength/peer_lzma1ext_trial.py'
+      - 'engines/experiments/strength/test_peer_lzma1ext_trial.py'
+      - 'engines/experiments/tcec-next/**'
+      - 'engines/scripts/**'
+      - 'engines/compact/**'
+      - 'engines/model/**'
+      - '.github/workflows/rove-lzma1ext-trial.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rove-lzma1ext-trial-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    name: ${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-atomic}
+          - {family: A, profile: test-p192, variant: square-atomic}
+          - {family: B, profile: test-p16, variant: league-atomic}
+          - {family: B, profile: test-p192, variant: league-atomic}
+          - {family: C, profile: test-p16, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, variant: ep-atomic}
+          - {family: E, profile: test-p192, variant: ep-atomic}
+          - {family: F, profile: test-p16, variant: atomic-assignment}
+          - {family: F, profile: test-p192, variant: atomic-assignment}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      LZMA_DEB_VERSION: '5.6.1+really5.4.5-1ubuntu0.4'
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install and check exact liblzma packages
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            "liblzma5=$LZMA_DEB_VERSION" "liblzma-dev=$LZMA_DEB_VERSION" "xz-utils=$LZMA_DEB_VERSION"
+          for package in liblzma5 liblzma-dev xz-utils; do
+            test "$(dpkg-query -W -f='${Version}' "$package")" = "$LZMA_DEB_VERSION"
+          done
+      - name: Check helper and comparison contracts
+        run: |
+          set -euo pipefail
+          python -B - <<'PY'
+          import sys, unittest
+          for pattern in ('test_peer_lzma1ext_trial.py', 'test_rove_lzma1ext_compare.py'):
+              suite = unittest.defaultTestLoader.discover('engines/experiments/strength', pattern=pattern)
+              if not suite.countTestCases():
+                  raise SystemExit('No tests discovered: ' + pattern)
+              if not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful():
+                  sys.exit(1)
+          PY
+      - name: Build two temporary helpers
+        run: |
+          set -euo pipefail
+          for attempt in 1 2; do
+            cc -std=c11 -O2 -Wall -Wextra engines/experiments/strength/peer_lzma1ext_trial.c \
+              -llzma -o "$RUNNER_TEMP/rove-lzma1ext-helper-$attempt"
+            "$RUNNER_TEMP/rove-lzma1ext-helper-$attempt" --version \
+              | python -c 'import re,sys; s=sys.stdin.read(); assert re.fullmatch(r"header=5\.4\.5 runtime=5\.4\.5 header_number=50040052 runtime_number=50040052 ext=1\n", s), s'
+          done
+      - name: Prepare pinned development-only rules oracle
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r engines/training/e19/requirements.txt \
+            > "$RUNNER_TEMP/rove-lzma1ext-oracle.log" 2>&1
+      - name: Reproduce baseline candidate in temporary storage
+        run: |
+          set -euo pipefail
+          if [ "$FAMILY" = B ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --emit-arguments > "$RUNNER_TEMP/rove-lzma1ext-selection.txt"
+            mapfile -t selected_arguments < "$RUNNER_TEMP/rove-lzma1ext-selection.txt"
+          else
+            selected_arguments=(--entry "$FAMILY" --profile "$PROFILE" --representation source-jit
+              --b-variant control --phase-variant control --spelling-variant control
+              --scan-variant control --ep-variant control --source-dependencies control --league-variant "$VARIANT")
+          fi
+          if ! timeout --signal=TERM --kill-after=30s 1200s \
+            python -I -B engines/experiments/tcec-next/profile_build.py "${selected_arguments[@]}" \
+              --out "$RUNNER_TEMP/rove-lzma1ext-build" > "$RUNNER_TEMP/rove-lzma1ext-build.log" 2>&1; then
+            echo 'Baseline candidate generation failed; detailed output remains temporary.' >&2
+            exit 1
+          fi
+          if [ "$FAMILY" = B ]; then
+            if ! python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --check-manifest "$RUNNER_TEMP/rove-lzma1ext-build/build.json" \
+              > "$RUNNER_TEMP/rove-lzma1ext-selection-check.json" 2>&1; then
+              echo 'Selected B manifest differs; detailed output remains temporary.' >&2
+              exit 1
+            fi
+          fi
+      - name: Compare two temporary builds without executing an engine
+        run: |
+          set -euo pipefail
+          if ! python -I -B engines/experiments/strength/rove_lzma1ext_compare.py \
+            --build "$RUNNER_TEMP/rove-lzma1ext-build" --family "$FAMILY" --profile "$PROFILE" --variant "$VARIANT" \
+            --helper-1 "$RUNNER_TEMP/rove-lzma1ext-helper-1" --helper-2 "$RUNNER_TEMP/rove-lzma1ext-helper-2" \
+            --xz "$(command -v xz)" --receipt "$RUNNER_TEMP/rove-lzma1ext-receipt.json" \
+            > "$RUNNER_TEMP/rove-lzma1ext-compare.log" 2>&1; then
+            echo 'LZMA1EXT comparison failed; detailed output remains temporary.' >&2
+            exit 1
+          fi
+      - name: Preserve numeric and hash receipt only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rove-lzma1ext-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove-lzma1ext-receipt.json
+          if-no-files-found: warn
+          retention-days: 7

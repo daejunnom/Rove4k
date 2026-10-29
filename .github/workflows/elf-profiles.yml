@@ -1,0 +1,277 @@
+name: Experimental full ELF profiles
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/elf-profiles.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-elf-profiles-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    # Skipping this prerequisite skips every dependent ELF job on this branch.
+    if: ${{ github.event_name != 'pull_request' || github.head_ref != 'feature/rove4k-engines-af' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check entry projection, dependency policy and synthetic packing readers
+        # These tests do not compile or launch an engine. The packing reader
+        # uses an inert synthetic ELF to check the real payload inverse.
+        run: |
+          python -I -B engines/experiments/tcec-next/test_elf_entry_mode.py
+          python -I -B engines/scripts/test_elf_dependencies.py
+          python -I -B engines/experiments/tcec-next/test_elf_profile.py
+          python -I -B engines/experiments/tcec-next/test_elf_profile_cancel.py
+          python -I -B engines/experiments/tcec-next/test_elf_target22.py
+          python -I -B engines/scripts/elf-loader/test_loader.py Compression
+
+  cancellation:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Cancel the real A factory at ordinary and TERM-ignoring compiler leaves
+        # Uses the existing process owner. Both deliberately interrupted builds
+        # remain incomplete; only their observed physical settlement may pass.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile_cancel.py \
+            --out '${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}.log'
+      - name: Preserve cancellation observations and original interrupted builds
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-cancel-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-elf-cancel-${{ github.run_attempt }}.log
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  submission-prepare:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E, F]
+        native_variant: [baseline, lean]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Produce and readmit W256 ELF files without launching them
+        # Submission profiles have no rules/runtime/qualification path here.
+        # Even a within-limit file remains prepared_unqualified.
+        run: |
+          set -o pipefail
+          ELF_SUBMISSION_OUT='${{ runner.temp }}/rove4k-elf-submission-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.run_attempt }}'
+          mkdir "$ELF_SUBMISSION_OUT"
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py produce \
+            --entry '${{ matrix.entry }}' --profile tcec-provisional \
+            --native-variant '${{ matrix.native_variant }}' \
+            --out "$ELF_SUBMISSION_OUT/build" --execute \
+            2>&1 | tee "$ELF_SUBMISSION_OUT/produce.log"
+          python -I -B engines/experiments/tcec-next/elf_profile.py admit --build "$ELF_SUBMISSION_OUT/build"
+      - name: Preserve preparation costs and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-W256-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-elf-submission-${{ matrix.entry }}-${{ matrix.native_variant }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  full-profiles:
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E, F]
+        profile: [test-p4, test-p28]
+        native_variant: [baseline]
+        encoder: [greedy64-v1]
+        include:
+          - {entry: A, profile: test-p4, native_variant: lean, encoder: greedy64-v1}
+          - {entry: B, profile: test-p4, native_variant: lean, encoder: greedy64-v1}
+          - {entry: C, profile: test-p4, native_variant: lean, encoder: greedy64-v1}
+          - {entry: E, profile: test-p4, native_variant: lean, encoder: greedy64-v1}
+          - {entry: F, profile: test-p4, native_variant: lean, encoder: greedy64-v1}
+          - {entry: A, profile: test-p4, native_variant: lean, encoder: optimal64-v1}
+          - {entry: B, profile: test-p4, native_variant: lean, encoder: optimal64-v1}
+          - {entry: C, profile: test-p4, native_variant: lean, encoder: optimal64-v1}
+          - {entry: E, profile: test-p4, native_variant: lean, encoder: optimal64-v1}
+          - {entry: F, profile: test-p4, native_variant: lean, encoder: optimal64-v1}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned development-only oracle dependencies
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Configure this job's owned output
+        run: printf 'ELF_OUT=%s/rove4k-elf-%s-%s-%s-%s-%s\n' "$RUNNER_TEMP" '${{ matrix.entry }}' '${{ matrix.profile }}' '${{ matrix.native_variant }}' '${{ matrix.encoder }}' '${{ github.run_attempt }}' >> "$GITHUB_ENV"
+      - name: Produce two full ELF files and independently readmit the actual bytes
+        run: |
+          set -o pipefail
+          mkdir "$ELF_OUT"
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py produce \
+            --entry '${{ matrix.entry }}' --profile '${{ matrix.profile }}' \
+            --native-variant '${{ matrix.native_variant }}' \
+            --encoder '${{ matrix.encoder }}' \
+            --out "$ELF_OUT/build" --execute 2>&1 | tee "$ELF_OUT/produce.log"
+          python -I -B engines/experiments/tcec-next/elf_profile.py admit --build "$ELF_OUT/build"
+      - name: Compare actual final ELF-source move generation with the independent oracle
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py rules \
+            --build "$ELF_OUT/build" --out "$ELF_OUT/rules" --execute \
+            2>&1 | tee "$ELF_OUT/rules.log"
+      - name: Observe restored image, fixed resources, minimum UCI and physical shutdown
+        # An oversized ELF still receives unscored functional checks. Its size
+        # decision remains deferred_size and cannot become ELF qualification.
+        run: |
+          set -o pipefail
+          timeout --signal=TERM --kill-after=30s 600s \
+            python -I -B engines/experiments/tcec-next/elf_profile.py runtime \
+            --build "$ELF_OUT/build" --out "$ELF_OUT/runtime" --execute \
+            2>&1 | tee "$ELF_OUT/runtime.log"
+      - name: Read the complete source, rules and runtime evidence without a size waiver
+        run: |
+          python -I -B engines/experiments/tcec-next/elf_profile.py qualify \
+            --build "$ELF_OUT/build" --rules "$ELF_OUT/rules/rules.json" \
+            --runtime "$ELF_OUT/runtime/runtime.json" --out "$ELF_OUT/qualification"
+          python -I -B - <<'PY'
+          import json, os
+          from pathlib import Path
+          result = json.loads((Path(os.environ['ELF_OUT']) / 'qualification/qualification.json').read_bytes())
+          # This hosted lane observes functionality. Size and named physical
+          # TEST placement remain truthful qualification failures in the receipt.
+          unexpected = [name for name in result['failures'] if name not in ('size', 'placement')]
+          if not result['functional_runtime_complete'] or unexpected:
+              raise SystemExit('ELF functional evidence failed: ' + repr(unexpected))
+          print(json.dumps({'status': result['status'], 'elf_qualified': result['elf_qualified'],
+                            'whole_bytes': result['artifact']['whole_bytes'],
+                            'qualification_failures': result['failures']}, sort_keys=True))
+          PY
+      - name: Seal the original lean P4 ELF for the independent Ubuntu22 consumer
+        if: matrix.native_variant == 'lean' && matrix.profile == 'test-p4' && matrix.encoder == 'optimal64-v1'
+        run: >-
+          timeout --signal=TERM --kill-after=30s 600s
+          python -I -B engines/experiments/tcec-next/elf_target22.py export
+          --build '${{ env.ELF_OUT }}/build' --out '${{ env.ELF_OUT }}/transport' --execute
+      - name: Transfer only the closed original ELF transport
+        if: matrix.native_variant == 'lean' && matrix.profile == 'test-p4' && matrix.encoder == 'optimal64-v1'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: elf-original-${{ matrix.entry }}-test-p4-lean-optimal64-v1-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.ELF_OUT }}/transport/elf-bundle.zip
+            ${{ env.ELF_OUT }}/transport/elf-seal.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Preserve complete observations and original failures
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-${{ matrix.entry }}-${{ matrix.profile }}-${{ matrix.native_variant }}-${{ matrix.encoder }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.ELF_OUT }}
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7
+
+  ubuntu22-original:
+    needs: full-profiles
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        entry: [A, B, C, E, F]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: elf-original-${{ matrix.entry }}-test-p4-lean-optimal64-v1-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-elf-transfer22-${{ matrix.entry }}-${{ github.run_attempt }}
+      - name: Prepare system Python while retaining the actual system compiler and loader
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/rove4k-elf-system22-python"
+          "$RUNNER_TEMP/rove4k-elf-system22-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Verify installed dependencies and observe the same original ELF on Ubuntu22
+        # The exact producer ELF is transported. The target does not regenerate
+        # source or replace its production native image with a GCC11 build.
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          timeout --signal=TERM --kill-after=30s 900s \
+            "$RUNNER_TEMP/rove4k-elf-system22-python/bin/python3" -I -B \
+            engines/experiments/tcec-next/elf_target22.py consume \
+            --bundle "$RUNNER_TEMP/rove4k-elf-transfer22-${{ matrix.entry }}-${{ github.run_attempt }}/elf-bundle.zip" \
+            --seal "$RUNNER_TEMP/rove4k-elf-transfer22-${{ matrix.entry }}-${{ github.run_attempt }}/elf-seal.json" \
+            --out "$RUNNER_TEMP/rove4k-elf-original22-${{ matrix.entry }}-${{ github.run_attempt }}" --execute \
+            2>&1 | tee "$RUNNER_TEMP/rove4k-elf-original22-${{ matrix.entry }}-${{ github.run_attempt }}.log"
+      - name: Preserve target evidence and original failures without ELF qualification
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-elf-original22-${{ matrix.entry }}-test-p4-lean-optimal64-v1-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-elf-original22-${{ matrix.entry }}-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-elf-original22-${{ matrix.entry }}-${{ github.run_attempt }}.log
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 7

@@ -1,0 +1,217 @@
+/* Test-only libc observation unit. The real search is included with ONLY its
+ * definition renamed and its DEV COUNT expression augmented. Board/HQ bodies,
+ * claim/probe/learn, recursive operands and think are untouched. Fixed now is
+ * an external clock boundary. This is WORKERS=1/DEV=1 evidence, not raw runtime
+ * or production WORKERS=2 evidence. Every output field has initialized bytes. */
+/* CONTRACT_LAYOUT_ADAPT_BEGIN */
+/* Layout-proof adaptation: cross-subject outputs below contain named Board
+ * fields and its mailbox ONLY. Raw Board memcpy/memcmp snapshots remain local
+ * to one unchanged actual object in one process. Worker, Entry and game arrays
+ * contain no Board and retain their complete byte comparison. The original
+ * twenty cases, events, node caps and runtime assertions are unchanged. */
+/* CONTRACT_LAYOUT_ADAPT_END */
+#include <stdio.h>
+#include <string.h>
+#include "tiny.h"
+void *calloc(size_t,size_t);
+void free(void *);
+_Noreturn void exit(int);
+#define HC(x) do{if(!(x)){fprintf(stderr,"contract line %d: %s\n",__LINE__,#x);exit(71);}}while(0)
+_Static_assert(WORKERS==1 && DEV==1 && TT_BITS==18 && PLY==128,"fixed test profile");
+/* CONTRACT_LAYOUT_ADAPT_BEGIN */
+_Static_assert(sizeof(Board)==176,"same complete Board extent; offsets deliberately differ");
+_Static_assert(sizeof(Worker)==69040 && offsetof(Worker,id)==0 && offsetof(Worker,depth)==4 &&
+    offsetof(Worker,score)==8 && offsetof(Worker,best)==12 && offsetof(Worker,nodes)==16 &&
+    offsetof(Worker,keys)==24 && offsetof(Worker,length)==33816 && offsetof(Worker,history)==33820 &&
+    offsetof(Worker,continuation)==66588 && offsetof(Worker,correction)==66926 &&
+    offsetof(Worker,pvs)==68976 && offsetof(Worker,qs)==68984 && offsetof(Worker,hits)==68992 &&
+    offsetof(Worker,hist_updates)==69000 && offsetof(Worker,cont_updates)==69008 &&
+    offsetof(Worker,corr_updates)==69016 && offsetof(Worker,corr_uses)==69024 &&
+    offsetof(Worker,ply_aborts)==69032,"unchanged full Worker representation");
+_Static_assert(sizeof(Entry)==24 && offsetof(Entry,lock)==0 && offsetof(Entry,key)==8 &&
+    offsetof(Entry,data)==16 && sizeof game_keys==32768,"unchanged complete TT and game-key representation");
+/* CONTRACT_LAYOUT_ADAPT_END */
+Entry *table;
+Worker workers[WORKERS];
+atomic_int stopped;
+uint64_t deadline,limit;
+int max_depth,tiny_errno;
+atomic_uint_fast64_t searched;
+Board position;
+uint64_t game_keys[HISTORY];
+int game_length;
+uint64_t now(void){return 0;}
+enum {CT_pvs=1,CT_qs,CT_hits,CT_hist_updates,CT_cont_updates,CT_corr_updates,CT_corr_uses,CT_ply_aborts};
+static FILE *trace;
+static uint64_t serial,active,total_calls;
+static unsigned case_index;
+static int search(Worker *,const Board *,int,int,int,int,Move,Move *);
+static int contract_body(Worker *,const Board *,int,int,int,int,Move,Move *);
+static void output(FILE *f,const void *p,size_t n){HC(fwrite(p,1,n,f)==n);}
+/* Exactly 32 little-endian uint64_t fields per event. Pointer arguments are
+ * represented by actual sole-worker authority, complete logical Board fields,
+ * and root NULL/value, rather than process-specific addresses. Tags: 1 entry,
+ * 2 return, 3 actual post-increment DEV counter event. */
+static void contract_count(Worker *w,int field,uint64_t value){
+    uint64_t a[32]={0};HC(w==workers && w->id==0 && active);
+    a[0]=3;a[1]=active;a[3]=w->id;a[4]=field;a[5]=value;
+    a[11]=w->length;a[12]=w->nodes;a[13]=atomic_load(&searched);a[14]=atomic_load(&stopped);
+    output(trace,a,sizeof a);
+}
+#include "subject.c"
+static void event(unsigned tag,uint64_t id,uint64_t parent,Worker *w,const Board *p,
+                  int depth,int alpha,int beta,int ply,Move previous,Move *root,int result){
+    uint64_t a[32]={0};HC(w==workers && w->id==0);
+    a[0]=tag;a[1]=id;a[2]=parent;a[3]=w->id;a[4]=(uint64_t)(int64_t)depth;
+    a[5]=(uint64_t)(int64_t)alpha;a[6]=(uint64_t)(int64_t)beta;a[7]=ply;
+    a[8]=previous;a[9]=root!=0;a[10]=root?*root:0;a[11]=w->length;
+    a[12]=w->nodes;a[13]=atomic_load(&searched);a[14]=atomic_load(&stopped);
+    a[15]=p->h;a[16]=p->r;a[17]=(uint64_t)(int64_t)p->s;a[18]=p->c;
+    a[19]=(uint64_t)(int64_t)p->e;a[20]=p->half;a[21]=(uint64_t)(int64_t)p->v;
+    a[22]=(unsigned)p->k[0]|((unsigned)p->k[1]<<8);
+    for(int q=0;q<128;q++){
+        if(q&0x88){HC(!p->b[q]);continue;}
+        unsigned n=(q>>4)*8+(q&7);
+        a[23+n/8]|=(uint64_t)(unsigned char)p->b[q]<<(8*(n%8));
+    }
+    a[31]=(uint64_t)(int64_t)result;output(trace,a,sizeof a);
+}
+static int search(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,Move previous,Move *root){
+    uint64_t parent=active,id=++serial;HC(++total_calls<=250000);
+    HC(ply>=0 && ply<PLY && w->length>=1 && w->length<HISTORY+PLY);
+    HC(w->keys[w->length-1]==p->h);
+    unsigned char before[sizeof *p];memcpy(before,p,sizeof before);int length=w->length;active=id;
+    event(1,id,parent,w,p,depth,alpha,beta,ply,previous,root,0);
+    int result=contract_body(w,p,depth,alpha,beta,ply,previous,root);
+    HC(!memcmp(before,p,sizeof before) && w->length==length);
+    event(2,id,parent,w,p,depth,alpha,beta,ply,previous,root,result);
+    active=parent;return result;
+}
+static void reset(void){
+    memset(workers,0,sizeof workers);memset(game_keys,0,sizeof game_keys);
+    for(size_t i=0;i<((size_t)1<<TT_BITS);i++){
+        atomic_flag_clear(&table[i].lock);table[i].key=table[i].data=0;
+    }
+    atomic_store(&stopped,0);atomic_store(&searched,0);deadline=UINT64_MAX;limit=0;
+}
+static void load_board(const char *text){
+    memset(&position,0,sizeof position);
+    if(!strcmp(text,"startpos"))start(&position);else HC(fen(&position,text));
+    HC(verify_board(&position));game_length=1;game_keys[0]=position.h;
+}
+static Move first(const Board *p){
+    Move moves[MOVES];Board q;int n=gen(p,moves);
+    for(int i=0;i<n;i++)if(make(p,moves[i],&q))return moves[i];
+    return 0;
+}
+static int legal(const Board *p,Move move){
+    Move moves[MOVES];Board q;int n=gen(p,moves);
+    for(int i=0;i<n;i++)if(moves[i]==move)return make(p,move,&q);
+    return !move&&!first(p);
+}
+static void begin(void){
+    char path[64];HC(!active && !trace);serial=0;
+    snprintf(path,sizeof path,"case-%02u.trace",case_index);trace=fopen(path,"wb");HC(trace);
+}
+static void snapshot(const char *label,int result){
+    Worker *w=workers;HC(!active && trace && !fclose(trace));trace=0;
+    HC(verify_board(&position) && w->length==game_length);
+    HC(!memcmp(w->keys,game_keys,game_length*sizeof(uint64_t)));
+    for(size_t i=0;i<((size_t)1<<TT_BITS);i++){
+        HC(!atomic_flag_test_and_set(&table[i].lock));atomic_flag_clear(&table[i].lock);
+    }
+    char path[64];snprintf(path,sizeof path,"case-%02u.state",case_index);
+    FILE *state=fopen(path,"wb");HC(state);
+    uint64_t scalars[]={sizeof *w,sizeof *table,((size_t)1<<TT_BITS),case_index,
+        (uint64_t)(int64_t)result,atomic_load(&stopped),atomic_load(&searched),deadline,limit,
+        (uint64_t)max_depth,(uint64_t)game_length,position.h,position.r,(uint64_t)position.half};
+    output(state,scalars,sizeof scalars);
+    output(state,w,sizeof *w); /* all Worker storage, including complete keys */
+    output(state,table,((size_t)1<<TT_BITS)*sizeof *table); /* actual full TT bytes */
+    output(state,game_keys,sizeof game_keys);
+    int board_fields[]={position.s,position.c,position.e,position.k[0],position.k[1],position.half,position.v};
+    output(state,board_fields,sizeof board_fields);output(state,position.b,sizeof position.b);HC(!fclose(state));
+    unsigned hist=0,cont=0,corr=0;
+    for(int a=0;a<128;a++)for(int b=0;b<128;b++)hist+=w->history[a][b]!=0;
+    for(int a=0;a<13;a++)for(int b=0;b<13;b++)cont+=w->continuation[a][b]!=0;
+    for(int a=0;a<1024;a++)corr+=w->correction[a]!=0;
+    printf("{\"case\":%u,\"label\":\"%s\",\"result\":%d,\"best\":%u,\"score\":%d,\"depth\":%d,\"nodes\":%llu,\"searched\":%llu,\"stopped\":%d,\"length\":%d,\"calls\":%llu,\"history_nonzero\":%u,\"continuation_nonzero\":%u,\"correction_nonzero\":%u,\"pvs\":%llu,\"qs\":%llu,\"hits\":%llu,\"hist\":%llu,\"cont\":%llu,\"corr\":%llu,\"corr_use\":%llu,\"abort\":%llu,\"hash\":\"%016llx\",\"context\":\"%016llx\"}\n",
+        case_index++,label,result,w->best,w->score,w->depth,(unsigned long long)w->nodes,
+        (unsigned long long)atomic_load(&searched),atomic_load(&stopped),w->length,
+        (unsigned long long)serial,hist,cont,corr,(unsigned long long)w->pvs,
+        (unsigned long long)w->qs,(unsigned long long)w->hits,(unsigned long long)w->hist_updates,
+        (unsigned long long)w->cont_updates,(unsigned long long)w->corr_updates,
+        (unsigned long long)w->corr_uses,(unsigned long long)w->ply_aborts,
+        (unsigned long long)position.h,(unsigned long long)position.r);
+}
+static void run_think(const char *label,int depth,uint64_t cap){
+    Worker *w=workers;unsigned char prior[sizeof position];memcpy(prior,&position,sizeof prior);
+    uint64_t saved[HISTORY];memcpy(saved,game_keys,sizeof saved);
+    max_depth=depth;limit=cap;deadline=UINT64_MAX;atomic_store(&searched,0);atomic_store(&stopped,0);
+    w->best=first(&position);begin();think(w,&position);
+    HC(!memcmp(prior,&position,sizeof prior) && !memcmp(saved,game_keys,sizeof saved));
+    HC(legal(&position,w->best));HC(w->nodes==atomic_load(&searched));
+    snapshot(label,w->score);
+}
+static void prepare_direct(void){
+    Worker *w=workers;w->nodes=0;w->depth=0;w->score=0;w->best=first(&position);
+    w->length=game_length;memcpy(w->keys,game_keys,game_length*sizeof(uint64_t));
+    atomic_store(&searched,0);atomic_store(&stopped,0);limit=0;deadline=UINT64_MAX;max_depth=0;
+}
+static void play(const char *text){
+    int from=text[0]-'a'+16*(text[1]-'1'),to=text[2]-'a'+16*(text[3]-'1');
+    Move move=MOVE(from,to,0);Board next;HC(legal(&position,move) && make(&position,move,&next));
+    position=next;HC(game_length<HISTORY);game_keys[game_length++]=position.h;HC(verify_board(&position));
+}
+int main(void){
+    static const struct {const char *label,*fen;int depth;} cases[]={
+        {"start-cold-depth5","startpos",5}, /* one bounded deeper case permits interior depth4 LMR */
+        {"kiwipete","r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",3},
+        {"legal-ep","6k1/8/8/3pP3/8/8/8/6K1 w - d6 0 1",4},
+        {"half99","7k/8/8/8/8/8/1Q6/K7 w - - 99 1",3},
+        {"half0","7k/8/8/8/8/8/1Q6/K7 w - - 0 1",3},
+        {"pawn","7k/8/8/8/8/8/P7/K7 w - - 0 1",4},
+        {"promotion","1r5k/P7/8/8/8/8/8/7K w - - 0 1",3},
+        {"separated-pawns","6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1",4},
+        {"queens","6k1/1q6/8/8/8/8/1Q6/K7 w - - 0 1",4},
+        {"mate-half100","7k/6Q1/6K1/8/8/8/8/8 b - - 100 1",4},
+        {"stalemate","7k/5Q2/6K1/8/8/8/8/8 b - - 0 1",3},
+        {"start-retained","startpos",4}
+    };
+    table=calloc((size_t)1<<TT_BITS,sizeof *table);HC(table);reset();
+    for(unsigned c=0;c<sizeof cases/sizeof *cases;c++){
+        load_board(cases[c].fen);run_think(cases[c].label,cases[c].depth,100000);
+    }
+    HC(workers[0].pvs && workers[0].qs && workers[0].hits && workers[0].hist_updates &&
+       workers[0].cont_updates && workers[0].corr_updates && workers[0].corr_uses);
+    load_board("startpos");play("g1f3");play("g8f6");play("f3g1");play("f6g8");
+    uint64_t same=position.h,context=position.r,prior_key=position.h^mix(position.r+(unsigned)position.half);
+    HC(position.half==4);run_think("context-g-knights",4,100000);
+    load_board("startpos");play("b1c3");play("b8c6");play("c3b1");play("c6b8");
+    HC(position.h==same && position.r!=context && position.half==4);
+    HC((position.h^mix(position.r+(unsigned)position.half))!=prior_key);
+    run_think("context-b-knights",4,100000);
+    prepare_direct();begin();
+    uint64_t key=position.h^mix(position.r+(unsigned)position.half),foreign=key^(UINT64_C(1)<<TT_BITS);
+    uint64_t sentinel=UINT64_C(0x123456789abcdef);
+    HC((key&((1u<<TT_BITS)-1))==(foreign&((1u<<TT_BITS)-1)));
+    HC(probe(foreign,1,sentinel)==sentinel && probe(key,0,0)==0);
+    HC(probe(key,1,sentinel)==sentinel && probe(key,0,0)==sentinel && probe(foreign,0,0)==0);
+    snapshot("full-key-collision",0);
+    reset();load_board("startpos");run_think("limit-1",12,1);
+    HC(atomic_load(&stopped) && workers[0].nodes==1 && workers[0].depth==0);
+    reset();load_board("startpos");run_think("limit-257-retains-completion",12,257);
+    HC(atomic_load(&stopped) && workers[0].nodes==257 && workers[0].depth>=1 && workers[0].depth<12);
+    reset();load_board("startpos");prepare_direct();atomic_store(&stopped,1);begin();
+    Move root=first(&position);HC(search(workers,&position,4,-MATE,MATE,0,0,&root)==0 && !workers[0].nodes);
+    snapshot("pre-stopped",0);
+    reset();load_board("startpos");prepare_direct();begin();root=first(&position);
+    HC(search(workers,&position,2,-MATE,MATE,PLY-1,0,&root)==0);
+    HC(atomic_load(&stopped) && workers[0].ply_aborts==1 && workers[0].nodes==1);
+    snapshot("ply-live-abort",0);
+    reset();load_board("7k/6Q1/6K1/8/8/8/8/8 b - - 100 1");prepare_direct();begin();root=0;
+    int score=search(workers,&position,2,-MATE,MATE,PLY-1,0,&root);
+    HC(score==-MATE+PLY-1 && !atomic_load(&stopped) && !workers[0].ply_aborts && workers[0].nodes==1);
+    snapshot("ply-mate-before-abort",score);
+    HC(case_index==20 && !trace && !active);free(table);return 0;
+}

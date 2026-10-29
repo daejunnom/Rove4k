@@ -1,0 +1,42 @@
+int generate(const Board *p,Move *moves,int captures){
+    int n=0,side=p->side;
+    for(int from=0;from<128;from++){
+        if(from&0x88){from+=7;continue;}
+        int v=p->b[from];if(v*side<=0)continue;int a=abs(v);
+        if(a==1){
+            int to=from+side*16,last=(to>>4)==0||(to>>4)==7;
+            if(!(to&0x88)&&!p->b[to]&&(!captures||last)){
+                if(last)for(int z=2;z<=5;z++)add(moves,&n,from,to,z);
+                else{
+                    add(moves,&n,from,to,0);int next=to+side*16;
+                    if((from>>4)==(side>0?1:6)&&!p->b[next])add(moves,&n,from,next,0);
+                }
+            }
+            for(int d=-1;d<=1;d+=2){
+                to=from+side*16+d;
+                if(!(to&0x88)&&(p->b[to]*side<0||to==p->ep)){
+                    if((to>>4)==0||(to>>4)==7)for(int z=2;z<=5;z++)add(moves,&n,from,to,z);
+                    else add(moves,&n,from,to,0);
+                }
+            }
+        }else{
+            int first=a==3?4:0,last=a==4?4:8;
+            for(int i=first;i<last;i++){
+                int direction=a==2?knight[i]:rays[i];
+                for(int to=from+direction;!(to&0x88);to+=direction){
+                    if(p->b[to]*side>0)break;
+                    if(!captures||p->b[to])add(moves,&n,from,to,0);
+                    if(p->b[to]||a==2||a==6)break;
+                }
+            }
+            if(a==6&&!captures){
+                int home=side>0?4:116,shift=side>0?0:2;
+                if(from==home&&!in_check(p)){
+                    if((p->castle&(1<<shift))&&!p->b[home+1]&&!p->b[home+2]&&!attacked(p,home+1,-side)&&!attacked(p,home+2,-side))add(moves,&n,from,home+2,0);
+                    if((p->castle&(2<<shift))&&!p->b[home-1]&&!p->b[home-2]&&!p->b[home-3]&&!attacked(p,home-1,-side)&&!attacked(p,home-2,-side))add(moves,&n,from,home-2,0);
+                }
+            }
+        }
+    }
+    return n;
+}

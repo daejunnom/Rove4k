@@ -1,0 +1,200 @@
+{
+  "format": 1,
+  "scope": "E5647 diagnostic qualification; references are source reuse only, not fresh E executions",
+  "control_files": {
+    ".gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "README.md": {
+      "bytes": 893,
+      "sha256": "320aab3f2d49de68d6507a8e053c238633b0f4cd20f920b6c5d933912980a647"
+    },
+    "alpha_guard.py": {
+      "bytes": 2268,
+      "sha256": "4ce6721673a32058aa385547d20027047a8d476a85db3d6c912b3de93e0cc618"
+    },
+    "build.py": {
+      "bytes": 12460,
+      "sha256": "a1b7c8f017281edcd50c9329292808da7bbb70b830204498f98f248978ee6085"
+    },
+    "candidate.c": {
+      "bytes": 27701,
+      "sha256": "c5f005b107f5d3fa93a4043fece78de848e248e67c4e58831a688efae8f2941d"
+    },
+    "control/engines/compact/tiny-a/pack_stream.py": {
+      "bytes": 5444,
+      "sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+    },
+    "control/engines/compact/tiny-a/stitch.py": {
+      "bytes": 3863,
+      "sha256": "2b0d25b4855a3ed4ddd9e24b8e4b0e081439baa2ed8f744dba0215a700023f23"
+    },
+    "control/engines/compact/tiny-entry-e/.gitattributes": {
+      "bytes": 14,
+      "sha256": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9"
+    },
+    "control/engines/compact/tiny-entry-e/README.md": {
+      "bytes": 10227,
+      "sha256": "99e5097ad3e4df1c12d92bd47981b26185705a93ca517510ef38b4cff113254a"
+    },
+    "control/engines/compact/tiny-entry-e/bootstrap.py.in": {
+      "bytes": 1072,
+      "sha256": "0402f63d44e66d57174079672762414a2324f8dd8c2b272fe34f49b68e45edbc"
+    },
+    "control/engines/compact/tiny-entry-e/build.py": {
+      "bytes": 9752,
+      "sha256": "2f558277494914b99340559f81ea3c0ce7e13c6fa63a72da00cdcbe1e9bc6e61"
+    },
+    "control/engines/compact/tiny-entry-e/engine.c": {
+      "bytes": 28001,
+      "sha256": "0a7fe69022051e1893ffbd52ade7a2fbb3f342fe20b581bb786d6997b46fb712"
+    },
+    "control/engines/compact/tiny-entry-e/fresh.py": {
+      "bytes": 5360,
+      "sha256": "81df003f684e813d5f77b2667cb9994767ac18a2065b7e7d1c0ae1706fad8d17"
+    },
+    "control/engines/compact/tiny-entry-e/launcher.sh": {
+      "bytes": 75,
+      "sha256": "a6fd458f0dec9193341bfe2ea128b0e4cba9aa3409822f85d2ca0f435734f50a"
+    },
+    "control/engines/compact/tiny-entry-e/recipe.json": {
+      "bytes": 5348,
+      "sha256": "d6469e8786a0019f36f015714f708cbdbd8cabc39862b04f884793eae0e046f7"
+    },
+    "control/engines/compact/tiny-entry-e/verify.py": {
+      "bytes": 7311,
+      "sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8"
+    },
+    "control/engines/scripts/fixed_shipping_alpha.py": {
+      "bytes": 21999,
+      "sha256": "92b351d537c1da0f346f072df2ca4b0be713d0e286e039b30efa9f758519c806"
+    },
+    "control/engines/scripts/minify.py": {
+      "bytes": 6624,
+      "sha256": "eb5eeca57b8f0f7225e639c8ee9e13fd1d5a5f159e58c38d66e0dea3b0433c3b"
+    },
+    "control/engines/scripts/rename_c.py": {
+      "bytes": 12574,
+      "sha256": "9d7d09e2787cfda21701384be94ed00d588165574da5d8aacdf731fcb317cbe5"
+    },
+    "control/engines/scripts/specialize.py": {
+      "bytes": 2386,
+      "sha256": "3ba574c05f8c3be3629308f9bb1bc8214988893234cca25e2420dc0c7e00704d"
+    },
+    "control/engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "control/engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    },
+    "engine.c": {
+      "bytes": 27701,
+      "sha256": "c5f005b107f5d3fa93a4043fece78de848e248e67c4e58831a688efae8f2941d"
+    },
+    "generate.py": {
+      "bytes": 2393,
+      "sha256": "2f6112ce64a0c73abec6ffbd64ae69a495f116d9fcedfeb37870d4207c61363e"
+    },
+    "header_gate.py": {
+      "bytes": 3692,
+      "sha256": "a01a5dfd0e0a16022df333958c42ff3a9ed99918603f6a059d03337371f7c26d"
+    },
+    "recipe.json": {
+      "bytes": 5272,
+      "sha256": "828e62cc10f944213ebd7317073ad2d3cdb1021feb4096d09e3d92be134573bd"
+    },
+    "support.py": {
+      "bytes": 9639,
+      "sha256": "10cffa19a48b3d604fe22dfff468af27f2e01d30d86a1e39e2b5e410cf9df30e"
+    }
+  },
+  "reference_files": {
+    "engines/compact/tiny-entry-e/verify.py": {
+      "bytes": 7311,
+      "sha256": "890ab0379c24f70eca1e058ac25ad51dcb7f4f6d6e3ac0fea8dfc0a823e32af8"
+    },
+    "engines/experiments/tiny-a-ownership/query-check.py": {
+      "bytes": 15194,
+      "sha256": "24913b6757861d8f73e3c757c967072e3866e15ce2e3888d28146a280c9e6c26"
+    },
+    "engines/experiments/tiny-a-ownership/query-contract.c": {
+      "bytes": 10149,
+      "sha256": "e1df5fdf558ed01e912d26e31089232dfc8d893ba7b73bb6193e37d0d6141997"
+    },
+    "engines/experiments/tiny-a-startup/phase-check.py": {
+      "bytes": 17791,
+      "sha256": "5ff17cf735d6b8eb273860f2419d269fcc958edd9a8a5def3ffeda7af2290f69"
+    },
+    "engines/experiments/tiny-a-startup/phase-contract.c": {
+      "bytes": 14210,
+      "sha256": "7b2cc56148c5de5f71f27c162235dcace03617f2b508d1a34dbb8404a1d8620e"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/epoch-check.py": {
+      "bytes": 14703,
+      "sha256": "e525123ba436e8a2b8d62fcb7e9889e8bd1ce2e54a462948d339d9b76062b517"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/epoch-contract.c": {
+      "bytes": 10330,
+      "sha256": "1027c66b983ed6845f4cb24ca57248e9f322dccbd45bf6aeaf4230b6dbc168bd"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/phase-check.py": {
+      "bytes": 5252,
+      "sha256": "8dd3170a79f1d649f68446befb6349cc8748c7484e2859ff29a31fa4600dfae9"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/phase-contract.c": {
+      "bytes": 14210,
+      "sha256": "3888d6cb9cd8be4134cbc0174024b56efb2a432cc11182d8ab2a138a0fe81192"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/query-check.py": {
+      "bytes": 14239,
+      "sha256": "8a40c485118cd5721e20607f00b441ddbcc6e2fddbb2767d0271a0edc2ae2fa0"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/query-contract.c": {
+      "bytes": 9810,
+      "sha256": "84492bc51725f04d6f6f768e28f40cd41707b23c1d98c3e7090021f299783e75"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/runtime-check.py": {
+      "bytes": 9755,
+      "sha256": "198124a5c5835444d7aa5513b1cb328c2c3881dcc242c458b8e2a1e91be54551"
+    },
+    "engines/experiments/tiny-c-entry-composition-proof/runtime_ownership.py": {
+      "bytes": 2616,
+      "sha256": "1d55526126696f3c03c2d8e17e25bff2803c18984c63d6741891e330c08c50af"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/epoch-check.py": {
+      "bytes": 19326,
+      "sha256": "491fb666e81cf22219b98196aa81dc1c3def9db65cb65672ec1acd662930ee88"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/epoch-contract.c": {
+      "bytes": 13150,
+      "sha256": "284c42b0e1ec322fcf45394c615cbae6bc702303425055d5369b5e8c9baf4999"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/phase-check.py": {
+      "bytes": 8204,
+      "sha256": "ba244549ee2d06971f949d617663e553a4768dcf6c2bb9cbb5aab615378d211c"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/phase-contract.c": {
+      "bytes": 14210,
+      "sha256": "b40ea3a2cee452603d2700dcb85640b6ede9876c1c5571d89843207aca194ffe"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/query-check.py": {
+      "bytes": 14269,
+      "sha256": "5c151b8a94fbb9c68c415e4c32901037a69adebc2236ced6b97d6dc751ce8c0a"
+    },
+    "engines/experiments/tiny-f-source-composition-proof/query-contract.c": {
+      "bytes": 9777,
+      "sha256": "11f4447de9b4c4ac591d0ee66d1bf71ad34684e146332ebf9b38c9b0b98cb18c"
+    },
+    "engines/tests/chess_oracle.py": {
+      "bytes": 10730,
+      "sha256": "aea285b5b5f07602c829595840d5270fa8dc25683ccd26c63607435679024db8"
+    },
+    "engines/tests/verify.py": {
+      "bytes": 45921,
+      "sha256": "9327ad01dd75bc17f04f400b57d5af3d6891a1abbb7f22aa6222389d50da138f"
+    }
+  }
+}

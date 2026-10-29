@@ -330,10 +330,13 @@ def bind_materializer_source(origin, expected_head, *, out=None):
     for node in ast.parse(declaration).body:
         if isinstance(node, ast.Assign):
             for target in node.targets:
-                if isinstance(target, ast.Name) and target.id in ("HOST_MODULES", "CORE_R"):
+                if isinstance(target, ast.Name) and target.id in (
+                        "HOST_MODULES", "CORE_R", "LEAGUE_HOST_MODULES", "LEAGUE_CORE_R"):
                     require(target.id not in values, "duplicate committed materializer source closure")
                     values[target.id] = ast.literal_eval(node.value)
-    require(set(values) == {"HOST_MODULES", "CORE_R"}
+    required = {"HOST_MODULES", "CORE_R"}
+    league = {"LEAGUE_HOST_MODULES", "LEAGUE_CORE_R"}
+    require(set(values) in (required, required | league)
             and all(type(value) is tuple and 0 < len(value) <= 128 for value in values.values()),
             "static committed materializer source closure required")
     modules, core = values["HOST_MODULES"], values["CORE_R"]
@@ -341,7 +344,172 @@ def bind_materializer_source(origin, expected_head, *, out=None):
             and {"cloud_runtime", "aws", "budget", "collect", "ledger", "registry", "run", "topology",
                  "durability", "fastchess", "placement", "seed"} <= set(modules)
             and "engines/scripts/production.py" in core, "committed materializer import closure is incomplete")
+    # The league dependencies are lazy, but they must be bound before source
+    # can be imported if this committed controller/verifier declares them.
+    # Examine committed text only; never execute a checkout module here.
+    run_source = git(origin, "show", expected_head + ":engines/experiments/strength/run.py", limit=32 << 20)
+    verifier_source = git(origin, "show", expected_head + ":engines/experiments/tcec-next/profile_verify.py", limit=32 << 20)
+    fastchess_name = "engines/experiments/strength/" + "fastchess.py"
+    fastchess_source = git(origin, "show", expected_head + ":" + fastchess_name, limit=32 << 20)
+    sealed_opening_feature = any(isinstance(node, ast.Constant) and isinstance(node.value, str)
+                                 and "ROVE_OPENING_FD" in node.value
+                                 for node in ast.walk(ast.parse(fastchess_source)))
+    has_league_import = any(
+        (isinstance(node, ast.ImportFrom) and node.module is not None
+         and node.module.split(".")[-1] == "memory_observation")
+        or (isinstance(node, (ast.Import, ast.ImportFrom))
+            and any(alias.name.split(".")[-1] == "memory_observation" for alias in node.names))
+        for node in ast.walk(ast.parse(run_source)))
+    has_league_owner = any(
+        isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "LEAGUE_PROFILE_OWNER"
+                                              for target in node.targets)
+        for node in ast.parse(verifier_source).body)
+    require(not (has_league_import or has_league_owner or sealed_opening_feature) or league <= set(values),
+            "committed league materializer source closure is incomplete")
     names = tuple("engines/experiments/strength/" + name + ".py" for name in modules) + tuple(logical(name) for name in core)
+    if league <= set(values):
+        # A checkout declaring the new execution paths must bind the exact
+        # source dependencies before even its seed materializer is imported.
+        # Older source revisions without either declaration retain their
+        # original materializer closure and validation behavior.
+        require((values["LEAGUE_HOST_MODULES"], values["LEAGUE_CORE_R"]) in (
+                (("memory_observation",), ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor"), ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer"),
+                 ("engines/scripts/league_resource_profiles.py",)),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py")),
+                (("memory_observation", "overhead", "league_probe", "diagnostic_candidates", "peak_capacity", "peak_probe_session", "peak_ready_probe",
+                  "peak_receipt", "peak_supervisor", "rove_runtime_observation", "rove_worker_observer", "rove_vma_observer", "functional_uci_probe", "functional_probe_session", "league_functional_host", "peer_diagnostic_prepare", "rove_b_tt_observe", "rove_b_static_tt", "original_peer_build", "peer_exact_runner", "original_peer_uci", "opening_pgn", "league_executor", "league_score_plan", "sealed_opening_exec"),
+                 ("engines/scripts/league_resource_profiles.py", "engines/experiments/tcec-scope/verify.py",
+                  "engines/compact/tiny-entry-d/verify.py", "engines/tests/chess_oracle.py"))),
+                "committed league materializer source closure differs")
+        cloud_source = git(origin, "show", expected_head + ":engines/experiments/strength/cloud_runtime.py", limit=32 << 20)
+        cloud_declarations = [node for node in ast.parse(cloud_source).body if isinstance(node, ast.Assign)
+                              and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name)
+                              and node.targets[0].id == "LEAGUE_HOST_SOURCE_FILES"]
+        observer_bound = False
+        if cloud_declarations:
+            require(len(cloud_declarations) == 1, "duplicate committed league host source declaration")
+            cloud_names = ast.literal_eval(cloud_declarations[0].value)
+            require(type(cloud_names) is tuple and all(isinstance(name, str) for name in cloud_names),
+                    "static committed league host source declaration required")
+            if any(name.endswith(("/functional_uci_probe.py", "/functional_probe_session.py")) for name in cloud_names):
+                require({"functional_uci_probe", "functional_probe_session"} <= set(values["LEAGUE_HOST_MODULES"])
+                        and len(values["LEAGUE_CORE_R"]) == 4,
+                        "committed functional diagnostic source closure is incomplete")
+            if any(name.endswith("/league_functional_host.py") for name in cloud_names):
+                require("league_functional_host" in values["LEAGUE_HOST_MODULES"],
+                        "committed functional host source closure is incomplete")
+            require(any(name.endswith("/peer_diagnostic_prepare.py") for name in cloud_names) ==
+                    ("peer_diagnostic_prepare" in values["LEAGUE_HOST_MODULES"]),
+                    "committed peer diagnostic source closure is incomplete")
+            observer_path = "engines/experiments/strength/" + "rove_b_tt_observe.py"
+            observer_entries = tuple(name for name in cloud_names
+                                     if name.replace("\\", "/").rsplit("/", 1)[-1] == "rove_b_tt_observe.py")
+            require(observer_entries in ((), (observer_path,)),
+                    "committed B observer source path is not canonical or is duplicated")
+            observer_bound = bool(observer_entries)
+            require(observer_bound == ("rove_b_tt_observe" in values["LEAGUE_HOST_MODULES"]),
+                    "committed B observer source closure is incomplete")
+            static_path = "engines/experiments/strength/" + "rove_b_static_tt.py"
+            static_entries = tuple(name for name in cloud_names
+                                   if name.replace("\\", "/").rsplit("/", 1)[-1] == "rove_b_static_tt.py")
+            require(static_entries in ((), (static_path,)) and
+                    bool(static_entries) == ("rove_b_static_tt" in values["LEAGUE_HOST_MODULES"]),
+                    "committed B static source closure is incomplete")
+            for original in ("original_peer_build", "peer_exact_runner", "original_peer_uci"):
+                canonical = "engines/experiments/strength/" + original + ".py"
+                matching = tuple(name for name in cloud_names
+                                 if name.replace("\\", "/").rsplit("/", 1)[-1] == original + ".py")
+                require(matching in ((), (canonical,)) and
+                        bool(matching) == (original in values["LEAGUE_HOST_MODULES"]),
+                        "committed original peer source closure is incomplete")
+            opening_name = "engines/experiments/strength/" + "opening_pgn.py"
+            opening_entries = tuple(name for name in cloud_names
+                                    if name.replace("\\", "/").rsplit("/", 1)[-1] == "opening_pgn.py")
+            require(opening_entries in ((), (opening_name,)) and
+                    bool(opening_entries) == ("opening_pgn" in values["LEAGUE_HOST_MODULES"]),
+                    "committed opening PGN source closure is incomplete")
+            for helper in ("league_executor", "league_score_plan", "sealed_opening_exec"):
+                canonical = "engines/experiments/strength/" + helper + ".py"
+                matching = tuple(name for name in cloud_names
+                                 if name.replace("\\", "/").rsplit("/", 1)[-1] == helper + ".py")
+                require(matching in ((), (canonical,)) and
+                        bool(matching) == (helper in values["LEAGUE_HOST_MODULES"]),
+                        "committed sealed league source closure is incomplete")
+        else:
+            require("peer_diagnostic_prepare" not in values["LEAGUE_HOST_MODULES"],
+                    "committed peer diagnostic source closure is incomplete")
+            require("rove_b_tt_observe" not in values["LEAGUE_HOST_MODULES"],
+                    "committed B observer source closure is incomplete")
+            require("rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"],
+                    "committed B static source closure is incomplete")
+            require(not {"original_peer_build", "peer_exact_runner", "original_peer_uci"}.intersection(values["LEAGUE_HOST_MODULES"]),
+                    "committed original peer source closure is incomplete")
+            require("opening_pgn" not in values["LEAGUE_HOST_MODULES"],
+                    "committed opening PGN source closure is incomplete")
+            require(not {"league_executor", "league_score_plan", "sealed_opening_exec"}.intersection(values["LEAGUE_HOST_MODULES"]),
+                    "committed sealed league source closure is incomplete")
+        if "diagnostic_candidates" in values["LEAGUE_HOST_MODULES"] and "rove_b_static_tt" not in values["LEAGUE_HOST_MODULES"]:
+            diagnostic_name = "engines/experiments/strength/" + "diagnostic_candidates.py"
+            diagnostic_source = git(origin, "show", expected_head + ":" + diagnostic_name, limit=32 << 20)
+            static_imported = any(
+                (isinstance(node, ast.ImportFrom) and node.module is not None and node.module.split(".")[-1] == "rove_b_static_tt")
+                or (isinstance(node, (ast.Import, ast.ImportFrom)) and
+                    any(alias.name.split(".")[-1] == "rove_b_static_tt" for alias in node.names))
+                for node in ast.walk(ast.parse(diagnostic_source)))
+            require(not static_imported, "committed B static source closure is incomplete")
+        if "functional_uci_probe" in values["LEAGUE_HOST_MODULES"] and not observer_bound:
+            functional_name = "engines/experiments/strength/" + "functional_uci_probe.py"
+            functional_source = git(origin, "show", expected_head + ":" + functional_name, limit=32 << 20)
+            observer_imported = any(
+                (isinstance(node, ast.ImportFrom) and node.module is not None
+                 and node.module.split(".")[-1] == "rove_b_tt_observe")
+                or (isinstance(node, (ast.Import, ast.ImportFrom)) and
+                    any(alias.name.split(".")[-1] == "rove_b_tt_observe" for alias in node.names))
+                for node in ast.walk(ast.parse(functional_source)))
+            require(not observer_imported, "committed B observer source closure is incomplete")
+        original_modules = {"original_peer_build", "peer_exact_runner", "original_peer_uci"}
+        declared_original = original_modules.intersection(values["LEAGUE_HOST_MODULES"])
+        require(not declared_original or declared_original == original_modules,
+                "committed original peer source closure is incomplete")
+        sealed_modules = {"league_executor", "league_score_plan", "sealed_opening_exec"}
+        declared_sealed = sealed_modules.intersection(values["LEAGUE_HOST_MODULES"])
+        require(not declared_sealed or declared_sealed == sealed_modules,
+                "committed sealed league source closure is incomplete")
+        require(not sealed_opening_feature or declared_sealed == sealed_modules,
+                "committed sealed league source closure is incomplete")
+        names += tuple("engines/experiments/strength/" + name + ".py" for name in values["LEAGUE_HOST_MODULES"])
+        names += values["LEAGUE_CORE_R"]
     require(len(set(names)) == len(names), "duplicate committed materializer source member")
     records = git(origin, "ls-tree", "-r", "-z", expected_head, "--", *sorted(names)).split(b"\0")
     tracked = {}
@@ -353,6 +521,24 @@ def bind_materializer_source(origin, expected_head, *, out=None):
                 "materializer closure must contain regular committed source blobs")
         tracked[name] = (blob, mode)
     require(set(tracked) == set(names), "committed materializer source closure is missing")
+    if league <= set(values):
+        for consumer in ("diagnostic_candidates", "peak_ready_probe", "original_peer_build",
+                         "league_executor", "league_score_plan", "sealed_opening_exec"):
+            if consumer not in values["LEAGUE_HOST_MODULES"]:
+                continue
+            source_name = "engines/experiments/strength/" + consumer + ".py"
+            source = git(origin, "show", expected_head + ":" + source_name, limit=32 << 20)
+            tree = ast.parse(source)
+            imports = {alias.name.split(".")[-1] for node in ast.walk(tree)
+                       if isinstance(node, (ast.Import, ast.ImportFrom)) for alias in node.names}
+            imports.update(node.module.split(".")[-1] for node in ast.walk(tree)
+                           if isinstance(node, ast.ImportFrom) and node.module is not None)
+            require(not (imports & original_modules) or declared_original == original_modules,
+                    "committed original peer source closure is incomplete")
+            require("opening_pgn" not in imports or "opening_pgn" in values["LEAGUE_HOST_MODULES"],
+                    "committed opening PGN source closure is incomplete")
+            require(not (imports & sealed_modules) or declared_sealed == sealed_modules,
+                    "committed sealed league source closure is incomplete")
     sources = {}
     for name, (blob, mode) in tracked.items():
         size = git(origin, "cat-file", "-s", blob).decode().strip()

@@ -1,0 +1,9 @@
+    pub fn start() -> Self {
+        let mut b = Self::empty(); b.castle = 15;
+        let back = [4, 2, 3, 5, 6, 3, 2, 4];
+        for f in 0..8 {
+            b.put(f, back[f]); b.put(f + 16, 1);
+            b.put(f + 96, -1); b.put(f + 112, -back[f]);
+        }
+        b.hash ^= b.state(); b.context = b.hash; b
+    }

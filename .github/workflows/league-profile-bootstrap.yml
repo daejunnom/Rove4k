@@ -1,0 +1,1010 @@
+name: Experimental P16 and P192 source profiles
+
+on:
+  pull_request:
+    paths:
+      - 'engines/**'
+      - '.github/workflows/league-profile-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: league-profile-bootstrap-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  source-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install and verify LZMA1EXT test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends liblzma-dev xz-utils
+          command -v cc
+          command -v xz
+          cc -std=c11 -O2 -Wall -Wextra engines/experiments/strength/peer_lzma1ext_trial.c \
+            -llzma -o "$RUNNER_TEMP/rove4k-lzma1ext-test-helper"
+          "$RUNNER_TEMP/rove4k-lzma1ext-test-helper" --version | tee "$RUNNER_TEMP/rove4k-lzma1ext-test-version.txt"
+          grep -Eq ' ext=1$' "$RUNNER_TEMP/rove4k-lzma1ext-test-version.txt"
+      - name: Install pinned development-only rules oracle
+        run: python -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Check league geometry and strict rules contracts without launching engines
+        run: |
+          set -o pipefail
+          python -B -m unittest discover -s engines/scripts -p test_league_resource_profiles.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_rules.py -k league -k new_test_profiles
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_b_league_spelling.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_b_selection.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_square.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_ep.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_acef_league_atomic.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_candidate_compare.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_selection.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_profile_league_compound.py
+          python -B -m unittest discover -s engines/experiments/tcec-next -p test_league_compound_compare.py
+      - name: Check league runner, placement and service boundaries with owned fixtures
+        env:
+          AWS_EC2_METADATA_DISABLED: 'true'
+          AWS_SHARED_CREDENTIALS_FILE: /dev/null
+          AWS_CONFIG_FILE: /dev/null
+        run: |
+          set -o pipefail
+          python -B -m unittest discover -s engines/experiments/strength -p 'test_*.py' \
+            2>&1 | tee "$RUNNER_TEMP/rove4k-league-strength-contracts.log"
+      - name: Preserve runner-contract test output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-strength-contracts-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rove4k-league-strength-contracts.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  generate:
+    name: source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant || matrix.b_variant }}
+    needs: source-contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, b_variant: control}
+          - {family: A, profile: test-p192, b_variant: control}
+          - {family: B, profile: test-p16, b_variant: control}
+          - {family: B, profile: test-p192, b_variant: control}
+          - {family: C, profile: test-p16, b_variant: control}
+          - {family: C, profile: test-p192, b_variant: control}
+          - {family: E, profile: test-p16, b_variant: control}
+          - {family: E, profile: test-p192, b_variant: control}
+          - {family: F, profile: test-p16, b_variant: control}
+          - {family: F, profile: test-p192, b_variant: control}
+          - {family: B, profile: test-p16, b_variant: tcec-final-lf}
+          - {family: B, profile: test-p192, b_variant: tcec-final-lf}
+          - {family: B, profile: test-p16, b_variant: tcec-final-lf, variant: league-atomic, spelling: league-atomic, source_dependencies: unused-includes}
+          - {family: B, profile: test-p192, b_variant: tcec-final-lf, variant: league-atomic, spelling: league-atomic, source_dependencies: unused-includes}
+          - {family: A, profile: test-p16, b_variant: control, variant: square-successor}
+          - {family: A, profile: test-p192, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-successor}
+          - {family: C, profile: test-p16, b_variant: control, variant: legal-maker}
+          - {family: C, profile: test-p192, b_variant: control, variant: legal-maker}
+          - {family: E, profile: test-p16, b_variant: control, variant: legal-maker}
+          - {family: E, profile: test-p192, b_variant: control, variant: legal-maker}
+          - {family: A, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: A, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: C, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: C, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: E, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: E, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: F, profile: test-p16, b_variant: control, variant: atomic-assignment}
+          - {family: F, profile: test-p192, b_variant: control, variant: atomic-assignment}
+          - {family: A, profile: test-p16, b_variant: control, variant: square-atomic}
+          - {family: A, profile: test-p192, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-ep}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-ep}
+          - {family: C, profile: test-p16, b_variant: control, variant: ep-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: ep-atomic}
+          - {family: C, profile: test-p16, b_variant: control, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, b_variant: control, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, b_variant: control, variant: ep-atomic}
+          - {family: E, profile: test-p192, b_variant: control, variant: ep-atomic}
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      B_VARIANT: ${{ matrix.b_variant }}
+      VARIANT: ${{ matrix.variant || matrix.b_variant }}
+      SPELLING_VARIANT: ${{ matrix.spelling || 'control' }}
+      SOURCE_DEPENDENCIES: ${{ matrix.source_dependencies || 'control' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Record actual host and tool identities
+        run: |
+          EVIDENCE_ROOT="$RUNNER_TEMP/rove4k-league-${FAMILY}-${PROFILE}-${VARIANT}-${{ github.run_attempt }}"
+          mkdir "$EVIDENCE_ROOT"
+          printf 'EVIDENCE_ROOT=%s\n' "$EVIDENCE_ROOT" >> "$GITHUB_ENV"
+          { uname -a; python --version; command -v cc; cc --version; } > "$EVIDENCE_ROOT/toolchain.txt" 2>&1
+          compiler_executable="$(command -v cc)"
+          linker_name="$(cc -print-prog-name=ld)"
+          linker_executable="$(command -v "$linker_name")"
+          sha256sum "$compiler_executable" | cut -d ' ' -f1 > "$EVIDENCE_ROOT/compiler-sha256.txt"
+          sha256sum "$linker_executable" | cut -d ' ' -f1 > "$EVIDENCE_ROOT/linker-sha256.txt"
+      - name: Install pinned development-only rules oracle
+        run: |
+          set -o pipefail
+          python -m pip install --require-hashes -r engines/training/e19/requirements.txt \
+            2>&1 | tee "$EVIDENCE_ROOT/oracle-install.log"
+      - name: Generate and package the full selected candidate twice
+        # Each is a fresh source-JIT candidate. The producer performs
+        # compilation, strict payload inverse and two byte comparisons; it does
+        # not execute the original engine or allocate either large TT.
+        run: |
+          set -o pipefail
+          if [ "$VARIANT" = league-atomic ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --emit-arguments > "$EVIDENCE_ROOT/selection-arguments.txt"
+            mapfile -t selected_arguments < "$EVIDENCE_ROOT/selection-arguments.txt"
+          else
+            selected_arguments=(--entry "$FAMILY" --profile "$PROFILE" --representation source-jit
+              --b-variant "$B_VARIANT" --phase-variant control --spelling-variant "$SPELLING_VARIANT"
+              --scan-variant control --ep-variant control --source-dependencies "$SOURCE_DEPENDENCIES")
+            case "$VARIANT" in
+              square-successor|legal-maker|atomic-assignment|square-atomic|square-ep|ep-atomic|square-ep-atomic) selected_arguments+=(--league-variant "$VARIANT") ;;
+            esac
+          fi
+          timeout --signal=TERM --kill-after=30s 1200s \
+            python -I -B engines/experiments/tcec-next/profile_build.py \
+              "${selected_arguments[@]}" \
+              --out "$EVIDENCE_ROOT/build" 2>&1 | tee "$EVIDENCE_ROOT/build.log"
+          if [ "$VARIANT" = league-atomic ]; then
+            python -I -B engines/experiments/tcec-next/league_b_selection.py \
+              --profile "$PROFILE" --check-manifest "$EVIDENCE_ROOT/build/build.json" \
+              > "$EVIDENCE_ROOT/selection.json"
+          fi
+      - name: Independently compare the actual five artifact parts and source inverse
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import json
+          import lzma
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          manifest = json.loads((build / 'build.json').read_text())
+          if manifest.get('family') != os.environ['FAMILY'] or manifest.get('complete') is not True or manifest.get('reproducible') is not True:
+              raise ValueError('producer did not complete the named reproducible build')
+          if manifest['resources']['id'] != os.environ['PROFILE']:
+              raise ValueError('resource profile differs from matrix input')
+          names = ('main.c', 'native/x', 'header.sh', 'payload.lzma', 'x')
+          evidence = {}
+          for name in names:
+              first = (build / 'first' / name).read_bytes()
+              repeat = (build / 'repeat' / name).read_bytes()
+              public = (build / name).read_bytes()
+              if first != repeat or first != public:
+                  raise ValueError('actual artifact parts differ: ' + name)
+              evidence[name] = {'bytes': len(first), 'sha256': hashlib.sha256(first).hexdigest()}
+          source = (build / 'main.c').read_bytes()
+          header = (build / 'header.sh').read_bytes()
+          payload = (build / 'payload.lzma').read_bytes()
+          whole = (build / 'x').read_bytes()
+          decoder = lzma.LZMADecompressor(format=lzma.FORMAT_ALONE)
+          if decoder.decompress(payload, max_length=len(source) + 1) != source or not decoder.eof or decoder.unused_data:
+              raise ValueError('source-JIT payload restoration differs')
+          if whole != header + payload or len(whole) != manifest['expected_contract']['whole_bytes']:
+              raise ValueError('whole artifact size or composition differs')
+          result = {'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                    'b_variant': os.environ['B_VARIANT'], 'variant': os.environ['VARIANT'],
+                    'parts': evidence, 'actual_whole_bytes': len(whole),
+                    'whole_at_most_4096': len(whole) <= 4096,
+                    'original_engine_executed': False, 'runtime_qualified': False,
+                    'physical_placement_qualified': False, 'playing_strength_qualified': False}
+          (root / 'artifact-audit.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          PY
+      - name: Preserve the exact resource projection before any later source stage
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          frozen = build / 'inputs'
+          def load(name, path):
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              sys.modules[name] = module
+              spec.loader.exec_module(module)
+              return module
+          api = load('league_ci_frozen_production', frozen / 'engines/scripts/production.py')
+          league = load('league_ci_frozen_resource_owner', frozen / 'engines/scripts/league_resource_profiles.py')
+          projection = load('league_ci_frozen_projection', frozen / 'engines/experiments/tcec-next/profile_source.py')
+          profile = league.resource_profile(api, os.environ['PROFILE'])
+          baseline = (build / 'control/main.c').read_bytes()
+          source, proof = projection.transform_source(baseline, family=os.environ['FAMILY'],
+                                                      profile=profile, entry_cleanup='private-path')
+          manifest = json.loads((build / 'build.json').read_text())
+          if proof != manifest['source_proofs'][0] or projection.restore_source(source, proof) != baseline:
+              raise ValueError('resource projection does not match the actual bound producer proof')
+          if proof['output'] != {'bytes': len(source), 'sha256': hashlib.sha256(source).hexdigest()}:
+              raise ValueError('resource projection output pin differs')
+          (root / 'resource-projection.c').write_bytes(source)
+          (root / 'resource-projection-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps({'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                            'projection': proof['output'], 'source_qualified': False}, sort_keys=True))
+          PY
+      - name: Verify the exact B selected projection and complete inverse
+        if: matrix.b_variant == 'tcec-final-lf'
+        run: |
+          python -I -B - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          path = build / 'inputs/engines/experiments/tcec-next/profile_b.py'
+          spec = importlib.util.spec_from_file_location('league_ci_frozen_b_projection', path)
+          module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
+          spec.loader.exec_module(module)
+          parent = (root / 'resource-projection.c').read_bytes()
+          candidate, proof = module.transform_source(parent, profile_id=os.environ['PROFILE'],
+              entry_cleanup='private-path', variant=os.environ['B_VARIANT'])
+          manifest = json.loads((build / 'build.json').read_text())
+          if manifest['source_proofs'][1] != proof or module.restore_source(candidate, proof) != parent:
+              raise ValueError('B source stage or its complete inverse differs')
+          live_helper = Path('engines/experiments/tcec-next/profile_b.py').resolve()
+          if live_helper.read_bytes() != path.read_bytes():
+              raise ValueError('actual-source B test helper differs from frozen producer')
+          test_path = Path('engines/experiments/tcec-next/test_profile_b_league.py').resolve()
+          test_spec = importlib.util.spec_from_file_location('league_ci_actual_b_test', test_path)
+          test_module = importlib.util.module_from_spec(test_spec)
+          sys.modules[test_spec.name] = test_module
+          test_spec.loader.exec_module(test_module)
+          tested, tested_proof = test_module.check_actual_source(parent, profile_id=os.environ['PROFILE'])
+          if tested != candidate or tested_proof != proof:
+              raise ValueError('actual-source B arithmetic test binds a different projection')
+          try:
+              test_module.check_actual_source(parent + b'\n', profile_id=os.environ['PROFILE'])
+          except ValueError:
+              pass
+          else:
+              raise ValueError('mutated actual B resource projection was accepted')
+          if os.environ['VARIANT'] == 'tcec-final-lf':
+              if candidate != (build / 'main.c').read_bytes():
+                  raise ValueError('control-spelling B source differs from the final source')
+          elif os.environ['VARIANT'] == 'league-atomic':
+              atomic_path = build / 'inputs/engines/experiments/tcec-next/profile_b_league_spelling.py'
+              atomic_live = Path('engines/experiments/tcec-next/profile_b_league_spelling.py').resolve()
+              if atomic_live.read_bytes() != atomic_path.read_bytes():
+                  raise ValueError('atomic helper differs from the frozen producer')
+              atomic_test_path = Path('engines/experiments/tcec-next/test_profile_b_league_spelling.py').resolve()
+              atomic_spec = importlib.util.spec_from_file_location('league_ci_actual_atomic_test', atomic_test_path)
+              atomic_test = importlib.util.module_from_spec(atomic_spec)
+              sys.modules[atomic_spec.name] = atomic_test
+              atomic_spec.loader.exec_module(atomic_test)
+              atomic_candidate, atomic_proof = atomic_test.check_actual_source(candidate, profile_id=os.environ['PROFILE'])
+              if manifest['source_proofs'][2] != atomic_proof:
+                  raise ValueError('actual B atomic proof differs from the producer')
+              dep_path = build / 'inputs/engines/experiments/tcec-next/profile_dependencies.py'
+              dep_spec = importlib.util.spec_from_file_location('league_ci_frozen_dependencies', dep_path)
+              dependencies = importlib.util.module_from_spec(dep_spec)
+              sys.modules[dep_spec.name] = dependencies
+              dep_spec.loader.exec_module(dependencies)
+              final_source = (build / 'main.c').read_bytes()
+              if dependencies.restore_source(final_source, manifest['source_proofs'][3]) != atomic_candidate:
+                  raise ValueError('final dependency inverse differs from the actual atomic candidate')
+              (root / 'atomic-projection.c').write_bytes(atomic_candidate)
+              (root / 'atomic-projection-proof.json').write_text(json.dumps(atomic_proof, indent=2) + '\n')
+          else:
+              raise ValueError('unrecognized B projection variant')
+          (root / 'b-projection.c').write_bytes(candidate)
+          (root / 'b-projection-proof.json').write_text(json.dumps(proof, indent=2) + '\n')
+          print(json.dumps({'family': os.environ['FAMILY'], 'profile': os.environ['PROFILE'],
+                            'b_variant': os.environ['B_VARIANT'], 'variant': os.environ['VARIANT'], 'stage_inverse': True,
+                            'runtime_qualified': False}, sort_keys=True))
+          PY
+      - name: Run actual source-bound rules fixtures without the engine or TT
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" \
+            --source "$EVIDENCE_ROOT/build/main.c" \
+            --baseline "$EVIDENCE_ROOT/build/control/main.c" \
+            --proof "$EVIDENCE_ROOT/build/source-proof.json" \
+            --build "$EVIDENCE_ROOT/build" --out "$EVIDENCE_ROOT/rules" \
+            2>&1 | tee "$EVIDENCE_ROOT/rules.log"
+      - name: Strictly readmit the actual generated candidate without runtime
+        run: |
+          python -I -B - <<'PY'
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['EVIDENCE_ROOT'])
+          build = root / 'build'
+          path = Path('engines/experiments/tcec-next/profile_verify.py').resolve()
+          spec = importlib.util.spec_from_file_location('league_ci_profile_verify', path)
+          module = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = module
+          spec.loader.exec_module(module)
+          admitted = module.admit_c_build(json.loads((build / 'build.json').read_text()), build)
+          if (admitted.family, admitted.profile_id) != (os.environ['FAMILY'], os.environ['PROFILE']):
+              raise ValueError('strict admission returned a different profile')
+          result = {'family': admitted.family, 'profile': admitted.profile_id,
+                    'b_variant': os.environ['B_VARIANT'], 'variant': os.environ['VARIANT'],
+                    'strict_source_admission': True, 'engine_executed': False,
+                    'runtime_qualified': False, 'physical_placement_qualified': False,
+                    'playing_strength_qualified': False}
+          (root / 'admission.json').write_text(json.dumps(result, indent=2) + '\n')
+          print(json.dumps(result, sort_keys=True))
+          if os.environ['FAMILY'] == 'B' and os.environ['VARIANT'] == 'league-atomic':
+              sys.path.insert(0, str(Path('engines/experiments/strength').resolve()))
+              import rove_b_static_tt
+              static = rove_b_static_tt.inspect(
+                  admitted, json.loads((build / 'build.json').read_text()), build,
+                  (root / 'compiler-sha256.txt').read_text().strip(),
+                  (root / 'linker-sha256.txt').read_text().strip())
+              (build / 'b-static-tt.json').write_text(json.dumps(static, indent=2) + '\n')
+              for name in ('compiler-sha256.txt', 'linker-sha256.txt'):
+                  (build / name).write_bytes((root / name).read_bytes())
+              print(json.dumps(static, sort_keys=True))
+          PY
+      - name: Seal the admitted source for P16 and P192 seed transport
+        run: |
+          python -I -B engines/experiments/strength/league_source_bundle.py \
+            --out "$EVIDENCE_ROOT" --runner-temp "$RUNNER_TEMP" \
+            --family "$FAMILY" --profile "$PROFILE"
+      - name: Preserve actual artifacts, bounded command logs and failures
+        if: always() && env.EVIDENCE_ROOT != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant || matrix.b_variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ env.EVIDENCE_ROOT }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 7
+
+  b-ubuntu22:
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [test-p16, test-p192]
+    env:
+      PROFILE: ${{ matrix.profile }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-league-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-league-source-${{ matrix.profile }}
+      - name: Prepare independent system Python and the pinned rules oracle
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-python-$PROFILE"
+          "$RUNNER_TEMP/league-python-$PROFILE/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Recompile and check the exact selected source on Ubuntu 22
+        shell: bash
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-python-$PROFILE/bin/python3"
+          SOURCE="$RUNNER_TEMP/b-league-source-$PROFILE/build"
+          OUT="$RUNNER_TEMP/b-league-ubuntu22-$PROFILE"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/league_b_selection.py \
+            --profile "$PROFILE" --check-manifest "$SOURCE/build.json" | tee "$OUT/selection.json"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family B --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-b-ubuntu22-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-league-ubuntu22-${{ matrix.profile }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  control-ubuntu22:
+    # Download the actual control producer output from this exact run; a
+    # successful compiler fixture is not engine, TT, NUMA or game admission.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        family: [A, C, E, F]
+        profile: [test-p16, test-p192]
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/control-league-source-${{ matrix.family }}-${{ matrix.profile }}
+      - name: Prepare independent system Python and the pinned rules oracle
+        shell: bash
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-python-$FAMILY-$PROFILE"
+          "$RUNNER_TEMP/league-python-$FAMILY-$PROFILE/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Verify the named completed control artifact
+        shell: bash
+        run: |
+          /usr/bin/python3 -I -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP']) / ('control-league-source-' + os.environ['FAMILY'] + '-' + os.environ['PROFILE'])
+          manifest = json.loads((root / 'build/build.json').read_text())
+          audit = json.loads((root / 'artifact-audit.json').read_text())
+          whole = (root / 'build/x').read_bytes()
+          identity = (os.environ['FAMILY'], os.environ['PROFILE'])
+          if (manifest.get('family'), manifest.get('resources', {}).get('id')) != identity:
+              raise ValueError('producer family or resource profile differs from matrix')
+          if manifest.get('complete') is not True or manifest.get('reproducible') is not True:
+              raise ValueError('partial or unreproduced producer output cannot be used')
+          if any(manifest.get(name) is not None for name in ('post_profile', 'post_spelling', 'post_scan', 'post_ep', 'source_dependencies')):
+              raise ValueError('expected the unmodified control recipe')
+          if (audit.get('family'), audit.get('profile'), audit.get('variant')) != (*identity, 'control'):
+              raise ValueError('artifact audit identity or selected variant differs')
+          actual = {'bytes': len(whole), 'sha256': hashlib.sha256(whole).hexdigest()}
+          if (audit.get('parts', {}).get('x') != actual
+                  or audit.get('actual_whole_bytes') != len(whole)
+                  or audit.get('whole_at_most_4096') is not (len(whole) <= 4096)):
+              raise ValueError('artifact audit does not match actual whole file')
+          if len(whole) > 4096:
+              raise ValueError('control candidate exceeds the 4096-byte limit')
+          print(json.dumps({'family': identity[0], 'profile': identity[1], 'whole': actual,
+                            'candidate_only': True, 'runtime_qualified': False,
+                            'physical_placement_qualified': False, 'playing_strength_qualified': False}, sort_keys=True))
+          PY
+      - name: Recompile and check the exact control source on Ubuntu 22
+        shell: bash
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-python-$FAMILY-$PROFILE/bin/python3"
+          SOURCE="$RUNNER_TEMP/control-league-source-$FAMILY-$PROFILE/build"
+          OUT="$RUNNER_TEMP/control-league-ubuntu22-$FAMILY-$PROFILE"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-control-ubuntu22-${{ matrix.family }}-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/control-league-ubuntu22-${{ matrix.family }}-${{ matrix.profile }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  compare-b:
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [test-p16, test-p192]
+    env:
+      PROFILE: ${{ matrix.profile }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Download the actual control result for the same commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-control
+      - name: Download the actual selected B result for the same commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-tcec-final-lf-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-tcec-final-lf
+      - name: Compare actual parents, cc and ld identities and complete files
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP'])
+          control, selected = root / 'b-control', root / 'b-tcec-final-lf'
+          records = [json.loads((item / 'build/build.json').read_text()) for item in (control, selected)]
+          audits = [json.loads((item / 'artifact-audit.json').read_text()) for item in (control, selected)]
+          if any(record['family'] != 'B' or record['resources']['id'] != os.environ['PROFILE']
+                 or record['complete'] is not True or record['reproducible'] is not True for record in records):
+              raise ValueError('B cost input family, profile or producer completion differs')
+          if [audit['b_variant'] for audit in audits] != ['control', 'tcec-final-lf']:
+              raise ValueError('B control and selected artifacts are not the requested pair')
+          if records[0].get('post_profile') is not None or records[1].get('post_profile') != {
+                  'path': 'engines/experiments/tcec-next/profile_b.py', 'variant': 'tcec-final-lf'}:
+              raise ValueError('B producer did not record the requested source stages')
+          for key in ('compiler', 'compile_executor', 'compile_executor_version', 'compression'):
+              if records[0][key] != records[1][key]:
+                  raise ValueError('B cost compiler or compression differs: ' + key)
+          for path in ('resource-projection.c', 'build/control/main.c', 'build/header.sh',
+                       'compiler-sha256.txt', 'linker-sha256.txt'):
+              if (control / path).read_bytes() != (selected / path).read_bytes():
+                  raise ValueError('B cost parent or wrapper differs: ' + path)
+          files = [(item / 'build/x').read_bytes() for item in (control, selected)]
+          def actual(data):
+              return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          if any(audit['parts']['x'] != actual(data) for audit, data in zip(audits, files)):
+              raise ValueError('B cost actual file does not match the producer audit')
+          def load_live(name, relative):
+              path = Path(relative).resolve()
+              live = path.read_bytes()
+              if any((item / 'build/inputs' / relative).read_bytes() != live for item in (control, selected)):
+                  raise ValueError('tracked same-host packaging helper differs from a frozen producer input: ' + relative)
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              sys.modules[name] = module
+              spec.loader.exec_module(module)
+              return module
+          packaging = load_live('league_ci_cost_package', 'engines/scripts/source_package.py')
+          wrapper = load_live('league_ci_cost_wrapper', 'engines/experiments/tcec-next/wrapper.py')
+          unlink = load_live('league_ci_cost_unlink', 'engines/experiments/tcec-next/self_unlink.py')
+          replay = [wrapper.package(packaging, unlink, (item / 'build/main.c').read_bytes(),
+                                    records[0]['compression'], records[0]['compiler'])
+                    for item in (control, selected)]
+          def scope(item):
+              rules = item / 'rules/probe/rules.json'
+              commands = item / 'rules/commands.json'
+              admission = item / 'admission.json'
+              complete = False
+              if rules.is_file() and commands.is_file():
+                  probe = json.loads(rules.read_text())
+                  receipt = json.loads(commands.read_text())
+                  rows = receipt.get('commands', [])
+                  expected = ['rules-compile-plain', 'rules-execute-plain',
+                              'rules-compile-ubsan', 'rules-execute-ubsan']
+                  complete = (probe.get('complete') is True and receipt.get('complete') is True
+                      and receipt.get('host_cleanup') == {'unsettled_commands': 0, 'errors': []}
+                      and [row.get('kind') for row in rows] == expected
+                      and all(row.get('returncode') == 0 and row.get('terminal') is True
+                          and row.get('reaped') is True and row.get('owned_group_absent') is True
+                          and row.get('forced_cleanup') is False for row in rows))
+              return {'rules_complete': complete,
+                      'strict_source_admission': admission.is_file() and
+                          json.loads(admission.read_text()).get('strict_source_admission') is True}
+          report = {'profile': os.environ['PROFILE'], 'family': 'B',
+                    'control': actual(files[0]), 'tcec_final_lf': actual(files[1]),
+                    'selected_minus_control_bytes': len(files[1]) - len(files[0]),
+                    'same_host_repackaging': {'control': actual(replay[0]), 'tcec_final_lf': actual(replay[1]),
+                        'selected_minus_control_bytes': len(replay[1]) - len(replay[0]),
+                        'matches_original_files': [replay[i] == files[i] for i in range(2)]},
+                    'candidate_at_most_4096': len(files[1]) <= 4096,
+                    'control_validation': scope(control), 'candidate_validation': scope(selected),
+                    'tool_identity_scope': 'cc and ld binaries, compiler version and arguments; not the full toolchain or system image',
+                    'production_selected': False, 'runtime_qualified': False,
+                    'physical_placement_qualified': False, 'playing_strength_qualified': False}
+          out = root / 'b-whole-comparison.json'
+          out.write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, sort_keys=True))
+          PY
+      - name: Preserve the B whole-file comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-B-whole-comparison-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-whole-comparison.json
+          if-no-files-found: error
+          retention-days: 7
+
+  league-candidates-ubuntu22:
+    # Compare each explicit candidate with the same-run control and compile
+    # the candidate independently. These checks do not execute a large engine.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-successor}
+          - {family: A, profile: test-p192, variant: square-successor}
+          - {family: C, profile: test-p16, variant: square-successor}
+          - {family: C, profile: test-p192, variant: square-successor}
+          - {family: C, profile: test-p16, variant: legal-maker}
+          - {family: C, profile: test-p192, variant: legal-maker}
+          - {family: E, profile: test-p16, variant: legal-maker}
+          - {family: E, profile: test-p192, variant: legal-maker}
+          - {family: A, profile: test-p16, variant: atomic-assignment}
+          - {family: A, profile: test-p192, variant: atomic-assignment}
+          - {family: C, profile: test-p16, variant: atomic-assignment}
+          - {family: C, profile: test-p192, variant: atomic-assignment}
+          - {family: E, profile: test-p16, variant: atomic-assignment}
+          - {family: E, profile: test-p192, variant: atomic-assignment}
+          - {family: F, profile: test-p16, variant: atomic-assignment}
+          - {family: F, profile: test-p192, variant: atomic-assignment}
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-parent
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-candidate
+      - name: Prepare independent system Python and pinned rules oracle
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-candidate-python"
+          "$RUNNER_TEMP/league-candidate-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compare same-run source stages and full files
+        run: |
+          /usr/bin/python3 -I -B engines/experiments/tcec-next/league_candidate_compare.py \
+            --family "$FAMILY" --profile "$PROFILE" --variant "$VARIANT" \
+            --control "$RUNNER_TEMP/league-parent" --candidate "$RUNNER_TEMP/league-candidate" \
+            --out "$RUNNER_TEMP/league-candidate-comparison.json"
+      - name: Independently compile and check exact selected source
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-candidate-python/bin/python3"
+          SOURCE="$RUNNER_TEMP/league-candidate/build"
+          OUT="$RUNNER_TEMP/league-candidate-ubuntu22"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve comparison and independent compile and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-candidate-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/league-candidate-comparison.json
+            ${{ runner.temp }}/league-candidate-ubuntu22
+          if-no-files-found: ignore
+          retention-days: 7
+
+  league-combinations-ubuntu22:
+    # Compare control, every constituent, and all pair predecessors for the
+    # triple on one host; separately recompile and probe each combined source.
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - {family: A, profile: test-p16, variant: square-atomic}
+          - {family: A, profile: test-p192, variant: square-atomic}
+          - {family: C, profile: test-p16, variant: square-atomic}
+          - {family: C, profile: test-p192, variant: square-atomic}
+          - {family: C, profile: test-p16, variant: square-ep}
+          - {family: C, profile: test-p192, variant: square-ep}
+          - {family: C, profile: test-p16, variant: ep-atomic}
+          - {family: C, profile: test-p192, variant: ep-atomic}
+          - {family: C, profile: test-p16, variant: square-ep-atomic}
+          - {family: C, profile: test-p192, variant: square-ep-atomic}
+          - {family: E, profile: test-p16, variant: ep-atomic}
+          - {family: E, profile: test-p192, variant: ep-atomic}
+    env:
+      FAMILY: ${{ matrix.family }}
+      PROFILE: ${{ matrix.profile }}
+      VARIANT: ${{ matrix.variant }}
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-control-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-parent
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/league-combination
+      - if: startsWith(matrix.variant, 'square-')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-successor-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-square
+      - if: contains(matrix.variant, 'ep')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-legal-maker-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-ep
+      - if: endsWith(matrix.variant, '-atomic')
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-atomic-assignment-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/single-atomic
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-square-atomic
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-square-ep-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-square-ep
+      - if: matrix.variant == 'square-ep-atomic'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-${{ matrix.family }}-${{ matrix.profile }}-ep-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/pair-ep-atomic
+      - name: Prepare independent system Python and pinned rules oracle
+        run: |
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          /usr/bin/python3 -m venv "$RUNNER_TEMP/league-combination-python"
+          "$RUNNER_TEMP/league-combination-python/bin/python3" -m pip install --require-hashes -r engines/training/e19/requirements.txt
+      - name: Compare same-run control, constituents and full files
+        run: |
+          set -o pipefail
+          singles=()
+          case "$VARIANT" in square-*) singles+=(--single square-successor "$RUNNER_TEMP/single-square");; esac
+          case "$VARIANT" in *ep*) singles+=(--single legal-maker "$RUNNER_TEMP/single-ep");; esac
+          case "$VARIANT" in *-atomic) singles+=(--single atomic-assignment "$RUNNER_TEMP/single-atomic");; esac
+          if [ "$VARIANT" = square-ep-atomic ]; then
+            singles+=(--pair square-atomic "$RUNNER_TEMP/pair-square-atomic"
+                      --pair square-ep "$RUNNER_TEMP/pair-square-ep"
+                      --pair ep-atomic "$RUNNER_TEMP/pair-ep-atomic")
+          fi
+          /usr/bin/python3 -I -B engines/experiments/tcec-next/league_compound_compare.py \
+            --family "$FAMILY" --profile "$PROFILE" --variant "$VARIANT" \
+            --control "$RUNNER_TEMP/league-parent" --candidate "$RUNNER_TEMP/league-combination" \
+            "${singles[@]}" --out "$RUNNER_TEMP/league-combination-comparison.json"
+      - name: Independently compile and check exact selected source
+        run: |
+          set -o pipefail
+          export PATH=/usr/bin:/bin
+          for compiler_env_name in ${!LD_@}; do unset "$compiler_env_name"; done
+          unset CC CXX CPP AS AR LD GCC_EXEC_PREFIX COMPILER_PATH LIBRARY_PATH CPATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH OBJC_INCLUDE_PATH CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+          P="$RUNNER_TEMP/league-combination-python/bin/python3"
+          SOURCE="$RUNNER_TEMP/league-combination/build"
+          OUT="$RUNNER_TEMP/league-combination-ubuntu22"
+          mkdir "$OUT"
+          "$P" -I -B engines/experiments/tcec-next/profile_compiler.py \
+            --build "$SOURCE" --compiler /usr/bin/cc --ubuntu22-system --program-provenance \
+            --out "$OUT/compiler" 2>&1 | tee "$OUT/compiler.log"
+          "$P" -I -B engines/experiments/tcec-next/profile_rules.py \
+            --family "$FAMILY" --profile "$PROFILE" --source "$SOURCE/main.c" \
+            --baseline "$SOURCE/control/main.c" --proof "$SOURCE/source-proof.json" \
+            --build "$SOURCE" --cc /usr/bin/cc --out "$OUT/rules" 2>&1 | tee "$OUT/rules.log"
+      - name: Preserve comparison and independent compiler and rules evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-combination-${{ matrix.family }}-${{ matrix.profile }}-${{ matrix.variant }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/league-combination-comparison.json
+            ${{ runner.temp }}/league-combination-ubuntu22
+          if-no-files-found: ignore
+          retention-days: 7
+
+  compare-b-atomic:
+    needs: generate
+    if: always() && needs.generate.result != 'cancelled' && needs.generate.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [test-p16, test-p192]
+    env:
+      PROFILE: ${{ matrix.profile }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Download the actual B parent for this commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-tcec-final-lf-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-atomic-parent
+      - name: Download the actual B atomic candidate for this commit and attempt
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: league-source-B-${{ matrix.profile }}-league-atomic-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-atomic-candidate
+      - name: Compare the actual B stage, cc and ld identities and complete files
+        run: |
+          python -I -B - <<'PY'
+          import hashlib
+          import importlib.util
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path(os.environ['RUNNER_TEMP'])
+          parent, candidate = root / 'b-atomic-parent', root / 'b-atomic-candidate'
+          records = [json.loads((item / 'build/build.json').read_text()) for item in (parent, candidate)]
+          audits = [json.loads((item / 'artifact-audit.json').read_text()) for item in (parent, candidate)]
+          if any(record['family'] != 'B' or record['resources']['id'] != os.environ['PROFILE']
+                 or record['complete'] is not True or record['reproducible'] is not True for record in records):
+              raise ValueError('B atomic cost family, profile or producer completion differs')
+          if [audit['variant'] for audit in audits] != ['tcec-final-lf', 'league-atomic']:
+              raise ValueError('B atomic comparison inputs are not the requested pair')
+          post = {'path': 'engines/experiments/tcec-next/profile_b.py', 'variant': 'tcec-final-lf'}
+          atomic = {'path': 'engines/experiments/tcec-next/profile_b_league_spelling.py',
+                    'selection': 'league-atomic', 'variant': 'atomic-assignment'}
+          if (any(record.get('post_profile') != post for record in records)
+                  or records[0].get('post_spelling') is not None
+                  or records[1].get('post_spelling') != atomic):
+              raise ValueError('B atomic comparison source-stage declarations differ')
+          for key in ('compiler', 'compile_executor', 'compile_executor_version', 'compression'):
+              if records[0][key] != records[1][key]:
+                  raise ValueError('B atomic compiler or compression differs: ' + key)
+          for path in ('resource-projection.c', 'b-projection.c', 'build/control/main.c', 'build/header.sh',
+                       'compiler-sha256.txt', 'linker-sha256.txt'):
+              if (parent / path).read_bytes() != (candidate / path).read_bytes():
+                  raise ValueError('B atomic parent or wrapper differs: ' + path)
+          if (parent / 'build/main.c').read_bytes() != (candidate / 'b-projection.c').read_bytes():
+              raise ValueError('actual parent main.c differs from candidate B-stage input')
+          files = [(item / 'build/x').read_bytes() for item in (parent, candidate)]
+          def actual(data):
+              return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          if any(audit['parts']['x'] != actual(data) for audit, data in zip(audits, files)):
+              raise ValueError('actual B atomic whole file differs from its producer audit')
+          atomic_source = (candidate / 'atomic-projection.c').read_bytes()
+          if records[1]['source_proofs'][2]['output'] != actual(atomic_source):
+              raise ValueError('atomic pre-cleanup source differs from the producer proof')
+          def load_live(name, relative):
+              path = Path(relative).resolve()
+              live = path.read_bytes()
+              if any((item / 'build/inputs' / relative).read_bytes() != live for item in (parent, candidate)):
+                  raise ValueError('tracked same-host packaging helper differs from a frozen producer input: ' + relative)
+              spec = importlib.util.spec_from_file_location(name, path)
+              module = importlib.util.module_from_spec(spec)
+              sys.modules[name] = module
+              spec.loader.exec_module(module)
+              return module
+          packaging = load_live('league_ci_atomic_package', 'engines/scripts/source_package.py')
+          wrapper = load_live('league_ci_atomic_wrapper', 'engines/experiments/tcec-next/wrapper.py')
+          unlink = load_live('league_ci_atomic_unlink', 'engines/experiments/tcec-next/self_unlink.py')
+          stages = [(parent / 'build/main.c').read_bytes(), atomic_source,
+                    (candidate / 'build/main.c').read_bytes()]
+          replay = [wrapper.package(packaging, unlink, source, records[0]['compression'], records[0]['compiler'])
+                    for source in stages]
+          def scope(item):
+              rules = item / 'rules/probe/rules.json'
+              commands = item / 'rules/commands.json'
+              admission = item / 'admission.json'
+              complete = False
+              if rules.is_file() and commands.is_file():
+                  probe = json.loads(rules.read_text())
+                  receipt = json.loads(commands.read_text())
+                  rows = receipt.get('commands', [])
+                  expected = ['rules-compile-plain', 'rules-execute-plain',
+                              'rules-compile-ubsan', 'rules-execute-ubsan']
+                  complete = (probe.get('complete') is True and receipt.get('complete') is True
+                      and receipt.get('host_cleanup') == {'unsettled_commands': 0, 'errors': []}
+                      and [row.get('kind') for row in rows] == expected
+                      and all(row.get('returncode') == 0 and row.get('terminal') is True
+                          and row.get('reaped') is True and row.get('owned_group_absent') is True
+                          and row.get('forced_cleanup') is False for row in rows))
+              return {'rules_complete': complete,
+                      'strict_source_admission': admission.is_file() and
+                          json.loads(admission.read_text()).get('strict_source_admission') is True}
+          report = {'profile': os.environ['PROFILE'], 'family': 'B',
+                    'tcec_final_lf': actual(files[0]), 'league_atomic': actual(files[1]),
+                    'actual_atomic_and_dependency_minus_parent_bytes': len(files[1]) - len(files[0]),
+                    'same_host_repackaging': {
+                        'parent': actual(replay[0]), 'atomic_before_dependency_cleanup': actual(replay[1]),
+                        'atomic_after_dependency_cleanup': actual(replay[2]),
+                        'atomic_only_minus_parent_bytes': len(replay[1]) - len(replay[0]),
+                        'dependency_cleanup_minus_atomic_bytes': len(replay[2]) - len(replay[1]),
+                        'matches_original_files': [replay[0] == files[0], replay[2] == files[1]]},
+                    'candidate_at_most_4096': len(files[1]) <= 4096,
+                    'parent_validation': scope(parent), 'candidate_validation': scope(candidate),
+                    'tool_identity_scope': 'cc and ld binaries, compiler version and arguments; not the full toolchain or system image',
+                    'production_selected': False, 'runtime_qualified': False,
+                    'physical_placement_qualified': False, 'playing_strength_qualified': False}
+          out = root / 'b-atomic-comparison.json'
+          out.write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, sort_keys=True))
+          PY
+      - name: Preserve the B atomic whole-file comparison
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: league-B-atomic-comparison-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/b-atomic-comparison.json
+          if-no-files-found: error
+          retention-days: 7

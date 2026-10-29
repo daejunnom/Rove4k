@@ -1,0 +1,110 @@
+#[cfg(test)]
+mod field_tests {
+    use super::*;
+
+    // Opt-level zero plus opaque function pointers keeps these ordinary runtime
+    // calls. Neither board source is rewritten, instrumented or const evaluated.
+    #[inline(never)]
+    fn original_start() -> original::Board {
+        let constructor: fn() -> original::Board = std::hint::black_box(original::Board::start);
+        constructor()
+    }
+
+    #[inline(never)]
+    fn candidate_start() -> candidate::Board {
+        let constructor: fn() -> candidate::Board = std::hint::black_box(candidate::Board::start);
+        constructor()
+    }
+
+    macro_rules! state {
+        ($board:expr) => {{
+            let b = $board;
+            (b.cells, b.side, b.castle, b.ep, b.king, b.halfmove,
+             b.hash, b.context, b.score, b.bb)
+        }};
+    }
+
+    fn print_original(b: &original::Board) {
+        println!("QUAL_BOARD original {{\"cells\":{:?},\"side\":{},\"castle\":{},\"ep\":{},\"king\":{:?},\"halfmove\":{},\"hash\":{},\"context\":{},\"score\":{},\"bb\":{:?}}}",
+            b.cells, b.side, b.castle, b.ep, b.king, b.halfmove, b.hash, b.context, b.score, b.bb);
+    }
+
+    fn print_candidate(b: &candidate::Board) {
+        println!("QUAL_BOARD candidate {{\"cells\":{:?},\"side\":{},\"castle\":{},\"ep\":{},\"king\":{:?},\"halfmove\":{},\"hash\":{},\"context\":{},\"score\":{},\"bb\":{:?}}}",
+            b.cells, b.side, b.castle, b.ep, b.king, b.halfmove, b.hash, b.context, b.score, b.bb);
+    }
+
+    #[test]
+    fn ordinary_runtime_start_all_ten_fields_and_151_elements() {
+        let old = original_start();
+        let new = candidate_start();
+        let mut fields = 0;
+        for square in 0..128 {
+            assert_eq!(old.cells[square], new.cells[square], "cells[{square}]"); fields += 1;
+        }
+        assert_eq!(old.side, new.side, "side"); fields += 1;
+        assert_eq!(old.castle, new.castle, "castle"); fields += 1;
+        assert_eq!(old.ep, new.ep, "ep"); fields += 1;
+        for colour in 0..2 {
+            assert_eq!(old.king[colour], new.king[colour], "king[{colour}]"); fields += 1;
+        }
+        assert_eq!(old.halfmove, new.halfmove, "halfmove"); fields += 1;
+        assert_eq!(old.hash, new.hash, "hash"); fields += 1;
+        assert_eq!(old.context, new.context, "context"); fields += 1;
+        assert_eq!(old.score, new.score, "score"); fields += 1;
+        for colour in 0..2 { for kind in 0..7 {
+            assert_eq!(old.bb[colour][kind], new.bb[colour][kind], "bb[{colour}][{kind}]"); fields += 1;
+        }}
+        assert_eq!(fields, 151);
+        assert_eq!(new.side, 1); assert_eq!(new.castle, 15); assert_eq!(new.ep, -1);
+        assert_eq!(new.king, [4, 116]); assert_eq!(new.halfmove, 0);
+        assert_eq!(new.score, 0); assert_eq!(new.context, new.hash);
+        let mut expected = [0i8; 128];
+        let back = [4, 2, 3, 5, 6, 3, 2, 4];
+        for file in 0..8 {
+            expected[file] = back[file]; expected[file + 16] = 1;
+            expected[file + 96] = -1; expected[file + 112] = -back[file];
+        }
+        assert_eq!(new.cells, expected);
+        print_original(&old); print_candidate(&new);
+        println!("QUAL_METRIC compared_field_elements={fields}");
+        println!("QUAL_METRIC named_fields=10");
+    }
+
+    macro_rules! copy_independence {
+        ($constructor:ident) => {{
+            let source = $constructor();
+            let before = state!(&source);
+            let mut copied = source; // Requires the actual Board: Copy value.
+            copied.cells.fill(-7);
+            copied.side = -1; copied.castle = 0; copied.ep = 0;
+            copied.king = [1, 2]; copied.halfmove = 99;
+            copied.hash ^= 1; copied.context ^= 2; copied.score = 123;
+            copied.bb = [[u64::MAX; 7]; 2];
+            assert_ne!(copied.cells, source.cells);
+            assert_ne!(copied.side, source.side);
+            assert_ne!(copied.castle, source.castle);
+            assert_ne!(copied.ep, source.ep);
+            assert_ne!(copied.king, source.king);
+            assert_ne!(copied.halfmove, source.halfmove);
+            assert_ne!(copied.hash, source.hash);
+            assert_ne!(copied.context, source.context);
+            assert_ne!(copied.score, source.score);
+            assert_ne!(copied.bb, source.bb);
+            assert_eq!(state!(&source), before, "mutating copy changed its source");
+            let fresh = $constructor();
+            assert_eq!(state!(&fresh), before, "mutating copy changed a fresh start");
+            assert_ne!(state!(&copied), state!(&fresh));
+        }};
+    }
+
+    #[test]
+    fn copy_by_value_mutation_and_fresh_start_are_independent() {
+        // Invalid copied cell contents are never passed to a board operation.
+        // This group checks ownership/copy isolation, not illegal-board rules.
+        copy_independence!(original_start);
+        copy_independence!(candidate_start);
+        println!("QUAL_METRIC copy_independence_implementations=2");
+        println!("QUAL_METRIC copied_named_fields_mutated=20");
+    }
+}

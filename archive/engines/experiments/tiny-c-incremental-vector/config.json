@@ -1,0 +1,53 @@
+{
+  "baseline": {
+    "source_bytes": 10831,
+    "source_sha256": "207b07cc623e5408e868591770782676ccba189af50533f23533ac76ae8cb44c",
+    "native_bytes": 26352,
+    "native_sha256": "a053a60dd48cfd599af3c08513ac5a6452b33bda03c8cab5954ea3ab1befdad9",
+    "whole_bytes": 5159,
+    "whole_sha256": "89d55de08d53346627dd5b176f02b762593435a583c0d7138184f41f24197ece",
+    "bootstrap_sha256": "1e97d02119b85915d99fab33c87b1ba06bcab8b5f15ae797e40d1bcacbe45f6e"
+  },
+  "candidate": {
+    "source_bytes": 10803,
+    "source_sha256": "8fd32643582b3b485cdfa077fb20ada4af67c8cc0f867206f4c4f425312b9caf"
+  },
+  "profile": {
+    "workers": 2,
+    "tt_bits": 18,
+    "ply": 128,
+    "dev_default": false
+  },
+  "compiler": [
+    "cc",
+    "-std=c11",
+    "-Os",
+    "-pthread",
+    "-DWORKERS=2",
+    "-DTT_BITS=18",
+    "-mavx2",
+    "-DDEV=0",
+    "-x",
+    "c",
+    "-",
+    "-o",
+    "x"
+  ],
+  "compression": {
+    "format": "lzma-alone",
+    "filter": "LZMA1",
+    "preset": 9,
+    "extreme": true,
+    "lc": 2,
+    "lp": 0,
+    "pb": 0,
+    "check": "NONE",
+    "mf": "BT4",
+    "dictionary_bytes": 67108864,
+    "nice_len": 64
+  },
+  "prefix_bytes": 77,
+  "prefix_sha256": "78c5b572036e14ed33098fa4fb10fd10f4e061305e158f1609bae95d41e60301",
+  "template_sha256": "68e4544370fdd2ca3d240963a0782004f955930187c3d8edfda78cc2f59b7f6a",
+  "literal_helper_sha256": "b4addefbb1233881e85707aa525ca4af7f8210d9d27f56fbb52e4440a966b99e"
+}

@@ -57,3 +57,106 @@ SRP는 이름·파일 수·계층 수가 아니라 상태의 소유자, 변경 �
 - 보존 후보는 현재 입력·도구·관측 계약에 맞추어 자동 비교할 수 있게 한다. 과거의 크기나 통과 상태를 새 조건의 증명으로 승격하지 않으며, 안전성·적격성 검사를 통과한 후보 사이에서 실제 전체 비용을 판단한다. 유한한 보존·실행 예산과 미검토 범위를 명시한다.
 - 재현과 프로토콜 검사의 통과 범위를 분리한다. 환경 부족·미수행·실패를 성공으로 바꾸지 않는다. TT·스레드·탐색 정책을 변경한 결과는 표현 압축과 별도 변경으로 기록한다.
 - 도구의 특정 버전이 지원하지 않는 최적화도 근거가 있으면 검토하고 구현할 수 있다. 현재 recipe 수, linker script, source 보호 전략이나 파일 구조는 공통 규약이 아니다.
+
+
+<!-- BEGIN AWS Agent Toolkit rules -->
+## AWS project context
+
+Project: Rove4k. CLI profile: rove4k. Selected Region: ap-southeast-2.
+AWS experience: new. help_level: MEDIUM.
+The accepted engine plan and this repository's existing rules take precedence.
+The user completed the PAID upgrade and then directly activated Advanced features
+on 2026-10-26 with team daejunnom. The target project is 292341339363; management
+account 814650855198 is not the workload target. Check the actual STS account,
+not just the profile name, before project operations. Do not switch accounts or
+inspect credential files to repair a different selected console session.
+Fresh Free Tier GetAccountPlanState returned ResourceNotFound after activation,
+and project-scoped GetCredits returned an empty credits list. Neither response
+proves a PAID plan or loss of credits; the earlier USD100 is historical. Use an
+explicit reviewed Advanced readiness path with fresh project/account/org checks;
+never turn a missing/error response into a successful PAID observation.
+Use eligible credits first. Cash fallback is authorized within the original gross
+EC2 USD100 + ancillary USD20 / total USD120 and 12 instance-hour campaign limits.
+Credits and unearned activity bonuses do not enlarge those limits. Do not upgrade
+plans, change Region/SKU or bypass quota/Advisor gates automatically.
+
+The managed-experience guidance below remains reference context. Advanced changed
+service/governance capabilities; verify effective access rather than assuming
+the old managed Paid SCP still applies or that all inherited SCPs are removed.
+The selected workload Region and approved campaign limits remain unchanged.
+
+# AWS Guidance for the new AWS experience
+
+This user has signed up for the new AWS experience. This experience lets you sign into AWS using a social provider and requires the following additional context.
+
+Where this guidance conflicts with the project's own instructions, the project's instructions take precedence.
+
+## Context
+
+### Terminology:
+
+- Say "project" instead of "account" — a project contains an AWS account and settings for sharing with other collaborators
+- Say "team member" instead of "IAM user" — users are invited by email, not created or federated in IAM
+- Say "AWS Settings" when referring to management tasks at [settings.aws.com](https://settings.aws.com/) (project management, billing, team members, spend limits). Users view their actual AWS resources in the AWS Management Console.
+- Say "selected Region" when referring to the user's Region — not "home Region"
+- The user has a managed IAM experience. This includes a managed service control policies (SCP) and resource control policies (RCP) that govern the use of AWS. They will still need to use IAM to create policies to let services work with each other. If there are questions about the SCPs or RCPs, go to the documentation at https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html
+
+### Constraints:
+
+- All projects share a single AWS Region determined by the user's contact address. Resources cannot be created in other Regions
+- When developing:
+  - MUST create all Regional resources in the project's assigned Region
+  - You CAN create AWS WAF and Cloudwatch Logs resources in us-east-1 when there are global resources (like a global WAF instance) that require a connection to dependencies in us-east-1. You should not use these for any other reason, because resources in the selected Region will provide lower cost (due to no cross-Region traffic), increased availability (due to no cross-Region traffic), and easier manageability (due to not needing to look in another Region). When you need to do an inventory of resources, you need to look in both the selected Region and us-east-1 for Cloudwatch Logs or WAF resources.
+  - MUST NOT attempt to create Lambda, API Gateway, or other Regional resources in any other Region
+  - MUST direct users to confirm their Region in AWS Settings > View all projects > Overview > Additional Info > Region. If the user cannot confirm their Region, check in ~/.aws/config
+  - MUST NOT use Lambda@Edge — excluded from both Lambda and CloudFront
+  - MUST NOT use CloudFormation StackSets — no multi-account or multi-Region deployments
+  - MUST NOT attempt cross-Region actions — no cross-Region replication for DynamoDB/S3/RDS, no multi-Region KMS keys
+  - MUST NOT use Route 53 cross-Region routing — geolocation, latency-based, and failover routing policies are not available
+  - CloudFront is a global service and its actions ARE allowed in `us-east-1`. A user can create a CloudFront distribution pointing to their project-region Lambda function URL or API Gateway. However, Lambda and API Gateway themselves MUST NOT be created in `us-east-1` — they must be in the project Region.
+  - Reduced availability in `eu-north-1` specifically: Amazon Rekognition, Amazon Textract, Amazon Personalize, AWS App Runner are not available in that Region.
+- IAM permissions for human access are managed by AWS. Don't assign roles to team members unless absolutely necessary
+- The user may have a spend limit if they are on the paid plan. The limit that pauses their project if it's exceeded. If resources suddenly become inaccessible, ask if they have a spend limit configured. Only project owners can modify a spend limit.
+- When developing:
+  - MUST ask about spend limit status if the user reports sudden "Access Denied" errors on operations that previously worked
+  - MUST direct users to check spend status in AWS Settings > Billing
+  - MUST check if a user has upgraded their account to the paid plan
+  - MUST ask the user if they want to clean up the successfully created resources or keep them to reduce cost
+- The user sets up billing, creates spend limits, and retrieves and pays invoices in AWS Settings. The user creates budgets and optimizes their costs in the AWS Billing and Cost Management console
+- Not all AWS services are available. If a service isn't working, do the following:
+  1. Run the command `aws freetier get-account-plan-state`
+  2. If accountPlanType": "FREE", check the [Free Tier supported services list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#supported-services-free-tier) next,
+  3. If accountPlanType": "PAID", check the [Paid Tier supported services list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#supported-services-paid-plan).
+  4. If neither list shows the service, check the [Not supported for this experience list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#unsupported-services). The user will need to activate advanced features to access this service.
+- Users can activate advanced AWS services and capabilities for their account.
+- Before starting a task, check whether a relevant AWS skill is available. Load the skill with retrieve_skill and prefer its guidance over general knowledge.
+
+### Help level
+
+- help_level (required): LOW, MEDIUM, or HIGH. While a user is building, you MUST ask the user: "How much guidance would you like from me? Low (I only flag security risks), medium (I ask a couple of clarifying questions if something seems off), or high (I explain what I'm doing, suggest alternatives, and flag best practices)."
+
+You CAN update this rule file to save a user's help_level.
+
+Constraints for each level:
+
+**LOW:**
+
+- MUST follow all constraints in this context file
+- MUST execute the user’s request without modification
+- MUST NOT ask clarifying questions unless the action would create a security vulnerability
+- MUST NOT suggest alternatives or improvements
+
+**MEDIUM:**
+
+- MUST execute the user's request
+- MAY ask up to two clarifying questions per task if the request has an ambiguity or a potential issue
+- MUST NOT repeat a question or suggestion the user has already dismissed
+- MUST NOT explain trade-offs or alternatives unless the user asks
+
+**HIGH:**
+
+- MUST explain what each step does and why before executing it
+- MUST suggest alternatives when a better approach exists
+- MUST flag best practices and explain trade-offs
+- MUST still execute the user's choice if they disagree with a suggestion
+<!-- END AWS Agent Toolkit rules -->

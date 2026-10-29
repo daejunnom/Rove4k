@@ -1,0 +1,104 @@
+/* No callback, iterator or move-list handoff. The generator's locals reach
+ * K_EMIT directly; copied children never overwrite their immutable parent. */
+#define K_RANK 32
+#ifndef K_OBSERVE
+#define K_OBSERVE(w,m,stage,rank) ((void)0)
+#endif
+#if DEV
+#define K_COLLECTED() if(mode==K_COLLECT){if(legal>=MOVES)abort();root[legal++]=m;break;}
+#else
+#define K_COLLECTED()
+#endif
+/* EMITTER */
+static int kernel(Worker *w,const Board *p,int depth,int alpha,int beta,int ply,int prior,Move *root,enum KernelMode mode,Move query,Board *out){
+    int ranks[MOVES],check=0,draw=0,witness=0,legal=0,old=alpha,best=-MATE;
+    int evaluation=p->s*p->v,score=0,bound=0;
+    uint64_t key=0,data=0;
+    Move bestmove=0,tt=0;
+    if(mode==K_SEARCH){
+        if(!claim(w))return 0;
+        check=attacked(p,p->k[p->s<0],-p->s);
+        int repetitions=0,end=w->length-1-p->half;
+        if(end<0)end=0;
+        for(int i=w->length-3;i>=end;i-=2)repetitions+=w->keys[i]==p->h;
+        draw=p->half>=100||repetitions>=2||dead(p);
+        witness=draw||ply==PLY-1;
+        if(!witness){
+            key=p->h^mix(p->r+(unsigned)p->half);data=probe(key,0);
+            tt=data&131071;score=(int16_t)(data>>17);bound=(data>>41)&3;
+            if(bound)COUNT(w,hits);
+            if(score>MATE-PLY)score-=ply;
+            if(score< -MATE+PLY)score+=ply;
+            if(ply&&bound&&((data>>33)&255)>=(unsigned)(depth>0?depth:0)&&
+               (bound==1||(bound==2&&score>=beta)||(bound==3&&score<=alpha)))return score;
+            if(depth<=0)COUNT(w,qs);
+            if(depth<=0&&!check){best=evaluation;if(best>alpha)alpha=best;}
+        }
+    }
+    int quiet=depth<=0&&!check,s=mode==K_ATTACK?(query&128?-1:1):p->s;
+    /* Stage 0 snapshots ordinal ranks before any descendant changes a learner.
+     * Each subsequent sweep assigns every pseudo move exactly one stage:
+     * TT, tactical, quiet rank>=32, remaining quiet. Jitter alone is <=16.
+     * Five whole-board sweeps is the declared ordering CPU tradeoff. */
+    for(int stage=0;stage<=(mode==K_SEARCH&&!witness?4:0);stage++){
+        int count=0;
+        for(int square=0;square<128;square++){
+            if(square&0x88){square+=7;continue;}
+            int from=square^(mode==K_SEARCH?(w->id&7):0);
+            int v=p->b[from],a=abs(v);if(v*s<=0)continue;
+            if(mode!=K_ATTACK&&a==1){
+                int to=from+s*16;
+                if(!(to&0x88)&&!p->b[to]){
+                    int promotion=(to>>4)==0||(to>>4)==7;
+                    for(int prom=promotion?2:0;prom<=(promotion?5:0);prom++)K_EMIT();
+                    if((from>>4)==(s>0?1:6)&&!p->b[to+s*16]){
+                        to+=s*16;int prom=0;K_EMIT();
+                    }
+                }
+            }
+            int first=a==1?(s>0?12:14):a==2?0:a==3?12:8;
+            int last=a==1?first+2:a==2?8:a==4?12:16;
+            for(int i=first;i<last;i++)for(int to=from+steps[i];!(to&0x88);to+=steps[i]){
+                int target=p->b[to];
+                if(mode==K_ATTACK&&to==(int)(query&127))return 1;
+                if(target*s>0||(mode!=K_ATTACK&&a==1&&!target&&to!=p->e))break;
+                if(mode!=K_ATTACK){
+                    int promotion=a==1&&((to>>4)==0||(to>>4)==7);
+                    for(int prom=promotion?2:0;prom<=(promotion?5:0);prom++)K_EMIT();
+                }
+                if(target||a<3||a==6)break;
+            }
+            if(mode!=K_ATTACK&&a==6){
+                int home=s>0?4:116,shift=s>0?0:2;
+                if(from==home&&!attacked(p,home,-s)){
+                    for(int d=1;d>=-1;d-=2)if((p->c&((d>0?1:2)<<shift))&&
+                       !p->b[home+d]&&!p->b[home+2*d]&&(d>0||!p->b[home-3])&&!attacked(p,home+d,-s)){
+                        int to=home+2*d,prom=0;K_EMIT();
+                    }
+                }
+            }
+        }
+    }
+    if(mode!=K_SEARCH)return legal;
+kernel_done:
+    if(!legal)return check?-MATE+ply:0;
+    bound=best<=old?3:best>=beta?2:1;
+    if(depth>0&&bound==1&&!check&&bestmove&&!capture(p,bestmove)&&!PROMO(bestmove)&&abs(best)<MATE-PLY){
+        int error=best-p->s*p->v;if(error>256)error=256;if(error< -256)error=-256;
+        w->correction[p->h&1023]+=error-w->correction[p->h&1023]/64;
+        COUNT(w,corr_updates);
+    }
+    score=best;
+    if(score>MATE-PLY)score+=ply;
+    if(score< -MATE+PLY)score-=ply;
+    data=bestmove|((uint64_t)(uint16_t)score<<17)|((uint64_t)(depth>0?depth:0)<<33)|((uint64_t)bound<<41);
+    probe(key,data);return best;
+}
+#undef K_EMIT
+#undef K_COLLECTED
+#if DEV
+/* Compatibility adapters are absent from shipping. Collection emits only
+ * legal moves; applying a listed move is a typed match, including aliasing. */
+int gen(const Board *p,Move *moves){return kernel(0,p,0,0,0,0,0,moves,K_COLLECT,0,0);}
+int make(const Board *p,Move m,Board *q){return kernel(0,p,0,0,0,0,0,0,K_MATCH,m,q)!=0;}
+#endif

@@ -2,7 +2,7 @@ name: Repository lifecycle
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, 'feature/**']
   push:
     branches: [main, develop]
   workflow_dispatch:
