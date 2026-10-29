@@ -506,6 +506,59 @@ class CollectionTests(unittest.TestCase):
 
 class RecoveryTests(unittest.TestCase):
     @unittest.skipUnless(Path("/proc/self/stat").is_file(), "Linux original-process identity")
+    def test_started_without_durable_process_blocks_resume_before_and_after_child_exit(self):
+        # The owned child exits naturally on stdin EOF: this fixture sends no
+        # signal and never inspects or alters an unrelated process.
+        child = subprocess.Popen([sys.executable, "-B", "-c", "import sys;sys.stdin.read()"],
+                                 stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL, start_new_session=True)
+        try:
+            with tempfile.TemporaryDirectory() as folder:
+                path = Path(folder) / "campaign.jsonl"
+                with ledger.Journal(path, "fixture") as journal:
+                    journal.append("game.started", game_spec(), pair="pair", game="pair-leg0", attempt=0)
+                # Simulates interruption between separate started/process
+                # durable appends; reopen the actual fsync-backed journal.
+                with ledger.Journal(path, "fixture") as recovered:
+                    recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                    self.assertIsNone(child.poll())
+                    for current_host in ("i-fixture", "i-other"):
+                        with self.subTest(current_host=current_host, child="alive"):
+                            with self.assertRaisesRegex(RuntimeError, "no durable process identity"):
+                                run.require_settled_prior_jobs(recovered.rows, current_host, recovered_budget)
+                    child.stdin.close()
+                    self.assertEqual(child.wait(timeout=5), 0)
+                    # No stored process identity ties this exit to the row;
+                    # a different host or presumed old boot cannot settle it.
+                    for current_host in ("i-fixture", "i-other"):
+                        with self.subTest(current_host=current_host, child="exited"):
+                            with self.assertRaisesRegex(RuntimeError, "no durable process identity"):
+                                run.require_settled_prior_jobs(recovered.rows, current_host, recovered_budget)
+        finally:
+            if not child.stdin.closed:
+                child.stdin.close()
+            if child.returncode is None:
+                child.wait(timeout=5)
+
+    def test_completed_history_with_process_is_preserved_but_unbound_history_blocks(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            with ledger.Journal(root / "complete.jsonl", "fixture") as journal:
+                add_leg(journal, 0, acknowledged=True)
+                rows = list(journal.rows)
+            with ledger.Journal(root / "complete.jsonl", "fixture") as recovered:
+                results = ledger.CampaignResults.replay("fixture", recovered.rows)
+                self.assertTrue(results.games[("fixture-pair-leg0", 0)].accepted)
+                recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                run.require_settled_prior_jobs(recovered.rows, "i-fixture", recovered_budget)
+            # A legacy accepted result lacking the original process row is not
+            # itself evidence that its physical owner was settled.
+            unbound_rows = [row for row in rows if row["event"] != "game.process"]
+            self.assertTrue(ledger.CampaignResults.replay("fixture", unbound_rows).games[("fixture-pair-leg0", 0)].accepted)
+            with self.assertRaisesRegex(RuntimeError, "no durable process identity"):
+                run.require_settled_prior_jobs(unbound_rows, "i-fixture", budget.CampaignBudget("fixture"))
+
+    @unittest.skipUnless(Path("/proc/self/stat").is_file(), "Linux original-process identity")
     def test_unstarted_unknown_owner_blocks_resume_without_assigning_numeric_ownership(self):
         row = {"event": "campaign.unsettled_owner", "data": {"launch_id": "fixture-launch", "instance_id": "i-fixture",
             "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
@@ -940,7 +993,7 @@ class PlanAndControllerTests(unittest.TestCase):
         unresolved = {**settled, "gate_authorization_unknown": True, "status": "cancelled_unreconciled"}
         controller.event("cancelled", job, unresolved)
         self.assertEqual([call.args[0] for call in controller.append.call_args_list],
-                         ["game.process_completed", "campaign.release_unreconciled"])
+                         ["campaign.release_unreconciled", "game.process_completed"])
         self.assertIn("job", controller.uncertain_releases)
         with self.assertRaisesRegex(ValueError, "durable owner recovery"):
             run.assert_no_unreconciled_releases([{"event": "campaign.release_unreconciled"}])
@@ -954,7 +1007,7 @@ class PlanAndControllerTests(unittest.TestCase):
                              "released_monotonic": None}
         controller.event("cancelled", job, unresolved_intent)
         self.assertEqual([call.args[0] for call in controller.append.call_args_list],
-                         ["game.process_completed", "campaign.release_unreconciled"])
+                         ["campaign.release_unreconciled", "game.process_completed"])
 
         # Contradictory no-send and send/receipt evidence must be rejected
         # before journaling anything or changing another owned game's state.
@@ -1005,8 +1058,254 @@ class PlanAndControllerTests(unittest.TestCase):
             observed = {**settled, **unresolved_transport, "status": "completed", "gate_cancelled": False}
             controller.event("delivery_uncertain", job, observed)
             self.assertEqual([call.args[0] for call in controller.append.call_args_list],
-                             ["game.process_completed", "campaign.release_unreconciled"])
+                             ["campaign.release_unreconciled", "game.process_completed"])
             self.assertIn("job", controller.uncertain_releases)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux boot identity")
+    def test_unsettled_started_game_is_not_interrupted_or_retried(self):
+        # No processes or signals: these observations model an owned runner
+        # whose exit and group settlement remain unknown at callback time.
+        for transport, receipt, released in (("sent", "matched", True),
+                                              ("uncertain", "unresolved", False)):
+            with self.subTest(transport=transport):
+                controller = object.__new__(run.StageController)
+                state = type("State", (), {"result": None, "interrupted": None, "attempt": 0,
+                                            "accepted": False})()
+                controller.results = type("Results", (), {"games": {("pair-leg0", 0): state}})()
+                controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+                controller.instance_id = "i-fixture"
+                controller.unsettled, controller.uncertain_releases = {}, {}
+                controller.append = Mock()
+                controller.observe_raw = Mock()
+                controller.queue_result = Mock()
+                controller.acknowledge_results = Mock()
+                controller.replicate = Mock()
+                controller.plan = {"pairs": [{"id": "pair"}]}
+                controller.budget = type("Budget", (), {"started_pairs": set()})()
+                job = type("Job", (), {"identity": "job"})()
+                observed = {"pid": 123, "returncode": None, "readers_done": False,
+                            "remaining_processes": [{"pid": 123, "state": "S"}],
+                            "gate_released": released, "gate_transport": transport,
+                            "gate_receipt": receipt, "gate_receipt_required": True}
+                controller.event("aborted", job, observed)
+                events = [call.args[0] for call in controller.append.call_args_list]
+                self.assertEqual(events, (["campaign.release_unreconciled"] if transport == "uncertain" else []) +
+                                 ["campaign.unsettled_owner"])
+                self.assertIn("job", controller.unsettled)
+                self.assertEqual("job" in controller.uncertain_releases, transport == "uncertain")
+                controller.observe_raw.assert_not_called()
+                controller.queue_result.assert_not_called()
+                with self.assertRaisesRegex(ValueError, "not settled/interrupted"):
+                    controller.pending()
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux boot and process identities")
+    def test_unsettled_callback_survives_journal_reopen_without_signals(self):
+        # The child blocks on its own stdin and exits naturally when closed;
+        # no numeric PID or process group is signalled by this fixture.
+        child = subprocess.Popen([sys.executable, "-c", "import sys;sys.stdin.read()"],
+                                 stdin=subprocess.PIPE, start_new_session=True)
+        try:
+            identity = run.proc_identity(child.pid)
+            self.assertIsNotNone(identity)
+            for started in (False, True):
+                for transport, receipt, released in (("sent", "matched", True),
+                                                      ("uncertain", "unresolved", False)):
+                    with self.subTest(started=started, transport=transport), tempfile.TemporaryDirectory() as folder:
+                        path = Path(folder) / "campaign.jsonl"
+                        with ledger.Journal(path, "fixture") as journal:
+                            if started:
+                                journal.append("game.started", game_spec(), pair="pair", game="pair-leg0", attempt=0)
+                                journal.append("game.process", {**identity, "instance_id": "i-fixture",
+                                    "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()},
+                                    pair="pair", game="pair-leg0", attempt=0)
+                            controller = object.__new__(run.StageController)
+                            controller.plan = {"campaign": "fixture", "pairs": [{"id": "pair"}]}
+                            controller.journal = journal
+                            controller.results = ledger.CampaignResults.replay("fixture", journal.rows)
+                            controller.budget = budget.CampaignBudget.replay("fixture", journal.rows)
+                            controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+                            controller.instance_id = "i-fixture"
+                            controller.unsettled, controller.uncertain_releases = {}, {}
+                            controller.acknowledge_results, controller.replicate = Mock(), Mock()
+                            job = type("Job", (), {"identity": "job"})()
+                            observed = {**identity, "returncode": None, "readers_done": True,
+                                        "remaining_processes": [{**identity, "state": "S"}],
+                                        "gate_released": released, "gate_transport": transport,
+                                        "gate_receipt": receipt, "gate_receipt_required": True}
+                            controller.event("aborted", job, observed)
+                            events = [row["event"] for row in journal.rows]
+                            self.assertIn("campaign.unsettled_owner", events)
+                            self.assertNotIn("game.interrupted", events)
+                            self.assertNotIn("game.process_completed", events)
+                            self.assertNotIn("campaign.game_not_started", events)
+                            self.assertEqual("campaign.release_unreconciled" in events,
+                                             transport == "uncertain" or not started)
+                            with self.assertRaisesRegex(ValueError, "not settled/interrupted"):
+                                controller.pending()
+                        # Reopen only after the callback has durably committed,
+                        # as if the controller crashed before post-wave cleanup.
+                        with ledger.Journal(path, "fixture") as recovered:
+                            results = ledger.CampaignResults.replay("fixture", recovered.rows)
+                            recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                            with self.assertRaisesRegex(RuntimeError, "original runner identity exists"):
+                                run.require_settled_prior_jobs(recovered.rows, "i-fixture", recovered_budget)
+                            if transport == "uncertain" or not started:
+                                with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+                                    run.assert_no_unreconciled_releases(recovered.rows)
+                            if started:
+                                controller.results = results
+                                controller.budget = recovered_budget
+                                with self.assertRaisesRegex(ValueError, "not settled/interrupted"):
+                                    controller.pending()
+        finally:
+            child.stdin.close()
+            child.wait(timeout=5)
+
+    def test_settled_confirmed_go_without_started_state_is_quarantined(self):
+        controller = object.__new__(run.StageController)
+        controller.results = type("Results", (), {"games": {}})()
+        controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+        controller.instance_id = "i-fixture"
+        controller.uncertain_releases = {}
+        controller.append = Mock()
+        controller.acknowledge_results, controller.replicate = Mock(), Mock()
+        job = type("Job", (), {"identity": "job"})()
+        observed = {"pid": 123, "returncode": 0, "readers_done": True,
+                    "remaining_processes": [], "gate_released": True,
+                    "gate_transport": "sent", "gate_receipt": "matched",
+                    "gate_receipt_required": True}
+        controller.event("completed", job, observed)
+        self.assertEqual([call.args[0] for call in controller.append.call_args_list],
+                         ["campaign.release_unreconciled"])
+        self.assertIn("job", controller.uncertain_releases)
+        with self.assertRaisesRegex(ValueError, "release is unreconciled"):
+            controller.pending()
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux boot identity")
+    def test_inconsistent_delivery_event_durably_quarantines_before_error(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "campaign.jsonl"
+            with ledger.Journal(path, "fixture") as journal:
+                journal.append("game.started", game_spec(), pair="pair", game="pair-leg0", attempt=0)
+                controller = object.__new__(run.StageController)
+                controller.plan = {"campaign": "fixture"}
+                controller.journal = journal
+                controller.results = ledger.CampaignResults.replay("fixture", journal.rows)
+                controller.budget = budget.CampaignBudget.replay("fixture", journal.rows)
+                controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+                controller.instance_id = "i-fixture"
+                controller.unsettled, controller.uncertain_releases = {}, {}
+                job = type("Job", (), {"identity": "job"})()
+                observed = {"pid": 123, "pgid": 123, "session": 123, "start_ticks": None,
+                            "returncode": None, "readers_done": False,
+                            "remaining_processes": [{"state": "ownership_unverified"}],
+                            "gate_released": True, "gate_transport": "sent",
+                            "gate_receipt": "matched", "gate_receipt_required": True}
+                journal.append("game.process", {**observed, "instance_id": "i-fixture",
+                    "boot_id": Path("/proc/sys/kernel/random/boot_id").read_text().strip()},
+                    pair="pair", game="pair-leg0", attempt=0)
+                with self.assertRaisesRegex(ValueError, "uncertainty event"):
+                    controller.event("delivery_uncertain", job, observed)
+                self.assertEqual([row["event"] for row in journal.rows][-2:],
+                                 ["campaign.release_unreconciled", "campaign.unsettled_owner"])
+            with ledger.Journal(path, "fixture") as recovered:
+                recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                with self.assertRaisesRegex(RuntimeError, "unverified launch/output owner"):
+                    run.require_settled_prior_jobs(recovered.rows, "i-fixture", recovered_budget)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux boot identity")
+    def test_crash_between_release_and_unsettled_records_blocks_both_recoveries(self):
+        for transport in ("sent", "uncertain"):
+            with self.subTest(transport=transport), tempfile.TemporaryDirectory() as folder:
+                path = Path(folder) / "campaign.jsonl"
+                with ledger.Journal(path, "fixture") as journal:
+                    controller = object.__new__(run.StageController)
+                    controller.plan = {"campaign": "fixture"}
+                    controller.journal = journal
+                    controller.results = ledger.CampaignResults.replay("fixture", journal.rows)
+                    controller.budget = budget.CampaignBudget.replay("fixture", journal.rows)
+                    controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+                    controller.instance_id = "i-fixture"
+                    controller.unsettled, controller.uncertain_releases = {}, {}
+                    controller.record_unsettled = Mock(side_effect=RuntimeError("simulated crash"))
+                    job = type("Job", (), {"identity": "job"})()
+                    observed = {"pid": 123, "pgid": 123, "session": 123, "start_ticks": None,
+                                "returncode": None, "readers_done": False,
+                                "remaining_processes": [{"state": "ownership_unverified"}],
+                                "gate_released": transport == "sent", "gate_transport": transport,
+                                "gate_receipt": "matched" if transport == "sent" else "unresolved",
+                                "gate_receipt_required": True}
+                    with self.assertRaisesRegex(RuntimeError, "simulated crash"):
+                        controller.event("aborted", job, observed)
+                    self.assertEqual([row["event"] for row in journal.rows], ["campaign.release_unreconciled"])
+                with ledger.Journal(path, "fixture") as recovered:
+                    recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                    with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+                        run.assert_no_unreconciled_releases(recovered.rows)
+                    with self.assertRaisesRegex(RuntimeError, "unverified launch/output owner"):
+                        run.require_settled_prior_jobs(recovered.rows, "i-fixture", recovered_budget)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux boot and process identities")
+    def test_unreconciled_terminal_crash_keeps_release_quarantine(self):
+        # The fixture owns its child and ends it by stdin EOF only; no process
+        # or process group is signalled. Both live and settled cancellations
+        # must persist uncertain authorization before a second ledger append.
+        for event, settled in ((event, settled) for event in
+                               ("cancelled", "completed", "aborted", "delivery_uncertain")
+                               for settled in (False, True)):
+            with self.subTest(event=event, settled=settled), tempfile.TemporaryDirectory() as folder:
+                child = subprocess.Popen([sys.executable, "-B", "-c", "import sys;sys.stdin.read()"],
+                                         stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                         stderr=subprocess.DEVNULL, start_new_session=True)
+                try:
+                    identity = run.proc_identity(child.pid)
+                    self.assertIsNotNone(identity)
+                    if settled:
+                        child.stdin.close()
+                        self.assertEqual(child.wait(timeout=5), 0)
+                    boot_id = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
+                    path = Path(folder) / "campaign.jsonl"
+                    with ledger.Journal(path, "fixture") as journal:
+                        journal.append("game.started", game_spec(), pair="pair", game="pair-leg0", attempt=0)
+                        journal.append("game.process", {**identity, "instance_id": "i-fixture", "boot_id": boot_id},
+                                       pair="pair", game="pair-leg0", attempt=0)
+                        controller = object.__new__(run.StageController)
+                        controller.plan = {"campaign": "fixture"}
+                        controller.journal = journal
+                        controller.results = ledger.CampaignResults.replay("fixture", journal.rows)
+                        controller.budget = budget.CampaignBudget.replay("fixture", journal.rows)
+                        controller.job_specs = {"job": {"pair": "pair", "game": "pair-leg0", "attempt": 0}}
+                        controller.instance_id = "i-fixture"
+                        controller.unsettled, controller.uncertain_releases = {}, {}
+                        job = type("Job", (), {"identity": "job"})()
+                        observed = {**identity, "returncode": 0 if settled else None,
+                                    "readers_done": True,
+                                    "remaining_processes": [] if settled else [{**identity, "state": "S"}],
+                                    "gate_cancelled": event == "cancelled",
+                                    "gate_transport": "not_attempted" if event == "cancelled" else "uncertain",
+                                    "gate_authorized": True, "gate_authorization_unknown": False,
+                                    "status": "cancelled_unreconciled" if event == "cancelled" else "delivery_uncertain"}
+                        original_append = controller.append
+                        def fail_second(event, *args, **kwargs):
+                            if event != "campaign.release_unreconciled":
+                                raise RuntimeError("simulated crash after first durable record")
+                            return original_append(event, *args, **kwargs)
+                        controller.append = fail_second
+                        with self.assertRaisesRegex(RuntimeError, "simulated crash"):
+                            controller.event(event, job, observed)
+                        self.assertEqual(journal.rows[-1]["event"], "campaign.release_unreconciled")
+                    with ledger.Journal(path, "fixture") as recovered:
+                        with self.assertRaisesRegex(ValueError, "durable owner recovery"):
+                            run.assert_no_unreconciled_releases(recovered.rows)
+                        if not settled:
+                            recovered_budget = budget.CampaignBudget.replay("fixture", recovered.rows)
+                            with self.assertRaisesRegex(RuntimeError, "original runner identity exists"):
+                                run.require_settled_prior_jobs(recovered.rows, "i-fixture", recovered_budget)
+                finally:
+                    if not child.stdin.closed:
+                        child.stdin.close()
+                    if child.returncode is None:
+                        child.wait(timeout=5)
 
     def test_completed_game_with_ponderhit_clock_gap_is_preserved_unscored(self):
         controller = object.__new__(run.StageController)

@@ -1262,10 +1262,12 @@ def proc_identity(pid):
 
 def require_settled_prior_jobs(rows, instance_id, campaign_budget):
     """An elapsed wait or a different controller host is not process death."""
-    starts, settled, unsettled = {}, set(), {}
+    starts, settled, unsettled, started_games = {}, set(), {}, set()
     for row in rows:
         key = row.get("game"), row.get("attempt")
-        if row["event"] == "game.process":
+        if row["event"] == "game.started":
+            started_games.add(key)
+        elif row["event"] == "game.process":
             starts[key] = row["data"]
         elif row["event"] == "game.process_completed":
             data = row["data"]
@@ -1273,6 +1275,20 @@ def require_settled_prior_jobs(rows, instance_id, campaign_budget):
                 settled.add(key)
         elif row["event"] == "campaign.unsettled_owner":
             unsettled[row["data"]["launch_id"]] = row["data"]
+        elif row["event"] == "campaign.release_unreconciled":
+            # A single first durable record protects both the uncertain GO and
+            # its physical owner if the controller crashes before the second
+            # unsettled-owner record can be appended.
+            data = row["data"]
+            if isinstance(data.get("observation"), dict) and not physically_settled(data["observation"]):
+                unsettled.setdefault(data["launch_id"], data)
+    # A controller can die after persisting game.started but before it writes
+    # the separate process identity. Neither an empty cgroup nor a later
+    # interruption/result establishes which already-spawned owner has stopped.
+    # Existing complete histories with their process records use the normal
+    # settlement checks below; an identity-less history requires recovery.
+    if started_games.difference(starts):
+        raise RuntimeError("started game has no durable process identity; recover its owner before resume")
     current_boot = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
     for launch, data in unsettled.items():
         owned = data["observation"]
@@ -1534,6 +1550,8 @@ class StageController:
         data = {"launch_id": job.identity, "instance_id": self.instance_id,
                 "observation": observation,
                 "scope": "physical settlement does not reconcile possibly committed or transported GO"}
+        if not physically_settled(observation):
+            data["boot_id"] = Path("/proc/sys/kernel/random/boot_id").read_text().strip()
         self.append("campaign.release_unreconciled", data, **keys)
         self.uncertain_releases[job.identity] = data
 
@@ -1756,31 +1774,53 @@ class StageController:
                     (observation.get("gate_authorized") is True or
                      observation.get("gate_authorization_unknown") is True or intent_requested is True)):
                 raise ValueError("cancelled runner authorization state differs")
+            if status == "cancelled_unreconciled":
+                # A possibly committed authorization must be durable before
+                # any separate settlement record: a crash between appends
+                # must not erase the unresolved release during recovery.
+                self.quarantine_release(job, observation, keys)
             if not physically_settled(observation):
                 self.record_unsettled(job, observation)
             else:
                 self.append("game.process_completed", observation, **keys)
-            if status == "cancelled_unreconciled":
-                self.quarantine_release(job, observation, keys)
-            elif physically_settled(observation) and state.result is None and state.interrupted is None:
+            if status != "cancelled_unreconciled" and physically_settled(observation) and state.result is None and state.interrupted is None:
                 self.append("game.interrupted", {"reason": "budget_drain", "runner_observation": observation}, **keys)
         elif event in ("completed", "aborted", "delivery_uncertain"):
             # The WaveExecutor only reports completed after group and readers
             # are physically settled. Earlier completed colours survive a later abort.
             state = self.results.games.get((spec["game"], spec["attempt"]))
-            if state is None:
-                self.append("campaign.game_not_started", {"runner_observation": observation}, **keys)
+            if event == "delivery_uncertain" and not release_unresolved(observation):
+                self.quarantine_release(job, observation, keys)
                 if not physically_settled(observation):
                     self.record_unsettled(job, observation)
+                raise ValueError("delivery uncertainty event lacks an uncertain transport observation")
+            if release_unresolved(observation):
+                # Persist uncertain release before either settlement outcome.
+                # Each following record may fail or the runner may crash.
+                self.quarantine_release(job, observation, keys)
+                if not physically_settled(observation):
+                    self.record_unsettled(job, observation)
+                elif state is not None:
+                    self.append("game.process_completed", observation, **keys)
+                return
+            if not physically_settled(observation):
+                # A failed cleanup is not a completed or interrupted game.
+                # Persist its owner before this callback returns, so a crash
+                # before the post-wave guard cannot lose the unresolved state.
+                # GO uncertainty is tracked separately.
+                if (state is None and
+                        (observation.get("gate_released") is True or observation.get("gate_transport") == "sent")):
+                    self.quarantine_release(job, observation, keys)
+                self.record_unsettled(job, observation)
+                return
+            if state is None:
+                if (observation.get("gate_released") is True or
+                        observation.get("gate_transport") == "sent"):
+                    self.quarantine_release(job, observation, keys)
+                else:
+                    self.append("campaign.game_not_started", {"runner_observation": observation}, **keys)
                 return
             self.append("game.process_completed", observation, **keys)
-            if release_unresolved(observation):
-                if not physically_settled(observation):
-                    self.record_unsettled(job, observation)
-                self.quarantine_release(job, observation, keys)
-                return
-            if event == "delivery_uncertain":
-                raise ValueError("delivery uncertainty event lacks an uncertain transport observation")
             self.observe_raw(job)
             if (event == "completed" and observation.get("gate_released") is True and
                     observation.get("returncode") == 0 and observation.get("cleanup_forced") is False and
@@ -1815,6 +1855,11 @@ class StageController:
         self.replicate()
 
     def pending(self):
+        # A launch without a game.started row can still own a live process or
+        # an unreconciled GO. Refuse all scheduling until those local owners
+        # are reconciled, even when there is no GameState for this attempt.
+        if getattr(self, "unsettled", None) or getattr(self, "uncertain_releases", None):
+            raise ValueError("an earlier game attempt is not settled/interrupted or its release is unreconciled")
         jobs = []
         for pair in self.plan["pairs"]:
             for leg in (0, 1):
