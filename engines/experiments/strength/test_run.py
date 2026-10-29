@@ -80,8 +80,10 @@ def game_spec(leg=0, opening=None, players=None):
             "artifact_sha256": identities}
 
 
-def add_leg(journal, leg, *, acknowledged=True, pair="fixture-pair", result="1-0", players=None):
+def add_leg(journal, leg, *, acknowledged=True, pair="fixture-pair", result="1-0", players=None, runner_sha=None):
     spec = game_spec(leg, players=players)
+    if runner_sha is not None:
+        spec["runner_sha256"] = runner_sha
     keys = {"pair": pair, "game": pair + f"-leg{leg}", "attempt": 0}
     journal.append("game.started", spec, **keys)
     # A test-only owned-controller GC scope; real coverage requires the runner hook.
@@ -241,12 +243,18 @@ class ProtocolTests(unittest.TestCase):
         raw.write_text("".join(lines))
         return pgn, raw, spec
 
+    def parse_fixture(self, pgn, raw, spec):
+        if os.name == "posix" and hasattr(os, "O_NOFOLLOW") and hasattr(os, "O_DIRECTORY"):
+            return run.parse_result(pgn, raw, spec)
+        # Portable parser diagnosis only; Windows is not an actual game owner.
+        return run.parse_result_bytes(pgn.read_bytes(), raw.read_bytes(), spec)
+
     def test_pgn_and_actual_trace_must_agree_with_independent_oracle(self):
         with tempfile.TemporaryDirectory() as folder:
             pgn, raw, spec = self.make_mate(Path(folder))
             raw.write_text(protocol("fixture-A", "--->", "option name Ponder type check default true") +
                            protocol("fixture-A", "<---", "setoption name Ponder value false") + raw.read_text())
-            result = run.parse_result(pgn, raw, spec)
+            result = self.parse_fixture(pgn, raw, spec)
             self.assertEqual((result["result"], result["plies"]), ("0-1", 4))
             self.assertEqual(result["raw_sha256"], sha(raw.read_bytes()))
             self.assertEqual(result["ponder_uci"]["fixture-A"]["setoption_ponder_false_received"], 1)
@@ -255,24 +263,24 @@ class ProtocolTests(unittest.TestCase):
             self.assertIsNone(result["ponder_uci"]["fixture-B"]["actual_off_turn_search"])
             raw.write_text(raw.read_text().replace("bestmove d8h4", "bestmove d8e7"))
             with self.assertRaises(ValueError):
-                run.parse_result(pgn, raw, spec)
+                self.parse_fixture(pgn, raw, spec)
 
     def test_late_trace_clock_defect_cannot_be_hidden_by_valid_mate_pgn(self):
         with tempfile.TemporaryDirectory() as folder:
             pgn, raw, spec = self.make_mate(Path(folder), bad_clock=True)
             with self.assertRaises(ValueError):
-                run.parse_result(pgn, raw, spec)
+                self.parse_fixture(pgn, raw, spec)
 
     def test_nonterminal_draw_or_wrong_result_cannot_be_scored(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             pgn, raw, spec = self.make_mate(root, wrong_result=True)
             with self.assertRaises(ValueError):
-                run.parse_result(pgn, raw, spec)
+                self.parse_fixture(pgn, raw, spec)
             pgn.write_text('[Event "Unit fixture"]\n[White "fixture-A"]\n[Black "fixture-B"]\n'
                            '[Result "1/2-1/2"]\n\n1. f2f3 e7e5 1/2-1/2\n')
             with self.assertRaises(ValueError):
-                run.parse_result(pgn, raw, spec)
+                self.parse_fixture(pgn, raw, spec)
 
 
 class DurabilityTests(unittest.TestCase):
@@ -364,7 +372,8 @@ class CollectionTests(unittest.TestCase):
                 self.assertEqual((partial["completed_pair_count"], len(partial["raw_completed_games"])), (0, 1))
                 add_leg(journal, 1, result="0-1")
                 summary = collect.collect(journal.rows, "fixture", expected_pairs=["fixture-pair"], profile="test-p4")
-                self.assertTrue(summary["selection_ready"])
+                self.assertTrue(summary["performance_complete"])
+                self.assertFalse(summary["selection_ready"])
                 self.assertEqual((summary["standings"][0]["player"], summary["standings"][0]["points"]), ("fixture-A", 2))
 
     def test_empty_schedule_and_pending_remote_ack_are_incomplete(self):
@@ -378,7 +387,7 @@ class CollectionTests(unittest.TestCase):
                 self.assertEqual(len(summary["incomplete_attempts"]), 1)
 
     def test_high_selection_uses_only_eligible_families_and_completed_p4(self):
-        summary = {"profile": "test-p4", "selection_ready": True,
+        summary = {"profile": "test-p4", "selection_ready": True, "plan_game_binding_checked": True,
                    "standings": [{"player": name, "points": 3 - index,
                                   "tied_head_to_head": 0, "sonneborn_berger": 0}
                                  for index, name in enumerate(("A4", "B4", "C4"))]}
@@ -388,10 +397,12 @@ class CollectionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             collect.select_high({**summary, "selection_ready": False}, {}, high)
         with self.assertRaises(ValueError):
+            collect.select_high({**summary, "plan_game_binding_checked": False}, {}, high)
+        with self.assertRaises(ValueError):
             collect.select_high(summary, {}, high + [high[0]])
 
     def test_p16_broad_selection_keeps_profile_specific_selection_label(self):
-        summary = {"profile": "test-p16", "selection_ready": True,
+        summary = {"profile": "test-p16", "selection_ready": True, "plan_game_binding_checked": True,
                    "standings": [{"player": "A16", "points": 2, "tied_head_to_head": 0, "sonneborn_berger": 0},
                                  {"player": "B16", "points": 1, "tied_head_to_head": 0, "sonneborn_berger": 0}]}
         selected = collect.select_high(summary, {"A16": "A", "B16": "B"},
@@ -413,10 +424,17 @@ class CollectionTests(unittest.TestCase):
             with ledger.Journal(Path(folder) / "campaign.jsonl", "fixture") as journal:
                 for index, players in enumerate(pairs):
                     for leg in (0, 1):
-                        add_leg(journal, leg, pair=f"tie-{index}", result="1/2-1/2", players=players)
+                        add_leg(journal, leg, pair=f"tie-{index}", result="1/2-1/2", players=players, runner_sha="d" * 64)
                 arguments = dict(expected_pairs=[f"tie-{index}" for index in range(3)], profile="test-p4")
                 unbound = collect.collect(journal.rows, "fixture", **arguments)
-                bound = collect.collect(journal.rows, "fixture", **arguments, player_families=families)
+                plan = {"campaign": "fixture", "profile": "test-p4", "bank_id": "b" * 64,
+                        "runner": {"sha256": "d" * 64},
+                        "registry": {"players": [{"artifact": {"id": name, "sha256": sha(name.encode())}}
+                                                  for name in families]},
+                        "pairs": [{"id": f"tie-{index}", "players": list(players),
+                                   "opening": {"id": "fixture-opening", "moves": ["f2f3", "e7e5"]}}
+                                  for index, players in enumerate(pairs)]}
+                bound = collect.collect(journal.rows, "fixture", **arguments, player_families=families, plan=plan)
         self.assertTrue(bound["selection_ready"])
         self.assertEqual({(row["points"], row["tied_head_to_head"], row["sonneborn_berger"])
                           for row in bound["standings"]}, {(2, 2, 4)})
@@ -424,13 +442,13 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual([row["player"] for row in bound["standings"]], ["z-A", "m-B", "a-C"])
         high = [{"id": family + "28", "family": family} for family in ("C", "B", "A")]
         high += [{"id": "a-ice4", "family": "ice4"}, {"id": "z-c4ke", "family": "c4ke"}]
-        selected = collect.select_high(unbound, families, high)
+        selected = collect.select_high(bound, families, high)
         self.assertEqual(selected["players"], ["A28", "B28", "a-ice4", "z-c4ke"])
 
     def test_high_selection_requires_unambiguous_family_binding_and_score_precedence(self):
         rows = [{"player": name, "points": 1, "tied_head_to_head": 1, "sonneborn_berger": 1}
                 for name in ("z-A", "a-B")]
-        summary = {"profile": "test-p4", "selection_ready": True, "standings": rows}
+        summary = {"profile": "test-p4", "selection_ready": True, "plan_game_binding_checked": True, "standings": rows}
         high = [{"id": family + "28", "family": family} for family in ("A", "B")]
         for families in (None, {}, {"z-A": "A"}, {"z-A": "A", "a-B": "A"},
                          {"z-A": "A", "a-B": "unknown"}):
@@ -449,20 +467,27 @@ class CollectionTests(unittest.TestCase):
             journal_path = root / "campaign.jsonl"
             with ledger.Journal(journal_path, "fixture") as journal:
                 for leg in (0, 1):
-                    add_leg(journal, leg, result="1/2-1/2")
-            content = {"campaign": "fixture", "profile": "test-p4", "pairs": [{"id": "fixture-pair"}],
-                       "registry": {"players": [{"artifact": {"id": "fixture-A", "family": "B"}},
-                                                 {"artifact": {"id": "fixture-B", "family": "A"}}]}}
+                    add_leg(journal, leg, result="1/2-1/2", runner_sha="d" * 64)
+            content = {"campaign": "fixture", "profile": "test-p4", "bank_id": "b" * 64,
+                       "runner": {"sha256": "d" * 64},
+                       "pairs": [{"id": "fixture-pair", "players": ["fixture-A", "fixture-B"],
+                                  "opening": {"id": "fixture-opening", "moves": ["f2f3", "e7e5"]}}],
+                       "registry": {"players": [{"artifact": {"id": "fixture-A", "family": "B", "sha256": "a" * 64}},
+                                                 {"artifact": {"id": "fixture-B", "family": "A", "sha256": "c" * 64}}]}}
             plan = root / "plan.json"
-            plan.write_bytes(ledger.canonical({"format": "rove4k-campaign-plan-v1",
-                "content": content, "sha256": ledger.digest(content)}))
+            envelope = {"format": "rove4k-campaign-plan-v1", "content": content, "sha256": ledger.digest(content)}
+            plan.write_bytes(ledger.canonical(envelope))
             for bound in (False, True):
                 out = root / ("bound" if bound else "unbound")
                 argv = ["collect", "--journal", str(journal_path), "--campaign", "fixture", "--out", str(out)]
                 if bound:
                     argv += ["--plan", str(plan)]
-                with patch.object(sys, "argv", argv), patch("sys.stdout"):
+                with patch.object(sys, "argv", argv), patch("sys.stdout"), patch.object(run, "load_plan", return_value=(envelope, [])) as loader:
                     collect.main()
+                if bound:
+                    loader.assert_called_once_with(plan)
+                else:
+                    loader.assert_not_called()
                 summary = json.loads((out / "summary.json").read_bytes())
                 self.assertEqual(summary["standings"][0]["player"], "fixture-B" if bound else "fixture-A")
                 self.assertEqual(summary["selection_ready"], bound)

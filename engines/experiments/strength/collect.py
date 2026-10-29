@@ -250,12 +250,76 @@ def reconcile_cooperative_gc_scopes(rows, campaign, results, accepted, statuses)
     return statuses
 
 
-def collect(rows, campaign, *, expected_pairs=None, profile=None, player_families=None):
+def bind_plan_games(results, plan, campaign, profile, expected_pairs):
+    """Check journal identities against the caller's frozen plan content.
+
+    This checks consistency only. It does not authenticate the plan, journal,
+    host, GO delivery or remote object acknowledgements.
+    """
+    if (type(plan) is not dict or plan.get("campaign") != campaign or
+            plan.get("profile") != profile or type(plan.get("pairs")) is not list or
+            type(plan.get("registry")) is not dict or
+            type(plan["registry"].get("players")) is not list):
+        raise ValueError("frozen plan does not match collection scope")
+    players = {}
+    for row in plan["registry"]["players"]:
+        artifact = row.get("artifact") if type(row) is dict else None
+        if type(artifact) is not dict:
+            raise ValueError("frozen plan player is malformed")
+        player, sha = artifact.get("id"), artifact.get("sha256")
+        if (type(player) is not str or not player or player in players or
+                type(sha) is not str or len(sha) != 64 or
+                any(c not in "0123456789abcdef" for c in sha)):
+            raise ValueError("frozen plan player identity or hash is invalid")
+        players[player] = sha
+    pairs = {}
+    for pair in plan["pairs"]:
+        if type(pair) is not dict or type(pair.get("id")) is not str or pair["id"] in pairs:
+            raise ValueError("frozen plan pair identity is invalid")
+        names, opening = pair.get("players"), pair.get("opening")
+        if (type(names) is not list or len(names) != 2 or names[0] == names[1] or
+                any(type(name) is not str or name not in players for name in names) or
+                type(opening) is not dict or type(opening.get("id")) is not str or
+                type(opening.get("moves")) is not list or
+                any(type(move) is not str for move in opening["moves"])):
+            raise ValueError("frozen plan pair content is invalid")
+        pairs[pair["id"]] = pair
+    if set(pairs) != set(expected_pairs):
+        raise ValueError("frozen plan pair identities differ from collection scope")
+    runner = plan.get("runner")
+    if (type(runner) is not dict or type(runner.get("sha256")) is not str or
+            len(runner["sha256"]) != 64 or
+            any(c not in "0123456789abcdef" for c in runner["sha256"]) or
+            type(plan.get("bank_id")) is not str or len(plan["bank_id"]) != 64 or
+            any(c not in "0123456789abcdef" for c in plan["bank_id"])):
+        raise ValueError("frozen plan runner or bank hash is invalid")
+    for state in results.games.values():
+        pair = pairs.get(state.pair)
+        if pair is None:
+            continue  # Other stages can coexist in the same journal.
+        spec = state.spec
+        leg = spec["leg"]
+        white, black = pair["players"] if leg == 0 else reversed(pair["players"])
+        opening = pair["opening"]
+        expected = {"leg": leg, "white": white, "black": black,
+                    "opening_id": opening["id"], "opening_moves": opening["moves"],
+                    "opening_sha256": digest(opening["moves"]), "bank_id": plan["bank_id"],
+                    "profile": profile, "artifact_sha256": {white: players[white], black: players[black]},
+                    "runner_sha256": runner["sha256"]}
+        if state.game != state.pair + f"-leg{leg}" or any(spec.get(key) != value for key, value in expected.items()):
+            raise ValueError("journal game differs from its frozen plan pair")
+
+
+def collect(rows, campaign, *, expected_pairs=None, profile=None, player_families=None, plan=None):
     rows = list(rows)
     results = CampaignResults.replay(campaign, rows)
     pairs = [pair for pair in results.pairs() if profile is None or pair["profile"] == profile]
     if expected_pairs is not None and len(expected_pairs) != len(set(expected_pairs)):
         raise ValueError("duplicate expected pair identity")
+    if plan is not None:
+        if expected_pairs is None or profile is None:
+            raise ValueError("frozen plan binding requires explicit pair and profile scope")
+        bind_plan_games(results, plan, campaign, profile, expected_pairs)
     expected = None if expected_pairs is None else set(expected_pairs)
     if expected is not None:
         unexpected = {pair["pair"] for pair in pairs} - expected
@@ -326,13 +390,17 @@ def collect(rows, campaign, *, expected_pairs=None, profile=None, player_familie
             "other_stage_pairs_excluded": sorted(unexpected), "campaign_stage_complete": complete,
             "standings": standings, "raw_completed_games": raw_games, "incomplete_attempts": incomplete_games,
             "performance_pairs": performance_pairs, "performance_excluded_pairs": performance_excluded,
-            "selection_ready": complete and len(performance_pairs) == len(pairs),
+            "performance_complete": complete and len(performance_pairs) == len(pairs),
+            "selection_ready": plan is not None and complete and len(performance_pairs) == len(pairs),
+            "plan_game_binding_checked": plan is not None,
             "scope": "complete colour pairs preserved; performance requires complete owned-controller explicit GC observation; no host attestation, Elo, equivalence or W256 claim"}
 
 
 def select_high(summary, broad_families, high_players):
     """Choose up to two distinct eligible Rove families from completed broad."""
-    if summary.get("profile") not in ("test-p4", "test-p16") or summary.get("selection_ready") is not True:
+    if (summary.get("profile") not in ("test-p4", "test-p16") or
+            summary.get("selection_ready") is not True or
+            summary.get("plan_game_binding_checked") is not True):
         raise ValueError("an incomplete broad stage cannot determine its top two")
     if type(broad_families) is not dict:
         raise ValueError("high selection requires the admitted broad family mapping")
@@ -399,15 +467,22 @@ def main():
     parser.add_argument("--plan", type=Path)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    expected = families = None
+    expected = families = plan = None
     if args.plan:
-        value = json.loads(args.plan.read_text())
+        # Use the same frozen-plan replay as stage execution and high
+        # selection. A self-hashed subset is not a validated schedule.
+        try:
+            from . import run
+        except ImportError:
+            import run
+        value, _ = run.load_plan(args.plan)
         if (value.get("format") != "rove4k-campaign-plan-v1" or
                 digest(value.get("content")) != value.get("sha256") or
                 value["content"].get("campaign") != args.campaign or
                 args.profile is not None and value["content"].get("profile") != args.profile):
             parser.error("frozen plan identity/campaign/profile differs")
         args.profile = value["content"]["profile"]
+        plan = value["content"]
         expected = [row["id"] for row in value["content"]["pairs"]]
         families = {}
         for row in value["content"]["registry"]["players"]:
@@ -416,7 +491,7 @@ def main():
                 parser.error("frozen plan contains duplicate player identities")
             families[artifact["id"]] = artifact["family"]
     summary = collect(read_journal(args.journal, args.campaign), args.campaign,
-                      expected_pairs=expected, profile=args.profile, player_families=families)
+                      expected_pairs=expected, profile=args.profile, player_families=families, plan=plan)
     write_summary(summary, args.out)
     print(json.dumps({"completed_pairs": summary["completed_pair_count"], "stage_complete": summary["campaign_stage_complete"]}))
 

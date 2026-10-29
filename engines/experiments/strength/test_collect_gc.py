@@ -57,7 +57,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
         rows = self.make_leg(0) + self.make_leg(1)
         summary = self.summary(rows)
         self.assertTrue(summary["campaign_stage_complete"])
-        self.assertTrue(summary["selection_ready"])
+        self.assertTrue(summary["performance_complete"])
         self.assertEqual(summary["performance_excluded_pairs"], [])
         self.assertEqual((summary["standings"][0]["player"], summary["standings"][0]["points"]), ("A", 2))
         self.assertTrue(all(row["performance_included"] for row in summary["raw_completed_games"]))
@@ -68,7 +68,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
                 rows = self.make_leg(0, **{name: 1}) + self.make_leg(1, **{name: 1})
                 summary = self.summary(rows)
                 self.assertTrue(summary["campaign_stage_complete"])
-                self.assertFalse(summary["selection_ready"])
+                self.assertFalse(summary["performance_complete"])
                 self.assertEqual(summary["standings"], [])
                 self.assertEqual(len(summary["raw_completed_games"]), 2)
                 self.assertEqual(summary["performance_excluded_pairs"][0]["games"][0]["cooperative_gc"], "intervened")
@@ -79,7 +79,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
             target = next(row for row in rows if row["game"] == "game-0" and row["event"] == event)
             target["data"]["active_count"] = 1
             summary = self.summary(rows)
-            self.assertFalse(summary["selection_ready"])
+            self.assertFalse(summary["performance_complete"])
             self.assertEqual(summary["performance_excluded_pairs"][0]["games"][0]["cooperative_gc"], "intervened")
 
     def test_missing_incomplete_or_forged_interval_is_not_clean(self):
@@ -117,19 +117,19 @@ class CooperativeGcCollectionTests(unittest.TestCase):
             with self.subTest(rows=rows):
                 summary = self.summary(rows)
                 self.assertTrue(summary["campaign_stage_complete"])
-                self.assertFalse(summary["selection_ready"])
+                self.assertFalse(summary["performance_complete"])
                 self.assertEqual(summary["standings"], [])
                 self.assertEqual(len(summary["raw_completed_games"]), 2)
 
     def test_normal_automatic_gc_is_not_an_explicit_intervention(self):
         rows = self.make_leg(0) + self.make_leg(1)
         rows.insert(3, self.row("game.python_automatic_gc", "game-0", {"count": 1}))
-        self.assertTrue(self.summary(rows)["selection_ready"])
+        self.assertTrue(self.summary(rows)["performance_complete"])
 
     def test_overlapping_scopes_reject_inconsistent_global_counters(self):
         rows = self.make_leg(0, request_delta=1) + self.make_leg(1)
         summary = self.summary(rows)
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
         statuses = [item["cooperative_gc"] for item in summary["performance_excluded_pairs"][0]["games"]]
         self.assertEqual(statuses, ["unverified", "unverified"])
 
@@ -144,7 +144,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
                          "observer_pid", "observer_start_ticks", "scope_start_ns")}
             row["data"]["scope_id"] = ledger.cooperative_gc_scope_id(self.campaign, self.pair, "game-1", 0, identity)
         summary = self.summary(rows)
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
         statuses = [item["cooperative_gc"] for item in summary["performance_excluded_pairs"][0]["games"]]
         self.assertEqual(statuses, ["unverified", "unverified"])
 
@@ -160,7 +160,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
                         ("instance_id", "boot_id", "launch_pid", "launch_start_ticks",
                          "observer_pid", "observer_start_ticks", "scope_start_ns")}
             row["data"]["scope_id"] = ledger.cooperative_gc_scope_id(self.campaign, self.pair, "game-0", 0, identity)
-        self.assertFalse(self.summary(rows)["selection_ready"])
+        self.assertFalse(self.summary(rows)["performance_complete"])
 
     def test_large_monotonic_float_uses_outward_integer_bounds(self):
         seconds = 9_000_000_000.0
@@ -192,7 +192,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
                     else:
                         row["data"]["active_count"] = 2
             with self.subTest(mode=mode):
-                self.assertFalse(self.summary(rows)["selection_ready"])
+                self.assertFalse(self.summary(rows)["performance_complete"])
 
     def extra_leg(self):
         rows = self.make_leg(0)
@@ -213,14 +213,14 @@ class CooperativeGcCollectionTests(unittest.TestCase):
                       "attempt": 0, "event": "game.interrupted", "data": {"reason": "host_interruption"}})
         summary = self.summary(extra + rows)
         self.assertTrue(summary["campaign_stage_complete"])
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
         self.assertEqual(len(summary["raw_completed_games"]), 2)
         self.assertEqual(summary["standings"], [])
 
     def test_unbound_started_attempt_cannot_be_assumed_to_be_on_another_host(self):
         rows = self.make_leg(0) + self.make_leg(1)
         summary = self.summary(self.extra_leg()[:1] + rows)
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
         self.assertEqual(summary["standings"], [])
 
     def test_unfinished_attempt_from_another_boot_is_not_the_same_host_scope(self):
@@ -228,14 +228,14 @@ class CooperativeGcCollectionTests(unittest.TestCase):
         extra = self.extra_leg()[:3]
         extra[1]["data"]["boot_id"] = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
         summary = self.summary(extra + rows)
-        self.assertTrue(summary["selection_ready"])
+        self.assertTrue(summary["performance_complete"])
 
     def test_unfinished_attempt_with_invalid_boot_cannot_be_assumed_nonoverlapping(self):
         rows = self.make_leg(0) + self.make_leg(1)
         extra = self.extra_leg()[:3]
         extra[1]["data"]["boot_id"] = "-" * 36
         summary = self.summary(extra + rows)
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
 
     def test_unacknowledged_completed_scope_still_participates_in_counter_checks(self):
         rows = self.make_leg(0) + self.make_leg(1)
@@ -243,7 +243,7 @@ class CooperativeGcCollectionTests(unittest.TestCase):
         close = next(row for row in extra if row["event"] == "game.cooperative_gc_close")
         close["data"]["request_count"] += 1
         summary = self.summary(extra + rows)
-        self.assertFalse(summary["selection_ready"])
+        self.assertFalse(summary["performance_complete"])
         self.assertEqual(summary["standings"], [])
 
 

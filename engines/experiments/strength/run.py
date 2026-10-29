@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 import gc
 import hashlib
 import importlib.util
+import io
 import itertools
 import json
 import math
@@ -22,6 +23,7 @@ from pathlib import Path
 import queue
 import re
 import shutil
+import stat
 import sys
 import threading
 import time
@@ -818,7 +820,7 @@ def freeze_plan(campaign, profile, registry_path, bank_path, bank_sha256, runner
         broad_families = {row["artifact"].id: row["artifact"].family for row in broad_players}
         summary = collect.collect(broad_rows, campaign,
             expected_pairs=[row["id"] for row in broad["content"]["pairs"]], profile=broad_profile,
-            player_families=broad_families)
+            player_families=broad_families, plan=broad["content"])
         selection = collect.select_high(summary, broad_families,
             [{"id": row["artifact"].id, "family": row["artifact"].family} for row in players])
         selection.update(broad_plan_sha256=broad["sha256"],
@@ -919,6 +921,36 @@ def load_plan(path):
     if bank["bank_id"] != body["bank_id"] or bank["files"][body["stage"]]["sha256"] != body["opening_pgn_sha256"]:
         raise ValueError("frozen bank/PGN binding changed")
     cohort = {row["artifact"].id for row in players}
+    ordered = sorted(cohort)
+    stage = body["stage"]
+    if len(ordered) != len(players) or len(ordered) < 2:
+        raise ValueError("frozen cohort identities must be distinct")
+    if stage in ("broad", "high"):
+        if len({row["artifact"].family for row in players}) != len(players):
+            raise ValueError("frozen broad/high cohort must contain one candidate per family")
+        repeats = 1
+    else:
+        if len(players) != 2 or players[0]["artifact"].family != players[1]["artifact"].family or players[0]["artifact"].sha256 == players[1]["artifact"].sha256:
+            raise ValueError("frozen update cohort requires two distinct artifacts of one family")
+        repeats = len(body["pairs"])
+        if repeats not in (1, 2):
+            raise ValueError("frozen update must have one or two opening pairs")
+    openings = bank["stages"][stage]
+    if type(openings) is not list or not openings:
+        raise ValueError("frozen source-bank stage requires openings")
+    expected_pairs = []
+    for repeat in range(repeats):
+        for a, b in itertools.combinations(ordered, 2):
+            index = len(expected_pairs)
+            opening_index = index % len(openings)
+            opening = openings[opening_index]
+            pair_hash = ledger.digest({"campaign": body["campaign"], "stage": stage, "profile": body["profile"],
+                                       "players": (a, b), "repeat": repeat, "opening": opening["id"]})[:12]
+            expected_pairs.append({"id": f"{stage}-{body['profile']}-{index:03d}-{pair_hash}",
+                                   "players": [a, b], "opening": opening,
+                                   "opening_index": opening_index + 1, "repeat": repeat})
+    if ledger.canonical(body["pairs"]) != ledger.canonical(expected_pairs):
+        raise ValueError("frozen pair schedule differs from the complete deterministic plan")
     pair_ids = set()
     for pair in body["pairs"]:
         ID(pair["id"])
@@ -1101,9 +1133,55 @@ class TraceState:
         return None
 
 
-def parse_result(path, raw_path, spec):
-    text = path.read_text(encoding="utf-8")
-    headers = dict(re.findall(r'^\[(\w+) "([^"\r\n]*)"\]$', text, re.MULTILINE))
+def evidence_snapshot(path, maximum):
+    """Read one bounded regular file through no-follow directory descriptors.
+
+    The returned bytes are the observation; later path or process ownership is
+    not established here. A changed inode or metadata during the read fails.
+    """
+    if os.name != "posix" or not all(hasattr(os, name) for name in ("O_NOFOLLOW", "O_DIRECTORY")):
+        raise RuntimeError("Linux no-follow evidence snapshot support is required")
+    path = Path(os.path.abspath(path))
+    flags = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
+    directory, fd = os.open(path.anchor, flags | os.O_DIRECTORY), None
+    try:
+        for component in path.parts[1:-1]:
+            child = os.open(component, flags | os.O_DIRECTORY, dir_fd=directory)
+            os.close(directory)
+            directory = child
+        fd = os.open(path.name, flags, dir_fd=directory)
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or not 0 < before.st_size <= maximum:
+            raise ValueError("game evidence must be a bounded single-link regular file")
+        with os.fdopen(fd, "rb") as stream:
+            fd = None
+            raw = stream.read(maximum + 1)
+            after = os.fstat(stream.fileno())
+        current = os.stat(path.name, dir_fd=directory, follow_symlinks=False)
+        stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_nlink,
+                               value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+        if stamp(before) != stamp(after) or stamp(before) != stamp(current) or len(raw) != before.st_size:
+            raise ValueError("game evidence changed during snapshot")
+        return raw
+    finally:
+        if fd is not None:
+            os.close(fd)
+        os.close(directory)
+
+
+def parse_result_bytes(pgn_bytes, raw_bytes, spec):
+    """Parse already captured bytes; this function does not establish their owner."""
+    if (type(pgn_bytes) is not bytes or not 0 < len(pgn_bytes) <= 16 << 20 or
+            type(raw_bytes) is not bytes or not 0 < len(raw_bytes) <= 128 << 20):
+        raise ValueError("bounded game evidence bytes required")
+    text = pgn_bytes.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
+    tags = re.findall(r'^\[(\w+) "([^"\r\n]*)"\]$', text, re.MULTILINE)
+    headers = dict(tags)
+    if len(headers) != len(tags):
+        raise ValueError("completed PGN contains duplicate headers")
+    for line in text.splitlines():
+        if re.match(r'^\s*\[(Event|White|Black|Result|FEN|SetUp|Termination)(?:\s|\])', line) and not re.fullmatch(r'\[(\w+) "([^"\r\n]*)"\]', line):
+            raise ValueError("completed PGN contains malformed critical header")
     if (len(re.findall(r'^\[Event ', text, re.MULTILINE)) != 1 or headers.get("White") != spec["white"] or
             headers.get("Black") != spec["black"] or headers.get("Result") not in ("1-0", "0-1", "1/2-1/2") or
             "FEN" in headers or "SetUp" in headers):
@@ -1144,13 +1222,10 @@ def parse_result(path, raw_path, spec):
         if result == "1/2-1/2":
             raise ValueError("nonterminal draw is not a supported score adjudication")
     trace = TraceState(spec["opening_moves"], spec["white"], spec["black"])
-    if raw_path.is_symlink() or raw_path.stat().st_size > 128 << 20:
-        raise ValueError("raw game evidence exceeds its owned finite extent")
-    with raw_path.open(encoding="utf-8", errors="replace") as source:
-        for line in source:
-            if len(line) > 64 << 10 or not line.endswith("\n"):
-                raise ValueError("raw game has an excessive or incomplete protocol line")
-            trace.consume(line.rstrip("\r\n"))
+    for line in io.StringIO(raw_bytes.decode("utf-8", errors="replace"), newline=None):
+        if len(line) > 64 << 10 or not line.endswith("\n"):
+            raise ValueError("raw game has an excessive or incomplete protocol line")
+        trace.consume(line.rstrip("\r\n"))
     if trace.first_go:
         raise ValueError("completed game has no actual fixed-clock GO evidence")
     final = trace.moves + ([trace.candidate["move"]] if trace.candidate and trace.candidate["legal"] else [])
@@ -1160,11 +1235,20 @@ def parse_result(path, raw_path, spec):
                        "option_advertised_in_trace": trace.ponder_advertised[player]}
               for player in (spec["white"], spec["black"])}
     return {"result": result, "reason": reason, "moves": moves, "plies": len(moves),
-            "pgn_sha256": registry.file_sha(path), "raw_sha256": registry.file_sha(raw_path),
+            "pgn_sha256": hashlib.sha256(pgn_bytes).hexdigest(), "raw_sha256": hashlib.sha256(raw_bytes).hexdigest(),
             "white": spec["white"], "black": spec["black"], "opening_id": spec["opening_id"],
             "opening_sha256": spec["opening_sha256"], "bank_id": spec["bank_id"],
             "profile": spec["profile"], "artifact_sha256": spec["artifact_sha256"], "ponder_uci": ponder,
             "clock_tracking_complete": trace.clock_tracking_complete}
+
+
+def parse_result(path, raw_path, spec, *, snapshots=None):
+    pgn_bytes = evidence_snapshot(path, 16 << 20)
+    raw_bytes = evidence_snapshot(raw_path, 128 << 20)
+    result = parse_result_bytes(pgn_bytes, raw_bytes, spec)
+    if snapshots is not None:
+        snapshots.update(pgn=pgn_bytes, raw=raw_bytes)
+    return result
 
 
 def proc_identity(pid):
@@ -1490,7 +1574,7 @@ class StageController:
             rows = rows[len(block):]
         self.last_replication = now
 
-    def queue_result(self, game, attempt, data):
+    def queue_result(self, game, attempt, data, *, snapshots=None):
         # FIFO publication makes the immutable start/READY/result journal
         # prefix durable before a result object can become visible remotely.
         self.replicate(force=True)
@@ -1499,12 +1583,18 @@ class StageController:
             key_name = kind + "_object_key"
             key = data[key_name]
             path = bundle_path(self.out, data["evidence_directory"]) / filename
-            if path.is_file():
-                body = path.read_bytes()
-            elif hasattr(self.publisher, "read_verified"):
-                body = self.publisher.read_verified(key, expected_sha=data[kind + "_sha256"], max_bytes=128 << 20)
+            maximum = (16 if kind == "pgn" else 128) << 20
+            if snapshots is not None:
+                body = snapshots.get(kind)
             else:
-                raise RuntimeError("completed evidence is missing; do not replay or fabricate its game")
+                try:
+                    body = evidence_snapshot(path, maximum)
+                except FileNotFoundError:
+                    if not hasattr(self.publisher, "read_verified"):
+                        raise RuntimeError("completed evidence is missing; do not replay or fabricate its game")
+                    body = self.publisher.read_verified(key, expected_sha=data[kind + "_sha256"], max_bytes=maximum)
+            if type(body) is not bytes or not 0 < len(body) <= maximum:
+                raise ValueError("completed evidence snapshot is missing or exceeds its bound")
             if hashlib.sha256(body).hexdigest() != data[kind + "_sha256"]:
                 raise ValueError("completed evidence bytes changed")
             required.append(self.outbox.submit(key, body))
@@ -1696,7 +1786,8 @@ class StageController:
                     observation.get("returncode") == 0 and observation.get("cleanup_forced") is False and
                     observation.get("remaining_processes") == [] and observation.get("readers_done") is True):
                 try:
-                    data = parse_result(job.out / "game.pgn", job.out / "raw.log", spec["identity"])
+                    snapshots = {}
+                    data = parse_result(job.out / "game.pgn", job.out / "raw.log", spec["identity"], snapshots=snapshots)
                 except (OSError, ValueError) as error:
                     self.append("game.interrupted", {"reason": "protocol_harness_error", "error": str(error)}, **keys)
                 else:
@@ -1716,7 +1807,7 @@ class StageController:
                     else:
                         self.append("game.result", data, **keys)
                         self._gc_scope_close(job, spec, observation, data)
-                        self.queue_result(spec["game"], spec["attempt"], data)
+                        self.queue_result(spec["game"], spec["attempt"], data, snapshots=snapshots)
             elif state.result is None and state.interrupted is None:
                 reason = "budget_termination" if time.time() >= self.budget.deadline(time.time()) else "protocol_harness_error"
                 self.append("game.interrupted", {"reason": reason, "runner_observation": observation}, **keys)
@@ -2010,7 +2101,8 @@ class StageController:
             os.sched_setaffinity(0, original)
         summary = collect.collect(self.journal.rows, self.plan["campaign"],
                                   expected_pairs=[row["id"] for row in self.plan["pairs"]], profile=self.plan["profile"],
-                                  player_families={name: artifact.family for name, artifact in self.players.items()})
+                                  player_families={name: artifact.family for name, artifact in self.players.items()},
+                                  plan=self.plan)
         report = {"format": "rove4k-stage-run-v1", "plan_sha256": self.envelope["sha256"],
                   "complete": summary["campaign_stage_complete"] and failure is None and not cleanup,
                   "summary": summary, "failure": failure, "cleanup_errors": cleanup,
