@@ -54,7 +54,7 @@ class DraftWaveTests(unittest.TestCase):
              patch.object(subprocess, "Popen", side_effect=AssertionError("unexpected process")), \
              patch.object(wave.WaveExecutor, "run_wave", side_effect=AssertionError("unexpected GO")):
             jobs, specs = league_executor.prepare_draft_wave(path, draft["sha256"], selections,
-                groups, target, out, launch_id="fixture-launch")
+                groups, target, out, launch_id="fixture-launch", memory_preflight=kernel.memory_fixture())
         return jobs, specs, slots, groups, draft, out
 
     def test_peer_resources_follow_both_colour_orders(self):
@@ -106,12 +106,32 @@ class DraftWaveTests(unittest.TestCase):
                  patch.object(placement, "verify_cgroup_live"), \
                  patch.object(subprocess, "Popen", side_effect=AssertionError("unexpected process")):
                 jobs, specs = league_executor.prepare_draft_wave(path, draft["sha256"], selections,
-                    groups, target, root / "prepared", launch_id="fixture-launch")
+                    groups, target, root / "prepared", launch_id="fixture-launch", memory_preflight=kernel.memory_fixture())
             self.assertEqual(len(jobs), 2)
             a, b = [specs[job.identity]["identity"] for job in jobs]
             self.assertEqual((a["white"], a["black"]), (b["black"], b["white"]))
             self.assertEqual(a["opening_sha256"], b["opening_sha256"])
             self.assertNotEqual(a["slot"], b["slot"])
+
+    def test_p192_peer_tt_sum_alone_does_not_cover_explicit_overhead(self):
+        for limit_gib in (448, 449):
+            with self.subTest(limit_gib=limit_gib), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp).resolve()
+
+                def mutate(draft, path, slots, target, groups, selections):
+                    self.assertEqual(sorted(row['identity']['tt_bytes'] for row in draft['content']['players']),
+                                     [192 << 30, 256 << 30])
+                    groups[slots[0].id]['memory_max'] = limit_gib << 30
+
+                if limit_gib == 448:
+                    with self.assertRaisesRegex(ValueError, 'below explicit TT and overhead sizing'):
+                        self.prepare(root, 'test-p192', 0, mutate=mutate)
+                    self.assertFalse((root / 'prepared').exists())
+                else:
+                    _, _, _, _, _, out = self.prepare(root, 'test-p192', 0, mutate=mutate)
+                    sizing = json.loads((out / 'prepared-wave.json').read_text())['memory_sizing']
+                    self.assertEqual(sizing['slots'][0]['memory_max'], 449 << 30)
+                    self.assertFalse(sizing['availability_used_for_admission'])
 
     def test_forged_plan_and_wrong_slot_memory_are_rejected_before_output(self):
         for kind in ("body", "digest", "memory", "slot"):
@@ -149,7 +169,8 @@ class DraftWaveTests(unittest.TestCase):
                      patch.object(topology.Topology, 'snapshot_target', return_value=snapshot), \
                      patch.object(placement, 'verify_cgroup_live'), self.assertRaises(ValueError):
                     league_executor.prepare_draft_wave(path, draft['sha256'], selection, groups,
-                                                       target, root / name / 'out', launch_id='fixture-launch')
+                                                       target, root / name / 'out', launch_id='fixture-launch',
+                                                       memory_preflight=kernel.memory_fixture())
 
 
 if __name__ == "__main__":

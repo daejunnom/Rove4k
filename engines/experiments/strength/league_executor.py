@@ -37,7 +37,7 @@ def _write_new(path, value):
     return hashlib.sha256(data).hexdigest()
 
 
-def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_sha256=None):
+def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, memory_preflight, plan_sha256=None):
     """Construct placement/Fastchess WaveJobs from a plan without starting it.
 
     The legacy path uses an admitted frozen plan. Supplying ``plan_sha256``
@@ -116,6 +116,26 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
     else:
         pairs = {item['id']: item for item in body['pairs']}
         players = {row['artifact'].id: row['artifact'] for row in player_rows}
+    # Recompute the same explicit hard-limit sizing used by
+    # run.create_league_cgroups. The observations are not admission checks,
+    # reservations, or proof of overhead provenance and actual residency.
+    required = {'per_game_overhead_bytes', 'overhead_evidence_sha256',
+                'controller_reserve_bytes', 'page_bytes'}
+    telemetry = {'host_available_bytes', 'node_available_bytes'}
+    if (type(memory_preflight) is not dict or not required <= set(memory_preflight)
+            or set(memory_preflight) - required - telemetry):
+        raise ValueError('P16/P192 explicit memory sizing fields required')
+    supplied = {**memory_preflight,
+                'host_available_bytes': memory_preflight.get('host_available_bytes'),
+                'node_available_bytes': memory_preflight.get('node_available_bytes')}
+    identities = [{'id': name, 'sha256': player.sha256, 'tt_bytes': player.tt_bytes}
+                  for name, player in players.items()]
+    memory_sizing = placement.league_memory_admission(
+        identities, [slot.to_record() for slot in planned], profile=profile, **supplied)
+    required_limits = {row['id']: row['memory_max'] for row in memory_sizing['slots']}
+    for slot_id, group in groups.items():
+        if type(group.get('memory_max')) is not int or group['memory_max'] < required_limits[slot_id]:
+            raise ValueError('slot memory.max is below explicit TT and overhead sizing')
     rows, seen_games, seen_slots = [], set(), set()
     for selection in selections:
         if not isinstance(selection, dict) or set(selection) != {'pair', 'leg', 'attempt', 'slot'}:
@@ -192,6 +212,7 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
                'plan_sha256': envelope['sha256'], 'profile': profile, 'launch_id': launch_id,
                'jobs': [{'identity': job.identity, 'argv': list(job.argv), 'start_job': job.start_job,
                          'out': str(job.out), 'spec': specs[job.identity]} for job in jobs],
+               'memory_sizing': memory_sizing,
                'scope': 'prepared jobs only; no process, authority or memory reservation',
                **({'draft_only': True, 'score_authorized': False, 'go_authorized': False,
                    'live_topology_snapshot_not_attestation': True,
@@ -199,10 +220,10 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, plan_
     return jobs, specs
 
 
-def prepare_draft_wave(plan_path, plan_sha256, selections, groups, target, out, *, launch_id):
+def prepare_draft_wave(plan_path, plan_sha256, selections, groups, target, out, *, launch_id, memory_preflight):
     """Replay a draft and prepare its real commands without starting a game."""
     return prepare_wave(plan_path, selections, groups, target, out,
-                        launch_id=launch_id, plan_sha256=plan_sha256)
+                        launch_id=launch_id, memory_preflight=memory_preflight, plan_sha256=plan_sha256)
 
 
 def run_readiness(plan_path, selections, groups, target, out, *, launch_id, admission_seconds):

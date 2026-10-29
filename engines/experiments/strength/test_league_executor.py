@@ -32,6 +32,11 @@ def kernel_fixture():
                              'synthetic-kernel-fixture')
 
 
+def memory_fixture():
+    return {'per_game_overhead_bytes': 1 << 30, 'overhead_evidence_sha256': 'e' * 64,
+            'controller_reserve_bytes': 1 << 30, 'page_bytes': 4096}
+
+
 class PreparedLeagueWaveTests(unittest.TestCase):
     def fixture(self, profile, root):
         root = Path(root).resolve()
@@ -60,7 +65,7 @@ class PreparedLeagueWaveTests(unittest.TestCase):
                       for i, (pair, slot) in enumerate(zip(pairs, slots))]
         return snapshot, slots, target, groups, envelope, players, selections
 
-    def invoke(self, root, profile, *, mutate=None):
+    def invoke(self, root, profile, *, mutate=None, memory_preflight=None):
         snapshot, slots, target, groups, envelope, players, selections = self.fixture(profile, root)
         if mutate:
             snapshot, target, groups, envelope, players, selections = mutate(
@@ -70,7 +75,8 @@ class PreparedLeagueWaveTests(unittest.TestCase):
              patch.object(topology.Topology, 'snapshot_target', return_value=snapshot), \
              patch.object(placement, 'verify_cgroup_live') as verify:
             jobs, specs = league_executor.prepare_wave(Path(root) / 'plan.json', selections, groups,
-                                                      target, out, launch_id='fixture-launch')
+                                                      target, out, launch_id='fixture-launch',
+                                                      memory_preflight=memory_fixture() if memory_preflight is None else memory_preflight)
         return jobs, specs, slots, groups, envelope, out, verify
 
     def test_p16_uses_eleven_node_local_slots_for_both_players(self):
@@ -141,11 +147,12 @@ class PreparedLeagueWaveTests(unittest.TestCase):
                 self.assertFalse((Path(tmp) / 'prepared').exists())
 
     def test_memory_and_cgroup_masks_reject_tampering(self):
-        for kind in ('memory', 'nodes', 'cpus', 'duplicate-inode', 'escape'):
+        for kind in ('memory', 'equal-tt', 'nodes', 'cpus', 'duplicate-inode', 'escape'):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix='rove-wave-group-') as tmp:
                 def mutate(snapshot, target, groups, envelope, players, selections):
                     first, second = list(groups)[:2]
                     if kind == 'memory': groups[first]['memory_max'] = (24 << 30) - 1
+                    elif kind == 'equal-tt': groups[first]['memory_max'] = 24 << 30
                     elif kind == 'nodes': groups[first]['memory_nodes'] = [99]
                     elif kind == 'cpus': groups[first]['cpus'] = groups[first]['cpus'][:-1]
                     elif kind == 'duplicate-inode': groups[second]['inode'] = groups[first]['inode']
@@ -154,6 +161,47 @@ class PreparedLeagueWaveTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     self.invoke(tmp, 'test-p16', mutate=mutate)
                 self.assertFalse((Path(tmp) / 'prepared').exists())
+
+    def test_hard_memory_sizing_does_not_gate_available_ram(self):
+        with tempfile.TemporaryDirectory(prefix='rove-wave-memory-') as tmp:
+            preflight = {**memory_fixture(), 'host_available_bytes': -1,
+                         'node_available_bytes': {0: 0, 1: 0}}
+            _, _, _, _, _, out, _ = self.invoke(tmp, 'test-p16', memory_preflight=preflight)
+            sizing = json.loads((out / 'prepared-wave.json').read_text())['memory_sizing']
+            self.assertEqual(sizing['slots'][0]['memory_max'], 25 << 30)
+            self.assertFalse(sizing['availability_used_for_admission'])
+            self.assertFalse(sizing['physical_capacity_verified'])
+
+    def test_groups_created_with_existing_sizing_bind_to_prepared_wave(self):
+        with tempfile.TemporaryDirectory(prefix='rove-wave-produced-groups-') as tmp:
+            observed = {}
+
+            def mutate(snapshot, target, groups, envelope, players, selections):
+                slots, _ = run.league_placement(snapshot, 'test-p16')
+                identities = [SimpleNamespace(identity=lambda artifact=row['artifact']: {
+                    'id': artifact.id, 'sha256': artifact.sha256, 'tt_bytes': artifact.tt_bytes})
+                    for row in players]
+
+                def create(slot, *, memory_bytes):
+                    group = copy.deepcopy(groups[slot.id])
+                    group['memory_max'] = memory_bytes
+                    return group
+
+                groups, observed['sizing'] = run.create_league_cgroups(
+                    SimpleNamespace(create=create), slots, identities, 'test-p16',
+                    memory_preflight=memory_fixture())
+                return snapshot, target, groups, envelope, players, selections
+
+            _, _, _, groups, _, out, _ = self.invoke(tmp, 'test-p16', mutate=mutate)
+            self.assertTrue(all(group['memory_max'] == 25 << 30 for group in groups.values()))
+            self.assertEqual(json.loads((out / 'prepared-wave.json').read_text())['memory_sizing'],
+                             json.loads(json.dumps(observed['sizing'])))
+
+    def test_missing_explicit_sizing_is_rejected_before_output(self):
+        with tempfile.TemporaryDirectory(prefix='rove-wave-no-sizing-') as tmp:
+            with self.assertRaisesRegex(ValueError, 'explicit memory sizing'):
+                self.invoke(tmp, 'test-p16', memory_preflight={})
+            self.assertFalse((Path(tmp) / 'prepared').exists())
 
     def test_changed_topology_and_frozen_slot_are_rejected(self):
         for kind in ('live-nodes', 'frozen-slot', 'controller'):
