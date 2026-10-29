@@ -21,7 +21,7 @@ lexer = load(HERE.parents[1] / "scripts" / "rename_c.py", "b_w256_lexer")
 
 def fixture():
     body = "".join((name + ";") * count for name, count in target.COUNTS.items())
-    return ('#define AA 0\nJ I P(){p->v;' + body + '}void i(){}\n').encode("ascii")
+    return ('#define AA 0\n#define FROM(x) x\n#define PROMO(x) x\n#define TO(m) FROM((m)>>7)\n' + 'FROM(1);'*5 + 'PROMO(1);'*5 + 'J I P(){p->v;' + 'to;'*10 + body + '((p->r<<1)|(p->r>>63))^t->h;}void i(){}\n').encode("ascii")
 
 
 class ShortNames(unittest.TestCase):
@@ -37,7 +37,7 @@ class ShortNames(unittest.TestCase):
             self.assertNotIn("production_selected", proof)
             self.assertIn(b'puts("preserved literal")', result)
             self.assertIn(b"p->v;", result)
-            self.assertEqual(len(data) - len(result), 17)
+            self.assertEqual(target._post_apply(target._post_apply(result, inverse=True)), result)
             self.assertEqual(target.restore_source(result, proof, lexer=lexer), data)
             changed = bytearray(result)
             changed[0] ^= 1

@@ -78,7 +78,7 @@ FINAL_COMPACT = {
           "profiles": ("test-p4", "tcec-provisional")},
     "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
           "variant": "b-search-names", "schema": "rove4k.profile-b-short-names.v1",
-          "pin": {"bytes": 8395, "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
+          "pin": {"bytes": 9693, "sha256": "08bb91056eb795ea7333df076ba867241986b36df3568c655e1ab91bf4927463"},
           "profiles": ("test-p4", "tcec-provisional")},
     "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
           "variant": "unused-macro-names", "schema": "rove4k.c-macro-compact-experiment.v1",

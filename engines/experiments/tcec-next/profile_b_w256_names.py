@@ -1,6 +1,6 @@
-"""Shorten seven names in the exact selected full B source projections.
+"""Compact identifiers and exact expressions in the selected full B projections.
 
-This is a bounded token-only spelling experiment. It does not build an
+This is a bounded source spelling experiment. It does not build an
 executable, choose an entry or establish runtime or competition qualification.
 The constrained C lexer excludes literals, comments and directives; the complete
 named input pin and reversible edit list bound its use further.
@@ -18,7 +18,25 @@ INPUTS = {
 }
 RENAMES = {"zU": "v", "zi": "e", "qX": "qY", "yz": "zk", "yl": "zx", "yu": "zz", "z6": "qU"}
 COUNTS = {"zU": 5, "zi": 12, "qX": 7, "yz": 3, "yl": 27, "yu": 4, "z6": 3}
-SCOPE = "pinned P search-function identifier tokens only; no directives, literals or comments"
+SCOPE = "pinned source; search-scoped identifier tokens and exact post-edits"
+POST_EDITS = (
+    ("token", b"FROM", b"MO", 7), ("token", b"PROMO", b"B", 6),
+    ("token", b"to", b"yJ", 10),
+    ("exact", b"((p->r<<1)|(p->r>>63))^t->h", b"t->h^((p->r<<1)|(p->r>>63))", 1),
+    ("exact", b"MO((m)>>7)", b"(((m)>>7)&119)", 1),
+)
+
+
+def _post_apply(data, *, inverse=False):
+    for kind, before, after, count in (reversed(POST_EDITS) if inverse else POST_EDITS):
+        old, new = (after, before) if inverse else (before, after)
+        pattern_old = (rb"(?<![A-Za-z0-9_])" + re.escape(old) + rb"(?![A-Za-z0-9_])") if kind == "token" else re.escape(old)
+        pattern_new = (rb"(?<![A-Za-z0-9_])" + re.escape(new) + rb"(?![A-Za-z0-9_])") if kind == "token" else re.escape(new)
+        require(len(re.findall(pattern_old, data)) == count and not re.search(pattern_new, data),
+                "exact post-edit anchors or target collision differ")
+        data, replaced = re.subn(pattern_old, lambda _match: new, data)
+        require(replaced == count, "post-edit count differs")
+    return data
 
 
 def pin(data):
@@ -152,9 +170,13 @@ def transform_source(source, *, family, profile_id, lexer=None):
     require(type(source) is bytes and (len(source), sha256(source).hexdigest()) == INPUTS[profile_id],
             "exact selected full B profile source required")
     candidate, edits, gaps = _rewrite(source, _LEXER if lexer is None else lexer)
+    candidate = _post_apply(candidate)
     proof = {"schema": SCHEMA, "family": "B", "profile_id": profile_id, "variant": DECLARATION["variant"],
              "input": pin(source), "output": pin(candidate), "edits": edits,
-             "protected_gaps": gaps, "full_inverse": True, "scope": SCOPE,
+             "protected_gaps": gaps, "post_edits": [{"kind": kind, "before": before.decode("ascii"),
+                             "after": after.decode("ascii"), "count": count}
+                            for kind, before, after, count in POST_EDITS],
+             "full_inverse": True, "scope": SCOPE,
              "resources_changed": False, "features_removed": False,
              "runtime_qualified": False, "selection_made_by_helper": False}
     return candidate, proof
@@ -163,7 +185,7 @@ def transform_source(source, *, family, profile_id, lexer=None):
 def restore_source(candidate, proof, *, lexer=None):
     require(type(candidate) is bytes and type(proof) is dict and proof.get("schema") == SCHEMA
             and pin(candidate) == proof.get("output"), "exact candidate and proof required")
-    restored = candidate
+    restored = _post_apply(candidate, inverse=True)
     for row in reversed(proof["edits"]):
         at, before, after = row["output_begin"], row["before"].encode("ascii"), row["after"].encode("ascii")
         require(type(at) is int and at >= 0 and restored[at:at + len(after)] == after,

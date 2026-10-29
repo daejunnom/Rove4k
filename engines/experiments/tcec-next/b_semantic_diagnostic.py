@@ -20,10 +20,10 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SCHEMA = "rove4k.b-semantic-diagnostic.v1"
-BASE = (7917, "68115067f6cadbf9fc1e3135fddc7aa54891660bf301c6e1d8b9d02fbe8552d0")
-CANDIDATE = (7916, "b229f459aa3df639cb5816d0bee50f9acf93dbd5c884cb4baae062ca7949fdde")
+BASE = (7883, "f164963f1139d5e90e7ee386295280dd7d5396808e579de5d7ca709ad85f7644")
+CANDIDATE = (7882, "209b83b7c6fbd27bce6f5c5e7331ea9659c5b751bf8dbe5be51886b427e92f76")
 NATIVES = {"base": "89b695055e8fbcdfd64f9cfd07e127180eb9827e4245631afd0525d2e0609e29", "candidate": "3585fbf96424adb7a0bda3410a278dbd78a1373ff5a0f726c35a6c5ca3eca630"}
-RULES_SHA = "c8b3f24f8e703e3b3026635d6a69dd072ada97a00a1836040842ed5b90d32f62"
+RULES_SHA = "3ea82c2e806fe90491f425d306f05cfdf3169ca1f718b5b9dbd703c9a63d9801"
 COMPILER_VERSION = "x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 COMPILER_SHA = "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
 EDITS = ((b"k=i+1;k<Z;k++", b"k=i;k<Z;k++"),
