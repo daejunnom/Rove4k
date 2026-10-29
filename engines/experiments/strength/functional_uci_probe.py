@@ -427,6 +427,11 @@ def exercise_protocol(owned, *, oracle, scope, native_sha256, cpus,
     owned.stdout.until(lambda raw: b"uciok" in raw.splitlines(), owned.budget, seconds=remaining)
     if _best_lines(owned.stdout.bytes()):
         raise ValueError("unsolicited bestmove during UCI startup")
+    # A previously observed readyok cannot acknowledge the isready command
+    # we have not sent yet.  This detects already-buffered stale responses;
+    # it is not an authenticated proof of the provenance of later output.
+    if _ready_count(owned.stdout.bytes()):
+        raise ValueError("unsolicited ready acknowledgement before isready")
     owned.send(b"isready\n")
     remaining = startup_seconds - (time.monotonic() - started)
     if remaining <= 0:

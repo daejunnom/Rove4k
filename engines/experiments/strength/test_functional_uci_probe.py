@@ -48,15 +48,18 @@ def write_toy(script, mode="normal"):
         " if command=='uci':\n"
         "  if mode=='eof': break\n"
         "  if mode=='unsolicited': os.write(1,b'bestmove e2e4\\nuciok\\n')\n"
+        "  elif mode=='premature_ready': os.write(1,b'readyok\\nuciok\\n')\n"
         "  elif mode=='duplicate_uci': os.write(1,b'uciok\\nuciok\\n')\n"
         "  elif mode!='timeout': print('id name toy\\nuciok',flush=True)\n"
         " elif command=='isready':\n"
         "  readys+=1\n"
         "  if mode=='duplicate_ready' or (mode=='late_ready' and readys>1): os.write(1,b'readyok\\nreadyok\\n')\n"
+        "  elif (mode=='premature_ready' and readys==1) or (mode=='pre_idle_ready' and readys>1): pass\n"
         "  elif mode!='timeout': print('readyok',flush=True)\n"
         " elif command.startswith('go'):\n"
         "  if mode=='illegal': os.write(1,b'bestmove e2e5\\n')\n"
         "  elif mode=='duplicate': os.write(1,b'bestmove e2e4\\nbestmove d2d4\\n')\n"
+        "  elif mode=='pre_idle_ready': os.write(1,b'bestmove e2e4\\nreadyok\\n')\n"
         "  elif mode!='search_timeout': os.write(1,b'bestmove e2e4\\n')\n"
         " elif command=='stop' and mode=='late_duplicate': os.write(1,b'bestmove d2d4\\n')\n"
         " elif command=='quit': break\n",
@@ -129,6 +132,19 @@ class FunctionalUciProbeTests(unittest.TestCase):
     def test_unsolicited_bestmove_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "unsolicited bestmove"):
             self.exercise("unsolicited")
+
+    def test_ready_ack_before_first_isready_is_rejected(self):
+        # The process emits its first readyok before uciok, ignores the first
+        # isready, and would answer the later one.  Its first response must not
+        # be credited to a request which had not been sent.
+        with self.assertRaisesRegex(ValueError, "unsolicited ready acknowledgement"):
+            self.exercise("premature_ready")
+
+    def test_observed_ready_ack_before_idle_request_does_not_satisfy_it(self):
+        # The stale readyok accompanies bestmove and the later isready is
+        # ignored.  The previously observed line must not satisfy it.
+        with self.assertRaises(TimeoutError):
+            self.exercise("pre_idle_ready")
 
     def test_duplicate_uci_acknowledgements_are_rejected(self):
         for mode in ("duplicate_uci", "duplicate_ready", "late_ready"):
