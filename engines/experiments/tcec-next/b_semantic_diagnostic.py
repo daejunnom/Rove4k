@@ -23,7 +23,7 @@ SCHEMA = "rove4k.b-semantic-diagnostic.v1"
 BASE = (7917, "68115067f6cadbf9fc1e3135fddc7aa54891660bf301c6e1d8b9d02fbe8552d0")
 CANDIDATE = (7916, "b229f459aa3df639cb5816d0bee50f9acf93dbd5c884cb4baae062ca7949fdde")
 NATIVES = {"base": "89b695055e8fbcdfd64f9cfd07e127180eb9827e4245631afd0525d2e0609e29", "candidate": "3585fbf96424adb7a0bda3410a278dbd78a1373ff5a0f726c35a6c5ca3eca630"}
-RULES_SHA = "92b951d67d488602450e6e537a2e04606aeab42c4eeed671daba25b6540bfc44"
+RULES_SHA = "d9474e736e0a6da5cd66d0a199f5cd56f475ca4aea26f2b9eba775220a3066a6"
 COMPILER_VERSION = "x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0"
 COMPILER_SHA = "1b99826121ae6682a634e5efe09bd3e3df58ce58e0b28f849114ab5b89139c26"
 EDITS = ((b"k=i+1;k<Z;k++", b"k=i;k<Z;k++"),

@@ -17,11 +17,12 @@ INPUTS = {
     "tcec-provisional": (7597, "f85fa3716aed39fe9b2ca973ac3d87650dbac95dfa9cedbaf800ada4f6375a23"),
 }
 OUTPUTS = {
-    "test-p4": (7527, "f6afa9e4872dbe0a3a94ec5edd9934835bae7680bc9041a92e8d3aca8dc5f886"),
-    "tcec-provisional": (7529, "e27c7609c42b9d39629a79b8b92a01b2b70cb369c6ca3e719ce22b99aef0de37"),
+    "test-p4": (7485, "404e33edfc7a5d941d067f0a1468fa14e5eee1758d830a8fbaefcb7dd8cd3177"),
+    "tcec-provisional": (7487, "a932837615069c91216dbd0b0fb793fb540c62bf2865b12ddf41d8f4d86dd641"),
 }
 NAMES = ((b"HISTORY", b"BB", 3), (b"MOVES", b"PL", 4),
-         (b"MATE", b"LL", 10), (b"PLY", b"JJ", 8))
+         (b"MATE", b"LL", 10), (b"PLY", b"JJ", 8),
+         (b"PROMO", b"lO", 8), (b"FROM", b"aO", 6), (b"MOVE", b"uA", 3))
 EXPRESSIONS = ((b"strtok(NULL,", b"strtok(0,"),
                (b"(unsigned)p->aI", b"(Y)p->aI"),
                (b"if(x<0)x=0;", b"x=x<0?0:x;"),

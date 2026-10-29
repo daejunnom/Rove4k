@@ -51,7 +51,7 @@ B_LEAGUE_PIN = {"bytes": 3925, "sha256": "e7e81ba58dbf6210fbf132a5baba3811c987fc
 FINAL_COMPACT = {
     "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
           "variant": "shortnames-v1", "schema": "rove4k.a-shortnames.v1",
-          "pin": {"bytes": 6487, "sha256": "d1e251eb3beddd51c2174c97e4254296c6a97b5e99b02cfab165447c53a30b2b"},
+          "pin": {"bytes": 6560, "sha256": "89a147f7c7ed11ea24456c3f66404a0ddc1396a8187a3722aa8f3ac95e9282df"},
           "profiles": ("test-p4", "tcec-provisional")},
     "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
           "variant": "b-search-names", "schema": "rove4k.profile-b-short-names.v1",

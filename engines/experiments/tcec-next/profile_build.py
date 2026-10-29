@@ -79,8 +79,8 @@ SCAN_IMAGES = {
 DEPENDENCIES = "engines/experiments/tcec-next/profile_dependencies.py"
 FINAL_COMPACTS = {
     "A": {"path": "engines/experiments/tcec-next/profile_a_shortnames.py",
-          "variant": "shortnames-v1", "bytes": 6487,
-          "sha256": "d1e251eb3beddd51c2174c97e4254296c6a97b5e99b02cfab165447c53a30b2b"},
+          "variant": "shortnames-v1", "bytes": 6560,
+          "sha256": "89a147f7c7ed11ea24456c3f66404a0ddc1396a8187a3722aa8f3ac95e9282df"},
     "B": {"path": "engines/experiments/tcec-next/profile_b_w256_names.py",
           "variant": "b-search-names", "bytes": 8395,
           "sha256": "2c4bdfb92a5d3237372a0875826fb4edd5ac1ce7d096404bc71aa2108c2ad78d"},
