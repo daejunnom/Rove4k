@@ -52,6 +52,41 @@ FINAL_EDITS = (
 )
 
 
+
+POST_EXPRS = (
+    (b"w->aI?((p->r<<1)|(p->r>>63))^w->h:w->h", b"w->aI?w->h^((p->r<<1)|(p->r>>63)):w->h"),
+    (b"(m&8)||XX(m)", b"XX(m)||(m&8)"),
+)
+POST_TOKENS = ((b"XX", b"YO", 7), (b"zC", b"ob", 3), (b"aI", b"zu", 8), (b"qg", b"ie", 5), (b"qi", b"qt", 12))
+
+
+def restore_post(source: bytes) -> bytes:
+    for before, after, count in reversed(POST_TOKENS):
+        if len(re.findall(rb"\b" + after + rb"\b", source)) != count or re.search(rb"\b" + before + rb"\b", source):
+            raise ValueError("the E post token inverse is ambiguous")
+        source = re.sub(rb"\b" + after + rb"\b", before, source)
+    for before, after in reversed(POST_EXPRS):
+        if source.count(after) != 1 or source.count(before):
+            raise ValueError("the E post expression inverse is ambiguous")
+        source = source.replace(after, before, 1)
+    return source
+
+
+def transform_post(source: bytes) -> tuple[bytes, dict]:
+    result = source
+    for before, after in POST_EXPRS:
+        if result.count(before) != 1 or result.count(after):
+            raise ValueError("the E post expression layout differs")
+        result = result.replace(before, after, 1)
+    for before, after, count in POST_TOKENS:
+        if len(re.findall(rb"\b" + before + rb"\b", result)) != count or re.search(rb"\b" + after + rb"\b", result):
+            raise ValueError("the E post token layout differs")
+        result = re.sub(rb"\b" + before + rb"\b", after, result)
+    if restore_post(result) != source:
+        raise ValueError("the E post inverse differs")
+    return result, {"source_bytes": len(source), "source_sha256": sha256(source).hexdigest(), "result_bytes": len(result), "result_sha256": sha256(result).hexdigest(), "inverse_exact": True, "source_only": True, "runtime_qualified": False}
+
+
 def transform_final(source: bytes) -> tuple[bytes, dict]:
     result = source
     for before, after in FINAL_EDITS:
@@ -134,12 +169,13 @@ def transform_source(source: bytes, *, family: str, profile_id: str) -> tuple[by
         raise ValueError("the pinned E source and profile differ")
     coefficient, first = transform(source)
     macros, second = transform_macros(coefficient)
-    result, third = transform_final(macros)
+    final, third = transform_final(macros)
+    result, fourth = transform_post(final)
     proof = {"schema": SCHEMA, "family": family, "profile_id": profile_id,
              "variant": DECLARATION["variant"], "ep_variant": selected[1],
              "input": {"bytes": len(source), "sha256": sha256(source).hexdigest()},
              "output": {"bytes": len(result), "sha256": sha256(result).hexdigest()},
-             "components": [first, second, third], "full_inverse": True,
+             "components": [first, second, third, fourth], "full_inverse": True,
              "source_only": True, "runtime_qualified": False}
     return result, proof
 
@@ -149,7 +185,7 @@ def restore_source(candidate: bytes, proof: dict) -> bytes:
     if (type(candidate) is not bytes or type(proof) is not dict or proof.get("schema") != SCHEMA or
             proof.get("output") != {"bytes": len(candidate), "sha256": sha256(candidate).hexdigest()}):
         raise ValueError("the exact E candidate and proof are required")
-    source = candidate
+    source = restore_post(candidate)
     for before, after in reversed(FINAL_EDITS):
         if source.count(after) != 1 or source.count(before):
             raise ValueError("the E final expression inverse is ambiguous")

@@ -71,10 +71,29 @@ class FixedEProjection(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "final expression layout"):
                 target.transform_final(source + b";" + after)
 
+    def test_post_stage_restores_and_rejects_token_and_expression_collisions(self):
+        source = (b";".join(before for before, _ in target.POST_EXPRS)
+                  + b";" + b"XX;" * 6 + b"zC;" * 3 + b"aI;" * 7 + b"qg;" * 5 + b"qi;" * 12)
+        result, proof = target.transform_post(source)
+        self.assertTrue(proof["inverse_exact"])
+        self.assertEqual(target.restore_post(result), source)
+        for before, after in target.POST_EXPRS:
+            with self.assertRaisesRegex(ValueError, "post expression layout"):
+                target.transform_post(source + b";" + before)
+            with self.assertRaisesRegex(ValueError, "post expression layout"):
+                target.transform_post(source + b";" + after)
+        for before, after, _ in target.POST_TOKENS:
+            with self.assertRaisesRegex(ValueError, "post token layout"):
+                target.transform_post(source + b";" + before)
+            with self.assertRaisesRegex(ValueError, "post token layout"):
+                target.transform_post(source + b";" + after)
+
     def test_public_two_stage_proof_binds_profile_and_full_inverse(self):
         source = (b"#define FROM(m) (m)\n#define MOVE(a,b,c) (a)\n#define PROMO(m) (m)\n"
                   + fixture() + b"FROM(x);MOVE(x,y,z);PROMO(x);\n"
-                  + b";".join(before for before, _ in target.FINAL_EDITS))
+                  + b";".join(before for before, _ in target.FINAL_EDITS)
+                  + b";" + target.POST_EXPRS[0][0] + b";" + target.POST_EXPRS[1][0].replace(b"XX", b"PROMO")
+                  + b";" + b"PROMO;" * 4 + b"zC;" * 3 + b"aI;" * 7 + b"qg;" * 5 + b"qi;" * 11)
         source_sha = hashlib.sha256(source).hexdigest()
         with patch.object(target, "INPUT_SHA256", {source_sha}):
             coefficient_result, _ = target.transform(source)

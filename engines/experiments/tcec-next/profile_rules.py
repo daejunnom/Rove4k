@@ -63,7 +63,7 @@ FINAL_COMPACT = {
           "profiles": ("test-p4", "tcec-provisional")},
     "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
           "variant": "e-fixed-coeff-macros", "schema": "rove4k.e-fixed-coeff-macros.v1",
-          "pin": {"bytes": 8634, "sha256": "0ce8977c9ca390974e4952c85bd2630567f9ce81b1ca7068c6f6e50540814ceb"},
+          "pin": {"bytes": 10484, "sha256": "82f7b942ab327ef92d69ec7a6da62377a0eaddddb520db8cdd4f616f2843e711"},
           "profiles": ("test-p4", "tcec-provisional")},
     "F": {"path": "engines/compact/tiny-entry-f/profile_names_null.py",
           "variant": "names-null", "schema": "rove4k-f-final-spelling-v1",
