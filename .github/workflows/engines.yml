@@ -329,6 +329,39 @@ jobs:
           --ep-variant '${{ matrix.ep_variant }}'
           --export-source-bundle
           --out '${{ runner.temp }}/rove4k-production-${{ matrix.family }}-${{ github.run_attempt }}'
+      - name: Check unique mates in the final selected E TEST-P4 source
+        if: matrix.family == 'E'
+        shell: bash
+        run: |
+          python -I -B engines/experiments/tcec-next/profile_build.py \
+            --entry E --profile test-p4 --phase-variant phase-init \
+            --spelling-variant compound --ep-variant legal-maker \
+            --final-compact selected --compile-cc cc \
+            --out "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}"
+          python -I -B engines/experiments/tcec-next/e_selected_mate.py \
+            --build "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}" \
+            --out "$RUNNER_TEMP/rove4k-final-e-mate-${{ github.run_attempt }}/mate-regression.json"
+      - name: Preserve E selected-source mate evidence
+        if: always() && matrix.family == 'E'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e-selected-mate-${{ github.sha }}
+          path: ${{ runner.temp }}/rove4k-final-e-mate-${{ github.run_attempt }}/mate-regression.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Check quiet promotions in the final selected B TEST-P4 search
+        if: matrix.family == 'B'
+        shell: bash
+        run: |
+          set -o pipefail
+          python -I -B engines/experiments/tcec-next/profile_build.py \
+            --entry B --profile test-p4 --representation source-jit \
+            --b-variant tcec-final-lf --spelling-variant best \
+            --source-dependencies unused-includes --final-compact selected --compile-cc cc \
+            --out "$RUNNER_TEMP/rove4k-final-b-promotion-${{ github.run_attempt }}"
+          python -I -B engines/experiments/tcec-next/check_b_quiet_promotion.py \
+            --build "$RUNNER_TEMP/rove4k-final-b-promotion-${{ github.run_attempt }}" \
+            | tee "$RUNNER_TEMP/rove4k-production-B-${{ github.run_attempt }}/b-quiet-promotion.json"
       - name: Transfer the exact sealed source to the Ubuntu22 consumer
         if: env.ROVE_INCLUDE_ENTRY == 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
