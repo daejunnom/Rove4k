@@ -218,15 +218,35 @@
 +} // namespace fastchess::rove
 --- a/app/src/engine/process/process_posix.hpp
 +++ b/app/src/engine/process/process_posix.hpp
-@@ -8,6 +8,7 @@
+@@ -8,6 +8,8 @@
  #    include <cassert>
  #    include <chrono>
  #    include <optional>
 +#    include <limits>
++#    include <mutex>
  #    include <string>
  #    include <string_view>
  #    include <thread>
-@@ -263,7 +264,12 @@
+@@ -153,7 +155,9 @@
+ 
+     Result init(const std::string& wd, const std::string& command, const std::string& args,
+                 const std::string& log_name) override {
++        std::lock_guard<std::mutex> input_lock(input_mutex_);
+         assert(!is_initalized_);
++        input_poisoned_ = true;
+ 
+         wd_       = wd;
+         command_  = command;
+@@ -180,6 +184,8 @@
+             return Result::Error(success.message);
+         }
+ 
++        // Only a newly spawned process with new pipes may clear a poison.
++        input_poisoned_ = false;
+         sg_out_ = Stream(in_pipe_.read_end(), realtime_logging_, Standard::OUTPUT, log_name_);
+ 
+         if (Logger::should_log_) {
+@@ -263,7 +269,12 @@
          assert(is_initalized_);
          lines.clear();
  
@@ -240,7 +260,7 @@
  
          std::array<pollfd, 3> fds;
          size_t fds_count = 0;
-@@ -286,10 +292,22 @@
+@@ -286,10 +297,22 @@
              // We prefer to use poll instead of select because
              // poll is more efficient and select has a filedescriptor limit of 1024
              // which can be a problem when running with a high concurrency
@@ -263,6 +283,64 @@
                  flush_partials_on_timeout(lines);
                  return Result{Status::TIMEOUT, "timeout"};
              }
+@@ -323,10 +346,33 @@
+     }
+ 
+     Result writeInput(const std::string& input) noexcept override {
++        std::lock_guard<std::mutex> input_lock(input_mutex_);
+         assert(is_initalized_);
+-        if (!alive()) return Result::Error("process not alive");
+-
+-        if (write(out_pipe_.write_end(), input.c_str(), input.size()) == -1) {
++        if (input_poisoned_) return Result::Error("engine input unusable; delivery uncertain");
++        if (!alive()) {
++            input_poisoned_ = true;
++            return Result::Error("process not alive");
++        }
++
++        size_t written = 0;
++        while (written < input.size()) {
++            const size_t left = input.size() - written;
++            const size_t max_write = static_cast<size_t>(std::numeric_limits<ssize_t>::max());
++            const ssize_t count = write(out_pipe_.write_end(), input.data() + written,
++                                        left < max_write ? left : max_write);
++            if (count > 0) {
++                written += static_cast<size_t>(count);
++                continue;
++            }
++            // Do not re-enter a blocking write after Fastchess was stopped.
++            // A signal delivered to some other thread still cannot interrupt
++            // this write; this check is not a bounded shutdown guarantee.
++            if (count < 0 && errno == EINTR && !atomic::stop.load()) continue;
++            // Do not send a later command on this stream: it could complete a
++            // prefix. Keep the pipe open here; EOF can itself complete a line.
++            input_poisoned_ = true;
++            if (written) return Result::Error("partial engine input write; delivery uncertain");
++            if (count == 0) return Result::Error("engine input write returned zero");
+             return Result::Error(strerror(errno));
+         }
+ 
+@@ -462,6 +508,8 @@
+     bool startup_error_ = false;
+ 
+     pid_t process_pid_{0};
++    std::mutex input_mutex_;
++    bool input_poisoned_ = true;
+     Pipe in_pipe_, out_pipe_, err_pipe_;
+ 
+     InterruptSignaler interrupt_{};
+--- a/app/src/engine/uci_engine.cpp
++++ b/app/src/engine/uci_engine.cpp
+@@ -71,7 +71,8 @@
+ 
+     LOG_TRACE_THREAD("Pinging engine {}", config_.name);
+ 
+-    writeEngine("isready");
++    if (!writeEngine("isready"))
++        return process::Result::Error("isready input write failed; delivery uncertain");
+ 
+     setupReadEngine();
+ 
 --- a/app/src/main.cpp
 +++ b/app/src/main.cpp
 @@ -1,4 +1,5 @@

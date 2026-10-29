@@ -27,6 +27,7 @@ REPO = HERE.parents[2]
 PATCH = HERE / "patches" / "fastchess-rove.patch"
 PINS = {
     "app/src/engine/process/process_posix.hpp": "ffdbe2ce285ddb5e5558fd32035c6bbbfd96fb0493fc2af35f45faa12a5c81ef",
+    "app/src/engine/uci_engine.cpp": "8d4366ef96e33c5ef242180222547a5ae01fb9cfcc7238f77afb1cf52430ac89",
     "app/src/matchmaking/match/match.cpp": "c8e21fb6d3dc75a50365ca0b5a765aa05e1d155a8587ee775477cdc8741bab41",
     "app/src/main.cpp": "465606a822f6ca20fcaf6a1f75427e2cd0e2ffefc8e1b31cc72a99a58f6525a5",
 }
@@ -277,7 +278,21 @@ def patched_sources(originals: dict[str, bytes]) -> dict[str, bytes]:
             raise ValueError("pinned upstream source differs: " + path)
     result = {path: body.decode("utf-8") for path, body in originals.items()}
     path = "app/src/engine/process/process_posix.hpp"
-    text = _replace_once(result[path], "#    include <optional>\n", "#    include <optional>\n#    include <limits>\n", "deadline include")
+    text = _replace_once(result[path], "#    include <optional>\n", "#    include <optional>\n#    include <limits>\n#    include <mutex>\n", "deadline and input lock includes")
+    text = _replace_once(text, '''        assert(!is_initalized_);
+
+        wd_       = wd;
+''', '''        std::lock_guard<std::mutex> input_lock(input_mutex_);
+        assert(!is_initalized_);
+        input_poisoned_ = true;
+
+        wd_       = wd;
+''', "serialize engine input initialization")
+    text = _replace_once(text, '''        sg_out_ = Stream(in_pipe_.read_end(), realtime_logging_, Standard::OUTPUT, log_name_);
+''', '''        // Only a newly spawned process with new pipes may clear a poison.
+        input_poisoned_ = false;
+        sg_out_ = Stream(in_pipe_.read_end(), realtime_logging_, Standard::OUTPUT, log_name_);
+''', "clear poison only for new engine")
     text = _replace_once(text, "        const int poll_timeout_ms = normalize_poll_timeout_ms(threshold);\n", '''        const bool bounded = threshold.count() > 0;
         const auto began = std::chrono::steady_clock::now();
         const auto max_wait = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -299,7 +314,59 @@ def patched_sources(originals: dict[str, bytes]) -> dict[str, bytes]:
             const int ready = poll(fds.data(), static_cast<nfds_t>(fds_count), poll_timeout_ms);
 ''', "remaining poll budget")
     text = _replace_once(text, "            if (ready == 0) {\n                flush_partials_on_timeout(lines);", "            if (ready == 0) {\n                if (bounded && std::chrono::steady_clock::now() < deadline) continue;\n                flush_partials_on_timeout(lines);", "long capped poll")
+    text = _replace_once(text, '''        assert(is_initalized_);
+        if (!alive()) return Result::Error("process not alive");
+
+        if (write(out_pipe_.write_end(), input.c_str(), input.size()) == -1) {
+            return Result::Error(strerror(errno));
+        }
+''', '''        std::lock_guard<std::mutex> input_lock(input_mutex_);
+        assert(is_initalized_);
+        if (input_poisoned_) return Result::Error("engine input unusable; delivery uncertain");
+        if (!alive()) {
+            input_poisoned_ = true;
+            return Result::Error("process not alive");
+        }
+
+        size_t written = 0;
+        while (written < input.size()) {
+            const size_t left = input.size() - written;
+            const size_t max_write = static_cast<size_t>(std::numeric_limits<ssize_t>::max());
+            const ssize_t count = write(out_pipe_.write_end(), input.data() + written,
+                                        left < max_write ? left : max_write);
+            if (count > 0) {
+                written += static_cast<size_t>(count);
+                continue;
+            }
+            // Do not re-enter a blocking write after Fastchess was stopped.
+            // A signal delivered to some other thread still cannot interrupt
+            // this write; this check is not a bounded shutdown guarantee.
+            if (count < 0 && errno == EINTR && !atomic::stop.load()) continue;
+            // Do not send a later command on this stream: it could complete a
+            // prefix. Keep the pipe open here; EOF can itself complete a line.
+            input_poisoned_ = true;
+            if (written) return Result::Error("partial engine input write; delivery uncertain");
+            if (count == 0) return Result::Error("engine input write returned zero");
+            return Result::Error(strerror(errno));
+        }
+''', "complete engine input write")
+    text = _replace_once(text, '''    pid_t process_pid_{0};
+    Pipe in_pipe_, out_pipe_, err_pipe_;
+''', '''    pid_t process_pid_{0};
+    std::mutex input_mutex_;
+    bool input_poisoned_ = true;
+    Pipe in_pipe_, out_pipe_, err_pipe_;
+''', "per-engine input poison")
     result[path] = text
+    path = "app/src/engine/uci_engine.cpp"
+    result[path] = _replace_once(result[path], '''    writeEngine("isready");
+
+    setupReadEngine();
+''', '''    if (!writeEngine("isready"))
+        return process::Result::Error("isready input write failed; delivery uncertain");
+
+    setupReadEngine();
+''', "reject failed readiness write")
     path = "app/src/main.cpp"
     text = _replace_once(result[path], "#include <cstdlib>\n", "#include <cstdlib>\n#include <core/rove_start_gate.hpp>\n", "main gate include")
     result[path] = _replace_once(text, "int main(int argc, char const* argv[]) {\n    setCtrlCHandler();", "int main(int argc, char const* argv[]) {\n    if (!rove::prepare()) return EXIT_FAILURE;\n    setCtrlCHandler();", "early FD protection")
