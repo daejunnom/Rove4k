@@ -10,16 +10,20 @@ completion. This module never starts, resumes, stops or terminates an instance.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+from decimal import Decimal, InvalidOperation
 import hashlib
+import json
 import re
 
 try:
     from .league_controller import LeaguePlan, _snapshot_state
     from .global_budget import S3SharedBudget, digest
+    from .ledger import canonical
     from .shared_coordinator import SharedBudgetJournal
 except ImportError:
     from league_controller import LeaguePlan, _snapshot_state
     from global_budget import S3SharedBudget, digest
+    from ledger import canonical
     from shared_coordinator import SharedBudgetJournal
 
 
@@ -40,6 +44,49 @@ _SSM_STATES = frozenset(('Online', 'ConnectionLost', 'Inactive'))
 
 def _launch_digest(token):
     return 'sha256:' + hashlib.sha256(token.encode('utf-8')).hexdigest()
+
+
+def _v1_request(plan, intent, row, decoded):
+    """Validate the frozen v1 request shape without using today's builder.
+
+    This is deliberately versioned and independent of request_preview: future
+    producer changes must introduce a new format instead of changing this one.
+    The only variable fields come from the bound plan/identity and the bounded
+    root, network and price fields below. UserData and unknown fields are not
+    accepted. This is shape validation, not proof of AWS authority.
+    """
+    root = decoded['BlockDeviceMappings'][0]
+    name = root['DeviceName']
+    volume = root['Ebs']['VolumeSize']
+    public = decoded['NetworkInterfaces'][0]['AssociatePublicIpAddress']
+    price_text = row['max_hourly_usd']
+    if (not isinstance(name, str) or not re.fullmatch(r'/dev/[A-Za-z0-9_.-]{1,32}', name)
+            or type(volume) is not int or not 8 <= volume <= 64 or type(public) is not bool
+            or not isinstance(price_text, str)):
+        raise ValueError('invalid v1 root, network or price')
+    try:
+        price = Decimal(price_text)
+        if not price.is_finite() or not Decimal('0.001') < price <= Decimal(8) or format(price, 'f') != price_text:
+            raise ValueError('invalid v1 Spot price')
+    except InvalidOperation as error:
+        raise ValueError('invalid v1 Spot price') from error
+    tags = [{'Key': 'RoveLeagueCampaign', 'Value': plan.campaign},
+            {'Key': 'RoveLeagueOwner', 'Value': intent.owner_tag},
+            {'Key': 'RoveLeagueLaunchDigest', 'Value': _launch_digest(intent.launch_token)}]
+    return {'ImageId': intent.image_id, 'InstanceType': 'm6a.48xlarge',
+            'MinCount': 1, 'MaxCount': 1, 'ClientToken': intent.launch_token,
+            'IamInstanceProfile': {'Arn': plan.profile_arn},
+            'NetworkInterfaces': [{'DeviceIndex': 0, 'SubnetId': intent.subnet_id,
+                'Groups': list(intent.security_group_ids), 'AssociatePublicIpAddress': public,
+                'DeleteOnTermination': True}],
+            'MetadataOptions': {'HttpTokens': 'required', 'HttpEndpoint': 'enabled'},
+            'BlockDeviceMappings': [{'DeviceName': name, 'Ebs': {'VolumeSize': volume,
+                'VolumeType': 'gp3', 'Encrypted': True, 'DeleteOnTermination': True}}],
+            'InstanceMarketOptions': {'MarketType': 'spot', 'SpotOptions': {
+                'MaxPrice': price_text, 'SpotInstanceType': 'one-time',
+                'InstanceInterruptionBehavior': 'terminate'}},
+            'TagSpecifications': [{'ResourceType': kind, 'Tags': [dict(tag) for tag in tags]}
+                                  for kind in ('instance', 'volume', 'network-interface', 'spot-instances-request')]}
 
 
 @dataclass(frozen=True)
@@ -134,7 +181,8 @@ def _launch_record(snapshot, plan, intent, current_request_sha256):
     result = {'observation': 'unresolved', 'matching_events': len(matches),
               'identity_digest_matches': False, 'request_digest_present': False,
               'request_digest_comparison': 'not_checked',
-              'request_digest_verified': False, 'intent_authenticated': False}
+              'request_digest_verified': False, 'intent_authenticated': False,
+              'stored_request_state': 'unresolved', 'stored_request_canonical_json': None}
     if len(matches) != 1:
         return result
     row = matches[0]
@@ -147,6 +195,25 @@ def _launch_record(snapshot, plan, intent, current_request_sha256):
         if current_request_sha256 is not None:
             result['request_digest_comparison'] = ('matches_current_preview' if request == current_request_sha256
                                                    else 'differs_current_preview')
+        # The previous format kept only a digest. It cannot reconstruct a
+        # RunInstances request and must never be upgraded by inference.
+        raw = row.get('request_canonical_json')
+        if row.get('request_format') == 'rove4k-league-run-instances-v1' and isinstance(raw, str):
+            try:
+                if len(raw.encode('utf-8')) > 16384:
+                    raise ValueError('request exceeds bounded size')
+                decoded = json.loads(raw)
+                if canonical(decoded).decode('utf-8') != raw or digest(decoded) != request:
+                    raise ValueError('request encoding or digest differs')
+                expected = _v1_request(plan, intent, row, decoded)
+                if (row.get('region') != intent.region or decoded != expected
+                        or canonical(expected).decode('utf-8') != raw):
+                    raise ValueError('request differs from reviewed v1 shape or identity')
+            except (KeyError, IndexError, TypeError, ValueError, UnicodeError, RecursionError):
+                result['stored_request_state'] = 'invalid'
+            else:
+                result['stored_request_state'] = 'canonical_v1_matches_declared_identity'
+                result['stored_request_canonical_json'] = raw
     return result
 
 
@@ -378,6 +445,12 @@ def inspect_launch(plan, store, owner, intent, client, *, launch_spec=None):
         # write, S3 ABA, or an instance change immediately after this read.
         final_anchor, final_blocked = owner.anchor, owner.blocked
         journal_changed = final_anchor != local_anchor or final_blocked != pending
+    if pending or final_blocked or journal_changed or snapshot.anchor != local_anchor:
+        # An observed newer or locally uncertain journal is not the anchored
+        # intent the caller asked to recover. Keep it quarantined even if its
+        # JSON happens to match the declared request.
+        launch_record['stored_request_canonical_json'] = None
+        launch_record['stored_request_state'] = 'journal_unresolved'
     return {'format': 'rove4k-league-launch-observation-v1', 'plan_sha256': plan.sha256,
             'region': intent.region, 'launch_token': intent.launch_token,
             'ec2_state': matches[0]['state'] if matches else 'unresolved',

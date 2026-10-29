@@ -5,19 +5,24 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 try:
     from . import global_budget as g
+    from . import league_aws_launch as launch
     from .league_aws_recovery import RecoveryIntent, inspect_launch
-    from .league_aws_launch import LeagueLaunchSpec, request_preview
+    from .league_aws_launch import LeagueLaunchSpec, intent_data, request_preview
+    from .aws import ADVISOR_URL, INSTANCE_TYPE
     from .ledger import Journal
     from .shared_coordinator import SharedBudgetJournal
     from .test_global_budget import FakeS3
     from .test_league_controller import ACCOUNT, REGION, make_plan
 except ImportError:
     import global_budget as g
+    import league_aws_launch as launch
     from league_aws_recovery import RecoveryIntent, inspect_launch
-    from league_aws_launch import LeagueLaunchSpec, request_preview
+    from league_aws_launch import LeagueLaunchSpec, intent_data, request_preview
+    from aws import ADVISOR_URL, INSTANCE_TYPE
     from ledger import Journal
     from shared_coordinator import SharedBudgetJournal
     from test_global_budget import FakeS3
@@ -378,6 +383,60 @@ class RecoveryTests(unittest.TestCase):
         record = self.inspect()['ledger_launch_record']
         self.assertEqual(record['observation'], 'unresolved')
         self.assertFalse(record['identity_digest_matches'])
+        self.assertEqual(record['stored_request_state'], 'unresolved')
+        self.assertIsNone(record['stored_request_canonical_json'])
+
+    def test_restarted_observer_recovers_exact_canonical_request_without_authority(self):
+        spec = LeagueLaunchSpec(self.intent, '/dev/sda1', 32, '8', False)
+        request = request_preview(self.plan, spec)
+        raw = g.canonical(request).decode('utf-8')
+        advisor = {'source_url': ADVISOR_URL, 'region': REGION, 'instance_type': INSTANCE_TYPE,
+                   'os': 'Linux', 'sha256': 'a' * 64, 'band': '<5%', 'maximum_percent': 5,
+                   'fetched_at': 1000, 'source_modified_at': 1000}
+        self.event(1, 'budget.v2.launch_requested', intent_data(self.plan, spec, advisor, 1000))
+        self.journal.close()
+        self.journal = Journal(Path(self.temp.name) / 'journal.jsonl', self.plan.campaign)
+        self.owner = SharedBudgetJournal(self.store, self.journal, self.root)
+        report = self.inspect(launch_spec=spec)
+        record = report['ledger_launch_record']
+        self.assertEqual(record['stored_request_state'], 'canonical_v1_matches_declared_identity')
+        self.assertEqual(record['stored_request_canonical_json'], raw)
+        self.assertFalse(record['intent_authenticated'])
+        self.assertFalse(report['launch_authorized'])
+        self.assertFalse(any(service == 'ec2' and op == 'run-instances' for service, op, _ in self.ec2.calls))
+        # The old v1 request remains readable even if today's builder changes.
+        with patch.object(launch, 'request_preview', side_effect=AssertionError('builder changed')):
+            restored = self.inspect()['ledger_launch_record']
+        self.assertEqual(restored['stored_request_canonical_json'], raw)
+        self.assertFalse(restored['intent_authenticated'])
+
+    def test_request_with_injected_userdata_never_recovers_even_with_matching_digest(self):
+        spec = LeagueLaunchSpec(self.intent, '/dev/sda1', 32, '8', False)
+        request = {**request_preview(self.plan, spec), 'UserData': 'untrusted'}
+        self.event(1, 'budget.v2.launch_requested', {
+            'launch_token': self.intent.launch_token, 'region': REGION,
+            'max_hourly_usd': '8', 'plan_sha256': self.plan.sha256,
+            'identity_sha256': g.digest(asdict(self.intent)), 'request_sha256': g.digest(request),
+            'request_format': 'rove4k-league-run-instances-v1',
+            'request_canonical_json': g.canonical(request).decode('utf-8')})
+        record = self.inspect()['ledger_launch_record']
+        self.assertEqual(record['stored_request_state'], 'invalid')
+        self.assertIsNone(record['stored_request_canonical_json'])
+
+    def test_journal_advance_withholds_recorded_request(self):
+        spec = LeagueLaunchSpec(self.intent, '/dev/sda1', 32, '8', False)
+        request = request_preview(self.plan, spec)
+        self.event(1, 'budget.v2.launch_requested', {
+            'launch_token': self.intent.launch_token, 'region': REGION,
+            'max_hourly_usd': '8', 'plan_sha256': self.plan.sha256,
+            'identity_sha256': g.digest(asdict(self.intent)), 'request_sha256': g.digest(request),
+            'request_format': 'rove4k-league-run-instances-v1',
+            'request_canonical_json': g.canonical(request).decode('utf-8')})
+        self.ec2.on_describe = lambda: self.event(2, 'budget.v2.observe', {})
+        report = self.inspect()
+        self.assertTrue(report['local_journal_changed_during_observation'])
+        self.assertEqual(report['ledger_launch_record']['stored_request_state'], 'journal_unresolved')
+        self.assertIsNone(report['ledger_launch_record']['stored_request_canonical_json'])
 
     def test_launch_record_mismatched_digest_and_duplicate_token_are_unresolved(self):
         original = {'launch_token': self.intent.launch_token, 'region': REGION,

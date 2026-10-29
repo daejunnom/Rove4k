@@ -20,18 +20,18 @@ try:
                       STANDARD_SPOT_QUOTA, iso, pages, standard_spot_used)
     from .budget import decimal, timestamp
     from .global_budget import S3SharedBudget
-    from .league_aws_recovery import RecoveryIntent
+    from .league_aws_recovery import RecoveryIntent, _v1_request
     from .league_controller import LeaguePlan, _snapshot_state
-    from .ledger import digest
+    from .ledger import canonical, digest
     from .shared_coordinator import SharedBudgetJournal
 except ImportError:
     from aws import (ADVISOR_MAX_SOURCE_AGE_SECONDS, ADVISOR_URL, INSTANCE_TYPE,
                      STANDARD_SPOT_QUOTA, iso, pages, standard_spot_used)
     from budget import decimal, timestamp
     from global_budget import S3SharedBudget
-    from league_aws_recovery import RecoveryIntent
+    from league_aws_recovery import RecoveryIntent, _v1_request
     from league_controller import LeaguePlan, _snapshot_state
-    from ledger import digest
+    from ledger import canonical, digest
     from shared_coordinator import SharedBudgetJournal
 
 
@@ -128,9 +128,17 @@ def intent_data(plan, spec, advisor, now):
     them. Creation of this dictionary is neither durable nor an approval.
     """
     request = request_preview(plan, spec)
+    # Freeze the v1 wire-parameter shape before it reaches the journal.
+    # Future builders must use another format for added fields; in particular
+    # arbitrary UserData or credentials must not enter through this producer.
+    if canonical(request) != canonical(_v1_request(plan, spec.identity,
+                                                   {'max_hourly_usd': spec.max_hourly_usd}, request)):
+        raise ValueError('request differs from the frozen v1 shape')
     return {'launch_token': spec.identity.launch_token, 'region': spec.identity.region,
             'max_hourly_usd': spec.max_hourly_usd, 'plan_sha256': plan.sha256,
             'request_sha256': digest(request), 'identity_sha256': digest(asdict(spec.identity)),
+            'request_format': 'rove4k-league-run-instances-v1',
+            'request_canonical_json': canonical(request).decode('utf-8'),
             **_advisor(advisor, spec.identity.region, now)}
 
 

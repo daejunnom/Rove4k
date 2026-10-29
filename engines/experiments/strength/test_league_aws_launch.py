@@ -4,9 +4,11 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 try:
     from . import global_budget as g
+    from . import league_aws_launch as launch
     from .aws import ADVISOR_URL, INSTANCE_TYPE, STANDARD_SPOT_QUOTA, iso
     from .league_aws_launch import LeagueLaunchSpec, advisor_recheck_data, inspect_environment, intent_data, request_preview, review_recorded_intent
     from .league_aws_recovery import RecoveryIntent
@@ -16,6 +18,7 @@ try:
     from .test_league_controller import ACCOUNT, REGION, make_plan
 except ImportError:
     import global_budget as g
+    import league_aws_launch as launch
     from aws import ADVISOR_URL, INSTANCE_TYPE, STANDARD_SPOT_QUOTA, iso
     from league_aws_launch import LeagueLaunchSpec, advisor_recheck_data, inspect_environment, intent_data, request_preview, review_recorded_intent
     from league_aws_recovery import RecoveryIntent
@@ -218,6 +221,10 @@ class LedgerIntentTests(RequestTests):
         with self.assertRaisesRegex(ValueError, 'durable'):
             self.review()
         data = intent_data(self.plan, self.spec, self.advisor, NOW)
+        self.assertEqual(data['request_format'], 'rove4k-league-run-instances-v1')
+        self.assertEqual(data['request_canonical_json'],
+                         g.canonical(request_preview(self.plan, self.spec)).decode('utf-8'))
+        self.assertNotIn('UserData', data['request_canonical_json'])
         self.record('league-launch-request-01', data)
         report = self.review()
         self.assertTrue(report['exact_intent_recorded'])
@@ -234,6 +241,14 @@ class LedgerIntentTests(RequestTests):
         self.record('league-launch-request-02', data)
         with self.assertRaisesRegex(ValueError, 'unique'):
             self.review()
+
+    def test_producer_rejects_userdata_before_journal_write(self):
+        original = request_preview(self.plan, self.spec)
+        before = self.owner.anchor
+        with patch.object(launch, 'request_preview', return_value={**original, 'UserData': 'untrusted'}):
+            with self.assertRaisesRegex(ValueError, 'frozen v1'):
+                intent_data(self.plan, self.spec, self.advisor, NOW)
+        self.assertEqual(self.owner.anchor, before)
 
     def test_changed_request_or_recorded_binding_is_rejected(self):
         data = intent_data(self.plan, self.spec, self.advisor, NOW)
