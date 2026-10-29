@@ -306,7 +306,8 @@ def actual_check(build_receipt: Path, out: Path) -> dict:
             argv[argv.index("file=" + str(book))] = "file=/__rove4k_sealed_opening_snapshot_v1__"
             argv = [sys.executable, "-I", str(HERE / "sealed_opening_exec.py"),
                     "--source", str(book), "--sha256", fastchess.sha(book.read_bytes()),
-                    "--bytes", str(book.stat().st_size), "--", *argv]
+                    "--bytes", str(book.stat().st_size), "--runner-sha256", fastchess.sha(binary.read_bytes()),
+                    "--", *argv]
         if case == "noise":
             argv[argv.index("-startup-ms") + 1] = "100"
         parent, child = socket.socketpair()

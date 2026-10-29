@@ -81,6 +81,9 @@ class DraftWaveTests(unittest.TestCase):
                     self.assertIn("-I", cmd)
                     self.assertIn("file=/__rove4k_sealed_opening_snapshot_v1__", cmd)
                     self.assertIn(draft["content"]["opening_pgn"]["sha256"], cmd)
+                    self.assertIn("--runner-sha256", cmd)
+                    runner_pin_index = cmd.index("--runner-sha256") + 1
+                    self.assertEqual(cmd[runner_pin_index], draft["content"]["runner"]["sha256"])
                     pin = specs[job.identity]["identity"]["opening_pgn_snapshot"]
                     self.assertEqual(pin["sha256"], draft["content"]["opening_pgn"]["sha256"])
                     self.assertEqual(pin["binding"], "runtime revalidation then sealed memfd")
@@ -93,6 +96,8 @@ class DraftWaveTests(unittest.TestCase):
                     self.assertFalse(receipt["score_authorized"])
                     self.assertFalse(receipt["go_authorized"])
                     self.assertTrue(receipt["live_topology_snapshot_not_attestation"])
+                    self.assertEqual(receipt["runner_binding_scope"],
+                                     "plan-pinned sealed ELF memfd; launcher, LSM, libraries and engines unverified")
 
     def test_distinct_colour_legs_share_no_slot_and_keep_same_opening(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -185,7 +185,8 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, memor
             pin = body['opening_pgn']
             runner_argv = [sys.executable, '-I', str(run.HERE / 'sealed_opening_exec.py'),
                            '--source', str(openings), '--sha256', pin['sha256'],
-                           '--bytes', str(pin['bytes']), '--', *runner_argv]
+                           '--bytes', str(pin['bytes']), '--runner-sha256', body['runner']['sha256'],
+                           '--', *runner_argv]
         argv = (sys.executable, str(run.HERE / 'placement.py'), '--slot', str(slot_file),
                 '--record', str(record), '--', *runner_argv)
         identity = {'leg': leg, 'white': white, 'black': black, 'opening_id': pair['opening']['id'],
@@ -216,7 +217,8 @@ def prepare_wave(plan_path, selections, groups, target, out, *, launch_id, memor
                'scope': 'prepared jobs only; no process, authority or memory reservation',
                **({'draft_only': True, 'score_authorized': False, 'go_authorized': False,
                    'live_topology_snapshot_not_attestation': True,
-                   'opening_binding_scope': 'runtime sealed memfd; launcher and runner authentication unverified'} if draft else {})})
+                   'opening_binding_scope': 'runtime sealed memfd',
+                   'runner_binding_scope': 'plan-pinned sealed ELF memfd; launcher, LSM, libraries and engines unverified'} if draft else {})})
     return jobs, specs
 
 
