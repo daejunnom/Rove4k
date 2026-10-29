@@ -12,7 +12,8 @@ class CMacroCompactContract(unittest.TestCase):
                      + b'FROM(1);' * 5 + b'PROMO(2);' * 7 + b'MOVE(3);' * 2
                      + b' "PROMO FROM MOVE AO TQ YO"; /* PROMO AO */ // FROM TQ\n'
                      + b'1e+AO;\n#include<immintrin.h>\nstatic int U(\n'
-                     + b'\n'.join(before for before, _ in subject._REWRITES))
+                     + b'\n'.join(before for before, _ in subject._REWRITES)
+                     + b'\naT aT zC zC zC\n')
         self.digest = hashlib.sha256(self.body).hexdigest()
 
     def test_inverse_and_opaque_literals_for_each_profile(self):
@@ -27,7 +28,7 @@ class CMacroCompactContract(unittest.TestCase):
                 self.assertIn(b'/* PROMO AO */ // FROM TQ\n1e+AO;', result)
                 for before, after in subject._REWRITES:
                     self.assertNotIn(before, result)
-                    self.assertIn(after, result)
+                    self.assertIn(after.replace(b'aT', b'aN'), result)
                 self.assertFalse(proof["native_identical"])
                 self.assertFalse(proof["runtime_qualified"])
 
@@ -45,6 +46,12 @@ class CMacroCompactContract(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "target identifier"):
                 subject.transform_source(subject._PREFIX["test-p4"] + collision,
                                          family="C", profile_id="test-p4")
+        for extra in (b' aN', b' zO', b' aT', b' zC'):
+            bad = self.body + extra
+            with self.subTest(extra=extra), patch.object(subject, "_BODY_SHA256", hashlib.sha256(bad).hexdigest()):
+                with self.assertRaises(ValueError):
+                    subject.transform_source(subject._PREFIX["test-p4"] + bad,
+                                             family="C", profile_id="test-p4")
 
     def test_changed_output_proof_and_ambiguous_lexer_are_rejected(self):
         source = subject._PREFIX["test-p4"] + self.body

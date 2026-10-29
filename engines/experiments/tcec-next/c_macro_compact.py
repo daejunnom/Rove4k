@@ -20,6 +20,9 @@ _PREFIX = {
 }
 _NAMES = {b"PROMO": b"AO", b"FROM": b"TQ", b"MOVE": b"YO"}
 _COUNTS = {b"PROMO": 8, b"FROM": 6, b"MOVE": 3}
+# These identifiers occur in an expression anchor, so rename after rewriting.
+_FINAL_NAMES = {b"aT": b"aN", b"zC": b"zO"}
+_FINAL_COUNTS = {b"aT": 4, b"zC": 3}
 _EARLY = b"#include <time.h>\n"
 _HEADER = b"#include<immintrin.h>\n"
 _LATE = _HEADER + b"static int U("
@@ -35,6 +38,8 @@ _REWRITES = (
      b"for(int f=0;f<8;f++)b(&t,f,qa[f]),b(&t,16+f,1),b(&t,96+f,-1),b(&t,112+f,-qa[f]);"),
     (b"if(U)e->aT=a,e->U=U;else U=e->aT==a?e->U:0;",
      b"U=U?(e->aT=a,e->U=U):e->aT==a?e->U:0;"),
+    (b"w->aI?((p->r<<1)|(p->r>>63))^w->h:w->h",
+     b"w->aI?w->h^((p->r<<1)|(p->r>>63)):w->h"),
 )
 _IDENT = re.compile(rb"[A-Za-z_][A-Za-z_0-9]*")
 _NUMBER = re.compile(rb"(?:[0-9]|\.[0-9])(?:[eEpP][+-]|[A-Za-z_0-9.])*")
@@ -122,9 +127,13 @@ def transform_source(source, *, family, profile_id):
     prefix = _PREFIX[profile_id]
     if not source.startswith(prefix) or sha256(source[len(prefix):]).hexdigest() != _BODY_SHA256:
         raise ValueError("C macro source differs from its pinned body")
-    result = _rewrite(_replace(_move_header(source), _NAMES, _COUNTS))
+    result = _replace(_rewrite(_replace(_move_header(source), _NAMES, _COUNTS)),
+                      _FINAL_NAMES, _FINAL_COUNTS)
     inverse = {value: key for key, value in _NAMES.items()}
-    if _restore_header(_replace(_rewrite(result, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()})) != source:
+    inverse_final = {value: key for key, value in _FINAL_NAMES.items()}
+    final_counts = {_FINAL_NAMES[key]: count for key, count in _FINAL_COUNTS.items()}
+    original_names = _replace(result, inverse_final, final_counts)
+    if _restore_header(_replace(_rewrite(original_names, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()})) != source:
         raise ValueError("C macro complete inverse differs")
     return result, {"schema": SCHEMA, "variant": DECLARATION["variant"],
                     "family": family, "profile_id": profile_id,
@@ -138,7 +147,10 @@ def restore_source(candidate, proof):
     if type(candidate) is not bytes or type(proof) is not dict:
         raise ValueError("C macro candidate and proof required")
     inverse = {value: key for key, value in _NAMES.items()}
-    source = _restore_header(_replace(_rewrite(candidate, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()}))
+    inverse_final = {value: key for key, value in _FINAL_NAMES.items()}
+    final_counts = {_FINAL_NAMES[key]: count for key, count in _FINAL_COUNTS.items()}
+    original_names = _replace(candidate, inverse_final, final_counts)
+    source = _restore_header(_replace(_rewrite(original_names, reverse=True), inverse, {_NAMES[key]: count for key, count in _COUNTS.items()}))
     regenerated, expected = transform_source(source, family=proof.get("family"), profile_id=proof.get("profile_id"))
     try:
         proof_matches = (json.dumps(expected, sort_keys=True, separators=(",", ":"), allow_nan=False)

@@ -82,7 +82,7 @@ FINAL_COMPACT = {
           "profiles": ("test-p4", "tcec-provisional")},
     "C": {"path": "engines/experiments/tcec-next/c_macro_compact.py",
           "variant": "unused-macro-names", "schema": "rove4k.c-macro-compact-experiment.v1",
-          "pin": {"bytes": 7370, "sha256": "6f9e2f7c4f44ceb8dcade552cc6669db4cd7cf9f6031ffb7c51d6405f6d9b839"},
+          "pin": {"bytes": 8153, "sha256": "85d71c9435a77ceb59d3c4d559af12706df9e0569ba042c1ef6a735121300d56"},
           "profiles": ("test-p4", "tcec-provisional")},
     "E": {"path": "engines/compact/tiny-entry-e/profile_eval_unit.py",
           "variant": "e-fixed-coeff-macros", "schema": "rove4k.e-fixed-coeff-macros.v1",
