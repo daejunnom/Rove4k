@@ -46,7 +46,7 @@ class RunnerGcTests(unittest.TestCase):
         self.controller.observe_raw = lambda job: None
         self.controller.acknowledge_results = lambda: None
         self.controller.replicate = lambda: None
-        self.controller.queue_result = lambda *args: None
+        self.controller.queue_result = lambda *args, snapshots: None
         identity = patch.object(run, "proc_identity", return_value=OBSERVER)
         identity.start()
         self.addCleanup(identity.stop)
