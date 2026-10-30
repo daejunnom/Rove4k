@@ -1,0 +1,141 @@
+name: Experimental D structural alternatives
+
+on:
+  pull_request:
+    paths:
+      - 'engines/experiments/tiny-d-submission/**'
+      - 'engines/compact/tiny-entry-d/**'
+      - 'engines/experiments/tcec-scope/**'
+      - 'engines/experiments/tcec-next/profile_rules.py'
+      - 'engines/common/board.c'
+      - 'engines/common/move.c'
+      - 'engines/scripts/**'
+      - 'engines/tests/chess_oracle.py'
+      - '.github/workflows/d-structural-next.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: d-structural-next-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Check search state and representation equivalence without native execution
+        run: python -I -B engines/experiments/tiny-d-submission/test_search_size_next.py
+      - name: Compare the strict control, BSS baseline and finite source alternatives
+        run: |
+          set -o pipefail
+          timeout --signal=INT --kill-after=30s 600s \
+            python -I -B engines/experiments/tiny-d-submission/structural_next.py \
+            --out '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' \
+            --seed-case runtime/static-stacks,runtime/static-input,runtime/narrow-clock,board/start-image-shared,search/tt_bytes,search/pvs_stages \
+            --seed-case runtime/static-stacks,runtime/static-input,search/tt_bytes,search/pvs_stages --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}.log'
+      - name: Observe actual candidate rules, search and parser behavior
+        run: |
+          set -o pipefail
+          timeout --signal=INT --kill-after=30s 600s \
+            python -I -B engines/experiments/tiny-d-submission/structural_next_checks.py \
+            --portfolio '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' \
+            --out '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}' --execute \
+            2>&1 | tee '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}.log'
+      - name: Retune baseline, previous bests and three smallest qualified candidates
+        run: |
+          set -o pipefail
+          python -I -B - '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' '${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}' <<'PY'
+          import hashlib, json, pathlib, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          def pin(data):
+              return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+          raw = (root / 'portfolio.json').read_bytes()
+          report = json.loads(raw)
+          by_name = {row['name']: row for row in report['cases']}
+          checks = json.loads((pathlib.Path(sys.argv[2]) / 'checks.json').read_text())
+          if not report['complete'] or not checks['complete'] or checks['portfolio'] != pin(raw):
+              raise SystemExit('Complete matching cost and source observations required')
+          observed = {row['name'] for row in checks['cases'] if row['complete']}
+          observed.update(row['name'] for row in checks['source_reuse'] if row['same_source_as'] in observed)
+          smallest = sorted((row for row in report['cases'] if row['name'] in observed),
+                            key=lambda row: (row['package']['bytes'], row['name']))[:3]
+          names = list(dict.fromkeys(('baseline', *report['seed_cases'], *(row['name'] for row in smallest))))
+          if len(names) > 6 or not set(names) <= observed:
+              raise SystemExit('Bounded qualified codec candidates required')
+          selection = {'complete': False, 'portfolio': pin(raw), 'cases': []}
+          for name in names:
+              subprocess.run(['timeout', '--signal=INT', '--kill-after=10s', '80s',
+                  sys.executable, '-I', '-B',
+                  'engines/experiments/tiny-d-submission/structural_codec.py',
+                  '--case', str(root / name), '--out', str(root / (name + '-codec'))], check=True)
+              encoded_raw = (root / (name + '-codec') / 'result.json').read_bytes()
+              encoded = json.loads(encoded_raw)
+              if not encoded['complete']:
+                  raise SystemExit('Codec portfolio did not complete')
+              selection['cases'].append({'name': name, 'codec_report': pin(encoded_raw),
+                                        'native': encoded['native'], **encoded['unnamed'],
+                                        'fixed': {key: by_name[name]['package'][key] for key in ('bytes', 'sha256')}})
+          routes = [dict(name=row['name'], route=route,
+                         **{key: package[key] for key in ('bytes', 'sha256')})
+                    for row in selection['cases']
+                    for route, package in (('fixed', row['fixed']), ('retuned', row))]
+          best = min(routes, key=lambda row: row['bytes'])
+          selection.update(complete=True, minimum_measured=best['name'], route=best['route'],
+                           whole_bytes=best['bytes'], whole_sha256=best['sha256'])
+          (root / 'codec-selection.json').write_text(json.dumps(selection, indent=2) + '\n')
+          print(json.dumps({'final_minimum': best['name'], 'route': best['route'], 'whole_bytes': best['bytes'], 'cases': names}))
+          PY
+      - name: Observe actual fixed and retuned packed P4 baseline and minimum
+        run: |
+          set -o pipefail
+          python -I -B - '${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}' <<'PY'
+          import hashlib, json, pathlib, subprocess, sys
+          root = pathlib.Path(sys.argv[1])
+          raw = (root / 'portfolio.json').read_bytes()
+          selection = json.loads((root / 'codec-selection.json').read_text())
+          if not selection['complete'] or selection['portfolio'] != {'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()}:
+              raise SystemExit('Matching final codec selection required')
+          winner = next(row for row in selection['cases'] if row['name'] == selection['minimum_measured'])
+          if selection['route'] not in ('fixed', 'retuned'):
+              raise SystemExit('Explicit final package route required')
+          actual = winner['fixed'] if selection['route'] == 'fixed' else winner
+          if (actual['bytes'], actual['sha256']) != (selection['whole_bytes'], selection['whole_sha256']):
+              raise SystemExit('Final package selection identity differs')
+          for name in dict.fromkeys(('baseline', selection['minimum_measured'])):
+              encoded_raw = (root / (name + '-codec') / 'result.json').read_bytes()
+              selected = next(row for row in selection['cases'] if row['name'] == name)
+              if selected['codec_report'] != {'bytes': len(encoded_raw), 'sha256': hashlib.sha256(encoded_raw).hexdigest()}:
+                  raise SystemExit('Selected codec report changed')
+              for suffix in ('runtime', 'runtime-retuned'):
+                  args = ['timeout', '--signal=INT', '--kill-after=15s', '130s',
+                      sys.executable, '-I', '-B',
+                      'engines/experiments/tiny-d-submission/structural_runtime_check.py',
+                      '--case', str(root / name), '--out', str(root / (name + '-' + suffix))]
+                  if suffix == 'runtime-retuned':
+                      args += ['--codec-report', str(root / (name + '-codec') / 'result.json')]
+                  subprocess.run(args, check=True)
+          PY
+      - name: Preserve successful, failed and unselected candidate evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: experimental-D-next-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-D-next-${{ github.run_attempt }}.log
+            ${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}
+            ${{ runner.temp }}/rove4k-D-next-checks-${{ github.run_attempt }}.log
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
